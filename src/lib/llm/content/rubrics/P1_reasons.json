@@ -1,0 +1,53 @@
+{
+  "rubric_id": "P1_reasons",
+  "lesson_ids": ["P1.2.5"],
+  "description": "Assesses ability to give strong reasons to support an opinion",
+  "word_range": [40, 100],
+  "criteria": [
+    {
+      "name": "reason_quality",
+      "display_name": "Strong Reasons",
+      "weight": 0.4,
+      "levels": {
+        "4": "Reasons are strong, specific, and clearly support the opinion",
+        "3": "Reasons are relevant and support the opinion",
+        "2": "Reasons are weak or only loosely connected to the opinion",
+        "1": "No real reasons given; just restates opinion"
+      },
+      "feedback_stems": {
+        "strength": "Your reasons were strong and convincing, especially",
+        "growth": "Make your reasons more specific—tell exactly WHY this supports your opinion"
+      }
+    },
+    {
+      "name": "examples",
+      "display_name": "Examples and Details",
+      "weight": 0.35,
+      "levels": {
+        "4": "Each reason includes a specific example or detail that makes it convincing",
+        "3": "Some examples or details support the reasons",
+        "2": "Few details; reasons are vague",
+        "1": "No examples or details given"
+      },
+      "feedback_stems": {
+        "strength": "You backed up your reasons with good examples like",
+        "growth": "Add a specific example for each reason to make your writing more convincing"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Reasons in Order",
+      "weight": 0.25,
+      "levels": {
+        "4": "Reasons are organized from good to best, building a strong case",
+        "3": "Reasons are presented in a logical order",
+        "2": "Reasons are present but jumbled together",
+        "1": "No clear organization of reasons"
+      },
+      "feedback_stems": {
+        "strength": "You organized your reasons well, saving the best for last",
+        "growth": "Put your reasons in order—try saving your strongest reason for the end"
+      }
+    }
+  ]
+}

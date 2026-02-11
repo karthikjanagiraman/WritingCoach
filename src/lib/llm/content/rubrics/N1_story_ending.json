@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N1_story_ending",
+  "lesson_ids": ["N1.3.5"],
+  "description": "Assesses student's ability to write a satisfying story ending",
+  "word_range": [30, 75],
+  "criteria": [
+    {
+      "name": "resolution",
+      "display_name": "Problem is Solved",
+      "weight": 0.4,
+      "levels": {
+        "4": "Problem is solved in a satisfying, believable way; makes sense for the story",
+        "3": "Problem is solved, even if solution is simple",
+        "2": "Ending exists but doesn't clearly solve the problem",
+        "1": "Story stops without solving the problem or just ends abruptly"
+      },
+      "feedback_stems": {
+        "strength": "You solved the problem in a great way when",
+        "growth": "Make sure your ending shows how the character's problem gets fixed"
+      }
+    },
+    {
+      "name": "satisfaction",
+      "display_name": "Feels Complete",
+      "weight": 0.35,
+      "levels": {
+        "4": "Ending feels complete and satisfying; reader isn't left confused",
+        "3": "Ending wraps up the story adequately",
+        "2": "Ending is rushed or leaves reader with questions",
+        "1": "Doesn't feel like an ending; story just stops"
+      },
+      "feedback_stems": {
+        "strength": "Your ending made me feel satisfied because",
+        "growth": "Add a sentence that shows how the character feels now that everything is over"
+      }
+    },
+    {
+      "name": "character_response",
+      "display_name": "Character's Reaction",
+      "weight": 0.25,
+      "levels": {
+        "4": "Shows how the character feels or what they learned at the end",
+        "3": "Some indication of character's feelings at the end",
+        "2": "Character is present but we don't know how they feel",
+        "1": "Character seems forgotten in the ending"
+      },
+      "feedback_stems": {
+        "strength": "I loved seeing how your character felt when",
+        "growth": "Tell us how your character feels at the end of the story"
+      }
+    }
+  ]
+}

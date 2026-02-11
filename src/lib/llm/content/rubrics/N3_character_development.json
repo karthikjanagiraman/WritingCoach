@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N3_character_development",
+  "lesson_ids": ["N3.3.6"],
+  "description": "Assesses depth of character development and character arcs",
+  "word_range": [300, 700],
+  "criteria": [
+    {
+      "name": "complexity",
+      "display_name": "Character Complexity",
+      "weight": 0.3,
+      "levels": {
+        "4": "Character is multi-dimensional with contradictions, desires, and fears that feel authentic",
+        "3": "Character has depth with identifiable traits, motivations, and emotions",
+        "2": "Character has some traits but feels one-dimensional or stereotypical",
+        "1": "Character is flat with no clear personality or motivation"
+      },
+      "feedback_stems": {
+        "strength": "Your character felt genuinely complex, especially when you showed",
+        "growth": "Give your character contradictions—real people are complicated"
+      }
+    },
+    {
+      "name": "arc",
+      "display_name": "Character Arc",
+      "weight": 0.3,
+      "levels": {
+        "4": "Character changes meaningfully through the story; transformation feels earned and believable",
+        "3": "Character shows clear growth or change by the end",
+        "2": "Some change hinted at but not fully developed or convincing",
+        "1": "Character is static; no growth or change"
+      },
+      "feedback_stems": {
+        "strength": "Your character's transformation was believable and earned, particularly",
+        "growth": "Show how events change your character—what do they learn or realize?"
+      }
+    },
+    {
+      "name": "interiority",
+      "display_name": "Inner Life",
+      "weight": 0.25,
+      "levels": {
+        "4": "Rich inner life revealed through thoughts, reactions, and internal conflict",
+        "3": "Reader has access to character's thoughts and feelings",
+        "2": "Some interiority but mostly surface-level",
+        "1": "No access to character's inner world"
+      },
+      "feedback_stems": {
+        "strength": "You gave us deep access to your character's inner world when",
+        "growth": "Let readers hear your character's thoughts and feel their internal struggles"
+      }
+    },
+    {
+      "name": "revealing_details",
+      "display_name": "Revealing Details",
+      "weight": 0.15,
+      "levels": {
+        "4": "Specific details (habits, gestures, possessions) reveal character without exposition",
+        "3": "Some character-revealing details included",
+        "2": "Details are generic rather than character-specific",
+        "1": "No revealing details; character is described only in general terms"
+      },
+      "feedback_stems": {
+        "strength": "Small details revealed so much about your character, like",
+        "growth": "Use specific details—a habit, a gesture, a prized possession—to show who your character is"
+      }
+    }
+  ]
+}

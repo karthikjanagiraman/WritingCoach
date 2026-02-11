@@ -1,0 +1,68 @@
+{
+  "rubric_id": "D2_descriptive_nonfiction",
+  "lesson_ids": ["D2.3.5"],
+  "description": "Assesses descriptive techniques in nonfiction contexts",
+  "word_range": [150, 300],
+  "criteria": [
+    {
+      "name": "accuracy",
+      "display_name": "Factual Accuracy",
+      "weight": 0.3,
+      "levels": {
+        "4": "Details are factually accurate while also being vivid and engaging",
+        "3": "Details are accurate with some vivid language",
+        "2": "Details are mostly accurate but lack vividness",
+        "1": "Details are inaccurate or missing"
+      },
+      "feedback_stems": {
+        "strength": "Your description was both accurate and engaging, especially",
+        "growth": "Make sure your descriptions are factually correct while also being vivid"
+      }
+    },
+    {
+      "name": "descriptive_techniques",
+      "display_name": "Descriptive Techniques",
+      "weight": 0.35,
+      "levels": {
+        "4": "Uses multiple descriptive techniques (sensory details, comparisons, precise language) to bring nonfiction to life",
+        "3": "Uses some descriptive techniques effectively",
+        "2": "Few descriptive techniques; writing is dry or flat",
+        "1": "No descriptive techniques; reads like a list of facts"
+      },
+      "feedback_stems": {
+        "strength": "You brought nonfiction to life with techniques like",
+        "growth": "Use sensory details, comparisons, and precise language to make facts come alive"
+      }
+    },
+    {
+      "name": "engagement",
+      "display_name": "Reader Engagement",
+      "weight": 0.2,
+      "levels": {
+        "4": "Writing engages the reader; makes real-world subject fascinating",
+        "3": "Writing holds the reader's interest",
+        "2": "Writing is informative but not very engaging",
+        "1": "Writing is dull; reader loses interest"
+      },
+      "feedback_stems": {
+        "strength": "Your writing made me want to learn more about this topic",
+        "growth": "Make your reader care—find what's fascinating about your subject"
+      }
+    },
+    {
+      "name": "precision",
+      "display_name": "Precise Language",
+      "weight": 0.15,
+      "levels": {
+        "4": "Uses domain-specific and precise vocabulary appropriate for the subject",
+        "3": "Uses some precise vocabulary",
+        "2": "Language is too general or imprecise",
+        "1": "Vague language that doesn't suit the subject"
+      },
+      "feedback_stems": {
+        "strength": "Your precise vocabulary showed expertise, like when you used",
+        "growth": "Use specific, accurate terms—the right word makes writing more powerful"
+      }
+    }
+  ]
+}

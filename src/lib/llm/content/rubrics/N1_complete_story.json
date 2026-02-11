@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N1_complete_story",
+  "lesson_ids": ["N1.3.5", "N1.5.5"],
+  "description": "Holistic rubric for complete short stories",
+  "word_range": [75, 150],
+  "criteria": [
+    {
+      "name": "structure",
+      "display_name": "Beginning, Middle, End",
+      "weight": 0.3,
+      "levels": {
+        "4": "Clear beginning, middle, and end that flow together naturally",
+        "3": "All three parts present and recognizable",
+        "2": "One part is missing or underdeveloped",
+        "1": "Story structure is unclear or missing multiple parts"
+      },
+      "feedback_stems": {
+        "strength": "Your story has a clear beginning, middle, and end",
+        "growth": "Make sure your story has all three parts: beginning (who and where), middle (the problem), end (how it's solved)"
+      }
+    },
+    {
+      "name": "character",
+      "display_name": "Character",
+      "weight": 0.25,
+      "levels": {
+        "4": "Character is interesting and we understand their feelings throughout",
+        "3": "Character is present and we know some things about them",
+        "2": "Character exists but is flat or confusing",
+        "1": "No clear main character"
+      },
+      "feedback_stems": {
+        "strength": "Your character felt real when you showed",
+        "growth": "Help readers know your character better by showing how they feel"
+      }
+    },
+    {
+      "name": "details",
+      "display_name": "Interesting Details",
+      "weight": 0.25,
+      "levels": {
+        "4": "Story includes vivid details that help readers see, hear, and feel the story",
+        "3": "Some good details that add to the story",
+        "2": "Few details; story tells but doesn't show much",
+        "1": "No descriptive details"
+      },
+      "feedback_stems": {
+        "strength": "Your details helped me picture the story, like when you wrote",
+        "growth": "Add words that help readers see, hear, smell, or feel what's happening"
+      }
+    },
+    {
+      "name": "conventions",
+      "display_name": "Sentences and Spelling",
+      "weight": 0.2,
+      "levels": {
+        "4": "Complete sentences; spelling doesn't get in the way of reading",
+        "3": "Most sentences complete; most words spelled correctly",
+        "2": "Some incomplete sentences or spelling errors that slow reading",
+        "1": "Many incomplete sentences; spelling makes it hard to read"
+      },
+      "feedback_stems": {
+        "strength": "Your sentences were easy to read",
+        "growth": "Remember to check that each sentence has a complete thought"
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P1_persuasive_letter",
+  "lesson_ids": ["P1.3.5"],
+  "description": "Assesses persuasive letter writing",
+  "word_range": [60, 120],
+  "criteria": [
+    {
+      "name": "format",
+      "display_name": "Letter Format",
+      "weight": 0.2,
+      "levels": {
+        "4": "Includes greeting, body, and closing; formatted correctly",
+        "3": "Has main letter parts with minor format issues",
+        "2": "Missing one or more letter parts",
+        "1": "Doesn't look like a letter"
+      },
+      "feedback_stems": {
+        "strength": "Your letter was formatted correctly with",
+        "growth": "Remember letters need: greeting (Dear...), body (your message), and closing (Sincerely...)"
+      }
+    },
+    {
+      "name": "persuasion",
+      "display_name": "Persuasive Request",
+      "weight": 0.4,
+      "levels": {
+        "4": "Clearly asks for something with convincing reasons",
+        "3": "Makes a request with some reasons",
+        "2": "Request is unclear or reasons are weak",
+        "1": "No clear request made"
+      },
+      "feedback_stems": {
+        "strength": "You asked for what you wanted and gave good reasons",
+        "growth": "Be clear about what you're asking for and why they should say yes"
+      }
+    },
+    {
+      "name": "tone",
+      "display_name": "Polite Tone",
+      "weight": 0.25,
+      "levels": {
+        "4": "Polite and respectful while still being convincing",
+        "3": "Generally polite tone",
+        "2": "Sometimes demanding or rude",
+        "1": "Tone is inappropriate"
+      },
+      "feedback_stems": {
+        "strength": "You were polite and respectful while being convincing",
+        "growth": "Remember to ask nicely—people are more likely to say yes when you're respectful"
+      }
+    },
+    {
+      "name": "audience",
+      "display_name": "Knows the Audience",
+      "weight": 0.15,
+      "levels": {
+        "4": "Language and reasons fit the person being written to",
+        "3": "Generally appropriate for the audience",
+        "2": "Doesn't quite fit the audience",
+        "1": "Wrong tone for the audience"
+      },
+      "feedback_stems": {
+        "strength": "You thought about who you were writing to",
+        "growth": "Think about what would convince THIS person—what do they care about?"
+      }
+    }
+  ]
+}

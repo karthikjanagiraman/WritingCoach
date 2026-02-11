@@ -1,0 +1,53 @@
+{
+  "rubric_id": "E1_how_to",
+  "lesson_ids": ["E1.2.5"],
+  "description": "Assesses how-to/procedural writing",
+  "word_range": [60, 120],
+  "criteria": [
+    {
+      "name": "sequence",
+      "display_name": "Steps in Order",
+      "weight": 0.4,
+      "levels": {
+        "4": "Steps are in perfect order; following them would work",
+        "3": "Steps are mostly in order",
+        "2": "Some steps out of order or confusing",
+        "1": "Steps are jumbled; couldn't follow these instructions"
+      },
+      "feedback_stems": {
+        "strength": "Your steps are in perfect order",
+        "growth": "Think about what comes first, next, then—put steps in the right order"
+      }
+    },
+    {
+      "name": "completeness",
+      "display_name": "All Steps Included",
+      "weight": 0.35,
+      "levels": {
+        "4": "All necessary steps included; nothing missing",
+        "3": "Most steps included; minor gaps",
+        "2": "Missing important steps",
+        "1": "Many steps missing; incomplete instructions"
+      },
+      "feedback_stems": {
+        "strength": "You included all the steps someone would need",
+        "growth": "Check that you didn't skip any steps—pretend you're teaching someone who knows nothing"
+      }
+    },
+    {
+      "name": "transitions",
+      "display_name": "Order Words",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses transition words (first, next, then, finally) throughout",
+        "3": "Uses some transition words",
+        "2": "Few transition words; steps feel disconnected",
+        "1": "No transition words used"
+      },
+      "feedback_stems": {
+        "strength": "You used great order words like",
+        "growth": "Use words like 'first,' 'next,' 'then,' and 'finally' to guide your reader"
+      }
+    }
+  ]
+}

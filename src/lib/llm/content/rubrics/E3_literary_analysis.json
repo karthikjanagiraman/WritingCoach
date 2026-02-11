@@ -1,0 +1,83 @@
+{
+  "rubric_id": "E3_literary_analysis",
+  "lesson_ids": ["E3.1.6"],
+  "description": "Assesses literary analysis essay",
+  "word_range": [500, 800],
+  "criteria": [
+    {
+      "name": "thesis",
+      "display_name": "Analytical Thesis",
+      "weight": 0.2,
+      "levels": {
+        "4": "Thesis offers original, debatable interpretation of the text",
+        "3": "Thesis is analytical and arguable",
+        "2": "Thesis is too obvious, broad, or summarizes rather than analyzes",
+        "1": "No thesis or thesis is merely descriptive"
+      },
+      "feedback_stems": {
+        "strength": "Your thesis offered an original, arguable interpretation",
+        "growth": "Push beyond the obvious—what can you argue about the text that someone might disagree with?"
+      }
+    },
+    {
+      "name": "textual_evidence",
+      "display_name": "Textual Evidence",
+      "weight": 0.25,
+      "levels": {
+        "4": "Quotes are well-chosen, smoothly integrated, and thoroughly analyzed",
+        "3": "Evidence is present and generally well-used",
+        "2": "Evidence present but poorly chosen, integrated, or analyzed",
+        "1": "Little or no textual evidence"
+      },
+      "feedback_stems": {
+        "strength": "Your textual evidence was well-chosen and analyzed",
+        "growth": "Always analyze quotes—explain how they support your argument"
+      }
+    },
+    {
+      "name": "analysis",
+      "display_name": "Analysis vs. Summary",
+      "weight": 0.25,
+      "levels": {
+        "4": "Analysis dominates; explains HOW and WHY rather than what happens",
+        "3": "Analysis outweighs summary",
+        "2": "Too much summary; analysis is surface-level",
+        "1": "Mostly or all summary; no real analysis"
+      },
+      "feedback_stems": {
+        "strength": "Your analysis went beyond summary to explain HOW and WHY",
+        "growth": "Less summary, more analysis—focus on HOW the text creates meaning"
+      }
+    },
+    {
+      "name": "literary_concepts",
+      "display_name": "Literary Concepts",
+      "weight": 0.15,
+      "levels": {
+        "4": "Uses literary concepts (symbolism, characterization, etc.) accurately and insightfully",
+        "3": "Uses some literary concepts appropriately",
+        "2": "Attempts literary concepts but with errors or superficially",
+        "1": "No literary concepts used"
+      },
+      "feedback_stems": {
+        "strength": "You used literary concepts effectively, such as",
+        "growth": "Apply literary concepts (symbolism, irony, characterization) to deepen analysis"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Organization & Flow",
+      "weight": 0.15,
+      "levels": {
+        "4": "Arguments build logically; paragraphs connect to overall thesis",
+        "3": "Organization is clear and functional",
+        "2": "Some organizational issues; connections between ideas unclear",
+        "1": "Disorganized; argument is hard to follow"
+      },
+      "feedback_stems": {
+        "strength": "Your argument built logically throughout",
+        "growth": "Make sure each paragraph connects clearly to your thesis"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "rubric_id": "D2_mood",
+  "lesson_ids": ["D2.2.5"],
+  "description": "Assesses ability to create and maintain mood",
+  "word_range": [150, 300],
+  "criteria": [
+    {
+      "name": "word_choice",
+      "display_name": "Word Choice for Mood",
+      "weight": 0.35,
+      "levels": {
+        "4": "Word choices consistently create and reinforce the target mood",
+        "3": "Most word choices support the mood",
+        "2": "Some word choices contradict the mood",
+        "1": "Word choices don't support any particular mood"
+      },
+      "feedback_stems": {
+        "strength": "Your word choices consistently created mood, like",
+        "growth": "Choose words that all point to the same feeling"
+      }
+    },
+    {
+      "name": "consistency",
+      "display_name": "Mood Consistency",
+      "weight": 0.35,
+      "levels": {
+        "4": "Mood is maintained throughout; no jarring shifts",
+        "3": "Mood is mostly consistent",
+        "2": "Mood shifts inappropriately or fades",
+        "1": "No consistent mood"
+      },
+      "feedback_stems": {
+        "strength": "You maintained the mood consistently throughout",
+        "growth": "Watch for moments that break the mood you're building"
+      }
+    },
+    {
+      "name": "effect",
+      "display_name": "Reader Effect",
+      "weight": 0.3,
+      "levels": {
+        "4": "Reader clearly feels the intended mood",
+        "3": "Reader gets a sense of the mood",
+        "2": "Mood is unclear or weak",
+        "1": "No mood effect on reader"
+      },
+      "feedback_stems": {
+        "strength": "Reading this, I felt",
+        "growth": "Push further—how can you make the reader FEEL the mood more strongly?"
+      }
+    }
+  ]
+}

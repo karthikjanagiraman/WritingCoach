@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N2_pov_consistency",
+  "lesson_ids": ["N2.2.5", "N2.2.6"],
+  "description": "Assesses point of view selection and consistency",
+  "word_range": [150, 300],
+  "criteria": [
+    {
+      "name": "consistency",
+      "display_name": "POV Consistency",
+      "weight": 0.4,
+      "levels": {
+        "4": "POV maintained perfectly throughout; no slips",
+        "3": "POV consistent with only minor slips",
+        "2": "Several POV shifts that confuse the reader",
+        "1": "POV shifts constantly; very confusing"
+      },
+      "feedback_stems": {
+        "strength": "You maintained your point of view consistently throughout",
+        "growth": "Watch for POV shifts—stay in one character's head"
+      }
+    },
+    {
+      "name": "appropriate_choice",
+      "display_name": "POV Choice",
+      "weight": 0.3,
+      "levels": {
+        "4": "POV choice enhances the story; couldn't be better told another way",
+        "3": "POV choice works for this story",
+        "2": "POV choice is workable but not optimal",
+        "1": "POV choice undermines the story"
+      },
+      "feedback_stems": {
+        "strength": "First/third person was the right choice for this story because",
+        "growth": "Consider whether a different POV might let you tell this story more effectively"
+      }
+    },
+    {
+      "name": "pov_depth",
+      "display_name": "POV Depth",
+      "weight": 0.3,
+      "levels": {
+        "4": "Fully uses the advantages of the chosen POV; we're deep in this perspective",
+        "3": "Good use of chosen POV's strengths",
+        "2": "POV is surface-level; could go deeper",
+        "1": "POV chosen but not really used"
+      },
+      "feedback_stems": {
+        "strength": "You used your POV fully, letting us inside the character's experience",
+        "growth": "Go deeper into your POV character's thoughts and perceptions"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "rubric_id": "D1_place",
+  "lesson_ids": ["D1.3.5"],
+  "description": "Assesses description of a place",
+  "word_range": [50, 100],
+  "criteria": [
+    {
+      "name": "sensory_details",
+      "display_name": "Sensory Details",
+      "weight": 0.35,
+      "levels": {
+        "4": "Multiple senses used to bring the place alive",
+        "3": "More than one sense used",
+        "2": "Mostly visual; other senses missing",
+        "1": "No sensory details"
+      },
+      "feedback_stems": {
+        "strength": "You used senses well, including",
+        "growth": "Add sounds, smells, or textures—not just what you see"
+      }
+    },
+    {
+      "name": "spatial_organization",
+      "display_name": "Organized Description",
+      "weight": 0.35,
+      "levels": {
+        "4": "Description moves logically through the space; easy to follow",
+        "3": "Some organization to the description",
+        "2": "Description jumps around; hard to follow",
+        "1": "No clear organization"
+      },
+      "feedback_stems": {
+        "strength": "Your description moved logically through the space",
+        "growth": "Organize your description—near to far, left to right, or walking through"
+      }
+    },
+    {
+      "name": "mood",
+      "display_name": "Feeling of the Place",
+      "weight": 0.3,
+      "levels": {
+        "4": "Description creates a feeling or mood about the place",
+        "3": "Some sense of mood",
+        "2": "Place described but no mood created",
+        "1": "Flat; no sense of how the place feels"
+      },
+      "feedback_stems": {
+        "strength": "You captured the mood of this place",
+        "growth": "Help readers feel the mood—is it cozy? Scary? Exciting?"
+      }
+    }
+  ]
+}

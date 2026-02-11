@@ -1,0 +1,53 @@
+{
+  "rubric_id": "P1_opinion_paragraph",
+  "lesson_ids": ["P1.1.5", "P1.2.5"],
+  "description": "Assesses basic opinion writing with reasons",
+  "word_range": [40, 80],
+  "criteria": [
+    {
+      "name": "clear_opinion",
+      "display_name": "Clear Opinion",
+      "weight": 0.35,
+      "levels": {
+        "4": "Opinion is crystal clear and stated confidently",
+        "3": "Opinion is stated and understandable",
+        "2": "Opinion is present but unclear or wishy-washy",
+        "1": "No clear opinion stated"
+      },
+      "feedback_stems": {
+        "strength": "Your opinion was clear and confident when you wrote",
+        "growth": "State your opinion right away so readers know exactly what you think"
+      }
+    },
+    {
+      "name": "reasons",
+      "display_name": "Supporting Reasons",
+      "weight": 0.4,
+      "levels": {
+        "4": "At least 2 strong reasons that clearly support the opinion",
+        "3": "2 reasons that connect to the opinion",
+        "2": "1 reason or reasons that don't clearly support opinion",
+        "1": "No reasons given"
+      },
+      "feedback_stems": {
+        "strength": "You gave great reasons, like",
+        "growth": "Add another reason using 'because' to make your opinion stronger"
+      }
+    },
+    {
+      "name": "connection",
+      "display_name": "Using 'Because'",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses 'because' or similar words to connect opinions and reasons smoothly",
+        "3": "Attempts to connect opinions and reasons",
+        "2": "Reasons are listed but not connected to opinion",
+        "1": "No connection between opinion and reasons"
+      },
+      "feedback_stems": {
+        "strength": "You connected your reasons well using",
+        "growth": "Use 'because' to show why your reasons support your opinion"
+      }
+    }
+  ]
+}

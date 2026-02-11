@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N3_theme_meaning",
+  "lesson_ids": ["N3.4.6"],
+  "description": "Assesses thematic development in narrative",
+  "word_range": [400, 800],
+  "criteria": [
+    {
+      "name": "theme_presence",
+      "display_name": "Theme Presence",
+      "weight": 0.25,
+      "levels": {
+        "4": "Clear, meaningful theme that resonates; story is 'about something'",
+        "3": "Identifiable theme that adds depth",
+        "2": "Theme is vague or superficial",
+        "1": "No discernible theme; story is just events"
+      },
+      "feedback_stems": {
+        "strength": "Your story explored a meaningful theme:",
+        "growth": "Consider what your story is really about beyond the plot"
+      }
+    },
+    {
+      "name": "subtlety",
+      "display_name": "Subtlety",
+      "weight": 0.3,
+      "levels": {
+        "4": "Theme emerges naturally through story; never preaches or tells reader what to think",
+        "3": "Theme is present without being heavy-handed",
+        "2": "Theme is sometimes too obvious or preachy",
+        "1": "Theme is stated directly; feels like a lesson"
+      },
+      "feedback_stems": {
+        "strength": "You let the theme emerge naturally without preaching, especially",
+        "growth": "Trust your reader—let the theme emerge through story, not statements"
+      }
+    },
+    {
+      "name": "integration",
+      "display_name": "Thematic Integration",
+      "weight": 0.25,
+      "levels": {
+        "4": "Theme woven throughout—in character choices, imagery, structure",
+        "3": "Theme is integrated into multiple story elements",
+        "2": "Theme shows up but isn't woven through the fabric",
+        "1": "Theme tacked on rather than integrated"
+      },
+      "feedback_stems": {
+        "strength": "Your theme was woven throughout, appearing in",
+        "growth": "Look for ways to reinforce theme through imagery, character choices, and details"
+      }
+    },
+    {
+      "name": "complexity",
+      "display_name": "Thematic Complexity",
+      "weight": 0.2,
+      "levels": {
+        "4": "Theme has nuance; story doesn't offer easy answers",
+        "3": "Theme has some depth and complexity",
+        "2": "Theme is simplistic; black and white",
+        "1": "Theme is cliché or too simple to be meaningful"
+      },
+      "feedback_stems": {
+        "strength": "Your theme had nuance—you didn't settle for easy answers",
+        "growth": "Complicate your theme; what are the tensions or contradictions within it?"
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "rubric_id": "E2_informational_essay",
+  "lesson_ids": ["E2.2.6"],
+  "description": "Assesses informational essay structure and content",
+  "word_range": [300, 500],
+  "criteria": [
+    {
+      "name": "introduction",
+      "display_name": "Introduction",
+      "weight": 0.15,
+      "levels": {
+        "4": "Engaging introduction that hooks reader and previews topic",
+        "3": "Introduction establishes topic clearly",
+        "2": "Introduction is weak or doesn't clearly establish topic",
+        "1": "No introduction or very weak"
+      },
+      "feedback_stems": {
+        "strength": "Your introduction engaged readers while setting up the topic",
+        "growth": "Hook readers in your introduction while previewing what you'll cover"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Organization & Headings",
+      "weight": 0.2,
+      "levels": {
+        "4": "Clear organization with helpful headings that guide the reader",
+        "3": "Good organization with some helpful structure",
+        "2": "Some organization but headings unclear or missing",
+        "1": "Disorganized; hard to follow"
+      },
+      "feedback_stems": {
+        "strength": "Your organization and headings made the essay easy to follow",
+        "growth": "Use clear headings to guide readers through your information"
+      }
+    },
+    {
+      "name": "content",
+      "display_name": "Accurate Information",
+      "weight": 0.25,
+      "levels": {
+        "4": "Information is accurate, detailed, and shows understanding",
+        "3": "Information is mostly accurate with good detail",
+        "2": "Some inaccuracies or lacks sufficient detail",
+        "1": "Information is inaccurate or very thin"
+      },
+      "feedback_stems": {
+        "strength": "Your information was accurate and detailed",
+        "growth": "Add more specific details and make sure facts are accurate"
+      }
+    },
+    {
+      "name": "development",
+      "display_name": "Paragraph Development",
+      "weight": 0.25,
+      "levels": {
+        "4": "Body paragraphs have topic sentences, evidence, and explanation",
+        "3": "Paragraphs are developed with some structure",
+        "2": "Paragraphs lack clear structure or development",
+        "1": "No paragraph structure"
+      },
+      "feedback_stems": {
+        "strength": "Your paragraphs were well-developed with topic sentences and support",
+        "growth": "Each paragraph needs a topic sentence, facts/examples, and explanation"
+      }
+    },
+    {
+      "name": "conclusion",
+      "display_name": "Conclusion",
+      "weight": 0.15,
+      "levels": {
+        "4": "Conclusion synthesizes key points and provides closure",
+        "3": "Conclusion summarizes main points",
+        "2": "Conclusion is weak or incomplete",
+        "1": "No conclusion"
+      },
+      "feedback_stems": {
+        "strength": "Your conclusion effectively synthesized your main points",
+        "growth": "Wrap up by synthesizing (not just repeating) your key points"
+      }
+    }
+  ]
+}

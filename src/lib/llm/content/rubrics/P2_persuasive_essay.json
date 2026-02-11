@@ -1,0 +1,83 @@
+{
+  "rubric_id": "P2_persuasive_essay",
+  "lesson_ids": ["P2.1.6", "P2.2.6"],
+  "description": "Assesses structured persuasive essay with evidence",
+  "word_range": [250, 450],
+  "criteria": [
+    {
+      "name": "thesis",
+      "display_name": "Thesis Statement",
+      "weight": 0.2,
+      "levels": {
+        "4": "Clear, specific thesis that takes a definite position",
+        "3": "Thesis is present and clear",
+        "2": "Thesis is vague or doesn't clearly state a position",
+        "1": "No thesis or main argument"
+      },
+      "feedback_stems": {
+        "strength": "Your thesis was clear and specific:",
+        "growth": "Strengthen your thesis by making your position more specific and debatable"
+      }
+    },
+    {
+      "name": "evidence",
+      "display_name": "Evidence & Examples",
+      "weight": 0.3,
+      "levels": {
+        "4": "Strong evidence (facts, examples, anecdotes) that clearly supports each point",
+        "3": "Adequate evidence for main points",
+        "2": "Some evidence but weak or not clearly connected to claims",
+        "1": "Little to no evidence; just opinions"
+      },
+      "feedback_stems": {
+        "strength": "Your evidence was convincing, especially",
+        "growth": "Add specific facts, examples, or stories to back up your points"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Organization",
+      "weight": 0.2,
+      "levels": {
+        "4": "Clear introduction, body paragraphs with topic sentences, and conclusion",
+        "3": "Essay has clear structure with some organization",
+        "2": "Some attempt at structure but paragraphs unclear",
+        "1": "No clear organization"
+      },
+      "feedback_stems": {
+        "strength": "Your essay was well-organized with clear paragraphs",
+        "growth": "Start each body paragraph with a topic sentence that states your point"
+      }
+    },
+    {
+      "name": "counterargument",
+      "display_name": "Counterargument",
+      "weight": 0.15,
+      "levels": {
+        "4": "Addresses counterargument thoughtfully and refutes it",
+        "3": "Acknowledges opposing view",
+        "2": "Briefly mentions opposition but doesn't engage",
+        "1": "Ignores opposing viewpoints"
+      },
+      "feedback_stems": {
+        "strength": "You addressed the other side when you said",
+        "growth": "Consider what someone who disagrees would say, then explain why they're wrong"
+      }
+    },
+    {
+      "name": "conclusion",
+      "display_name": "Conclusion",
+      "weight": 0.15,
+      "levels": {
+        "4": "Conclusion reinforces thesis and calls reader to action or thought",
+        "3": "Conclusion summarizes main points",
+        "2": "Conclusion is weak or just repeats introduction",
+        "1": "No conclusion or abrupt ending"
+      },
+      "feedback_stems": {
+        "strength": "Your conclusion was strong because it",
+        "growth": "End by telling readers what to do or think about your argument"
+      }
+    }
+  ]
+}

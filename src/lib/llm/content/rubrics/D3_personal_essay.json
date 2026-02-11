@@ -1,0 +1,83 @@
+{
+  "rubric_id": "D3_personal_essay",
+  "lesson_ids": ["D3.2.6"],
+  "description": "Assesses reflective personal essay/memoir",
+  "word_range": [500, 800],
+  "criteria": [
+    {
+      "name": "scene",
+      "display_name": "Scene Writing",
+      "weight": 0.25,
+      "levels": {
+        "4": "Vivid scenes that bring memories to life; readers feel present",
+        "3": "Scenes are present and engaging",
+        "2": "Some scene writing but mostly summary",
+        "1": "All telling, no scene"
+      },
+      "feedback_stems": {
+        "strength": "Your scenes brought memories to life, especially",
+        "growth": "Recreate moments as scenes—put readers there with you"
+      }
+    },
+    {
+      "name": "reflection",
+      "display_name": "Meaningful Reflection",
+      "weight": 0.3,
+      "levels": {
+        "4": "Reflection draws meaningful insight; goes beyond surface observation",
+        "3": "Includes reflection that adds meaning",
+        "2": "Reflection is shallow or obvious",
+        "1": "No reflection; just narrates events"
+      },
+      "feedback_stems": {
+        "strength": "Your reflection added deep meaning when",
+        "growth": "Dig deeper in reflection—what does this experience really mean to you?"
+      }
+    },
+    {
+      "name": "universal",
+      "display_name": "Universal Connection",
+      "weight": 0.2,
+      "levels": {
+        "4": "Personal experience connects to universal human themes",
+        "3": "Some connection to broader human experience",
+        "2": "Remains too personally specific; hard for readers to connect",
+        "1": "No universal resonance"
+      },
+      "feedback_stems": {
+        "strength": "You connected your personal experience to something universal",
+        "growth": "Find the universal in your personal story—what might others recognize?"
+      }
+    },
+    {
+      "name": "voice",
+      "display_name": "Authentic Voice",
+      "weight": 0.15,
+      "levels": {
+        "4": "Voice is authentic and vulnerable; writer takes risks",
+        "3": "Voice is present and genuine",
+        "2": "Voice is guarded or generic",
+        "1": "No authentic voice"
+      },
+      "feedback_stems": {
+        "strength": "Your authentic voice came through, especially",
+        "growth": "Be more vulnerable—take risks in sharing your authentic self"
+      }
+    },
+    {
+      "name": "structure",
+      "display_name": "Essay Structure",
+      "weight": 0.1,
+      "levels": {
+        "4": "Structure serves the essay's purpose; moves naturally between scene and reflection",
+        "3": "Structure is effective",
+        "2": "Structure issues—too much scene or too much reflection",
+        "1": "Structure doesn't work"
+      },
+      "feedback_stems": {
+        "strength": "Your structure balanced scene and reflection effectively",
+        "growth": "Balance scene and reflection—move between showing and telling"
+      }
+    }
+  ]
+}

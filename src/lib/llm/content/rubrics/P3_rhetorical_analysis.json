@@ -1,0 +1,83 @@
+{
+  "rubric_id": "P3_rhetorical_analysis",
+  "lesson_ids": ["P3.2.6"],
+  "description": "Assesses ability to analyze rhetoric",
+  "word_range": [500, 800],
+  "criteria": [
+    {
+      "name": "identification",
+      "display_name": "Strategy Identification",
+      "weight": 0.2,
+      "levels": {
+        "4": "Identifies multiple specific rhetorical strategies accurately",
+        "3": "Identifies key rhetorical strategies",
+        "2": "Identifies strategies but some errors or misses key techniques",
+        "1": "Fails to identify rhetorical strategies"
+      },
+      "feedback_stems": {
+        "strength": "You accurately identified key strategies like",
+        "growth": "Look for specific techniques—naming strategies strengthens analysis"
+      }
+    },
+    {
+      "name": "analysis",
+      "display_name": "Analysis Depth",
+      "weight": 0.35,
+      "levels": {
+        "4": "Explains HOW strategies work and WHY they're effective; shows effect on audience",
+        "3": "Analyzes strategies with some attention to effect",
+        "2": "Describes strategies but doesn't analyze effectiveness",
+        "1": "Lists strategies without analysis"
+      },
+      "feedback_stems": {
+        "strength": "Your analysis went beyond identification to explain HOW and WHY",
+        "growth": "Don't just identify strategies—explain how they work on the audience"
+      }
+    },
+    {
+      "name": "evidence",
+      "display_name": "Textual Evidence",
+      "weight": 0.2,
+      "levels": {
+        "4": "Analysis grounded in specific textual examples; quotes used effectively",
+        "3": "Uses textual evidence to support analysis",
+        "2": "Some evidence but not always well-chosen or well-used",
+        "1": "Makes claims without textual support"
+      },
+      "feedback_stems": {
+        "strength": "You grounded your analysis in specific evidence",
+        "growth": "Every claim about the text needs specific textual support"
+      }
+    },
+    {
+      "name": "context",
+      "display_name": "Rhetorical Context",
+      "weight": 0.15,
+      "levels": {
+        "4": "Shows how context (audience, purpose, occasion) shapes rhetorical choices",
+        "3": "Attends to some contextual factors",
+        "2": "Minimal attention to context",
+        "1": "Ignores rhetorical context"
+      },
+      "feedback_stems": {
+        "strength": "You connected rhetoric to context effectively",
+        "growth": "Consider how audience and purpose shape the rhetor's choices"
+      }
+    },
+    {
+      "name": "evaluation",
+      "display_name": "Evaluative Judgment",
+      "weight": 0.1,
+      "levels": {
+        "4": "Makes and defends evaluative claims about effectiveness",
+        "3": "Offers some evaluation of effectiveness",
+        "2": "Evaluation is present but not well-supported",
+        "1": "No evaluation of effectiveness"
+      },
+      "feedback_stems": {
+        "strength": "You evaluated effectiveness persuasively when",
+        "growth": "Don't just describe—evaluate. Are these strategies effective? Why?"
+      }
+    }
+  ]
+}

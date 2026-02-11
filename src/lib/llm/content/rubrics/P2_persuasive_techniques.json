@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P2_persuasive_techniques",
+  "lesson_ids": ["P2.4.6"],
+  "description": "Assesses use of persuasive techniques including ethos, pathos, and logos",
+  "word_range": [200, 400],
+  "criteria": [
+    {
+      "name": "ethos",
+      "display_name": "Ethos (Credibility)",
+      "weight": 0.25,
+      "levels": {
+        "4": "Establishes credibility through knowledge, fairness, and appropriate tone",
+        "3": "Some attention to credibility",
+        "2": "Minimal credibility established",
+        "1": "No attention to credibility; may undermine trust"
+      },
+      "feedback_stems": {
+        "strength": "You built credibility by",
+        "growth": "Show readers you know what you're talking about and that you're being fair"
+      }
+    },
+    {
+      "name": "pathos",
+      "display_name": "Pathos (Emotion)",
+      "weight": 0.25,
+      "levels": {
+        "4": "Appropriate emotional appeals that strengthen the argument",
+        "3": "Some emotional connection with readers",
+        "2": "Emotional appeals are weak or manipulative",
+        "1": "No emotional engagement"
+      },
+      "feedback_stems": {
+        "strength": "Your emotional appeal was effective when",
+        "growth": "Connect with readers' feelings—help them care about your topic"
+      }
+    },
+    {
+      "name": "logos",
+      "display_name": "Logos (Logic)",
+      "weight": 0.3,
+      "levels": {
+        "4": "Strong logical reasoning with clear, valid connections between evidence and claims",
+        "3": "Reasoning is generally logical",
+        "2": "Some logical gaps or weak reasoning",
+        "1": "Reasoning is flawed or missing"
+      },
+      "feedback_stems": {
+        "strength": "Your logical reasoning was clear when",
+        "growth": "Make sure your evidence clearly supports your claims with logical connections"
+      }
+    },
+    {
+      "name": "balance",
+      "display_name": "Balance of Appeals",
+      "weight": 0.2,
+      "levels": {
+        "4": "Effectively balances all three appeals throughout",
+        "3": "Uses multiple appeals appropriately",
+        "2": "Over-relies on one appeal at the expense of others",
+        "1": "Only one appeal or none used effectively"
+      },
+      "feedback_stems": {
+        "strength": "You balanced ethos, pathos, and logos well",
+        "growth": "Strong arguments use all three appeals—logic, emotion, and credibility"
+      }
+    }
+  ]
+}

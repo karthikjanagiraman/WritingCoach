@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N3_voice_style",
+  "lesson_ids": ["N3.2.6"],
+  "description": "Assesses development of distinctive authorial voice",
+  "word_range": [300, 600],
+  "criteria": [
+    {
+      "name": "distinctiveness",
+      "display_name": "Distinctive Voice",
+      "weight": 0.35,
+      "levels": {
+        "4": "Voice is unmistakably individual; could recognize this writer's work",
+        "3": "Voice has personality and some distinguishing characteristics",
+        "2": "Voice is present but generic; could be anyone",
+        "1": "No discernible voice; reads like flat summary"
+      },
+      "feedback_stems": {
+        "strength": "Your voice is distinctively yours—I could recognize it by",
+        "growth": "Push your voice further; what makes your perspective unique?"
+      }
+    },
+    {
+      "name": "consistency",
+      "display_name": "Voice Consistency",
+      "weight": 0.25,
+      "levels": {
+        "4": "Voice is consistent throughout; maintains personality even through shifts",
+        "3": "Voice is mostly consistent",
+        "2": "Voice wavers; sometimes present, sometimes disappears",
+        "1": "No consistent voice"
+      },
+      "feedback_stems": {
+        "strength": "Your voice remained strong throughout, even when",
+        "growth": "Maintain your voice consistently—don't let it disappear in action scenes or transitions"
+      }
+    },
+    {
+      "name": "appropriateness",
+      "display_name": "Voice-Content Match",
+      "weight": 0.2,
+      "levels": {
+        "4": "Voice perfectly suits the content; enhances the story's effect",
+        "3": "Voice and content work together well",
+        "2": "Voice sometimes clashes with content",
+        "1": "Voice undermines the content"
+      },
+      "feedback_stems": {
+        "strength": "Your voice was perfect for this story because",
+        "growth": "Consider whether your voice serves this particular story"
+      }
+    },
+    {
+      "name": "risk_taking",
+      "display_name": "Stylistic Risk",
+      "weight": 0.2,
+      "levels": {
+        "4": "Takes meaningful stylistic risks that pay off",
+        "3": "Some stylistic experimentation that mostly works",
+        "2": "Plays it safe; no real stylistic risks",
+        "1": "Either no risks or risks that don't work"
+      },
+      "feedback_stems": {
+        "strength": "I admired the stylistic risk you took when",
+        "growth": "Consider taking a stylistic risk—try something you haven't done before"
+      }
+    }
+  ]
+}

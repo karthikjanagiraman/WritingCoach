@@ -1,0 +1,53 @@
+{
+  "rubric_id": "E1_all_about",
+  "lesson_ids": ["E1.1.5"],
+  "description": "Assesses 'All About' informational writing",
+  "word_range": [75, 150],
+  "criteria": [
+    {
+      "name": "facts",
+      "display_name": "Facts About Topic",
+      "weight": 0.4,
+      "levels": {
+        "4": "Multiple accurate, interesting facts that teach the reader",
+        "3": "Several facts about the topic",
+        "2": "Few facts or includes opinions instead of facts",
+        "1": "No real facts; mostly opinions or wrong information"
+      },
+      "feedback_stems": {
+        "strength": "You taught me interesting facts like",
+        "growth": "Add more facts that help readers learn about your topic"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Grouped Information",
+      "weight": 0.35,
+      "levels": {
+        "4": "Information grouped into clear categories that make sense",
+        "3": "Some grouping of related information",
+        "2": "Information is jumbled together",
+        "1": "No organization at all"
+      },
+      "feedback_stems": {
+        "strength": "You organized your facts into groups",
+        "growth": "Group related facts together—put all the food facts in one place"
+      }
+    },
+    {
+      "name": "topic_focus",
+      "display_name": "Stays on Topic",
+      "weight": 0.25,
+      "levels": {
+        "4": "All information clearly relates to the main topic",
+        "3": "Most information is on topic",
+        "2": "Some off-topic information mixed in",
+        "1": "Wanders off topic frequently"
+      },
+      "feedback_stems": {
+        "strength": "Everything you wrote connected to your topic",
+        "growth": "Make sure every fact connects to your main topic"
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "rubric_id": "E2_compare_contrast",
+  "lesson_ids": ["E2.3.5"],
+  "description": "Assesses compare and contrast essay",
+  "word_range": [250, 450],
+  "criteria": [
+    {
+      "name": "organization_method",
+      "display_name": "Organizational Method",
+      "weight": 0.25,
+      "levels": {
+        "4": "Clear block or point-by-point organization used consistently",
+        "3": "Organizational method is apparent",
+        "2": "Organization is inconsistent or unclear",
+        "1": "No discernible organizational method"
+      },
+      "feedback_stems": {
+        "strength": "You used a clear organizational method throughout",
+        "growth": "Choose block OR point-by-point organization and stick with it"
+      }
+    },
+    {
+      "name": "comparison",
+      "display_name": "Meaningful Comparison",
+      "weight": 0.3,
+      "levels": {
+        "4": "Comparison reveals meaningful similarities and differences; provides insight",
+        "3": "Comparison covers similarities and differences adequately",
+        "2": "Comparison is surface-level or incomplete",
+        "1": "Comparison doesn't really compare the subjects"
+      },
+      "feedback_stems": {
+        "strength": "Your comparison revealed meaningful insights about",
+        "growth": "Go deeper—what do the similarities and differences teach us?"
+      }
+    },
+    {
+      "name": "transitions",
+      "display_name": "Comparison Transitions",
+      "weight": 0.2,
+      "levels": {
+        "4": "Smooth use of comparison/contrast transitions (however, similarly, on the other hand)",
+        "3": "Good use of some transitions",
+        "2": "Few transitions or awkward use",
+        "1": "No comparison/contrast transitions"
+      },
+      "feedback_stems": {
+        "strength": "You used transitions effectively, like",
+        "growth": "Use transitions like 'similarly,' 'however,' and 'in contrast' to signal comparisons"
+      }
+    },
+    {
+      "name": "conclusion",
+      "display_name": "'So What' Conclusion",
+      "weight": 0.25,
+      "levels": {
+        "4": "Conclusion draws meaningful insight from the comparison",
+        "3": "Conclusion offers some insight",
+        "2": "Conclusion just summarizes without insight",
+        "1": "No conclusion or insight"
+      },
+      "feedback_stems": {
+        "strength": "Your conclusion drew meaningful insight from your comparison",
+        "growth": "End with 'so what?'—what does this comparison teach us?"
+      }
+    }
+  ]
+}

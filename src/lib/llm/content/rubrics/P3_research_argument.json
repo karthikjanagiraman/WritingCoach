@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P3_research_argument",
+  "lesson_ids": ["P3.3.6"],
+  "description": "Assesses research-based argumentative writing with multiple sources",
+  "word_range": [500, 800],
+  "criteria": [
+    {
+      "name": "research_depth",
+      "display_name": "Research Depth",
+      "weight": 0.25,
+      "levels": {
+        "4": "Research is thorough with multiple credible sources that provide strong support",
+        "3": "Research uses adequate sources that support the argument",
+        "2": "Research is thin, relying on few or weak sources",
+        "1": "Little to no research evident; mostly unsupported claims"
+      },
+      "feedback_stems": {
+        "strength": "Your research was thorough and well-sourced, especially",
+        "growth": "Deepen your research—find more credible sources to strengthen your argument"
+      }
+    },
+    {
+      "name": "argument_construction",
+      "display_name": "Argument Construction",
+      "weight": 0.3,
+      "levels": {
+        "4": "Argument is built logically from research; claims, evidence, and reasoning work together",
+        "3": "Argument is clear with research supporting main claims",
+        "2": "Argument exists but research and claims don't connect well",
+        "1": "No clear argument constructed from the research"
+      },
+      "feedback_stems": {
+        "strength": "You built a strong argument from your research, particularly",
+        "growth": "Connect each piece of evidence to a specific claim—show how research proves your point"
+      }
+    },
+    {
+      "name": "source_integration",
+      "display_name": "Source Integration",
+      "weight": 0.25,
+      "levels": {
+        "4": "Sources are smoothly integrated with proper attribution and analysis",
+        "3": "Sources are cited and generally well-integrated",
+        "2": "Sources are present but dropped in awkwardly or without analysis",
+        "1": "Sources are missing or used without attribution"
+      },
+      "feedback_stems": {
+        "strength": "You integrated sources smoothly, especially when",
+        "growth": "Introduce, embed, and analyze each source—don't just drop quotes in"
+      }
+    },
+    {
+      "name": "synthesis",
+      "display_name": "Source Synthesis",
+      "weight": 0.2,
+      "levels": {
+        "4": "Multiple sources synthesized to build a unique argument; sources in conversation",
+        "3": "Some synthesis between sources",
+        "2": "Sources presented separately without connection",
+        "1": "No synthesis; sources isolated"
+      },
+      "feedback_stems": {
+        "strength": "You synthesized multiple sources to build your argument effectively",
+        "growth": "Put your sources in conversation with each other—how do they connect?"
+      }
+    }
+  ]
+}

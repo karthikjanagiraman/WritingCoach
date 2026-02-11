@@ -1,0 +1,83 @@
+{
+  "rubric_id": "P3_argumentative_essay",
+  "lesson_ids": ["P3.1.6"],
+  "description": "Assesses sophisticated argumentative essay",
+  "word_range": [500, 800],
+  "criteria": [
+    {
+      "name": "thesis",
+      "display_name": "Nuanced Thesis",
+      "weight": 0.2,
+      "levels": {
+        "4": "Thesis is specific, debatable, and nuanced; acknowledges complexity",
+        "3": "Thesis is clear and arguable",
+        "2": "Thesis is too broad, obvious, or simplistic",
+        "1": "No clear thesis"
+      },
+      "feedback_stems": {
+        "strength": "Your thesis was nuanced and sophisticated:",
+        "growth": "Push your thesis to acknowledge complexity—avoid oversimplification"
+      }
+    },
+    {
+      "name": "evidence_integration",
+      "display_name": "Evidence Integration",
+      "weight": 0.25,
+      "levels": {
+        "4": "Evidence seamlessly integrated; quotes embedded smoothly with analysis",
+        "3": "Evidence is present and generally well-integrated",
+        "2": "Evidence is present but awkwardly integrated or underanalyzed",
+        "1": "Evidence is missing, dropped in without context, or not analyzed"
+      },
+      "feedback_stems": {
+        "strength": "Your evidence integration was seamless, particularly",
+        "growth": "Don't drop quotes in—introduce them, embed them smoothly, and always analyze"
+      }
+    },
+    {
+      "name": "counterargument",
+      "display_name": "Counterargument Sophistication",
+      "weight": 0.2,
+      "levels": {
+        "4": "Engages with strongest opposing arguments; concedes valid points while maintaining position",
+        "3": "Addresses counterarguments reasonably",
+        "2": "Counterarguments are strawmen or dismissed too easily",
+        "1": "No meaningful engagement with opposition"
+      },
+      "feedback_stems": {
+        "strength": "You engaged with counterarguments thoughtfully, especially",
+        "growth": "Engage with the STRONGEST opposing argument, not the weakest"
+      }
+    },
+    {
+      "name": "complexity",
+      "display_name": "Intellectual Complexity",
+      "weight": 0.2,
+      "levels": {
+        "4": "Argument shows sophisticated thinking; addresses gray areas and tensions",
+        "3": "Argument has depth and some complexity",
+        "2": "Argument is competent but lacks intellectual depth",
+        "1": "Argument is superficial or oversimplified"
+      },
+      "feedback_stems": {
+        "strength": "Your argument showed intellectual sophistication when",
+        "growth": "Push into the complexity—what tensions or contradictions exist in your position?"
+      }
+    },
+    {
+      "name": "prose",
+      "display_name": "Academic Prose",
+      "weight": 0.15,
+      "levels": {
+        "4": "Prose is sophisticated, clear, and appropriate for academic argument",
+        "3": "Prose is clear and generally academic",
+        "2": "Prose has issues with clarity or formality",
+        "1": "Prose undermines the argument"
+      },
+      "feedback_stems": {
+        "strength": "Your academic prose was strong, particularly",
+        "growth": "Polish your prose—sophisticated ideas deserve sophisticated expression"
+      }
+    }
+  ]
+}

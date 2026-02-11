@@ -1,0 +1,68 @@
+{
+  "rubric_id": "E2_research_report",
+  "lesson_ids": ["E2.1.6"],
+  "description": "Assesses research report with multiple sources",
+  "word_range": [250, 450],
+  "criteria": [
+    {
+      "name": "research_quality",
+      "display_name": "Research Quality",
+      "weight": 0.3,
+      "levels": {
+        "4": "Information is accurate, detailed, and comes from credible sources",
+        "3": "Information is mostly accurate with adequate detail",
+        "2": "Some inaccuracies or lack of detail; sources unclear",
+        "1": "Information is inaccurate or unsupported"
+      },
+      "feedback_stems": {
+        "strength": "Your research was thorough and accurate, especially",
+        "growth": "Use credible sources and include specific details to strengthen your report"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Report Organization",
+      "weight": 0.25,
+      "levels": {
+        "4": "Clear introduction, organized body sections with headings, and conclusion",
+        "3": "Report has clear sections and structure",
+        "2": "Some organization but sections unclear or missing",
+        "1": "No clear organization; information is jumbled"
+      },
+      "feedback_stems": {
+        "strength": "Your report was well-organized with clear sections",
+        "growth": "Use headings and topic sentences to organize your report into clear sections"
+      }
+    },
+    {
+      "name": "own_words",
+      "display_name": "In Your Own Words",
+      "weight": 0.25,
+      "levels": {
+        "4": "Information clearly paraphrased in own words; shows understanding",
+        "3": "Mostly in own words with some understanding shown",
+        "2": "Too close to original sources; minimal paraphrasing",
+        "1": "Copied directly from sources; no paraphrasing"
+      },
+      "feedback_stems": {
+        "strength": "You explained the information in your own words",
+        "growth": "Put information in YOUR words—this shows you really understand it"
+      }
+    },
+    {
+      "name": "conclusion",
+      "display_name": "Conclusion & Summary",
+      "weight": 0.2,
+      "levels": {
+        "4": "Conclusion synthesizes findings and highlights what's most important",
+        "3": "Conclusion summarizes main findings",
+        "2": "Conclusion is weak or just repeats introduction",
+        "1": "No conclusion"
+      },
+      "feedback_stems": {
+        "strength": "Your conclusion effectively summarized your findings",
+        "growth": "Wrap up by telling readers the most important things you learned"
+      }
+    }
+  ]
+}

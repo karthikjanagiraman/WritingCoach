@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P2_counterargument",
+  "lesson_ids": ["P2.3.6"],
+  "description": "Assesses ability to address and refute counterarguments",
+  "word_range": [200, 400],
+  "criteria": [
+    {
+      "name": "identification",
+      "display_name": "Identifying Counterarguments",
+      "weight": 0.3,
+      "levels": {
+        "4": "Identifies the strongest opposing argument rather than a weak or obvious one",
+        "3": "Identifies a relevant opposing argument",
+        "2": "Identifies an opposing view but it's a strawman or too weak",
+        "1": "Does not identify any opposing viewpoint"
+      },
+      "feedback_stems": {
+        "strength": "You identified the strongest counterargument when you addressed",
+        "growth": "Find the BEST argument the other side has—that makes your rebuttal more powerful"
+      }
+    },
+    {
+      "name": "rebuttal",
+      "display_name": "Effective Rebuttal",
+      "weight": 0.35,
+      "levels": {
+        "4": "Refutes the counterargument with clear reasoning and evidence",
+        "3": "Provides a reasonable response to the counterargument",
+        "2": "Attempts to respond but the rebuttal is weak or unclear",
+        "1": "No rebuttal; just states the counterargument"
+      },
+      "feedback_stems": {
+        "strength": "Your rebuttal was convincing because",
+        "growth": "After presenting the other side, explain clearly why your position is still stronger"
+      }
+    },
+    {
+      "name": "fairness",
+      "display_name": "Fair Representation",
+      "weight": 0.2,
+      "levels": {
+        "4": "Represents the opposing view fairly and accurately before countering it",
+        "3": "Mostly fair representation of the opposing view",
+        "2": "Misrepresents or oversimplifies the opposing view",
+        "1": "Ignores or mocks the opposing view"
+      },
+      "feedback_stems": {
+        "strength": "You represented the other side fairly before disagreeing",
+        "growth": "Present the other side's argument accurately—then your response is more convincing"
+      }
+    },
+    {
+      "name": "integration",
+      "display_name": "Smooth Integration",
+      "weight": 0.15,
+      "levels": {
+        "4": "Counterargument paragraph flows naturally within the essay structure",
+        "3": "Counterargument is placed appropriately in the essay",
+        "2": "Counterargument feels disconnected from the rest of the essay",
+        "1": "Counterargument, if present, disrupts the essay's flow"
+      },
+      "feedback_stems": {
+        "strength": "Your counterargument fit smoothly into your essay",
+        "growth": "Use transitions like 'Some people might say...' to smoothly introduce the other side"
+      }
+    }
+  ]
+}

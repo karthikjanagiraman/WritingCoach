@@ -1,0 +1,2178 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "WriteWise Kids Rubric Library",
+    "scoring_scale": {
+      "4": "Exceeds Expectations",
+      "3": "Meets Expectations", 
+      "2": "Approaching Expectations",
+      "1": "Beginning"
+    },
+    "feedback_guidelines": {
+      "score_4": "Celebrate excellence with specific praise; suggest enrichment challenges",
+      "score_3": "Acknowledge solid work; identify one area to elevate to excellence",
+      "score_2": "Encourage progress; focus on most impactful improvement",
+      "score_1": "Focus on effort; provide concrete next steps without overwhelming"
+    }
+  },
+
+  "rubrics": {
+    
+    "narrative": {
+      
+      "tier_1": {
+        
+        "story_beginning": {
+          "id": "N1_story_beginning",
+          "lesson_ids": ["N1.1.5"],
+          "description": "Assesses student's ability to write an engaging story beginning",
+          "word_range": [30, 75],
+          "criteria": [
+            {
+              "name": "hook",
+              "display_name": "Hook / Grabbing Attention",
+              "weight": 0.3,
+              "levels": {
+                "4": "Opening immediately captures attention with action, mystery, or surprise that makes reader eager to continue",
+                "3": "Opening creates some interest and makes reader curious to know more",
+                "2": "Opening is present but doesn't create strong curiosity; somewhat predictable",
+                "1": "No clear attempt to hook the reader; begins with plain statement"
+              },
+              "feedback_stems": {
+                "strength": "Your beginning grabbed my attention when you wrote",
+                "growth": "To make your beginning even more exciting, try starting with"
+              }
+            },
+            {
+              "name": "character_intro",
+              "display_name": "Character Introduction",
+              "weight": 0.35,
+              "levels": {
+                "4": "Main character is clearly introduced with at least one interesting detail that makes them memorable",
+                "3": "Main character is named and we know at least one thing about them",
+                "2": "There seems to be a main character but we don't learn much about them",
+                "1": "No clear main character introduced"
+              },
+              "feedback_stems": {
+                "strength": "I liked learning about your character when you said",
+                "growth": "Help readers get to know your character better by telling us"
+              }
+            },
+            {
+              "name": "setting",
+              "display_name": "Setting / Where We Are",
+              "weight": 0.35,
+              "levels": {
+                "4": "Setting is clear with sensory details that help readers picture where the story happens",
+                "3": "Setting is mentioned and reader has a general idea of where the story takes place",
+                "2": "Some hint of setting but location is vague or confusing",
+                "1": "No setting established; reader doesn't know where the story happens"
+              },
+              "feedback_stems": {
+                "strength": "You helped me picture the place when you wrote",
+                "growth": "Add details about what your character can see, hear, or feel in this place"
+              }
+            }
+          ]
+        },
+
+        "story_middle": {
+          "id": "N1_story_middle",
+          "lesson_ids": ["N1.2.5"],
+          "description": "Assesses student's ability to write a story middle with events and a problem",
+          "word_range": [50, 100],
+          "criteria": [
+            {
+              "name": "sequencing",
+              "display_name": "Events in Order",
+              "weight": 0.35,
+              "levels": {
+                "4": "Events flow logically with clear order; transition words guide the reader smoothly",
+                "3": "Events are in logical order; some transition words used",
+                "2": "Events are present but order is sometimes confusing; few transitions",
+                "1": "Events are jumbled or hard to follow; no transitions"
+              },
+              "feedback_stems": {
+                "strength": "Your events flowed smoothly, especially when",
+                "growth": "Try using words like 'first,' 'then,' 'next,' and 'finally' to help readers follow along"
+              }
+            },
+            {
+              "name": "problem",
+              "display_name": "Character's Problem",
+              "weight": 0.4,
+              "levels": {
+                "4": "Clear, interesting problem that makes readers wonder how it will be solved",
+                "3": "Problem is present and understandable",
+                "2": "There might be a problem but it's not clear or not very interesting",
+                "1": "No problem or challenge for the character"
+              },
+              "feedback_stems": {
+                "strength": "Your character's problem is interesting because",
+                "growth": "Stories are more exciting when the character has a bigger challenge to face"
+              }
+            },
+            {
+              "name": "events",
+              "display_name": "Things That Happen",
+              "weight": 0.25,
+              "levels": {
+                "4": "Multiple events that connect to the problem and keep the story moving",
+                "3": "At least two events that relate to the story",
+                "2": "Only one event, or events don't seem connected",
+                "1": "No clear events; story doesn't move forward"
+              },
+              "feedback_stems": {
+                "strength": "You included great events like",
+                "growth": "Add more things that happen to your character as they deal with the problem"
+              }
+            }
+          ]
+        },
+
+        "story_ending": {
+          "id": "N1_story_ending",
+          "lesson_ids": ["N1.3.5"],
+          "description": "Assesses student's ability to write a satisfying story ending",
+          "word_range": [30, 75],
+          "criteria": [
+            {
+              "name": "resolution",
+              "display_name": "Problem is Solved",
+              "weight": 0.4,
+              "levels": {
+                "4": "Problem is solved in a satisfying, believable way; makes sense for the story",
+                "3": "Problem is solved, even if solution is simple",
+                "2": "Ending exists but doesn't clearly solve the problem",
+                "1": "Story stops without solving the problem or just ends abruptly"
+              },
+              "feedback_stems": {
+                "strength": "You solved the problem in a great way when",
+                "growth": "Make sure your ending shows how the character's problem gets fixed"
+              }
+            },
+            {
+              "name": "satisfaction",
+              "display_name": "Feels Complete",
+              "weight": 0.35,
+              "levels": {
+                "4": "Ending feels complete and satisfying; reader isn't left confused",
+                "3": "Ending wraps up the story adequately",
+                "2": "Ending is rushed or leaves reader with questions",
+                "1": "Doesn't feel like an ending; story just stops"
+              },
+              "feedback_stems": {
+                "strength": "Your ending made me feel satisfied because",
+                "growth": "Add a sentence that shows how the character feels now that everything is over"
+              }
+            },
+            {
+              "name": "character_response",
+              "display_name": "Character's Reaction",
+              "weight": 0.25,
+              "levels": {
+                "4": "Shows how the character feels or what they learned at the end",
+                "3": "Some indication of character's feelings at the end",
+                "2": "Character is present but we don't know how they feel",
+                "1": "Character seems forgotten in the ending"
+              },
+              "feedback_stems": {
+                "strength": "I loved seeing how your character felt when",
+                "growth": "Tell us how your character feels at the end of the story"
+              }
+            }
+          ]
+        },
+
+        "complete_story": {
+          "id": "N1_complete_story",
+          "lesson_ids": ["N1.3.5", "N1.5.5"],
+          "description": "Holistic rubric for complete short stories",
+          "word_range": [75, 150],
+          "criteria": [
+            {
+              "name": "structure",
+              "display_name": "Beginning, Middle, End",
+              "weight": 0.3,
+              "levels": {
+                "4": "Clear beginning, middle, and end that flow together naturally",
+                "3": "All three parts present and recognizable",
+                "2": "One part is missing or underdeveloped",
+                "1": "Story structure is unclear or missing multiple parts"
+              },
+              "feedback_stems": {
+                "strength": "Your story has a clear beginning, middle, and end",
+                "growth": "Make sure your story has all three parts: beginning (who and where), middle (the problem), end (how it's solved)"
+              }
+            },
+            {
+              "name": "character",
+              "display_name": "Character",
+              "weight": 0.25,
+              "levels": {
+                "4": "Character is interesting and we understand their feelings throughout",
+                "3": "Character is present and we know some things about them",
+                "2": "Character exists but is flat or confusing",
+                "1": "No clear main character"
+              },
+              "feedback_stems": {
+                "strength": "Your character felt real when you showed",
+                "growth": "Help readers know your character better by showing how they feel"
+              }
+            },
+            {
+              "name": "details",
+              "display_name": "Interesting Details",
+              "weight": 0.25,
+              "levels": {
+                "4": "Story includes vivid details that help readers see, hear, and feel the story",
+                "3": "Some good details that add to the story",
+                "2": "Few details; story tells but doesn't show much",
+                "1": "No descriptive details"
+              },
+              "feedback_stems": {
+                "strength": "Your details helped me picture the story, like when you wrote",
+                "growth": "Add words that help readers see, hear, smell, or feel what's happening"
+              }
+            },
+            {
+              "name": "conventions",
+              "display_name": "Sentences and Spelling",
+              "weight": 0.2,
+              "levels": {
+                "4": "Complete sentences; spelling doesn't get in the way of reading",
+                "3": "Most sentences complete; most words spelled correctly",
+                "2": "Some incomplete sentences or spelling errors that slow reading",
+                "1": "Many incomplete sentences; spelling makes it hard to read"
+              },
+              "feedback_stems": {
+                "strength": "Your sentences were easy to read",
+                "growth": "Remember to check that each sentence has a complete thought"
+              }
+            }
+          ]
+        },
+
+        "sensory_description": {
+          "id": "N1_sensory_description",
+          "lesson_ids": ["D1.1.5", "N1.4.5"],
+          "description": "Assesses use of sensory details in description",
+          "word_range": [40, 80],
+          "criteria": [
+            {
+              "name": "variety",
+              "display_name": "Different Senses",
+              "weight": 0.4,
+              "levels": {
+                "4": "Uses at least 3 different senses (see, hear, feel, smell, taste)",
+                "3": "Uses 2 different senses",
+                "2": "Mostly one sense, usually sight",
+                "1": "No clear sensory details"
+              },
+              "feedback_stems": {
+                "strength": "Great job using different senses! You included",
+                "growth": "Try adding what you can hear, smell, or feel—not just what you see"
+              }
+            },
+            {
+              "name": "vividness",
+              "display_name": "Strong Word Choices",
+              "weight": 0.35,
+              "levels": {
+                "4": "Uses specific, interesting words that create clear pictures",
+                "3": "Some strong word choices",
+                "2": "Words are basic and vague (nice, big, good)",
+                "1": "No attempt at descriptive words"
+              },
+              "feedback_stems": {
+                "strength": "I loved your word choice when you said",
+                "growth": "Instead of common words like 'nice' or 'big,' try more specific words"
+              }
+            },
+            {
+              "name": "purpose",
+              "display_name": "Details That Matter",
+              "weight": 0.25,
+              "levels": {
+                "4": "Details help readers understand the place/moment better",
+                "3": "Most details are relevant",
+                "2": "Some details seem random or don't add much",
+                "1": "Details are missing or confusing"
+              },
+              "feedback_stems": {
+                "strength": "Your details really helped me understand",
+                "growth": "Choose details that help readers feel like they're really there"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_2": {
+
+        "story_structure": {
+          "id": "N2_story_structure",
+          "lesson_ids": ["N2.1.6"],
+          "description": "Assesses understanding of complete story structure (story mountain)",
+          "word_range": [200, 400],
+          "criteria": [
+            {
+              "name": "exposition",
+              "display_name": "Exposition",
+              "weight": 0.2,
+              "levels": {
+                "4": "Engaging exposition that hooks readers while establishing character, setting, and initial situation",
+                "3": "Exposition establishes necessary story elements",
+                "2": "Some exposition present but missing key elements or not engaging",
+                "1": "Minimal or no exposition; story starts confusingly"
+              },
+              "feedback_stems": {
+                "strength": "Your exposition drew me in while setting up the story",
+                "growth": "Strengthen your exposition by balancing the hook with necessary background"
+              }
+            },
+            {
+              "name": "rising_action",
+              "display_name": "Rising Action",
+              "weight": 0.25,
+              "levels": {
+                "4": "Clear complications that build tension; each event raises stakes",
+                "3": "Events build toward climax with some tension",
+                "2": "Events present but don't clearly build or create minimal tension",
+                "1": "No clear rising action; events are flat"
+              },
+              "feedback_stems": {
+                "strength": "Your rising action built tension effectively, especially",
+                "growth": "Add complications that make the problem worse before it gets better"
+              }
+            },
+            {
+              "name": "climax",
+              "display_name": "Climax",
+              "weight": 0.2,
+              "levels": {
+                "4": "Clear, powerful turning point; highest tension moment is unmistakable",
+                "3": "Climax is identifiable and represents story's high point",
+                "2": "Climax is unclear or doesn't feel like the most important moment",
+                "1": "No clear climax; story lacks a turning point"
+              },
+              "feedback_stems": {
+                "strength": "Your climax was powerful when",
+                "growth": "Make your climax the most intense moment—this is where everything changes"
+              }
+            },
+            {
+              "name": "falling_action_resolution",
+              "display_name": "Falling Action & Resolution",
+              "weight": 0.2,
+              "levels": {
+                "4": "Natural wind-down after climax; satisfying resolution that addresses main conflict",
+                "3": "Story winds down and concludes appropriately",
+                "2": "Ending feels rushed or doesn't fully resolve the conflict",
+                "1": "Story stops abruptly without resolution"
+              },
+              "feedback_stems": {
+                "strength": "Your resolution was satisfying because",
+                "growth": "After the climax, give readers a chance to see how things settle"
+              }
+            },
+            {
+              "name": "pacing",
+              "display_name": "Pacing",
+              "weight": 0.15,
+              "levels": {
+                "4": "Pacing feels intentional; scenes get appropriate time based on importance",
+                "3": "Pacing is generally effective",
+                "2": "Pacing issues—some parts too rushed, others drag",
+                "1": "Pacing is consistently problematic"
+              },
+              "feedback_stems": {
+                "strength": "Your pacing worked well, especially how you",
+                "growth": "Spend more time on important moments and less on transitions"
+              }
+            }
+          ]
+        },
+
+        "dialogue_scene": {
+          "id": "N2_dialogue_scene",
+          "lesson_ids": ["N2.3.6"],
+          "description": "Assesses a scene focused on dialogue",
+          "word_range": [150, 300],
+          "criteria": [
+            {
+              "name": "punctuation",
+              "display_name": "Dialogue Punctuation",
+              "weight": 0.2,
+              "levels": {
+                "4": "Dialogue punctuated correctly throughout; no errors",
+                "3": "Minor punctuation errors that don't impede reading",
+                "2": "Multiple punctuation errors; some confusion about who's speaking",
+                "1": "Dialogue punctuation incorrect throughout"
+              },
+              "feedback_stems": {
+                "strength": "Your dialogue punctuation was spot-on",
+                "growth": "Remember: punctuation goes inside quotation marks, and new speaker = new paragraph"
+              }
+            },
+            {
+              "name": "character_voice",
+              "display_name": "Distinct Character Voices",
+              "weight": 0.3,
+              "levels": {
+                "4": "Each character sounds distinctly different; could identify speaker without tags",
+                "3": "Characters have some voice differences",
+                "2": "Characters sound similar; minimal voice distinction",
+                "1": "All characters sound the same"
+              },
+              "feedback_stems": {
+                "strength": "Each character sounded unique, like when",
+                "growth": "Give each character their own way of talking—word choice, sentence length, vocabulary"
+              }
+            },
+            {
+              "name": "dialogue_tags",
+              "display_name": "Tags and Beats",
+              "weight": 0.2,
+              "levels": {
+                "4": "Effective mix of dialogue tags and action beats; 'said' used appropriately",
+                "3": "Good variety in how dialogue is attributed",
+                "2": "Over-reliance on 'said' or overuse of fancy tags ('exclaimed,' 'shouted')",
+                "1": "Tags missing or extremely repetitive"
+              },
+              "feedback_stems": {
+                "strength": "Great use of action beats instead of tags, like",
+                "growth": "Try using action beats (what characters do while talking) to vary your dialogue"
+              }
+            },
+            {
+              "name": "purpose",
+              "display_name": "Dialogue Purpose",
+              "weight": 0.3,
+              "levels": {
+                "4": "Dialogue reveals character AND advances plot; every line serves a purpose",
+                "3": "Dialogue mostly serves the story",
+                "2": "Some dialogue feels like filler or doesn't add much",
+                "1": "Dialogue doesn't serve the story; could be removed without impact"
+              },
+              "feedback_stems": {
+                "strength": "Your dialogue did double duty—it revealed character while moving the plot",
+                "growth": "Each line of dialogue should either show us who a character is or move the story forward"
+              }
+            }
+          ]
+        },
+
+        "show_dont_tell": {
+          "id": "N2_show_dont_tell",
+          "lesson_ids": ["N2.4.5"],
+          "description": "Assesses ability to show emotions and scenes rather than tell",
+          "word_range": [100, 200],
+          "criteria": [
+            {
+              "name": "physical_showing",
+              "display_name": "Physical Showing",
+              "weight": 0.35,
+              "levels": {
+                "4": "Emotions shown through specific physical actions and reactions; reader feels the emotion",
+                "3": "Good use of physical description to show feelings",
+                "2": "Some attempt at showing but still tells emotions directly",
+                "1": "Relies on telling ('she was scared') with no showing"
+              },
+              "feedback_stems": {
+                "strength": "You showed emotion perfectly through physical details like",
+                "growth": "Instead of naming the emotion, show us what the body does when feeling it"
+              }
+            },
+            {
+              "name": "figurative_language",
+              "display_name": "Figurative Language",
+              "weight": 0.3,
+              "levels": {
+                "4": "Effective, original similes or metaphors that illuminate meaning",
+                "3": "Uses figurative language appropriately",
+                "2": "Attempts figurative language but uses clichés or forced comparisons",
+                "1": "No figurative language used"
+              },
+              "feedback_stems": {
+                "strength": "Your figurative language was creative, especially",
+                "growth": "Add a simile or metaphor that helps readers feel the moment more deeply"
+              }
+            },
+            {
+              "name": "balance",
+              "display_name": "Showing/Telling Balance",
+              "weight": 0.35,
+              "levels": {
+                "4": "Shows key emotional moments; uses telling efficiently for transitions",
+                "3": "Generally good balance between showing and telling",
+                "2": "Imbalance—either all showing (exhausting) or mostly telling",
+                "1": "No awareness of when to show vs. tell"
+              },
+              "feedback_stems": {
+                "strength": "You balanced showing and telling well, knowing when each was needed",
+                "growth": "Show the important moments; it's okay to tell the less important transitions"
+              }
+            }
+          ]
+        },
+
+        "pov_consistency": {
+          "id": "N2_pov_consistency",
+          "lesson_ids": ["N2.2.5", "N2.2.6"],
+          "description": "Assesses point of view selection and consistency",
+          "word_range": [150, 300],
+          "criteria": [
+            {
+              "name": "consistency",
+              "display_name": "POV Consistency",
+              "weight": 0.4,
+              "levels": {
+                "4": "POV maintained perfectly throughout; no slips",
+                "3": "POV consistent with only minor slips",
+                "2": "Several POV shifts that confuse the reader",
+                "1": "POV shifts constantly; very confusing"
+              },
+              "feedback_stems": {
+                "strength": "You maintained your point of view consistently throughout",
+                "growth": "Watch for POV shifts—stay in one character's head"
+              }
+            },
+            {
+              "name": "appropriate_choice",
+              "display_name": "POV Choice",
+              "weight": 0.3,
+              "levels": {
+                "4": "POV choice enhances the story; couldn't be better told another way",
+                "3": "POV choice works for this story",
+                "2": "POV choice is workable but not optimal",
+                "1": "POV choice undermines the story"
+              },
+              "feedback_stems": {
+                "strength": "First/third person was the right choice for this story because",
+                "growth": "Consider whether a different POV might let you tell this story more effectively"
+              }
+            },
+            {
+              "name": "pov_depth",
+              "display_name": "POV Depth",
+              "weight": 0.3,
+              "levels": {
+                "4": "Fully uses the advantages of the chosen POV; we're deep in this perspective",
+                "3": "Good use of chosen POV's strengths",
+                "2": "POV is surface-level; could go deeper",
+                "1": "POV chosen but not really used"
+              },
+              "feedback_stems": {
+                "strength": "You used your POV fully, letting us inside the character's experience",
+                "growth": "Go deeper into your POV character's thoughts and perceptions"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_3": {
+
+        "complex_narrative": {
+          "id": "N3_complex_narrative",
+          "lesson_ids": ["N3.1.6"],
+          "description": "Assesses experimental/non-linear narrative structures",
+          "word_range": [400, 800],
+          "criteria": [
+            {
+              "name": "structural_intentionality",
+              "display_name": "Structural Intentionality",
+              "weight": 0.3,
+              "levels": {
+                "4": "Non-linear structure clearly serves the story's meaning; couldn't work as well chronologically",
+                "3": "Structure choice is appropriate and enhances the story",
+                "2": "Structure attempted but feels gimmicky or doesn't add much",
+                "1": "Structure confuses rather than enhances; seems random"
+              },
+              "feedback_stems": {
+                "strength": "Your structural choice was purposeful—it enhanced the story by",
+                "growth": "Consider how your structural choice serves the story's meaning"
+              }
+            },
+            {
+              "name": "clarity",
+              "display_name": "Navigability",
+              "weight": 0.25,
+              "levels": {
+                "4": "Reader can follow the structure; temporal shifts are clear without being clunky",
+                "3": "Structure is followable with some minor confusion",
+                "2": "Structure causes significant confusion; hard to track what's happening when",
+                "1": "Structure is incomprehensible; reader is lost"
+              },
+              "feedback_stems": {
+                "strength": "Despite the complex structure, I never felt lost because",
+                "growth": "Add clearer signals when shifting time periods—subtle cues help readers track the timeline"
+              }
+            },
+            {
+              "name": "payoff",
+              "display_name": "Structural Payoff",
+              "weight": 0.25,
+              "levels": {
+                "4": "Structure creates powerful revelations or emotional impacts not possible chronologically",
+                "3": "Structure adds meaningful effect to the story",
+                "2": "Structure's purpose unclear; story might work better told straight",
+                "1": "No discernible payoff from the structural choice"
+              },
+              "feedback_stems": {
+                "strength": "The structure paid off powerfully when",
+                "growth": "Build toward a moment where the structure creates revelation or impact"
+              }
+            },
+            {
+              "name": "craft",
+              "display_name": "Overall Craft",
+              "weight": 0.2,
+              "levels": {
+                "4": "Prose quality, characterization, and other craft elements are strong",
+                "3": "Solid craft throughout",
+                "2": "Structure experiments overshadow fundamentals; craft is uneven",
+                "1": "Fundamental craft issues throughout"
+              },
+              "feedback_stems": {
+                "strength": "Beyond the structure, your craft shines in",
+                "growth": "Don't let structural ambition overshadow fundamentals like character and prose"
+              }
+            }
+          ]
+        },
+
+        "voice_and_style": {
+          "id": "N3_voice_style",
+          "lesson_ids": ["N3.2.6"],
+          "description": "Assesses development of distinctive authorial voice",
+          "word_range": [300, 600],
+          "criteria": [
+            {
+              "name": "distinctiveness",
+              "display_name": "Distinctive Voice",
+              "weight": 0.35,
+              "levels": {
+                "4": "Voice is unmistakably individual; could recognize this writer's work",
+                "3": "Voice has personality and some distinguishing characteristics",
+                "2": "Voice is present but generic; could be anyone",
+                "1": "No discernible voice; reads like flat summary"
+              },
+              "feedback_stems": {
+                "strength": "Your voice is distinctively yours—I could recognize it by",
+                "growth": "Push your voice further; what makes your perspective unique?"
+              }
+            },
+            {
+              "name": "consistency",
+              "display_name": "Voice Consistency",
+              "weight": 0.25,
+              "levels": {
+                "4": "Voice is consistent throughout; maintains personality even through shifts",
+                "3": "Voice is mostly consistent",
+                "2": "Voice wavers; sometimes present, sometimes disappears",
+                "1": "No consistent voice"
+              },
+              "feedback_stems": {
+                "strength": "Your voice remained strong throughout, even when",
+                "growth": "Maintain your voice consistently—don't let it disappear in action scenes or transitions"
+              }
+            },
+            {
+              "name": "appropriateness",
+              "display_name": "Voice-Content Match",
+              "weight": 0.2,
+              "levels": {
+                "4": "Voice perfectly suits the content; enhances the story's effect",
+                "3": "Voice and content work together well",
+                "2": "Voice sometimes clashes with content",
+                "1": "Voice undermines the content"
+              },
+              "feedback_stems": {
+                "strength": "Your voice was perfect for this story because",
+                "growth": "Consider whether your voice serves this particular story"
+              }
+            },
+            {
+              "name": "risk_taking",
+              "display_name": "Stylistic Risk",
+              "weight": 0.2,
+              "levels": {
+                "4": "Takes meaningful stylistic risks that pay off",
+                "3": "Some stylistic experimentation that mostly works",
+                "2": "Plays it safe; no real stylistic risks",
+                "1": "Either no risks or risks that don't work"
+              },
+              "feedback_stems": {
+                "strength": "I admired the stylistic risk you took when",
+                "growth": "Consider taking a stylistic risk—try something you haven't done before"
+              }
+            }
+          ]
+        },
+
+        "theme_and_meaning": {
+          "id": "N3_theme_meaning",
+          "lesson_ids": ["N3.4.6"],
+          "description": "Assesses thematic development in narrative",
+          "word_range": [400, 800],
+          "criteria": [
+            {
+              "name": "theme_presence",
+              "display_name": "Theme Presence",
+              "weight": 0.25,
+              "levels": {
+                "4": "Clear, meaningful theme that resonates; story is 'about something'",
+                "3": "Identifiable theme that adds depth",
+                "2": "Theme is vague or superficial",
+                "1": "No discernible theme; story is just events"
+              },
+              "feedback_stems": {
+                "strength": "Your story explored a meaningful theme:",
+                "growth": "Consider what your story is really about beyond the plot"
+              }
+            },
+            {
+              "name": "subtlety",
+              "display_name": "Subtlety",
+              "weight": 0.3,
+              "levels": {
+                "4": "Theme emerges naturally through story; never preaches or tells reader what to think",
+                "3": "Theme is present without being heavy-handed",
+                "2": "Theme is sometimes too obvious or preachy",
+                "1": "Theme is stated directly; feels like a lesson"
+              },
+              "feedback_stems": {
+                "strength": "You let the theme emerge naturally without preaching, especially",
+                "growth": "Trust your reader—let the theme emerge through story, not statements"
+              }
+            },
+            {
+              "name": "integration",
+              "display_name": "Thematic Integration",
+              "weight": 0.25,
+              "levels": {
+                "4": "Theme woven throughout—in character choices, imagery, structure",
+                "3": "Theme is integrated into multiple story elements",
+                "2": "Theme shows up but isn't woven through the fabric",
+                "1": "Theme tacked on rather than integrated"
+              },
+              "feedback_stems": {
+                "strength": "Your theme was woven throughout, appearing in",
+                "growth": "Look for ways to reinforce theme through imagery, character choices, and details"
+              }
+            },
+            {
+              "name": "complexity",
+              "display_name": "Thematic Complexity",
+              "weight": 0.2,
+              "levels": {
+                "4": "Theme has nuance; story doesn't offer easy answers",
+                "3": "Theme has some depth and complexity",
+                "2": "Theme is simplistic; black and white",
+                "1": "Theme is cliché or too simple to be meaningful"
+              },
+              "feedback_stems": {
+                "strength": "Your theme had nuance—you didn't settle for easy answers",
+                "growth": "Complicate your theme; what are the tensions or contradictions within it?"
+              }
+            }
+          ]
+        },
+
+        "polished_short_story": {
+          "id": "N3_polished_story",
+          "lesson_ids": ["N3.5.6"],
+          "description": "Holistic rubric for polished, revised short stories",
+          "word_range": [600, 1200],
+          "criteria": [
+            {
+              "name": "opening",
+              "display_name": "Opening",
+              "weight": 0.15,
+              "levels": {
+                "4": "Opening is compelling, establishes voice, and creates immediate engagement",
+                "3": "Opening is strong and draws reader in",
+                "2": "Opening is adequate but not distinctive",
+                "1": "Opening is weak or fails to engage"
+              },
+              "feedback_stems": {
+                "strength": "Your opening immediately pulled me in with",
+                "growth": "Craft your first line to be irresistible—make it impossible not to read on"
+              }
+            },
+            {
+              "name": "character",
+              "display_name": "Characterization",
+              "weight": 0.2,
+              "levels": {
+                "4": "Characters are vivid, complex, and change meaningfully",
+                "3": "Characters are well-developed with clear arcs",
+                "2": "Characters are present but somewhat flat or static",
+                "1": "Characters are underdeveloped or inconsistent"
+              },
+              "feedback_stems": {
+                "strength": "Your characters felt real and complex, particularly",
+                "growth": "Deepen characterization through specific details and meaningful change"
+              }
+            },
+            {
+              "name": "plot",
+              "display_name": "Plot & Pacing",
+              "weight": 0.2,
+              "levels": {
+                "4": "Plot is compelling with expert pacing; every scene earns its place",
+                "3": "Plot is strong with effective pacing",
+                "2": "Plot works but has pacing issues or unnecessary scenes",
+                "1": "Plot is confusing, thin, or poorly paced"
+              },
+              "feedback_stems": {
+                "strength": "Your plot moved with expert pacing, especially",
+                "growth": "Examine each scene—does it earn its place? Could the story be tighter?"
+              }
+            },
+            {
+              "name": "prose",
+              "display_name": "Prose Quality",
+              "weight": 0.2,
+              "levels": {
+                "4": "Prose is polished, purposeful, and pleasurable to read",
+                "3": "Prose is clean and effective",
+                "2": "Prose is serviceable but lacks distinction",
+                "1": "Prose has significant issues affecting readability"
+              },
+              "feedback_stems": {
+                "strength": "Your prose was a pleasure to read, particularly",
+                "growth": "Polish sentence-level writing; read aloud to catch awkward rhythms"
+              }
+            },
+            {
+              "name": "ending",
+              "display_name": "Ending",
+              "weight": 0.15,
+              "levels": {
+                "4": "Ending resonates; feels both surprising and inevitable",
+                "3": "Ending is satisfying and appropriate",
+                "2": "Ending is adequate but doesn't linger",
+                "1": "Ending is weak, rushed, or unsatisfying"
+              },
+              "feedback_stems": {
+                "strength": "Your ending resonated—it felt both surprising and inevitable",
+                "growth": "Craft an ending that will linger with readers after they finish"
+              }
+            },
+            {
+              "name": "revision",
+              "display_name": "Evidence of Revision",
+              "weight": 0.1,
+              "levels": {
+                "4": "Work shows clear evidence of thoughtful revision and polish",
+                "3": "Work appears revised and refined",
+                "2": "Work shows some revision but could use more polish",
+                "1": "Work reads like a first draft"
+              },
+              "feedback_stems": {
+                "strength": "The polish of revision shows throughout",
+                "growth": "Revise again—the best stories go through many drafts"
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "persuasive": {
+      
+      "tier_1": {
+        
+        "opinion_paragraph": {
+          "id": "P1_opinion_paragraph",
+          "lesson_ids": ["P1.1.5", "P1.2.5"],
+          "description": "Assesses basic opinion writing with reasons",
+          "word_range": [40, 80],
+          "criteria": [
+            {
+              "name": "clear_opinion",
+              "display_name": "Clear Opinion",
+              "weight": 0.35,
+              "levels": {
+                "4": "Opinion is crystal clear and stated confidently",
+                "3": "Opinion is stated and understandable",
+                "2": "Opinion is present but unclear or wishy-washy",
+                "1": "No clear opinion stated"
+              },
+              "feedback_stems": {
+                "strength": "Your opinion was clear and confident when you wrote",
+                "growth": "State your opinion right away so readers know exactly what you think"
+              }
+            },
+            {
+              "name": "reasons",
+              "display_name": "Supporting Reasons",
+              "weight": 0.4,
+              "levels": {
+                "4": "At least 2 strong reasons that clearly support the opinion",
+                "3": "2 reasons that connect to the opinion",
+                "2": "1 reason or reasons that don't clearly support opinion",
+                "1": "No reasons given"
+              },
+              "feedback_stems": {
+                "strength": "You gave great reasons, like",
+                "growth": "Add another reason using 'because' to make your opinion stronger"
+              }
+            },
+            {
+              "name": "connection",
+              "display_name": "Using 'Because'",
+              "weight": 0.25,
+              "levels": {
+                "4": "Uses 'because' or similar words to connect opinions and reasons smoothly",
+                "3": "Attempts to connect opinions and reasons",
+                "2": "Reasons are listed but not connected to opinion",
+                "1": "No connection between opinion and reasons"
+              },
+              "feedback_stems": {
+                "strength": "You connected your reasons well using",
+                "growth": "Use 'because' to show why your reasons support your opinion"
+              }
+            }
+          ]
+        },
+
+        "persuasive_letter": {
+          "id": "P1_persuasive_letter",
+          "lesson_ids": ["P1.3.5"],
+          "description": "Assesses persuasive letter writing",
+          "word_range": [60, 120],
+          "criteria": [
+            {
+              "name": "format",
+              "display_name": "Letter Format",
+              "weight": 0.2,
+              "levels": {
+                "4": "Includes greeting, body, and closing; formatted correctly",
+                "3": "Has main letter parts with minor format issues",
+                "2": "Missing one or more letter parts",
+                "1": "Doesn't look like a letter"
+              },
+              "feedback_stems": {
+                "strength": "Your letter was formatted correctly with",
+                "growth": "Remember letters need: greeting (Dear...), body (your message), and closing (Sincerely...)"
+              }
+            },
+            {
+              "name": "persuasion",
+              "display_name": "Persuasive Request",
+              "weight": 0.4,
+              "levels": {
+                "4": "Clearly asks for something with convincing reasons",
+                "3": "Makes a request with some reasons",
+                "2": "Request is unclear or reasons are weak",
+                "1": "No clear request made"
+              },
+              "feedback_stems": {
+                "strength": "You asked for what you wanted and gave good reasons",
+                "growth": "Be clear about what you're asking for and why they should say yes"
+              }
+            },
+            {
+              "name": "tone",
+              "display_name": "Polite Tone",
+              "weight": 0.25,
+              "levels": {
+                "4": "Polite and respectful while still being convincing",
+                "3": "Generally polite tone",
+                "2": "Sometimes demanding or rude",
+                "1": "Tone is inappropriate"
+              },
+              "feedback_stems": {
+                "strength": "You were polite and respectful while being convincing",
+                "growth": "Remember to ask nicely—people are more likely to say yes when you're respectful"
+              }
+            },
+            {
+              "name": "audience",
+              "display_name": "Knows the Audience",
+              "weight": 0.15,
+              "levels": {
+                "4": "Language and reasons fit the person being written to",
+                "3": "Generally appropriate for the audience",
+                "2": "Doesn't quite fit the audience",
+                "1": "Wrong tone for the audience"
+              },
+              "feedback_stems": {
+                "strength": "You thought about who you were writing to",
+                "growth": "Think about what would convince THIS person—what do they care about?"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_2": {
+        
+        "persuasive_essay": {
+          "id": "P2_persuasive_essay",
+          "lesson_ids": ["P2.1.6", "P2.2.6"],
+          "description": "Assesses structured persuasive essay with evidence",
+          "word_range": [250, 450],
+          "criteria": [
+            {
+              "name": "thesis",
+              "display_name": "Thesis Statement",
+              "weight": 0.2,
+              "levels": {
+                "4": "Clear, specific thesis that takes a definite position",
+                "3": "Thesis is present and clear",
+                "2": "Thesis is vague or doesn't clearly state a position",
+                "1": "No thesis or main argument"
+              },
+              "feedback_stems": {
+                "strength": "Your thesis was clear and specific:",
+                "growth": "Strengthen your thesis by making your position more specific and debatable"
+              }
+            },
+            {
+              "name": "evidence",
+              "display_name": "Evidence & Examples",
+              "weight": 0.3,
+              "levels": {
+                "4": "Strong evidence (facts, examples, anecdotes) that clearly supports each point",
+                "3": "Adequate evidence for main points",
+                "2": "Some evidence but weak or not clearly connected to claims",
+                "1": "Little to no evidence; just opinions"
+              },
+              "feedback_stems": {
+                "strength": "Your evidence was convincing, especially",
+                "growth": "Add specific facts, examples, or stories to back up your points"
+              }
+            },
+            {
+              "name": "organization",
+              "display_name": "Organization",
+              "weight": 0.2,
+              "levels": {
+                "4": "Clear introduction, body paragraphs with topic sentences, and conclusion",
+                "3": "Essay has clear structure with some organization",
+                "2": "Some attempt at structure but paragraphs unclear",
+                "1": "No clear organization"
+              },
+              "feedback_stems": {
+                "strength": "Your essay was well-organized with clear paragraphs",
+                "growth": "Start each body paragraph with a topic sentence that states your point"
+              }
+            },
+            {
+              "name": "counterargument",
+              "display_name": "Counterargument",
+              "weight": 0.15,
+              "levels": {
+                "4": "Addresses counterargument thoughtfully and refutes it",
+                "3": "Acknowledges opposing view",
+                "2": "Briefly mentions opposition but doesn't engage",
+                "1": "Ignores opposing viewpoints"
+              },
+              "feedback_stems": {
+                "strength": "You addressed the other side when you said",
+                "growth": "Consider what someone who disagrees would say, then explain why they're wrong"
+              }
+            },
+            {
+              "name": "conclusion",
+              "display_name": "Conclusion",
+              "weight": 0.15,
+              "levels": {
+                "4": "Conclusion reinforces thesis and calls reader to action or thought",
+                "3": "Conclusion summarizes main points",
+                "2": "Conclusion is weak or just repeats introduction",
+                "1": "No conclusion or abrupt ending"
+              },
+              "feedback_stems": {
+                "strength": "Your conclusion was strong because it",
+                "growth": "End by telling readers what to do or think about your argument"
+              }
+            }
+          ]
+        },
+
+        "rhetorical_appeals": {
+          "id": "P2_rhetorical_appeals",
+          "lesson_ids": ["P2.4.6"],
+          "description": "Assesses use of ethos, pathos, and logos",
+          "word_range": [300, 500],
+          "criteria": [
+            {
+              "name": "ethos",
+              "display_name": "Ethos (Credibility)",
+              "weight": 0.25,
+              "levels": {
+                "4": "Establishes credibility through knowledge, fairness, and appropriate tone",
+                "3": "Some attention to credibility",
+                "2": "Minimal credibility established",
+                "1": "No attention to credibility; may undermine trust"
+              },
+              "feedback_stems": {
+                "strength": "You built credibility by",
+                "growth": "Show readers you know what you're talking about and that you're being fair"
+              }
+            },
+            {
+              "name": "pathos",
+              "display_name": "Pathos (Emotion)",
+              "weight": 0.25,
+              "levels": {
+                "4": "Appropriate emotional appeals that strengthen the argument",
+                "3": "Some emotional connection with readers",
+                "2": "Emotional appeals are weak or manipulative",
+                "1": "No emotional engagement"
+              },
+              "feedback_stems": {
+                "strength": "Your emotional appeal was effective when",
+                "growth": "Connect with readers' feelings—help them care about your topic"
+              }
+            },
+            {
+              "name": "logos",
+              "display_name": "Logos (Logic)",
+              "weight": 0.3,
+              "levels": {
+                "4": "Strong logical reasoning with clear, valid connections between evidence and claims",
+                "3": "Reasoning is generally logical",
+                "2": "Some logical gaps or weak reasoning",
+                "1": "Reasoning is flawed or missing"
+              },
+              "feedback_stems": {
+                "strength": "Your logical reasoning was clear when",
+                "growth": "Make sure your evidence clearly supports your claims with logical connections"
+              }
+            },
+            {
+              "name": "balance",
+              "display_name": "Balance of Appeals",
+              "weight": 0.2,
+              "levels": {
+                "4": "Effectively balances all three appeals throughout",
+                "3": "Uses multiple appeals appropriately",
+                "2": "Over-relies on one appeal at the expense of others",
+                "1": "Only one appeal or none used effectively"
+              },
+              "feedback_stems": {
+                "strength": "You balanced ethos, pathos, and logos well",
+                "growth": "Strong arguments use all three appeals—logic, emotion, and credibility"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_3": {
+
+        "argumentative_essay": {
+          "id": "P3_argumentative_essay",
+          "lesson_ids": ["P3.1.6"],
+          "description": "Assesses sophisticated argumentative essay",
+          "word_range": [500, 800],
+          "criteria": [
+            {
+              "name": "thesis",
+              "display_name": "Nuanced Thesis",
+              "weight": 0.2,
+              "levels": {
+                "4": "Thesis is specific, debatable, and nuanced; acknowledges complexity",
+                "3": "Thesis is clear and arguable",
+                "2": "Thesis is too broad, obvious, or simplistic",
+                "1": "No clear thesis"
+              },
+              "feedback_stems": {
+                "strength": "Your thesis was nuanced and sophisticated:",
+                "growth": "Push your thesis to acknowledge complexity—avoid oversimplification"
+              }
+            },
+            {
+              "name": "evidence_integration",
+              "display_name": "Evidence Integration",
+              "weight": 0.25,
+              "levels": {
+                "4": "Evidence seamlessly integrated; quotes embedded smoothly with analysis",
+                "3": "Evidence is present and generally well-integrated",
+                "2": "Evidence is present but awkwardly integrated or underanalyzed",
+                "1": "Evidence is missing, dropped in without context, or not analyzed"
+              },
+              "feedback_stems": {
+                "strength": "Your evidence integration was seamless, particularly",
+                "growth": "Don't drop quotes in—introduce them, embed them smoothly, and always analyze"
+              }
+            },
+            {
+              "name": "counterargument",
+              "display_name": "Counterargument Sophistication",
+              "weight": 0.2,
+              "levels": {
+                "4": "Engages with strongest opposing arguments; concedes valid points while maintaining position",
+                "3": "Addresses counterarguments reasonably",
+                "2": "Counterarguments are strawmen or dismissed too easily",
+                "1": "No meaningful engagement with opposition"
+              },
+              "feedback_stems": {
+                "strength": "You engaged with counterarguments thoughtfully, especially",
+                "growth": "Engage with the STRONGEST opposing argument, not the weakest"
+              }
+            },
+            {
+              "name": "complexity",
+              "display_name": "Intellectual Complexity",
+              "weight": 0.2,
+              "levels": {
+                "4": "Argument shows sophisticated thinking; addresses gray areas and tensions",
+                "3": "Argument has depth and some complexity",
+                "2": "Argument is competent but lacks intellectual depth",
+                "1": "Argument is superficial or oversimplified"
+              },
+              "feedback_stems": {
+                "strength": "Your argument showed intellectual sophistication when",
+                "growth": "Push into the complexity—what tensions or contradictions exist in your position?"
+              }
+            },
+            {
+              "name": "prose",
+              "display_name": "Academic Prose",
+              "weight": 0.15,
+              "levels": {
+                "4": "Prose is sophisticated, clear, and appropriate for academic argument",
+                "3": "Prose is clear and generally academic",
+                "2": "Prose has issues with clarity or formality",
+                "1": "Prose undermines the argument"
+              },
+              "feedback_stems": {
+                "strength": "Your academic prose was strong, particularly",
+                "growth": "Polish your prose—sophisticated ideas deserve sophisticated expression"
+              }
+            }
+          ]
+        },
+
+        "rhetorical_analysis": {
+          "id": "P3_rhetorical_analysis",
+          "lesson_ids": ["P3.2.6"],
+          "description": "Assesses ability to analyze rhetoric",
+          "word_range": [500, 800],
+          "criteria": [
+            {
+              "name": "identification",
+              "display_name": "Strategy Identification",
+              "weight": 0.2,
+              "levels": {
+                "4": "Identifies multiple specific rhetorical strategies accurately",
+                "3": "Identifies key rhetorical strategies",
+                "2": "Identifies strategies but some errors or misses key techniques",
+                "1": "Fails to identify rhetorical strategies"
+              },
+              "feedback_stems": {
+                "strength": "You accurately identified key strategies like",
+                "growth": "Look for specific techniques—naming strategies strengthens analysis"
+              }
+            },
+            {
+              "name": "analysis",
+              "display_name": "Analysis Depth",
+              "weight": 0.35,
+              "levels": {
+                "4": "Explains HOW strategies work and WHY they're effective; shows effect on audience",
+                "3": "Analyzes strategies with some attention to effect",
+                "2": "Describes strategies but doesn't analyze effectiveness",
+                "1": "Lists strategies without analysis"
+              },
+              "feedback_stems": {
+                "strength": "Your analysis went beyond identification to explain HOW and WHY",
+                "growth": "Don't just identify strategies—explain how they work on the audience"
+              }
+            },
+            {
+              "name": "evidence",
+              "display_name": "Textual Evidence",
+              "weight": 0.2,
+              "levels": {
+                "4": "Analysis grounded in specific textual examples; quotes used effectively",
+                "3": "Uses textual evidence to support analysis",
+                "2": "Some evidence but not always well-chosen or well-used",
+                "1": "Makes claims without textual support"
+              },
+              "feedback_stems": {
+                "strength": "You grounded your analysis in specific evidence",
+                "growth": "Every claim about the text needs specific textual support"
+              }
+            },
+            {
+              "name": "context",
+              "display_name": "Rhetorical Context",
+              "weight": 0.15,
+              "levels": {
+                "4": "Shows how context (audience, purpose, occasion) shapes rhetorical choices",
+                "3": "Attends to some contextual factors",
+                "2": "Minimal attention to context",
+                "1": "Ignores rhetorical context"
+              },
+              "feedback_stems": {
+                "strength": "You connected rhetoric to context effectively",
+                "growth": "Consider how audience and purpose shape the rhetor's choices"
+              }
+            },
+            {
+              "name": "evaluation",
+              "display_name": "Evaluative Judgment",
+              "weight": 0.1,
+              "levels": {
+                "4": "Makes and defends evaluative claims about effectiveness",
+                "3": "Offers some evaluation of effectiveness",
+                "2": "Evaluation is present but not well-supported",
+                "1": "No evaluation of effectiveness"
+              },
+              "feedback_stems": {
+                "strength": "You evaluated effectiveness persuasively when",
+                "growth": "Don't just describe—evaluate. Are these strategies effective? Why?"
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "expository": {
+      
+      "tier_1": {
+
+        "all_about": {
+          "id": "E1_all_about",
+          "lesson_ids": ["E1.1.5"],
+          "description": "Assesses 'All About' informational writing",
+          "word_range": [75, 150],
+          "criteria": [
+            {
+              "name": "facts",
+              "display_name": "Facts About Topic",
+              "weight": 0.4,
+              "levels": {
+                "4": "Multiple accurate, interesting facts that teach the reader",
+                "3": "Several facts about the topic",
+                "2": "Few facts or includes opinions instead of facts",
+                "1": "No real facts; mostly opinions or wrong information"
+              },
+              "feedback_stems": {
+                "strength": "You taught me interesting facts like",
+                "growth": "Add more facts that help readers learn about your topic"
+              }
+            },
+            {
+              "name": "organization",
+              "display_name": "Grouped Information",
+              "weight": 0.35,
+              "levels": {
+                "4": "Information grouped into clear categories that make sense",
+                "3": "Some grouping of related information",
+                "2": "Information is jumbled together",
+                "1": "No organization at all"
+              },
+              "feedback_stems": {
+                "strength": "You organized your facts into groups",
+                "growth": "Group related facts together—put all the food facts in one place"
+              }
+            },
+            {
+              "name": "topic_focus",
+              "display_name": "Stays on Topic",
+              "weight": 0.25,
+              "levels": {
+                "4": "All information clearly relates to the main topic",
+                "3": "Most information is on topic",
+                "2": "Some off-topic information mixed in",
+                "1": "Wanders off topic frequently"
+              },
+              "feedback_stems": {
+                "strength": "Everything you wrote connected to your topic",
+                "growth": "Make sure every fact connects to your main topic"
+              }
+            }
+          ]
+        },
+
+        "how_to": {
+          "id": "E1_how_to",
+          "lesson_ids": ["E1.2.5"],
+          "description": "Assesses how-to/procedural writing",
+          "word_range": [60, 120],
+          "criteria": [
+            {
+              "name": "sequence",
+              "display_name": "Steps in Order",
+              "weight": 0.4,
+              "levels": {
+                "4": "Steps are in perfect order; following them would work",
+                "3": "Steps are mostly in order",
+                "2": "Some steps out of order or confusing",
+                "1": "Steps are jumbled; couldn't follow these instructions"
+              },
+              "feedback_stems": {
+                "strength": "Your steps are in perfect order",
+                "growth": "Think about what comes first, next, then—put steps in the right order"
+              }
+            },
+            {
+              "name": "completeness",
+              "display_name": "All Steps Included",
+              "weight": 0.35,
+              "levels": {
+                "4": "All necessary steps included; nothing missing",
+                "3": "Most steps included; minor gaps",
+                "2": "Missing important steps",
+                "1": "Many steps missing; incomplete instructions"
+              },
+              "feedback_stems": {
+                "strength": "You included all the steps someone would need",
+                "growth": "Check that you didn't skip any steps—pretend you're teaching someone who knows nothing"
+              }
+            },
+            {
+              "name": "transitions",
+              "display_name": "Order Words",
+              "weight": 0.25,
+              "levels": {
+                "4": "Uses transition words (first, next, then, finally) throughout",
+                "3": "Uses some transition words",
+                "2": "Few transition words; steps feel disconnected",
+                "1": "No transition words used"
+              },
+              "feedback_stems": {
+                "strength": "You used great order words like",
+                "growth": "Use words like 'first,' 'next,' 'then,' and 'finally' to guide your reader"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_2": {
+
+        "informational_essay": {
+          "id": "E2_informational_essay",
+          "lesson_ids": ["E2.2.6"],
+          "description": "Assesses informational essay structure and content",
+          "word_range": [300, 500],
+          "criteria": [
+            {
+              "name": "introduction",
+              "display_name": "Introduction",
+              "weight": 0.15,
+              "levels": {
+                "4": "Engaging introduction that hooks reader and previews topic",
+                "3": "Introduction establishes topic clearly",
+                "2": "Introduction is weak or doesn't clearly establish topic",
+                "1": "No introduction or very weak"
+              },
+              "feedback_stems": {
+                "strength": "Your introduction engaged readers while setting up the topic",
+                "growth": "Hook readers in your introduction while previewing what you'll cover"
+              }
+            },
+            {
+              "name": "organization",
+              "display_name": "Organization & Headings",
+              "weight": 0.2,
+              "levels": {
+                "4": "Clear organization with helpful headings that guide the reader",
+                "3": "Good organization with some helpful structure",
+                "2": "Some organization but headings unclear or missing",
+                "1": "Disorganized; hard to follow"
+              },
+              "feedback_stems": {
+                "strength": "Your organization and headings made the essay easy to follow",
+                "growth": "Use clear headings to guide readers through your information"
+              }
+            },
+            {
+              "name": "content",
+              "display_name": "Accurate Information",
+              "weight": 0.25,
+              "levels": {
+                "4": "Information is accurate, detailed, and shows understanding",
+                "3": "Information is mostly accurate with good detail",
+                "2": "Some inaccuracies or lacks sufficient detail",
+                "1": "Information is inaccurate or very thin"
+              },
+              "feedback_stems": {
+                "strength": "Your information was accurate and detailed",
+                "growth": "Add more specific details and make sure facts are accurate"
+              }
+            },
+            {
+              "name": "development",
+              "display_name": "Paragraph Development",
+              "weight": 0.25,
+              "levels": {
+                "4": "Body paragraphs have topic sentences, evidence, and explanation",
+                "3": "Paragraphs are developed with some structure",
+                "2": "Paragraphs lack clear structure or development",
+                "1": "No paragraph structure"
+              },
+              "feedback_stems": {
+                "strength": "Your paragraphs were well-developed with topic sentences and support",
+                "growth": "Each paragraph needs a topic sentence, facts/examples, and explanation"
+              }
+            },
+            {
+              "name": "conclusion",
+              "display_name": "Conclusion",
+              "weight": 0.15,
+              "levels": {
+                "4": "Conclusion synthesizes key points and provides closure",
+                "3": "Conclusion summarizes main points",
+                "2": "Conclusion is weak or incomplete",
+                "1": "No conclusion"
+              },
+              "feedback_stems": {
+                "strength": "Your conclusion effectively synthesized your main points",
+                "growth": "Wrap up by synthesizing (not just repeating) your key points"
+              }
+            }
+          ]
+        },
+
+        "compare_contrast": {
+          "id": "E2_compare_contrast",
+          "lesson_ids": ["E2.3.5"],
+          "description": "Assesses compare and contrast essay",
+          "word_range": [250, 450],
+          "criteria": [
+            {
+              "name": "organization_method",
+              "display_name": "Organizational Method",
+              "weight": 0.25,
+              "levels": {
+                "4": "Clear block or point-by-point organization used consistently",
+                "3": "Organizational method is apparent",
+                "2": "Organization is inconsistent or unclear",
+                "1": "No discernible organizational method"
+              },
+              "feedback_stems": {
+                "strength": "You used a clear organizational method throughout",
+                "growth": "Choose block OR point-by-point organization and stick with it"
+              }
+            },
+            {
+              "name": "comparison",
+              "display_name": "Meaningful Comparison",
+              "weight": 0.3,
+              "levels": {
+                "4": "Comparison reveals meaningful similarities and differences; provides insight",
+                "3": "Comparison covers similarities and differences adequately",
+                "2": "Comparison is surface-level or incomplete",
+                "1": "Comparison doesn't really compare the subjects"
+              },
+              "feedback_stems": {
+                "strength": "Your comparison revealed meaningful insights about",
+                "growth": "Go deeper—what do the similarities and differences teach us?"
+              }
+            },
+            {
+              "name": "transitions",
+              "display_name": "Comparison Transitions",
+              "weight": 0.2,
+              "levels": {
+                "4": "Smooth use of comparison/contrast transitions (however, similarly, on the other hand)",
+                "3": "Good use of some transitions",
+                "2": "Few transitions or awkward use",
+                "1": "No comparison/contrast transitions"
+              },
+              "feedback_stems": {
+                "strength": "You used transitions effectively, like",
+                "growth": "Use transitions like 'similarly,' 'however,' and 'in contrast' to signal comparisons"
+              }
+            },
+            {
+              "name": "conclusion",
+              "display_name": "'So What' Conclusion",
+              "weight": 0.25,
+              "levels": {
+                "4": "Conclusion draws meaningful insight from the comparison",
+                "3": "Conclusion offers some insight",
+                "2": "Conclusion just summarizes without insight",
+                "1": "No conclusion or insight"
+              },
+              "feedback_stems": {
+                "strength": "Your conclusion drew meaningful insight from your comparison",
+                "growth": "End with 'so what?'—what does this comparison teach us?"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_3": {
+
+        "literary_analysis": {
+          "id": "E3_literary_analysis",
+          "lesson_ids": ["E3.1.6"],
+          "description": "Assesses literary analysis essay",
+          "word_range": [500, 800],
+          "criteria": [
+            {
+              "name": "thesis",
+              "display_name": "Analytical Thesis",
+              "weight": 0.2,
+              "levels": {
+                "4": "Thesis offers original, debatable interpretation of the text",
+                "3": "Thesis is analytical and arguable",
+                "2": "Thesis is too obvious, broad, or summarizes rather than analyzes",
+                "1": "No thesis or thesis is merely descriptive"
+              },
+              "feedback_stems": {
+                "strength": "Your thesis offered an original, arguable interpretation",
+                "growth": "Push beyond the obvious—what can you argue about the text that someone might disagree with?"
+              }
+            },
+            {
+              "name": "textual_evidence",
+              "display_name": "Textual Evidence",
+              "weight": 0.25,
+              "levels": {
+                "4": "Quotes are well-chosen, smoothly integrated, and thoroughly analyzed",
+                "3": "Evidence is present and generally well-used",
+                "2": "Evidence present but poorly chosen, integrated, or analyzed",
+                "1": "Little or no textual evidence"
+              },
+              "feedback_stems": {
+                "strength": "Your textual evidence was well-chosen and analyzed",
+                "growth": "Always analyze quotes—explain how they support your argument"
+              }
+            },
+            {
+              "name": "analysis",
+              "display_name": "Analysis vs. Summary",
+              "weight": 0.25,
+              "levels": {
+                "4": "Analysis dominates; explains HOW and WHY rather than what happens",
+                "3": "Analysis outweighs summary",
+                "2": "Too much summary; analysis is surface-level",
+                "1": "Mostly or all summary; no real analysis"
+              },
+              "feedback_stems": {
+                "strength": "Your analysis went beyond summary to explain HOW and WHY",
+                "growth": "Less summary, more analysis—focus on HOW the text creates meaning"
+              }
+            },
+            {
+              "name": "literary_concepts",
+              "display_name": "Literary Concepts",
+              "weight": 0.15,
+              "levels": {
+                "4": "Uses literary concepts (symbolism, characterization, etc.) accurately and insightfully",
+                "3": "Uses some literary concepts appropriately",
+                "2": "Attempts literary concepts but with errors or superficially",
+                "1": "No literary concepts used"
+              },
+              "feedback_stems": {
+                "strength": "You used literary concepts effectively, such as",
+                "growth": "Apply literary concepts (symbolism, irony, characterization) to deepen analysis"
+              }
+            },
+            {
+              "name": "organization",
+              "display_name": "Organization & Flow",
+              "weight": 0.15,
+              "levels": {
+                "4": "Arguments build logically; paragraphs connect to overall thesis",
+                "3": "Organization is clear and functional",
+                "2": "Some organizational issues; connections between ideas unclear",
+                "1": "Disorganized; argument is hard to follow"
+              },
+              "feedback_stems": {
+                "strength": "Your argument built logically throughout",
+                "growth": "Make sure each paragraph connects clearly to your thesis"
+              }
+            }
+          ]
+        },
+
+        "research_paper": {
+          "id": "E3_research_paper",
+          "lesson_ids": ["E3.2.6"],
+          "description": "Assesses extended research paper",
+          "word_range": [800, 1500],
+          "criteria": [
+            {
+              "name": "thesis",
+              "display_name": "Research Thesis",
+              "weight": 0.15,
+              "levels": {
+                "4": "Clear, focused thesis that guides and is supported by research",
+                "3": "Thesis is clear and research-supported",
+                "2": "Thesis is vague or not well-supported by research",
+                "1": "No clear thesis"
+              },
+              "feedback_stems": {
+                "strength": "Your thesis was clear and well-supported by your research",
+                "growth": "Ensure your thesis is focused enough to be fully supported by your evidence"
+              }
+            },
+            {
+              "name": "sources",
+              "display_name": "Source Quality & Variety",
+              "weight": 0.2,
+              "levels": {
+                "4": "Uses credible, varied sources appropriately; shows research depth",
+                "3": "Uses adequate credible sources",
+                "2": "Sources are weak, limited, or of questionable credibility",
+                "1": "Few or no credible sources"
+              },
+              "feedback_stems": {
+                "strength": "Your sources were credible and varied",
+                "growth": "Use more varied, credible sources to strengthen your research"
+              }
+            },
+            {
+              "name": "synthesis",
+              "display_name": "Synthesis",
+              "weight": 0.25,
+              "levels": {
+                "4": "Synthesizes multiple sources to build original argument; sources in conversation",
+                "3": "Sources support argument and show some synthesis",
+                "2": "Sources summarized but not synthesized; patched together",
+                "1": "No synthesis; sources isolated from each other"
+              },
+              "feedback_stems": {
+                "strength": "You synthesized sources effectively, putting them in conversation",
+                "growth": "Don't just summarize each source—show how they connect and build your argument"
+              }
+            },
+            {
+              "name": "integration",
+              "display_name": "Evidence Integration",
+              "weight": 0.15,
+              "levels": {
+                "4": "Evidence smoothly integrated; quotes embedded and analyzed",
+                "3": "Evidence is generally well-integrated",
+                "2": "Evidence is present but awkwardly integrated",
+                "1": "Evidence is dropped in without integration"
+              },
+              "feedback_stems": {
+                "strength": "You integrated evidence smoothly throughout",
+                "growth": "Introduce quotes, embed them in your sentences, and always analyze"
+              }
+            },
+            {
+              "name": "citations",
+              "display_name": "Citation Accuracy",
+              "weight": 0.1,
+              "levels": {
+                "4": "Citations accurate and consistent throughout",
+                "3": "Citations mostly accurate with minor errors",
+                "2": "Significant citation errors or inconsistency",
+                "1": "Missing citations or major errors"
+              },
+              "feedback_stems": {
+                "strength": "Your citations were accurate and consistent",
+                "growth": "Double-check citation format for consistency"
+              }
+            },
+            {
+              "name": "organization",
+              "display_name": "Organization",
+              "weight": 0.15,
+              "levels": {
+                "4": "Complex material organized clearly; reader guided throughout",
+                "3": "Organization is clear and effective",
+                "2": "Some organizational issues; hard to follow at times",
+                "1": "Disorganized; difficult to follow"
+              },
+              "feedback_stems": {
+                "strength": "You organized complex material clearly",
+                "growth": "Use clear section organization and transitions to guide readers"
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "descriptive": {
+
+      "tier_1": {
+
+        "person_description": {
+          "id": "D1_person",
+          "lesson_ids": ["D1.2.5"],
+          "description": "Assesses description of a person",
+          "word_range": [50, 100],
+          "criteria": [
+            {
+              "name": "appearance",
+              "display_name": "What They Look Like",
+              "weight": 0.35,
+              "levels": {
+                "4": "Vivid physical details help readers picture the person",
+                "3": "Some physical description included",
+                "2": "Minimal or vague physical description",
+                "1": "No physical description"
+              },
+              "feedback_stems": {
+                "strength": "You helped me picture this person when you wrote",
+                "growth": "Add details about what this person looks like—hair, eyes, how they dress"
+              }
+            },
+            {
+              "name": "personality",
+              "display_name": "What They're Like",
+              "weight": 0.4,
+              "levels": {
+                "4": "Personality shown through examples and actions, not just labels",
+                "3": "Some personality traits described with examples",
+                "2": "Personality mentioned but told, not shown",
+                "1": "No personality description"
+              },
+              "feedback_stems": {
+                "strength": "You showed personality through examples like",
+                "growth": "Instead of saying someone is 'nice,' show an example of them being nice"
+              }
+            },
+            {
+              "name": "unique_details",
+              "display_name": "Special Details",
+              "weight": 0.25,
+              "levels": {
+                "4": "Includes unique details that make this person stand out",
+                "3": "Some distinguishing details",
+                "2": "Generic description; could be anyone",
+                "1": "No unique or interesting details"
+              },
+              "feedback_stems": {
+                "strength": "The detail about ___ made this person unique",
+                "growth": "What makes this person different from everyone else? Include those special details"
+              }
+            }
+          ]
+        },
+
+        "place_description": {
+          "id": "D1_place",
+          "lesson_ids": ["D1.3.5"],
+          "description": "Assesses description of a place",
+          "word_range": [50, 100],
+          "criteria": [
+            {
+              "name": "sensory_details",
+              "display_name": "Sensory Details",
+              "weight": 0.35,
+              "levels": {
+                "4": "Multiple senses used to bring the place alive",
+                "3": "More than one sense used",
+                "2": "Mostly visual; other senses missing",
+                "1": "No sensory details"
+              },
+              "feedback_stems": {
+                "strength": "You used senses well, including",
+                "growth": "Add sounds, smells, or textures—not just what you see"
+              }
+            },
+            {
+              "name": "spatial_organization",
+              "display_name": "Organized Description",
+              "weight": 0.35,
+              "levels": {
+                "4": "Description moves logically through the space; easy to follow",
+                "3": "Some organization to the description",
+                "2": "Description jumps around; hard to follow",
+                "1": "No clear organization"
+              },
+              "feedback_stems": {
+                "strength": "Your description moved logically through the space",
+                "growth": "Organize your description—near to far, left to right, or walking through"
+              }
+            },
+            {
+              "name": "mood",
+              "display_name": "Feeling of the Place",
+              "weight": 0.3,
+              "levels": {
+                "4": "Description creates a feeling or mood about the place",
+                "3": "Some sense of mood",
+                "2": "Place described but no mood created",
+                "1": "Flat; no sense of how the place feels"
+              },
+              "feedback_stems": {
+                "strength": "You captured the mood of this place",
+                "growth": "Help readers feel the mood—is it cozy? Scary? Exciting?"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_2": {
+
+        "mood_piece": {
+          "id": "D2_mood",
+          "lesson_ids": ["D2.2.5"],
+          "description": "Assesses ability to create and maintain mood",
+          "word_range": [150, 300],
+          "criteria": [
+            {
+              "name": "word_choice",
+              "display_name": "Word Choice for Mood",
+              "weight": 0.35,
+              "levels": {
+                "4": "Word choices consistently create and reinforce the target mood",
+                "3": "Most word choices support the mood",
+                "2": "Some word choices contradict the mood",
+                "1": "Word choices don't support any particular mood"
+              },
+              "feedback_stems": {
+                "strength": "Your word choices consistently created mood, like",
+                "growth": "Choose words that all point to the same feeling"
+              }
+            },
+            {
+              "name": "consistency",
+              "display_name": "Mood Consistency",
+              "weight": 0.35,
+              "levels": {
+                "4": "Mood is maintained throughout; no jarring shifts",
+                "3": "Mood is mostly consistent",
+                "2": "Mood shifts inappropriately or fades",
+                "1": "No consistent mood"
+              },
+              "feedback_stems": {
+                "strength": "You maintained the mood consistently throughout",
+                "growth": "Watch for moments that break the mood you're building"
+              }
+            },
+            {
+              "name": "effect",
+              "display_name": "Reader Effect",
+              "weight": 0.3,
+              "levels": {
+                "4": "Reader clearly feels the intended mood",
+                "3": "Reader gets a sense of the mood",
+                "2": "Mood is unclear or weak",
+                "1": "No mood effect on reader"
+              },
+              "feedback_stems": {
+                "strength": "Reading this, I felt",
+                "growth": "Push further—how can you make the reader FEEL the mood more strongly?"
+              }
+            }
+          ]
+        },
+
+        "figurative_description": {
+          "id": "D2_figurative",
+          "lesson_ids": ["D2.1.5"],
+          "description": "Assesses use of figurative language in description",
+          "word_range": [150, 300],
+          "criteria": [
+            {
+              "name": "variety",
+              "display_name": "Variety of Techniques",
+              "weight": 0.25,
+              "levels": {
+                "4": "Uses multiple figurative techniques (simile, metaphor, personification)",
+                "3": "Uses at least two techniques",
+                "2": "Relies on one technique only",
+                "1": "No figurative language"
+              },
+              "feedback_stems": {
+                "strength": "You used multiple techniques including",
+                "growth": "Try adding simile, metaphor, or personification"
+              }
+            },
+            {
+              "name": "originality",
+              "display_name": "Original Comparisons",
+              "weight": 0.35,
+              "levels": {
+                "4": "Figurative language is fresh and original; avoids clichés",
+                "3": "Mostly original with minor clichés",
+                "2": "Some clichés or predictable comparisons",
+                "1": "All clichés or ineffective comparisons"
+              },
+              "feedback_stems": {
+                "strength": "Your comparisons were original and surprising, like",
+                "growth": "Avoid common comparisons—find fresh, surprising ways to describe"
+              }
+            },
+            {
+              "name": "effectiveness",
+              "display_name": "Meaningful Comparisons",
+              "weight": 0.4,
+              "levels": {
+                "4": "Figurative language illuminates the subject; helps readers understand better",
+                "3": "Figurative language adds to description",
+                "2": "Figurative language is present but doesn't add much",
+                "1": "Figurative language confuses or detracts"
+              },
+              "feedback_stems": {
+                "strength": "Your comparisons helped me understand better, especially",
+                "growth": "Make sure comparisons help readers see your subject more clearly"
+              }
+            }
+          ]
+        }
+      },
+
+      "tier_3": {
+
+        "personal_essay": {
+          "id": "D3_personal_essay",
+          "lesson_ids": ["D3.2.6"],
+          "description": "Assesses reflective personal essay/memoir",
+          "word_range": [500, 800],
+          "criteria": [
+            {
+              "name": "scene",
+              "display_name": "Scene Writing",
+              "weight": 0.25,
+              "levels": {
+                "4": "Vivid scenes that bring memories to life; readers feel present",
+                "3": "Scenes are present and engaging",
+                "2": "Some scene writing but mostly summary",
+                "1": "All telling, no scene"
+              },
+              "feedback_stems": {
+                "strength": "Your scenes brought memories to life, especially",
+                "growth": "Recreate moments as scenes—put readers there with you"
+              }
+            },
+            {
+              "name": "reflection",
+              "display_name": "Meaningful Reflection",
+              "weight": 0.3,
+              "levels": {
+                "4": "Reflection draws meaningful insight; goes beyond surface observation",
+                "3": "Includes reflection that adds meaning",
+                "2": "Reflection is shallow or obvious",
+                "1": "No reflection; just narrates events"
+              },
+              "feedback_stems": {
+                "strength": "Your reflection added deep meaning when",
+                "growth": "Dig deeper in reflection—what does this experience really mean to you?"
+              }
+            },
+            {
+              "name": "universal",
+              "display_name": "Universal Connection",
+              "weight": 0.2,
+              "levels": {
+                "4": "Personal experience connects to universal human themes",
+                "3": "Some connection to broader human experience",
+                "2": "Remains too personally specific; hard for readers to connect",
+                "1": "No universal resonance"
+              },
+              "feedback_stems": {
+                "strength": "You connected your personal experience to something universal",
+                "growth": "Find the universal in your personal story—what might others recognize?"
+              }
+            },
+            {
+              "name": "voice",
+              "display_name": "Authentic Voice",
+              "weight": 0.15,
+              "levels": {
+                "4": "Voice is authentic and vulnerable; writer takes risks",
+                "3": "Voice is present and genuine",
+                "2": "Voice is guarded or generic",
+                "1": "No authentic voice"
+              },
+              "feedback_stems": {
+                "strength": "Your authentic voice came through, especially",
+                "growth": "Be more vulnerable—take risks in sharing your authentic self"
+              }
+            },
+            {
+              "name": "structure",
+              "display_name": "Essay Structure",
+              "weight": 0.1,
+              "levels": {
+                "4": "Structure serves the essay's purpose; moves naturally between scene and reflection",
+                "3": "Structure is effective",
+                "2": "Structure issues—too much scene or too much reflection",
+                "1": "Structure doesn't work"
+              },
+              "feedback_stems": {
+                "strength": "Your structure balanced scene and reflection effectively",
+                "growth": "Balance scene and reflection—move between showing and telling"
+              }
+            }
+          ]
+        },
+
+        "literary_description": {
+          "id": "D3_literary_description",
+          "lesson_ids": ["D3.1.6"],
+          "description": "Assesses literary quality descriptive piece",
+          "word_range": [300, 500],
+          "criteria": [
+            {
+              "name": "imagery",
+              "display_name": "Powerful Imagery",
+              "weight": 0.3,
+              "levels": {
+                "4": "Imagery is striking and memorable; creates lasting impressions",
+                "3": "Imagery is effective and evocative",
+                "2": "Imagery is present but not memorable",
+                "1": "No imagery; flat description"
+              },
+              "feedback_stems": {
+                "strength": "Your imagery was striking, especially",
+                "growth": "Push for images that will stay with readers"
+              }
+            },
+            {
+              "name": "symbolism",
+              "display_name": "Symbolic Depth",
+              "weight": 0.25,
+              "levels": {
+                "4": "Details carry symbolic weight; description means more than literal",
+                "3": "Some symbolic resonance",
+                "2": "Minimal symbolic meaning",
+                "1": "Purely literal description"
+              },
+              "feedback_stems": {
+                "strength": "Your details carried symbolic weight, such as",
+                "growth": "Choose details that resonate beyond their literal meaning"
+              }
+            },
+            {
+              "name": "economy",
+              "display_name": "Economy of Language",
+              "weight": 0.25,
+              "levels": {
+                "4": "Every word earns its place; nothing wasted, nothing missing",
+                "3": "Language is mostly efficient",
+                "2": "Some wordiness or gaps",
+                "1": "Wordy or sparse"
+              },
+              "feedback_stems": {
+                "strength": "Every word earned its place",
+                "growth": "Edit ruthlessly—cut any word that doesn't work hard"
+              }
+            },
+            {
+              "name": "atmosphere",
+              "display_name": "Atmosphere",
+              "weight": 0.2,
+              "levels": {
+                "4": "Creates powerful atmosphere; reader is transported",
+                "3": "Creates clear atmosphere",
+                "2": "Atmosphere is weak or inconsistent",
+                "1": "No atmosphere"
+              },
+              "feedback_stems": {
+                "strength": "You created a powerful atmosphere that",
+                "growth": "Build atmosphere through every choice—words, rhythm, details"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

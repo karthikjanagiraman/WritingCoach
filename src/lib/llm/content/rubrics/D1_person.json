@@ -1,0 +1,53 @@
+{
+  "rubric_id": "D1_person",
+  "lesson_ids": ["D1.2.5"],
+  "description": "Assesses description of a person",
+  "word_range": [50, 100],
+  "criteria": [
+    {
+      "name": "appearance",
+      "display_name": "What They Look Like",
+      "weight": 0.35,
+      "levels": {
+        "4": "Vivid physical details help readers picture the person",
+        "3": "Some physical description included",
+        "2": "Minimal or vague physical description",
+        "1": "No physical description"
+      },
+      "feedback_stems": {
+        "strength": "You helped me picture this person when you wrote",
+        "growth": "Add details about what this person looks like—hair, eyes, how they dress"
+      }
+    },
+    {
+      "name": "personality",
+      "display_name": "What They're Like",
+      "weight": 0.4,
+      "levels": {
+        "4": "Personality shown through examples and actions, not just labels",
+        "3": "Some personality traits described with examples",
+        "2": "Personality mentioned but told, not shown",
+        "1": "No personality description"
+      },
+      "feedback_stems": {
+        "strength": "You showed personality through examples like",
+        "growth": "Instead of saying someone is 'nice,' show an example of them being nice"
+      }
+    },
+    {
+      "name": "unique_details",
+      "display_name": "Special Details",
+      "weight": 0.25,
+      "levels": {
+        "4": "Includes unique details that make this person stand out",
+        "3": "Some distinguishing details",
+        "2": "Generic description; could be anyone",
+        "1": "No unique or interesting details"
+      },
+      "feedback_stems": {
+        "strength": "The detail about ___ made this person unique",
+        "growth": "What makes this person different from everyone else? Include those special details"
+      }
+    }
+  ]
+}

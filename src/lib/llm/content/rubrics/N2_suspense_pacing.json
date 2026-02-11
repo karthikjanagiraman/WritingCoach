@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N2_suspense_pacing",
+  "lesson_ids": ["N2.5.6"],
+  "description": "Assesses ability to create suspense and control pacing in narrative",
+  "word_range": [150, 350],
+  "criteria": [
+    {
+      "name": "suspense_techniques",
+      "display_name": "Suspense Techniques",
+      "weight": 0.35,
+      "levels": {
+        "4": "Uses multiple suspense techniques (foreshadowing, cliffhangers, unanswered questions) effectively",
+        "3": "Uses at least one suspense technique that creates tension",
+        "2": "Attempts suspense but techniques are weak or underdeveloped",
+        "1": "No suspense techniques used; story feels flat"
+      },
+      "feedback_stems": {
+        "strength": "You built suspense effectively using techniques like",
+        "growth": "Try foreshadowing, cliffhangers, or unanswered questions to keep readers on the edge"
+      }
+    },
+    {
+      "name": "pacing_control",
+      "display_name": "Pacing Control",
+      "weight": 0.35,
+      "levels": {
+        "4": "Pacing varies intentionally; slows for tension and speeds for action",
+        "3": "Some evidence of pacing control in key moments",
+        "2": "Pacing is mostly even; no intentional speeding up or slowing down",
+        "1": "Pacing is rushed throughout or drags consistently"
+      },
+      "feedback_stems": {
+        "strength": "Your pacing was skillful, especially when you slowed down at",
+        "growth": "Slow down at tense moments with more detail; speed up action scenes with shorter sentences"
+      }
+    },
+    {
+      "name": "reader_engagement",
+      "display_name": "Reader Engagement",
+      "weight": 0.3,
+      "levels": {
+        "4": "Reader feels compelled to keep reading; genuine curiosity about what happens next",
+        "3": "Reader is engaged and wants to know the outcome",
+        "2": "Some interest but reader isn't fully hooked",
+        "1": "Reader loses interest; no sense of urgency"
+      },
+      "feedback_stems": {
+        "strength": "I had to keep reading to find out what happened because",
+        "growth": "Make readers wonder 'what happens next?' by withholding information at key moments"
+      }
+    }
+  ]
+}

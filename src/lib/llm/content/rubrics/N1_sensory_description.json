@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N1_sensory_description",
+  "lesson_ids": ["D1.1.5", "N1.4.5"],
+  "description": "Assesses use of sensory details in description",
+  "word_range": [40, 80],
+  "criteria": [
+    {
+      "name": "variety",
+      "display_name": "Different Senses",
+      "weight": 0.4,
+      "levels": {
+        "4": "Uses at least 3 different senses (see, hear, feel, smell, taste)",
+        "3": "Uses 2 different senses",
+        "2": "Mostly one sense, usually sight",
+        "1": "No clear sensory details"
+      },
+      "feedback_stems": {
+        "strength": "Great job using different senses! You included",
+        "growth": "Try adding what you can hear, smell, or feel—not just what you see"
+      }
+    },
+    {
+      "name": "vividness",
+      "display_name": "Strong Word Choices",
+      "weight": 0.35,
+      "levels": {
+        "4": "Uses specific, interesting words that create clear pictures",
+        "3": "Some strong word choices",
+        "2": "Words are basic and vague (nice, big, good)",
+        "1": "No attempt at descriptive words"
+      },
+      "feedback_stems": {
+        "strength": "I loved your word choice when you said",
+        "growth": "Instead of common words like 'nice' or 'big,' try more specific words"
+      }
+    },
+    {
+      "name": "purpose",
+      "display_name": "Details That Matter",
+      "weight": 0.25,
+      "levels": {
+        "4": "Details help readers understand the place/moment better",
+        "3": "Most details are relevant",
+        "2": "Some details seem random or don't add much",
+        "1": "Details are missing or confusing"
+      },
+      "feedback_stems": {
+        "strength": "Your details really helped me understand",
+        "growth": "Choose details that help readers feel like they're really there"
+      }
+    }
+  ]
+}

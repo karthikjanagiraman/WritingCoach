@@ -1,0 +1,68 @@
+{
+  "rubric_id": "D3_literary_description",
+  "lesson_ids": ["D3.1.6"],
+  "description": "Assesses literary quality descriptive piece",
+  "word_range": [300, 500],
+  "criteria": [
+    {
+      "name": "imagery",
+      "display_name": "Powerful Imagery",
+      "weight": 0.3,
+      "levels": {
+        "4": "Imagery is striking and memorable; creates lasting impressions",
+        "3": "Imagery is effective and evocative",
+        "2": "Imagery is present but not memorable",
+        "1": "No imagery; flat description"
+      },
+      "feedback_stems": {
+        "strength": "Your imagery was striking, especially",
+        "growth": "Push for images that will stay with readers"
+      }
+    },
+    {
+      "name": "symbolism",
+      "display_name": "Symbolic Depth",
+      "weight": 0.25,
+      "levels": {
+        "4": "Details carry symbolic weight; description means more than literal",
+        "3": "Some symbolic resonance",
+        "2": "Minimal symbolic meaning",
+        "1": "Purely literal description"
+      },
+      "feedback_stems": {
+        "strength": "Your details carried symbolic weight, such as",
+        "growth": "Choose details that resonate beyond their literal meaning"
+      }
+    },
+    {
+      "name": "economy",
+      "display_name": "Economy of Language",
+      "weight": 0.25,
+      "levels": {
+        "4": "Every word earns its place; nothing wasted, nothing missing",
+        "3": "Language is mostly efficient",
+        "2": "Some wordiness or gaps",
+        "1": "Wordy or sparse"
+      },
+      "feedback_stems": {
+        "strength": "Every word earned its place",
+        "growth": "Edit ruthlessly—cut any word that doesn't work hard"
+      }
+    },
+    {
+      "name": "atmosphere",
+      "display_name": "Atmosphere",
+      "weight": 0.2,
+      "levels": {
+        "4": "Creates powerful atmosphere; reader is transported",
+        "3": "Creates clear atmosphere",
+        "2": "Atmosphere is weak or inconsistent",
+        "1": "No atmosphere"
+      },
+      "feedback_stems": {
+        "strength": "You created a powerful atmosphere that",
+        "growth": "Build atmosphere through every choice—words, rhythm, details"
+      }
+    }
+  ]
+}

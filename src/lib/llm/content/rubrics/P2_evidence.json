@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P2_evidence",
+  "lesson_ids": ["P2.2.6"],
+  "description": "Assesses ability to use evidence effectively in persuasive writing",
+  "word_range": [200, 400],
+  "criteria": [
+    {
+      "name": "evidence_quality",
+      "display_name": "Evidence Quality",
+      "weight": 0.35,
+      "levels": {
+        "4": "Evidence is specific, credible, and directly supports each claim",
+        "3": "Evidence is relevant and supports most claims",
+        "2": "Evidence is vague, weak, or only loosely connected to claims",
+        "1": "No real evidence; relies on unsupported opinions"
+      },
+      "feedback_stems": {
+        "strength": "Your evidence was strong and convincing, especially",
+        "growth": "Use specific facts, statistics, or expert opinions to strengthen your evidence"
+      }
+    },
+    {
+      "name": "evidence_variety",
+      "display_name": "Types of Evidence",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses multiple types of evidence (facts, examples, anecdotes, expert opinions)",
+        "3": "Uses at least two types of evidence",
+        "2": "Relies on only one type of evidence",
+        "1": "No variety; mostly personal opinion"
+      },
+      "feedback_stems": {
+        "strength": "You used different types of evidence including",
+        "growth": "Mix up your evidence—try facts, examples, and stories to convince different readers"
+      }
+    },
+    {
+      "name": "evidence_explanation",
+      "display_name": "Explaining Evidence",
+      "weight": 0.25,
+      "levels": {
+        "4": "Evidence is introduced, presented, and explained; reader sees the connection to the argument",
+        "3": "Evidence is connected to the argument with some explanation",
+        "2": "Evidence is dropped in without explanation",
+        "1": "Evidence is missing or irrelevant"
+      },
+      "feedback_stems": {
+        "strength": "You explained how your evidence supports your argument, like when",
+        "growth": "After giving evidence, always explain WHY it proves your point"
+      }
+    },
+    {
+      "name": "credibility",
+      "display_name": "Source Credibility",
+      "weight": 0.15,
+      "levels": {
+        "4": "Sources are credible and appropriate for the argument",
+        "3": "Sources are generally reliable",
+        "2": "Sources are questionable or not identified",
+        "1": "No sources mentioned or sources are unreliable"
+      },
+      "feedback_stems": {
+        "strength": "You used credible sources to back up your claims",
+        "growth": "Tell readers where your evidence comes from—credible sources make arguments stronger"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "rubric_id": "D1_senses",
+  "lesson_ids": ["D1.1.5"],
+  "description": "Assesses use of the five senses in descriptive writing",
+  "word_range": [40, 80],
+  "criteria": [
+    {
+      "name": "sense_variety",
+      "display_name": "Using Different Senses",
+      "weight": 0.4,
+      "levels": {
+        "4": "Uses at least 3 different senses (see, hear, feel, smell, taste) with specific details",
+        "3": "Uses 2 different senses with some details",
+        "2": "Mostly uses one sense, usually sight",
+        "1": "No clear sensory details"
+      },
+      "feedback_stems": {
+        "strength": "You used multiple senses! I noticed",
+        "growth": "Try adding what you can hear, smell, taste, or feel—not just what you see"
+      }
+    },
+    {
+      "name": "specific_words",
+      "display_name": "Specific Describing Words",
+      "weight": 0.35,
+      "levels": {
+        "4": "Uses specific, vivid words that create clear pictures in the reader's mind",
+        "3": "Some strong describing words used",
+        "2": "Words are basic and general (nice, good, big)",
+        "1": "No descriptive words used"
+      },
+      "feedback_stems": {
+        "strength": "I loved your specific words like",
+        "growth": "Replace general words like 'nice' with specific words that help readers picture it"
+      }
+    },
+    {
+      "name": "connection",
+      "display_name": "Details Work Together",
+      "weight": 0.25,
+      "levels": {
+        "4": "Sensory details work together to create a clear picture or feeling",
+        "3": "Most details relate to each other",
+        "2": "Some details seem random or disconnected",
+        "1": "Details are missing or confusing"
+      },
+      "feedback_stems": {
+        "strength": "Your details worked together to create a clear picture",
+        "growth": "Choose details that all help describe the same thing or feeling"
+      }
+    }
+  ]
+}

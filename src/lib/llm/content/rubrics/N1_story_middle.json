@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N1_story_middle",
+  "lesson_ids": ["N1.2.5"],
+  "description": "Assesses student's ability to write a story middle with events and a problem",
+  "word_range": [50, 100],
+  "criteria": [
+    {
+      "name": "sequencing",
+      "display_name": "Events in Order",
+      "weight": 0.35,
+      "levels": {
+        "4": "Events flow logically with clear order; transition words guide the reader smoothly",
+        "3": "Events are in logical order; some transition words used",
+        "2": "Events are present but order is sometimes confusing; few transitions",
+        "1": "Events are jumbled or hard to follow; no transitions"
+      },
+      "feedback_stems": {
+        "strength": "Your events flowed smoothly, especially when",
+        "growth": "Try using words like 'first,' 'then,' 'next,' and 'finally' to help readers follow along"
+      }
+    },
+    {
+      "name": "problem",
+      "display_name": "Character's Problem",
+      "weight": 0.4,
+      "levels": {
+        "4": "Clear, interesting problem that makes readers wonder how it will be solved",
+        "3": "Problem is present and understandable",
+        "2": "There might be a problem but it's not clear or not very interesting",
+        "1": "No problem or challenge for the character"
+      },
+      "feedback_stems": {
+        "strength": "Your character's problem is interesting because",
+        "growth": "Stories are more exciting when the character has a bigger challenge to face"
+      }
+    },
+    {
+      "name": "events",
+      "display_name": "Things That Happen",
+      "weight": 0.25,
+      "levels": {
+        "4": "Multiple events that connect to the problem and keep the story moving",
+        "3": "At least two events that relate to the story",
+        "2": "Only one event, or events don't seem connected",
+        "1": "No clear events; story doesn't move forward"
+      },
+      "feedback_stems": {
+        "strength": "You included great events like",
+        "growth": "Add more things that happen to your character as they deal with the problem"
+      }
+    }
+  ]
+}

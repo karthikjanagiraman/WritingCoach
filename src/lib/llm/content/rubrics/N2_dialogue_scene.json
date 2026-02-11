@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N2_dialogue_scene",
+  "lesson_ids": ["N2.3.6"],
+  "description": "Assesses a scene focused on dialogue",
+  "word_range": [150, 300],
+  "criteria": [
+    {
+      "name": "punctuation",
+      "display_name": "Dialogue Punctuation",
+      "weight": 0.2,
+      "levels": {
+        "4": "Dialogue punctuated correctly throughout; no errors",
+        "3": "Minor punctuation errors that don't impede reading",
+        "2": "Multiple punctuation errors; some confusion about who's speaking",
+        "1": "Dialogue punctuation incorrect throughout"
+      },
+      "feedback_stems": {
+        "strength": "Your dialogue punctuation was spot-on",
+        "growth": "Remember: punctuation goes inside quotation marks, and new speaker = new paragraph"
+      }
+    },
+    {
+      "name": "character_voice",
+      "display_name": "Distinct Character Voices",
+      "weight": 0.3,
+      "levels": {
+        "4": "Each character sounds distinctly different; could identify speaker without tags",
+        "3": "Characters have some voice differences",
+        "2": "Characters sound similar; minimal voice distinction",
+        "1": "All characters sound the same"
+      },
+      "feedback_stems": {
+        "strength": "Each character sounded unique, like when",
+        "growth": "Give each character their own way of talking—word choice, sentence length, vocabulary"
+      }
+    },
+    {
+      "name": "dialogue_tags",
+      "display_name": "Tags and Beats",
+      "weight": 0.2,
+      "levels": {
+        "4": "Effective mix of dialogue tags and action beats; 'said' used appropriately",
+        "3": "Good variety in how dialogue is attributed",
+        "2": "Over-reliance on 'said' or overuse of fancy tags ('exclaimed,' 'shouted')",
+        "1": "Tags missing or extremely repetitive"
+      },
+      "feedback_stems": {
+        "strength": "Great use of action beats instead of tags, like",
+        "growth": "Try using action beats (what characters do while talking) to vary your dialogue"
+      }
+    },
+    {
+      "name": "purpose",
+      "display_name": "Dialogue Purpose",
+      "weight": 0.3,
+      "levels": {
+        "4": "Dialogue reveals character AND advances plot; every line serves a purpose",
+        "3": "Dialogue mostly serves the story",
+        "2": "Some dialogue feels like filler or doesn't add much",
+        "1": "Dialogue doesn't serve the story; could be removed without impact"
+      },
+      "feedback_stems": {
+        "strength": "Your dialogue did double duty—it revealed character while moving the plot",
+        "growth": "Each line of dialogue should either show us who a character is or move the story forward"
+      }
+    }
+  ]
+}

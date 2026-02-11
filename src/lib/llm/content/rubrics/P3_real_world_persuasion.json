@@ -1,0 +1,68 @@
+{
+  "rubric_id": "P3_real_world_persuasion",
+  "lesson_ids": ["P3.4.6"],
+  "description": "Assesses persuasive writing for real-world audiences and purposes",
+  "word_range": [400, 800],
+  "criteria": [
+    {
+      "name": "audience_awareness",
+      "display_name": "Audience Awareness",
+      "weight": 0.3,
+      "levels": {
+        "4": "Writing is precisely tailored to the specific audience; anticipates their concerns and values",
+        "3": "Writing shows awareness of the target audience",
+        "2": "Some awareness of audience but not well-tailored",
+        "1": "No evidence of audience awareness"
+      },
+      "feedback_stems": {
+        "strength": "You clearly understood your audience, especially when you",
+        "growth": "Think deeply about your audience—what do they care about? What will convince them?"
+      }
+    },
+    {
+      "name": "purpose_clarity",
+      "display_name": "Clear Purpose & Call to Action",
+      "weight": 0.25,
+      "levels": {
+        "4": "Purpose is clear and the call to action is specific, achievable, and compelling",
+        "3": "Purpose is clear with an identifiable call to action",
+        "2": "Purpose is vague or call to action is unclear",
+        "1": "No clear purpose or call to action"
+      },
+      "feedback_stems": {
+        "strength": "Your purpose and call to action were clear and compelling",
+        "growth": "Be specific about what you want your audience to DO after reading"
+      }
+    },
+    {
+      "name": "persuasive_strategies",
+      "display_name": "Persuasive Strategies",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses sophisticated persuasive strategies appropriate for the real-world context",
+        "3": "Uses effective persuasive strategies",
+        "2": "Uses basic persuasive strategies with limited effectiveness",
+        "1": "No effective persuasive strategies"
+      },
+      "feedback_stems": {
+        "strength": "Your persuasive strategies were well-chosen for this context",
+        "growth": "Choose strategies that fit your real-world context—what works for THIS audience?"
+      }
+    },
+    {
+      "name": "format_conventions",
+      "display_name": "Format & Conventions",
+      "weight": 0.2,
+      "levels": {
+        "4": "Format perfectly suits the real-world genre (editorial, proposal, speech, etc.)",
+        "3": "Format is appropriate for the chosen genre",
+        "2": "Format partially matches the genre conventions",
+        "1": "Format does not match the genre"
+      },
+      "feedback_stems": {
+        "strength": "Your format was perfect for this type of writing",
+        "growth": "Study examples of this genre—match the format and conventions your audience expects"
+      }
+    }
+  ]
+}

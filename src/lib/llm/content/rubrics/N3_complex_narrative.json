@@ -1,0 +1,68 @@
+{
+  "rubric_id": "N3_complex_narrative",
+  "lesson_ids": ["N3.1.6"],
+  "description": "Assesses experimental/non-linear narrative structures",
+  "word_range": [400, 800],
+  "criteria": [
+    {
+      "name": "structural_intentionality",
+      "display_name": "Structural Intentionality",
+      "weight": 0.3,
+      "levels": {
+        "4": "Non-linear structure clearly serves the story's meaning; couldn't work as well chronologically",
+        "3": "Structure choice is appropriate and enhances the story",
+        "2": "Structure attempted but feels gimmicky or doesn't add much",
+        "1": "Structure confuses rather than enhances; seems random"
+      },
+      "feedback_stems": {
+        "strength": "Your structural choice was purposeful—it enhanced the story by",
+        "growth": "Consider how your structural choice serves the story's meaning"
+      }
+    },
+    {
+      "name": "clarity",
+      "display_name": "Navigability",
+      "weight": 0.25,
+      "levels": {
+        "4": "Reader can follow the structure; temporal shifts are clear without being clunky",
+        "3": "Structure is followable with some minor confusion",
+        "2": "Structure causes significant confusion; hard to track what's happening when",
+        "1": "Structure is incomprehensible; reader is lost"
+      },
+      "feedback_stems": {
+        "strength": "Despite the complex structure, I never felt lost because",
+        "growth": "Add clearer signals when shifting time periods—subtle cues help readers track the timeline"
+      }
+    },
+    {
+      "name": "payoff",
+      "display_name": "Structural Payoff",
+      "weight": 0.25,
+      "levels": {
+        "4": "Structure creates powerful revelations or emotional impacts not possible chronologically",
+        "3": "Structure adds meaningful effect to the story",
+        "2": "Structure's purpose unclear; story might work better told straight",
+        "1": "No discernible payoff from the structural choice"
+      },
+      "feedback_stems": {
+        "strength": "The structure paid off powerfully when",
+        "growth": "Build toward a moment where the structure creates revelation or impact"
+      }
+    },
+    {
+      "name": "craft",
+      "display_name": "Overall Craft",
+      "weight": 0.2,
+      "levels": {
+        "4": "Prose quality, characterization, and other craft elements are strong",
+        "3": "Solid craft throughout",
+        "2": "Structure experiments overshadow fundamentals; craft is uneven",
+        "1": "Fundamental craft issues throughout"
+      },
+      "feedback_stems": {
+        "strength": "Beyond the structure, your craft shines in",
+        "growth": "Don't let structural ambition overshadow fundamentals like character and prose"
+      }
+    }
+  ]
+}

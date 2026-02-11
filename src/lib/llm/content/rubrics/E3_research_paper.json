@@ -1,0 +1,98 @@
+{
+  "rubric_id": "E3_research_paper",
+  "lesson_ids": ["E3.2.6"],
+  "description": "Assesses extended research paper",
+  "word_range": [800, 1500],
+  "criteria": [
+    {
+      "name": "thesis",
+      "display_name": "Research Thesis",
+      "weight": 0.15,
+      "levels": {
+        "4": "Clear, focused thesis that guides and is supported by research",
+        "3": "Thesis is clear and research-supported",
+        "2": "Thesis is vague or not well-supported by research",
+        "1": "No clear thesis"
+      },
+      "feedback_stems": {
+        "strength": "Your thesis was clear and well-supported by your research",
+        "growth": "Ensure your thesis is focused enough to be fully supported by your evidence"
+      }
+    },
+    {
+      "name": "sources",
+      "display_name": "Source Quality & Variety",
+      "weight": 0.2,
+      "levels": {
+        "4": "Uses credible, varied sources appropriately; shows research depth",
+        "3": "Uses adequate credible sources",
+        "2": "Sources are weak, limited, or of questionable credibility",
+        "1": "Few or no credible sources"
+      },
+      "feedback_stems": {
+        "strength": "Your sources were credible and varied",
+        "growth": "Use more varied, credible sources to strengthen your research"
+      }
+    },
+    {
+      "name": "synthesis",
+      "display_name": "Synthesis",
+      "weight": 0.25,
+      "levels": {
+        "4": "Synthesizes multiple sources to build original argument; sources in conversation",
+        "3": "Sources support argument and show some synthesis",
+        "2": "Sources summarized but not synthesized; patched together",
+        "1": "No synthesis; sources isolated from each other"
+      },
+      "feedback_stems": {
+        "strength": "You synthesized sources effectively, putting them in conversation",
+        "growth": "Don't just summarize each source—show how they connect and build your argument"
+      }
+    },
+    {
+      "name": "integration",
+      "display_name": "Evidence Integration",
+      "weight": 0.15,
+      "levels": {
+        "4": "Evidence smoothly integrated; quotes embedded and analyzed",
+        "3": "Evidence is generally well-integrated",
+        "2": "Evidence is present but awkwardly integrated",
+        "1": "Evidence is dropped in without integration"
+      },
+      "feedback_stems": {
+        "strength": "You integrated evidence smoothly throughout",
+        "growth": "Introduce quotes, embed them in your sentences, and always analyze"
+      }
+    },
+    {
+      "name": "citations",
+      "display_name": "Citation Accuracy",
+      "weight": 0.1,
+      "levels": {
+        "4": "Citations accurate and consistent throughout",
+        "3": "Citations mostly accurate with minor errors",
+        "2": "Significant citation errors or inconsistency",
+        "1": "Missing citations or major errors"
+      },
+      "feedback_stems": {
+        "strength": "Your citations were accurate and consistent",
+        "growth": "Double-check citation format for consistency"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Organization",
+      "weight": 0.15,
+      "levels": {
+        "4": "Complex material organized clearly; reader guided throughout",
+        "3": "Organization is clear and effective",
+        "2": "Some organizational issues; hard to follow at times",
+        "1": "Disorganized; difficult to follow"
+      },
+      "feedback_stems": {
+        "strength": "You organized complex material clearly",
+        "growth": "Use clear section organization and transitions to guide readers"
+      }
+    }
+  ]
+}

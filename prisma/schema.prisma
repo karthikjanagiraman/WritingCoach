@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  name      String
+  age       Int
+  tier      Int
+  createdAt DateTime @default(now())
+
+  lessonProgress LessonProgress[]
+  sessions       Session[]
+  assessments    Assessment[]
+}
+
+model LessonProgress {
+  id           String    @id @default(uuid())
+  studentId    String
+  lessonId     String
+  status       String    @default("not_started")
+  currentPhase String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, lessonId])
+}
+
+model Session {
+  id                  String   @id @default(uuid())
+  studentId           String
+  lessonId            String
+  phase               String   @default("instruction")
+  phaseState          String   @default("{}")
+  conversationHistory String   @default("[]")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  student     Student      @relation(fields: [studentId], references: [id])
+  assessments Assessment[]
+}
+
+model Assessment {
+  id             String   @id @default(uuid())
+  sessionId      String
+  studentId      String
+  lessonId       String
+  rubricId       String
+  submissionText String
+  scores         String
+  overallScore   Float
+  feedback       String
+  createdAt      DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+}

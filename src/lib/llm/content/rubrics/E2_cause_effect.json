@@ -1,0 +1,68 @@
+{
+  "rubric_id": "E2_cause_effect",
+  "lesson_ids": ["E2.4.6"],
+  "description": "Assesses cause and effect expository writing",
+  "word_range": [250, 450],
+  "criteria": [
+    {
+      "name": "cause_identification",
+      "display_name": "Clear Causes",
+      "weight": 0.3,
+      "levels": {
+        "4": "Causes are clearly identified with specific details and evidence",
+        "3": "Causes are identified and explained",
+        "2": "Causes are mentioned but vague or unsupported",
+        "1": "Causes are missing or confused with effects"
+      },
+      "feedback_stems": {
+        "strength": "You clearly identified the causes, especially",
+        "growth": "Make causes specific—explain exactly what happened and why"
+      }
+    },
+    {
+      "name": "effect_explanation",
+      "display_name": "Clear Effects",
+      "weight": 0.3,
+      "levels": {
+        "4": "Effects are clearly explained with evidence showing the connection to causes",
+        "3": "Effects are explained and connected to causes",
+        "2": "Effects are mentioned but the connection to causes is weak",
+        "1": "Effects are missing or not connected to causes"
+      },
+      "feedback_stems": {
+        "strength": "You explained the effects clearly, particularly",
+        "growth": "Show HOW each cause leads to its effect—make the connection clear"
+      }
+    },
+    {
+      "name": "signal_words",
+      "display_name": "Cause/Effect Signal Words",
+      "weight": 0.2,
+      "levels": {
+        "4": "Uses cause/effect signal words effectively (because, therefore, as a result, consequently)",
+        "3": "Uses some cause/effect signal words",
+        "2": "Few signal words; connections between cause and effect unclear",
+        "1": "No signal words; reader must guess the relationships"
+      },
+      "feedback_stems": {
+        "strength": "You used signal words well to show connections, like",
+        "growth": "Use words like 'because,' 'as a result,' and 'therefore' to show cause-effect links"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Logical Organization",
+      "weight": 0.2,
+      "levels": {
+        "4": "Information organized logically; easy to follow the chain of causes and effects",
+        "3": "Organization is clear and follows a logical pattern",
+        "2": "Organization is somewhat confusing; causes and effects mixed up",
+        "1": "No clear organization; hard to follow"
+      },
+      "feedback_stems": {
+        "strength": "Your essay was organized logically",
+        "growth": "Organize clearly—present causes first, then effects, or trace the chain step by step"
+      }
+    }
+  ]
+}

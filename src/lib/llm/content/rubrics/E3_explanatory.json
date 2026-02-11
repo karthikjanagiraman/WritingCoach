@@ -1,0 +1,68 @@
+{
+  "rubric_id": "E3_explanatory",
+  "lesson_ids": ["E3.3.6"],
+  "description": "Assesses explanatory writing that makes complex topics accessible",
+  "word_range": [400, 800],
+  "criteria": [
+    {
+      "name": "clarity",
+      "display_name": "Clarity of Explanation",
+      "weight": 0.3,
+      "levels": {
+        "4": "Complex topic explained clearly; reader truly understands the subject",
+        "3": "Explanation is clear and understandable",
+        "2": "Explanation is sometimes confusing or unclear",
+        "1": "Explanation is hard to follow; topic remains unclear"
+      },
+      "feedback_stems": {
+        "strength": "Your explanation made a complex topic clear, especially when",
+        "growth": "Simplify your explanation—pretend you're explaining to someone who knows nothing about this"
+      }
+    },
+    {
+      "name": "depth",
+      "display_name": "Depth of Understanding",
+      "weight": 0.25,
+      "levels": {
+        "4": "Shows deep understanding; addresses nuances and complexities of the topic",
+        "3": "Shows solid understanding with adequate depth",
+        "2": "Understanding is surface-level; misses important nuances",
+        "1": "Understanding seems incomplete or inaccurate"
+      },
+      "feedback_stems": {
+        "strength": "Your understanding of this topic was deep and nuanced",
+        "growth": "Go deeper—address the complexities and nuances, not just the basics"
+      }
+    },
+    {
+      "name": "techniques",
+      "display_name": "Explanatory Techniques",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses multiple techniques effectively (analogies, examples, definitions, comparisons)",
+        "3": "Uses some explanatory techniques to help understanding",
+        "2": "Few techniques used; explanation is mostly abstract",
+        "1": "No techniques to aid understanding"
+      },
+      "feedback_stems": {
+        "strength": "You used great techniques to explain, like",
+        "growth": "Use analogies, examples, and comparisons to help readers understand complex ideas"
+      }
+    },
+    {
+      "name": "organization",
+      "display_name": "Logical Flow",
+      "weight": 0.2,
+      "levels": {
+        "4": "Information builds logically; each section prepares readers for the next",
+        "3": "Organization is clear and logical",
+        "2": "Organization is sometimes confusing; information out of order",
+        "1": "Disorganized; hard to follow the explanation"
+      },
+      "feedback_stems": {
+        "strength": "Your explanation flowed logically, building understanding step by step",
+        "growth": "Organize so each idea builds on the last—start simple, then add complexity"
+      }
+    }
+  ]
+}

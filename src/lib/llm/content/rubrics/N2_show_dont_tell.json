@@ -1,0 +1,53 @@
+{
+  "rubric_id": "N2_show_dont_tell",
+  "lesson_ids": ["N2.4.5"],
+  "description": "Assesses ability to show emotions and scenes rather than tell",
+  "word_range": [100, 200],
+  "criteria": [
+    {
+      "name": "physical_showing",
+      "display_name": "Physical Showing",
+      "weight": 0.35,
+      "levels": {
+        "4": "Emotions shown through specific physical actions and reactions; reader feels the emotion",
+        "3": "Good use of physical description to show feelings",
+        "2": "Some attempt at showing but still tells emotions directly",
+        "1": "Relies on telling ('she was scared') with no showing"
+      },
+      "feedback_stems": {
+        "strength": "You showed emotion perfectly through physical details like",
+        "growth": "Instead of naming the emotion, show us what the body does when feeling it"
+      }
+    },
+    {
+      "name": "figurative_language",
+      "display_name": "Figurative Language",
+      "weight": 0.3,
+      "levels": {
+        "4": "Effective, original similes or metaphors that illuminate meaning",
+        "3": "Uses figurative language appropriately",
+        "2": "Attempts figurative language but uses clichés or forced comparisons",
+        "1": "No figurative language used"
+      },
+      "feedback_stems": {
+        "strength": "Your figurative language was creative, especially",
+        "growth": "Add a simile or metaphor that helps readers feel the moment more deeply"
+      }
+    },
+    {
+      "name": "balance",
+      "display_name": "Showing/Telling Balance",
+      "weight": 0.35,
+      "levels": {
+        "4": "Shows key emotional moments; uses telling efficiently for transitions",
+        "3": "Generally good balance between showing and telling",
+        "2": "Imbalance—either all showing (exhausting) or mostly telling",
+        "1": "No awareness of when to show vs. tell"
+      },
+      "feedback_stems": {
+        "strength": "You balanced showing and telling well, knowing when each was needed",
+        "growth": "Show the important moments; it's okay to tell the less important transitions"
+      }
+    }
+  ]
+}

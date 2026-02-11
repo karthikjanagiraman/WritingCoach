@@ -1,0 +1,87 @@
+{
+  "rubric_id": "N1_story_beginning",
+  "lesson_ids": ["N1.1.5"],
+  "description": "Assesses student's ability to write an engaging story beginning",
+  "tier": 1,
+  "word_range": [30, 75],
+  
+  "criteria": [
+    {
+      "name": "hook",
+      "display_name": "Hook / Grabbing Attention",
+      "weight": 0.3,
+      "levels": {
+        "4": "Opening immediately captures attention with action, mystery, or surprise that makes reader eager to continue",
+        "3": "Opening creates some interest and makes reader curious to know more",
+        "2": "Opening is present but doesn't create strong curiosity; somewhat predictable",
+        "1": "No clear attempt to hook the reader; begins with plain statement"
+      },
+      "feedback_stems": {
+        "strength": "Your beginning grabbed my attention when you wrote",
+        "growth": "To make your beginning even more exciting, try starting with"
+      }
+    },
+    {
+      "name": "character_intro",
+      "display_name": "Character Introduction",
+      "weight": 0.35,
+      "levels": {
+        "4": "Main character is clearly introduced with at least one interesting detail that makes them memorable",
+        "3": "Main character is named and we know at least one thing about them",
+        "2": "There seems to be a main character but we don't learn much about them",
+        "1": "No clear main character introduced"
+      },
+      "feedback_stems": {
+        "strength": "I liked learning about your character when you said",
+        "growth": "Help readers get to know your character better by telling us"
+      }
+    },
+    {
+      "name": "setting",
+      "display_name": "Setting / Where We Are",
+      "weight": 0.35,
+      "levels": {
+        "4": "Setting is clear with sensory details that help readers picture where the story happens",
+        "3": "Setting is mentioned and reader has a general idea of where the story takes place",
+        "2": "Some hint of setting but location is vague or confusing",
+        "1": "No setting established; reader doesn't know where the story happens"
+      },
+      "feedback_stems": {
+        "strength": "You helped me picture the place when you wrote",
+        "growth": "Add details about what your character can see, hear, or feel in this place"
+      }
+    }
+  ],
+
+  "scoring_guidance": {
+    "4": {
+      "label": "Exceeds Expectations",
+      "feedback_tone": "Celebrate excellence with specific praise; suggest enrichment challenges",
+      "emoji": "🌟"
+    },
+    "3": {
+      "label": "Meets Expectations",
+      "feedback_tone": "Acknowledge solid work; identify one area to elevate to excellence",
+      "emoji": "⭐"
+    },
+    "2": {
+      "label": "Approaching",
+      "feedback_tone": "Encourage progress; focus on most impactful improvement",
+      "emoji": "📈"
+    },
+    "1": {
+      "label": "Beginning",
+      "feedback_tone": "Focus on effort; provide concrete next steps without overwhelming",
+      "emoji": "🌱"
+    }
+  },
+
+  "overall_score_calculation": "weighted_average",
+  
+  "tier1_display_rules": {
+    "show_numeric_scores": false,
+    "show_star_rating": true,
+    "max_stars": 4,
+    "show_criterion_breakdown": false
+  }
+}

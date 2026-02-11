@@ -1,0 +1,98 @@
+{
+  "rubric_id": "N3_polished_story",
+  "lesson_ids": ["N3.5.6"],
+  "description": "Holistic rubric for polished, revised short stories",
+  "word_range": [600, 1200],
+  "criteria": [
+    {
+      "name": "opening",
+      "display_name": "Opening",
+      "weight": 0.15,
+      "levels": {
+        "4": "Opening is compelling, establishes voice, and creates immediate engagement",
+        "3": "Opening is strong and draws reader in",
+        "2": "Opening is adequate but not distinctive",
+        "1": "Opening is weak or fails to engage"
+      },
+      "feedback_stems": {
+        "strength": "Your opening immediately pulled me in with",
+        "growth": "Craft your first line to be irresistible—make it impossible not to read on"
+      }
+    },
+    {
+      "name": "character",
+      "display_name": "Characterization",
+      "weight": 0.2,
+      "levels": {
+        "4": "Characters are vivid, complex, and change meaningfully",
+        "3": "Characters are well-developed with clear arcs",
+        "2": "Characters are present but somewhat flat or static",
+        "1": "Characters are underdeveloped or inconsistent"
+      },
+      "feedback_stems": {
+        "strength": "Your characters felt real and complex, particularly",
+        "growth": "Deepen characterization through specific details and meaningful change"
+      }
+    },
+    {
+      "name": "plot",
+      "display_name": "Plot & Pacing",
+      "weight": 0.2,
+      "levels": {
+        "4": "Plot is compelling with expert pacing; every scene earns its place",
+        "3": "Plot is strong with effective pacing",
+        "2": "Plot works but has pacing issues or unnecessary scenes",
+        "1": "Plot is confusing, thin, or poorly paced"
+      },
+      "feedback_stems": {
+        "strength": "Your plot moved with expert pacing, especially",
+        "growth": "Examine each scene—does it earn its place? Could the story be tighter?"
+      }
+    },
+    {
+      "name": "prose",
+      "display_name": "Prose Quality",
+      "weight": 0.2,
+      "levels": {
+        "4": "Prose is polished, purposeful, and pleasurable to read",
+        "3": "Prose is clean and effective",
+        "2": "Prose is serviceable but lacks distinction",
+        "1": "Prose has significant issues affecting readability"
+      },
+      "feedback_stems": {
+        "strength": "Your prose was a pleasure to read, particularly",
+        "growth": "Polish sentence-level writing; read aloud to catch awkward rhythms"
+      }
+    },
+    {
+      "name": "ending",
+      "display_name": "Ending",
+      "weight": 0.15,
+      "levels": {
+        "4": "Ending resonates; feels both surprising and inevitable",
+        "3": "Ending is satisfying and appropriate",
+        "2": "Ending is adequate but doesn't linger",
+        "1": "Ending is weak, rushed, or unsatisfying"
+      },
+      "feedback_stems": {
+        "strength": "Your ending resonated—it felt both surprising and inevitable",
+        "growth": "Craft an ending that will linger with readers after they finish"
+      }
+    },
+    {
+      "name": "revision",
+      "display_name": "Evidence of Revision",
+      "weight": 0.1,
+      "levels": {
+        "4": "Work shows clear evidence of thoughtful revision and polish",
+        "3": "Work appears revised and refined",
+        "2": "Work shows some revision but could use more polish",
+        "1": "Work reads like a first draft"
+      },
+      "feedback_stems": {
+        "strength": "The polish of revision shows throughout",
+        "growth": "Revise again—the best stories go through many drafts"
+      }
+    }
+  ]
+}

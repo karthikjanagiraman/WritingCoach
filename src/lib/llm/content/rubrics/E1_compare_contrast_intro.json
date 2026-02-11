@@ -1,0 +1,53 @@
+{
+  "rubric_id": "E1_compare_contrast_intro",
+  "lesson_ids": ["E1.3.5"],
+  "description": "Assesses introductory compare and contrast writing",
+  "word_range": [60, 120],
+  "criteria": [
+    {
+      "name": "similarities",
+      "display_name": "Things That Are the Same",
+      "weight": 0.35,
+      "levels": {
+        "4": "Clearly identifies at least 2 meaningful similarities between the two things",
+        "3": "Identifies at least 1 similarity",
+        "2": "Attempts a similarity but it's vague or not meaningful",
+        "1": "No similarities identified"
+      },
+      "feedback_stems": {
+        "strength": "You found great similarities, like",
+        "growth": "Look for ways the two things are the same—what do they have in common?"
+      }
+    },
+    {
+      "name": "differences",
+      "display_name": "Things That Are Different",
+      "weight": 0.35,
+      "levels": {
+        "4": "Clearly identifies at least 2 meaningful differences between the two things",
+        "3": "Identifies at least 1 difference",
+        "2": "Attempts a difference but it's vague or not meaningful",
+        "1": "No differences identified"
+      },
+      "feedback_stems": {
+        "strength": "You found important differences, like",
+        "growth": "Look for ways the two things are different—what makes each one special?"
+      }
+    },
+    {
+      "name": "signal_words",
+      "display_name": "Compare/Contrast Words",
+      "weight": 0.3,
+      "levels": {
+        "4": "Uses comparison words (both, also, similarly) and contrast words (but, however, unlike)",
+        "3": "Uses some comparison or contrast words",
+        "2": "Few signal words; reader has to guess if you're comparing or contrasting",
+        "1": "No signal words used"
+      },
+      "feedback_stems": {
+        "strength": "You used great signal words like",
+        "growth": "Use words like 'both,' 'but,' and 'unlike' to show comparisons and contrasts"
+      }
+    }
+  ]
+}

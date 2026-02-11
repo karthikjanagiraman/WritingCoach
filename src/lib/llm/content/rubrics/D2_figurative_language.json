@@ -1,0 +1,53 @@
+{
+  "rubric_id": "D2_figurative_language",
+  "lesson_ids": ["D2.1.5"],
+  "description": "Assesses use of figurative language in description",
+  "word_range": [150, 300],
+  "criteria": [
+    {
+      "name": "variety",
+      "display_name": "Variety of Techniques",
+      "weight": 0.25,
+      "levels": {
+        "4": "Uses multiple figurative techniques (simile, metaphor, personification)",
+        "3": "Uses at least two techniques",
+        "2": "Relies on one technique only",
+        "1": "No figurative language"
+      },
+      "feedback_stems": {
+        "strength": "You used multiple techniques including",
+        "growth": "Try adding simile, metaphor, or personification"
+      }
+    },
+    {
+      "name": "originality",
+      "display_name": "Original Comparisons",
+      "weight": 0.35,
+      "levels": {
+        "4": "Figurative language is fresh and original; avoids clichés",
+        "3": "Mostly original with minor clichés",
+        "2": "Some clichés or predictable comparisons",
+        "1": "All clichés or ineffective comparisons"
+      },
+      "feedback_stems": {
+        "strength": "Your comparisons were original and surprising, like",
+        "growth": "Avoid common comparisons—find fresh, surprising ways to describe"
+      }
+    },
+    {
+      "name": "effectiveness",
+      "display_name": "Meaningful Comparisons",
+      "weight": 0.4,
+      "levels": {
+        "4": "Figurative language illuminates the subject; helps readers understand better",
+        "3": "Figurative language adds to description",
+        "2": "Figurative language is present but doesn't add much",
+        "1": "Figurative language confuses or detracts"
+      },
+      "feedback_stems": {
+        "strength": "Your comparisons helped me understand better, especially",
+        "growth": "Make sure comparisons help readers see your subject more clearly"
+      }
+    }
+  ]
+}

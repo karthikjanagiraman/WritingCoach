@@ -1,0 +1,83 @@
+{
+  "rubric_id": "N2_story_structure",
+  "lesson_ids": ["N2.1.6"],
+  "description": "Assesses understanding of complete story structure (story mountain)",
+  "word_range": [200, 400],
+  "criteria": [
+    {
+      "name": "exposition",
+      "display_name": "Exposition",
+      "weight": 0.2,
+      "levels": {
+        "4": "Engaging exposition that hooks readers while establishing character, setting, and initial situation",
+        "3": "Exposition establishes necessary story elements",
+        "2": "Some exposition present but missing key elements or not engaging",
+        "1": "Minimal or no exposition; story starts confusingly"
+      },
+      "feedback_stems": {
+        "strength": "Your exposition drew me in while setting up the story",
+        "growth": "Strengthen your exposition by balancing the hook with necessary background"
+      }
+    },
+    {
+      "name": "rising_action",
+      "display_name": "Rising Action",
+      "weight": 0.25,
+      "levels": {
+        "4": "Clear complications that build tension; each event raises stakes",
+        "3": "Events build toward climax with some tension",
+        "2": "Events present but don't clearly build or create minimal tension",
+        "1": "No clear rising action; events are flat"
+      },
+      "feedback_stems": {
+        "strength": "Your rising action built tension effectively, especially",
+        "growth": "Add complications that make the problem worse before it gets better"
+      }
+    },
+    {
+      "name": "climax",
+      "display_name": "Climax",
+      "weight": 0.2,
+      "levels": {
+        "4": "Clear, powerful turning point; highest tension moment is unmistakable",
+        "3": "Climax is identifiable and represents story's high point",
+        "2": "Climax is unclear or doesn't feel like the most important moment",
+        "1": "No clear climax; story lacks a turning point"
+      },
+      "feedback_stems": {
+        "strength": "Your climax was powerful when",
+        "growth": "Make your climax the most intense moment—this is where everything changes"
+      }
+    },
+    {
+      "name": "falling_action_resolution",
+      "display_name": "Falling Action & Resolution",
+      "weight": 0.2,
+      "levels": {
+        "4": "Natural wind-down after climax; satisfying resolution that addresses main conflict",
+        "3": "Story winds down and concludes appropriately",
+        "2": "Ending feels rushed or doesn't fully resolve the conflict",
+        "1": "Story stops abruptly without resolution"
+      },
+      "feedback_stems": {
+        "strength": "Your resolution was satisfying because",
+        "growth": "After the climax, give readers a chance to see how things settle"
+      }
+    },
+    {
+      "name": "pacing",
+      "display_name": "Pacing",
+      "weight": 0.15,
+      "levels": {
+        "4": "Pacing feels intentional; scenes get appropriate time based on importance",
+        "3": "Pacing is generally effective",
+        "2": "Pacing issues—some parts too rushed, others drag",
+        "1": "Pacing is consistently problematic"
+      },
+      "feedback_stems": {
+        "strength": "Your pacing worked well, especially how you",
+        "growth": "Spend more time on important moments and less on transitions"
+      }
+    }
+  ]
+}
