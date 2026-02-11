@@ -23,12 +23,12 @@
   --color-tier3-bg: #FFFFFF;
   --color-tier3-text: #2D3436;
 
-  /* Dynamic active tier aliases (driven by body class) */
-  --color-active-primary: var(--active-primary);
-  --color-active-secondary: var(--active-secondary);
-  --color-active-accent: var(--active-accent);
-  --color-active-bg: var(--active-bg);
-  --color-active-text: var(--active-text);
+  /* Dynamic active tier aliases — Tier 1 defaults (overridden by body class) */
+  --color-active-primary: #FF6B6B;
+  --color-active-secondary: #4ECDC4;
+  --color-active-accent: #FFE66D;
+  --color-active-bg: #FFF9F0;
+  --color-active-text: #2D3436;
 
   /* Universal */
   --color-success: #00B894;
@@ -37,28 +37,21 @@
 }
 
 /* Dynamic tier colors — switched via body class */
-body, .tier-1 {
-  --active-primary: var(--color-tier1-primary);
-  --active-secondary: var(--color-tier1-secondary);
-  --active-accent: var(--color-tier1-accent);
-  --active-bg: var(--color-tier1-bg);
-  --active-text: var(--color-tier1-text);
-}
-
+/* Override --color-active-* directly so Tailwind utilities resolve correctly */
 body.tier-2 {
-  --active-primary: var(--color-tier2-primary);
-  --active-secondary: var(--color-tier2-secondary);
-  --active-accent: var(--color-tier2-accent);
-  --active-bg: var(--color-tier2-bg);
-  --active-text: var(--color-tier2-text);
+  --color-active-primary: #6C5CE7;
+  --color-active-secondary: #00B894;
+  --color-active-accent: #FDCB6E;
+  --color-active-bg: #F8F9FD;
+  --color-active-text: #2D3436;
 }
 
 body.tier-3 {
-  --active-primary: var(--color-tier3-primary);
-  --active-secondary: var(--color-tier3-secondary);
-  --active-accent: var(--color-tier3-accent);
-  --active-bg: var(--color-tier3-bg);
-  --active-text: var(--color-tier3-text);
+  --color-active-primary: #2D3436;
+  --color-active-secondary: #0984E3;
+  --color-active-accent: #E17055;
+  --color-active-bg: #FFFFFF;
+  --color-active-text: #2D3436;
 }
 
 /* Layout tokens */
@@ -170,7 +163,7 @@ body.tier-3 {
 
 /* Pulse border animation for active writing cards */
 @keyframes pulse-border {
-  0%, 100% { border-color: var(--active-accent); box-shadow: 0 0 0 0 rgba(255, 230, 109, 0); }
+  0%, 100% { border-color: var(--color-active-accent); box-shadow: 0 0 0 0 rgba(255, 230, 109, 0); }
   50% { border-color: #f0d84e; box-shadow: 0 0 12px 2px rgba(255, 230, 109, 0.20); }
 }
 
@@ -192,7 +185,7 @@ body.tier-3 {
 
 /* Accessibility: focus-visible for keyboard navigation */
 :focus-visible {
-  outline: 2px solid var(--active-primary);
+  outline: 2px solid var(--color-active-primary);
   outline-offset: 2px;
 }
 
