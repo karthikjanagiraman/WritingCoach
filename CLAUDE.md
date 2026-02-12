@@ -25,7 +25,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: PostgreSQL via Prisma ORM (14 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak)
+- **Database**: PostgreSQL via Prisma ORM (15 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak, Achievement)
 - **Charts**: Recharts (skill radar chart, future progress charts)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
@@ -128,6 +128,8 @@ src/
 │   ├── skill-map.ts              # SKILL_DEFINITIONS + getLessonSkills() + scoreToLevel()
 │   ├── progress-tracker.ts       # updateSkillProgress() — 70/30 rolling average
 │   ├── streak-tracker.ts         # updateStreak() — consecutive day + weekly tracking
+│   ├── badges.ts                 # BADGE_CATALOG (24 badges) + getBadgeById()
+│   ├── badge-checker.ts          # checkAndUnlockBadges() — evaluates conditions, creates Achievements
 │   ├── rubrics.ts                # Public rubric lookup (used by API routes)
 │   └── db.ts                     # Prisma client singleton
 ├── app/
@@ -142,6 +144,8 @@ src/
 │   │   ├── page.tsx              # Parent dashboard (list children, quick stats)
 │   │   └── children/
 │   │       └── new/page.tsx      # Add child form → redirect to placement
+│   ├── badges/
+│   │   └── [childId]/page.tsx    # Badge collection page (earned + locked)
 │   ├── placement/
 │   │   └── [childId]/
 │   │       ├── page.tsx          # 3-step placement writing wizard
@@ -166,6 +170,9 @@ src/
 │       │       └── streak/
 │       │           ├── route.ts       # GET — streak data
 │       │           └── goal/route.ts  # POST — update weekly goal
+│       │       └── badges/
+│       │           ├── route.ts       # GET — earned badges
+│       │           └── seen/route.ts  # POST — mark badges as seen
 │       ├── placement/
 │       │   ├── start/route.ts          # POST — generate 3 writing prompts via AI
 │       │   ├── submit/route.ts         # POST — submit responses, AI analyzes tier
@@ -192,6 +199,7 @@ src/
 │   ├── CoachMessage.tsx          # Renders markdown + strips mascot emoji
 │   ├── SkillRadarChart.tsx       # Recharts RadarChart (4 writing categories)
 │   ├── StreakDisplay.tsx          # Streak flame + weekly progress dots
+│   ├── CelebrationOverlay.tsx    # Full-screen confetti + badge celebration
 │   └── shared/
 │       ├── ChatBubble.tsx        # Coach/student message bubbles
 │       ├── ChatInput.tsx         # Text input with send button
@@ -232,7 +240,8 @@ lesson/[id]/page.tsx (orchestrator)
   ├── uses: db.ts (persists assessment + WritingSubmission + AIFeedback, updates session)
   ├── calls: progress-tracker.ts → updateSkillProgress() (70/30 rolling average)
   ├── calls: streak-tracker.ts → updateStreak() (consecutive day + weekly tracking)
-  └── outputs: scores + feedback that FeedbackView renders
+  ├── calls: badge-checker.ts → checkAndUnlockBadges() (evaluates 24 badge conditions)
+  └── outputs: scores + feedback + newBadges that FeedbackView renders
 
 /api/lessons/revise/route.ts
   ├── uses: evaluator.ts (re-grades revised writing)
@@ -386,6 +395,10 @@ Streak
 ├── childId (unique)
 ├── currentStreak, longestStreak, lastActiveDate?
 ├── weeklyGoal (default 3), weeklyCompleted, weekStartDate?
+
+Achievement
+├── childId + badgeId (unique)
+├── unlockedAt (default now), seen (boolean, default false)
 ```
 
 **Key rename**: All `studentId` columns are now `childId`. All `student` relations are now `child`.
@@ -451,6 +464,8 @@ Returns lesson detail + rubric info. Auth required.
 - `GET /api/children/[id]/skills` — Skill progress grouped by category (narrative, persuasive, expository, descriptive)
 - `GET /api/children/[id]/streak` — Streak data (current, longest, weekly progress)
 - `POST /api/children/[id]/streak/goal` — Update weekly lesson goal (1-7)
+- `GET /api/children/[id]/badges` — Earned badges (with total, unseen count)
+- `POST /api/children/[id]/badges/seen` — Mark badges as seen (body: { badgeIds })
 
 ### Placement Routes (auth required, ownership enforced)
 - `POST /api/placement/start` — Generate 3 age-appropriate writing prompts via Claude AI
@@ -539,9 +554,9 @@ Before considering any task complete, verify ALL of these:
 - [x] Phase 2: Placement assessment & personalized curricula — 3-step writing wizard, AI tier recommendation, curriculum generation
 - [x] Phase 3: Enhanced writing submissions — WritingSubmission + AIFeedback split, portfolio with CSV export, revision tracking
 - [x] Phase 4: Skill progress & streak tracking — SkillProgress + Streak models, 70/30 rolling average, skill radar chart (Recharts), streak display with weekly progress, submit hook integration
+- [x] Phase 5: Achievement & motivation system — 24 badges across 5 categories, CelebrationOverlay with confetti, badge collection page, auto-unlock on submit
 
 ### Remaining
-- [ ] Phase 5: Achievement & motivation system (badges, confetti)
 - [ ] Phase 6: Parent dashboard enhancements & curriculum adaptation
 - [ ] Writing editor with auto-save and draft persistence
 
@@ -574,3 +589,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Phase 2: Placement & Curricula — 3-step placement wizard with AI analysis, personalized curriculum generation, weekly breakdown view, dashboard integration | prisma/schema.prisma, src/lib/curriculum-generator.ts, src/app/api/placement/*, src/app/api/curriculum/*, src/app/placement/*, src/app/curriculum/*, src/app/page.tsx, src/app/dashboard/*, src/lib/api.ts, prisma/seed.ts |
 | 2026-02-11 | Phase 3: Enhanced Writing Submissions — WritingSubmission + AIFeedback split, portfolio page with filters/export, revision tracking (max 3), migration script | prisma/schema.prisma, prisma/migrate-assessments.ts, src/app/api/lessons/submit/route.ts, src/app/api/lessons/revise/route.ts, src/app/api/children/[id]/portfolio/*, src/app/portfolio/*, src/lib/api.ts |
 | 2026-02-11 | Phase 4: Skill Progress & Streak Tracking — SkillProgress + Streak models, skill map with 4 categories × 5 sub-skills, rolling average progress tracker, consecutive-day streak tracker, Recharts radar chart, streak display with weekly dots, submit hook for auto-updating | prisma/schema.prisma, src/lib/skill-map.ts, src/lib/progress-tracker.ts, src/lib/streak-tracker.ts, src/app/api/children/[id]/skills/*, src/app/api/children/[id]/streak/*, src/app/api/lessons/submit/route.ts, src/components/SkillRadarChart.tsx, src/components/StreakDisplay.tsx, src/app/page.tsx |
+| 2026-02-11 | Phase 5: Achievement & Motivation System — Achievement model, 24 badges across 5 categories, badge checker with auto-unlock on submit, CelebrationOverlay with canvas-confetti, badge collection page, FeedbackView integration, recent badges on dashboard | prisma/schema.prisma, src/lib/badges.ts, src/lib/badge-checker.ts, src/app/api/children/[id]/badges/*, src/app/api/lessons/submit/route.ts, src/components/CelebrationOverlay.tsx, src/components/FeedbackView.tsx, src/app/lesson/[id]/page.tsx, src/app/badges/[childId]/page.tsx, src/app/page.tsx, src/lib/api.ts |

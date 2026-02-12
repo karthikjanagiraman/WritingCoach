@@ -65,6 +65,15 @@ const TYPE_ICONS: Record<string, string> = {
   descriptive: "\uD83C\uDFA8",
 };
 
+interface RecentBadge {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  category: string;
+  unlockedAt: string;
+}
+
 interface DashboardContentProps {
   data: StudentProgressResponse;
   childName: string;
@@ -75,9 +84,10 @@ interface DashboardContentProps {
   curriculumLoading: boolean;
   skills: SkillCategory[] | null;
   streakData: StreakData | null;
+  recentBadges: RecentBadge[] | null;
 }
 
-function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData }: DashboardContentProps) {
+function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData, recentBadges }: DashboardContentProps) {
   const { coachName } = useTier();
   const [activeTab, setActiveTab] = useState<string>("all");
 
@@ -166,6 +176,34 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
             />
           </div>
         </section>
+
+        {/* Recent Badges */}
+        {recentBadges && recentBadges.length > 0 && (
+          <section className="animate-fade-in stagger-1">
+            <div className="flex items-center justify-between mb-3">
+              <SectionLabel>Recent Badges</SectionLabel>
+              <Link
+                href={`/badges/${activeChild.id}`}
+                className="text-sm font-semibold text-active-primary hover:underline"
+              >
+                View All &rarr;
+              </Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {recentBadges.slice(0, 5).map((badge) => (
+                <div
+                  key={badge.id}
+                  className="flex-shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-active-accent/20 text-center w-28"
+                >
+                  <div className="text-3xl mb-1">{badge.emoji}</div>
+                  <h5 className="text-xs font-bold text-active-text truncate">
+                    {badge.name}
+                  </h5>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Current Lesson Card */}
         {currentLesson && (
@@ -440,6 +478,7 @@ export default function Dashboard() {
   const [hasPlacement, setHasPlacement] = useState<boolean | null>(null);
   const [skills, setSkills] = useState<SkillCategory[] | null>(null);
   const [streakData, setStreakData] = useState<StreakData | null>(null);
+  const [recentBadges, setRecentBadges] = useState<RecentBadge[] | null>(null);
 
   useEffect(() => {
     if (!activeChild) {
@@ -484,6 +523,14 @@ export default function Dashboard() {
       .catch(() => null);
   }, [activeChild]);
 
+  useEffect(() => {
+    if (!activeChild) return;
+    fetch(`/api/children/${activeChild.id}/badges`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data?.badges) setRecentBadges(data.badges); })
+      .catch(() => null);
+  }, [activeChild]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-active-bg flex items-center justify-center">
@@ -522,7 +569,7 @@ export default function Dashboard() {
 
   return (
     <TierProvider tier={activeChild.tier as Tier}>
-      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} />
+      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} />
     </TierProvider>
   );
 }

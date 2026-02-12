@@ -37,6 +37,7 @@ export interface SubmitAssessmentResponse {
     description: string;
     criteria: { name: string; displayName: string; weight: number }[];
   };
+  newBadges?: string[];
 }
 
 export interface StudentProgressResponse {

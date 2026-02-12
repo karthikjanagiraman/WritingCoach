@@ -1,16 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { AssessmentResult } from "@/types";
 import { CoachAvatar } from "./shared";
 import { useTier } from "@/contexts/TierContext";
 import { reviseAssessment } from "@/lib/api";
+import { getBadgeById } from "@/lib/badges";
+import CelebrationOverlay from "./CelebrationOverlay";
 
 interface FeedbackViewProps {
   result: AssessmentResult;
   submittedText: string;
   sessionId: string | null;
   onNextLesson: () => void;
+  newBadges?: string[];
+  childId?: string;
 }
 
 function StarRating({
@@ -117,6 +121,8 @@ export default function FeedbackView({
   submittedText,
   sessionId,
   onNextLesson,
+  newBadges,
+  childId,
 }: FeedbackViewProps) {
   const { tier, coachName } = useTier();
   const [showWriting, setShowWriting] = useState(false);
@@ -129,6 +135,34 @@ export default function FeedbackView({
   const [revisionsRemaining, setRevisionsRemaining] = useState(2);
   const [currentText, setCurrentText] = useState(submittedText);
   const [showImprovement, setShowImprovement] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Resolve badge definitions from IDs
+  const resolvedBadges = (newBadges ?? [])
+    .map((id) => getBadgeById(id))
+    .filter((b): b is NonNullable<typeof b> => b !== undefined);
+
+  // Show celebration overlay after a short delay if there are new badges
+  useEffect(() => {
+    if (resolvedBadges.length > 0) {
+      const timer = setTimeout(() => setShowCelebration(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleDismissCelebration = () => {
+    setShowCelebration(false);
+    // Mark badges as seen
+    if (childId && newBadges && newBadges.length > 0) {
+      fetch(`/api/children/${encodeURIComponent(childId)}/badges/seen`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ badgeIds: newBadges }),
+      }).catch(() => {
+        // Silent fail — not critical
+      });
+    }
+  };
 
   const roundedOverall = Math.round(currentResult.overallScore);
   const canRevise = revisionsRemaining > 0 && sessionId;
@@ -321,14 +355,22 @@ export default function FeedbackView({
         />
       </div>
 
-      {/* Badge Unlocked (only on first submission) */}
-      {revisionCount === 0 && (
+      {/* Badges Earned (inline summary) */}
+      {resolvedBadges.length > 0 && revisionCount === 0 && (
         <div className="bg-gradient-to-br from-active-accent/20 to-active-accent/10 rounded-2xl p-5 border border-active-accent/30 text-center animate-fade-in stagger-4">
-          <div className="text-3xl mb-2">{"\uD83C\uDFC6"}</div>
-          <h3 className="font-bold text-active-text mb-1">Badge Unlocked!</h3>
+          <div className="text-3xl mb-2">
+            {resolvedBadges.length === 1 ? resolvedBadges[0].emoji : "\uD83C\uDFC6"}
+          </div>
+          <h3 className="font-bold text-active-text mb-1">
+            {resolvedBadges.length === 1 ? "Badge Unlocked!" : `${resolvedBadges.length} Badges Unlocked!`}
+          </h3>
           <p className="text-active-text/70 text-sm leading-relaxed">
-            <span className="font-bold">&ldquo;Story Starter&rdquo;</span>{" "}
-            &mdash; You completed your first narrative lesson!
+            {resolvedBadges.map((b, i) => (
+              <span key={b.id}>
+                {i > 0 && ", "}
+                <span className="font-bold">&ldquo;{b.name}&rdquo;</span>
+              </span>
+            ))}
           </p>
         </div>
       )}
@@ -391,6 +433,14 @@ export default function FeedbackView({
           Next Lesson &rarr;
         </button>
       </div>
+
+      {/* Badge Celebration Overlay */}
+      {showCelebration && resolvedBadges.length > 0 && (
+        <CelebrationOverlay
+          badges={resolvedBadges}
+          onDismiss={handleDismissCelebration}
+        />
+      )}
     </div>
   );
 }

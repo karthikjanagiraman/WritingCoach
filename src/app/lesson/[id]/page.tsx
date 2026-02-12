@@ -36,6 +36,7 @@ export default function LessonPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [transition, setTransition] = useState<"instruction" | "guided" | null>(null);
+  const [newBadges, setNewBadges] = useState<string[]>([]);
 
   useEffect(() => {
     if (!activeChild) {
@@ -107,6 +108,9 @@ export default function LessonPage() {
           overallScore: result.overallScore,
           feedback: result.feedback,
         });
+        if (result.newBadges && result.newBadges.length > 0) {
+          setNewBadges(result.newBadges);
+        }
         setCurrentPhase("feedback");
       } catch (err) {
         console.error("Submit assessment error:", err);
@@ -261,6 +265,8 @@ export default function LessonPage() {
                 submittedText={submittedText}
                 sessionId={sessionId}
                 onNextLesson={handleNextLesson}
+                newBadges={newBadges}
+                childId={activeChild?.id}
               />
             )}
           </>

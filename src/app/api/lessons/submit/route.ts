@@ -6,6 +6,7 @@ import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
 import { updateSkillProgress } from "@/lib/progress-tracker";
 import { updateStreak } from "@/lib/streak-tracker";
+import { checkAndUnlockBadges } from "@/lib/badge-checker";
 import type { Message, Tier } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -155,6 +156,14 @@ export async function POST(request: NextRequest) {
       console.error("Failed to update skills/streak:", err);
     }
 
+    // Check and unlock any newly earned badges
+    let newBadges: string[] = [];
+    try {
+      newBadges = await checkAndUnlockBadges(session.childId);
+    } catch (err) {
+      console.error("Failed to check badges:", err);
+    }
+
     // Add feedback message to conversation history
     const conversationHistory: Message[] = JSON.parse(
       session.conversationHistory
@@ -199,6 +208,7 @@ export async function POST(request: NextRequest) {
       rubric: rubricInfo,
       submissionId: writingSubmission.id,
       wordCount,
+      newBadges,
     });
   } catch (error) {
     console.error("POST /api/lessons/submit error:", error);

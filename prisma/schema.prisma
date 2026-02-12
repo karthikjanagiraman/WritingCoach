@@ -47,6 +47,7 @@ model ChildProfile {
   writingSubmissions WritingSubmission[]
   skillProgress      SkillProgress[]
   streak             Streak?
+  achievements       Achievement[]
   placementResult    PlacementResult?
   curriculum         Curriculum?
 
@@ -261,4 +262,21 @@ model Streak {
   updatedAt      DateTime @updatedAt
 
   child ChildProfile @relation(fields: [childId], references: [id])
+}
+
+// ============================================
+// Achievements & Badges
+// ============================================
+
+model Achievement {
+  id         String   @id @default(uuid())
+  childId    String
+  badgeId    String
+  unlockedAt DateTime @default(now())
+  seen       Boolean  @default(false)
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+
+  @@unique([childId, badgeId])
+  @@index([childId])
 }
