@@ -10,6 +10,17 @@ export interface Student {
   tier: Tier;
 }
 
+export interface ChildProfile {
+  id: string;
+  parentId: string;
+  name: string;
+  age: number;
+  tier: Tier;
+  avatarEmoji: string;
+  gradeLevel?: string;
+  interests?: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
@@ -28,7 +39,7 @@ export interface LessonProgress {
 
 export interface SessionState {
   id: string;
-  studentId: string;
+  childId: string;
   lessonId: string;
   phase: Phase;
   phaseState: PhaseState;

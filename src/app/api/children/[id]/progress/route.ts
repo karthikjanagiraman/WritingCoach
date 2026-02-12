@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { getLessonById, getLessonsByTier, getAllLessons } from "@/lib/curriculum";
 import type { Tier } from "@/types";
 
@@ -8,28 +9,33 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: studentId } = await params;
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Verify student exists
-    const student = await prisma.student.findUnique({
-      where: { id: studentId },
+    const { id: childId } = await params;
+
+    // Verify child exists and belongs to this parent
+    const child = await prisma.childProfile.findFirst({
+      where: { id: childId, parentId: session.user.userId },
     });
-    if (!student) {
+    if (!child) {
       return NextResponse.json(
-        { error: "Student not found" },
-        { status: 404 }
+        { error: "Child not found or access denied" },
+        { status: 403 }
       );
     }
 
-    // Get all lesson progress for this student
+    // Get all lesson progress for this child
     const progressRecords = await prisma.lessonProgress.findMany({
-      where: { studentId },
+      where: { childId },
       orderBy: { startedAt: "desc" },
     });
 
     // Get recent assessments
     const assessments = await prisma.assessment.findMany({
-      where: { studentId },
+      where: { childId },
       orderBy: { createdAt: "desc" },
       take: 10,
     });
@@ -50,8 +56,8 @@ export async function GET(
       (p) => p.status === "in_progress"
     );
 
-    // Available lessons for student's tier
-    const tierLessons = getLessonsByTier(student.tier as Tier);
+    // Available lessons for child's tier
+    const tierLessons = getLessonsByTier(child.tier as Tier);
     const completedIds = new Set(
       completedLessons.map((l) => l.lessonId)
     );
@@ -76,7 +82,7 @@ export async function GET(
     const completedProgress = progressRecords.filter((p) => p.status === "completed");
     const typeStats: Record<string, { completed: number; total: number; avgScore: number | null }> = {};
     for (const type of ["narrative", "persuasive", "expository", "descriptive"]) {
-      const typeLessons = allLessons.filter((l) => l.type === type && l.tier === student.tier);
+      const typeLessons = allLessons.filter((l) => l.type === type && l.tier === child.tier);
       const typeCompleted = completedProgress.filter((p) => {
         const lesson = getLessonById(p.lessonId);
         return lesson?.type === type;
@@ -101,11 +107,11 @@ export async function GET(
     }
 
     return NextResponse.json({
-      student: {
-        id: student.id,
-        name: student.name,
-        age: student.age,
-        tier: student.tier,
+      child: {
+        id: child.id,
+        name: child.name,
+        age: child.age,
+        tier: child.tier,
       },
       completedLessons,
       currentLesson: currentLesson
@@ -135,7 +141,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("GET /api/students/[id]/progress error:", error);
+    console.error("GET /api/children/[id]/progress error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

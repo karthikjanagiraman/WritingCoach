@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CoachAvatar, SectionLabel } from "@/components/shared";
 import {
   getProgress,
-  getStudentId,
   type StudentProgressResponse,
 } from "@/lib/api";
 import { TierProvider, useTier } from "@/contexts/TierContext";
+import { useActiveChild } from "@/contexts/ActiveChildContext";
 import type { Tier } from "@/types";
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
@@ -40,18 +41,18 @@ const TIER_BADGES: Record<number, { label: string; emoji: string }> = {
   3: { label: "Tier 3 Writer", emoji: "\uD83D\uDC3A" },
 };
 
-function DashboardContent({ data }: { data: StudentProgressResponse }) {
+function DashboardContent({ data, childName, childTier }: { data: StudentProgressResponse; childName: string; childTier: number }) {
   const { coachName } = useTier();
   const [activeTab, setActiveTab] = useState<string>("all");
 
-  const { student, completedLessons, currentLesson, availableLessons, assessments, typeStats, stats } = data;
+  const { completedLessons, currentLesson, availableLessons, assessments, typeStats, stats } = data;
 
   const progressPercent =
     stats.totalAvailable > 0
       ? Math.round((stats.totalCompleted / stats.totalAvailable) * 100)
       : 0;
 
-  const tierBadge = TIER_BADGES[student.tier] || TIER_BADGES[1];
+  const tierBadge = TIER_BADGES[childTier] || TIER_BADGES[1];
 
   const filteredLessons =
     activeTab === "all"
@@ -96,7 +97,7 @@ function DashboardContent({ data }: { data: StudentProgressResponse }) {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-active-text">
-                  {getGreeting()}, {student.name}!
+                  {getGreeting()}, {childName}!
                 </h2>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-active-primary/10 text-active-primary rounded-full text-xs font-bold">
                   {tierBadge.emoji} {tierBadge.label}
@@ -300,16 +301,22 @@ function DashboardContent({ data }: { data: StudentProgressResponse }) {
 }
 
 export default function Dashboard() {
+  const { activeChild } = useActiveChild();
+  const router = useRouter();
   const [data, setData] = useState<StudentProgressResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getProgress(getStudentId())
+    if (!activeChild) {
+      router.push("/dashboard");
+      return;
+    }
+    getProgress(activeChild.id)
       .then(setData)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeChild, router]);
 
   if (loading) {
     return (
@@ -345,9 +352,11 @@ export default function Dashboard() {
     );
   }
 
+  if (!activeChild) return null;
+
   return (
-    <TierProvider tier={data.student.tier as Tier}>
-      <DashboardContent data={data} />
+    <TierProvider tier={activeChild.tier as Tier}>
+      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} />
     </TierProvider>
   );
 }

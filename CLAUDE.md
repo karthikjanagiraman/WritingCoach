@@ -16,7 +16,7 @@
 
 WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
 
-**Current State**: Core product is functional end-to-end. Claude API is fully integrated for coaching, phase transitions, and rubric-based grading. No auth system exists — the app uses a hardcoded student ID (`student-maya-001`). Dashboard, lesson flow, and all four phases work with real AI responses.
+**Current State**: Core product is functional end-to-end with multi-user auth. Claude API is fully integrated for coaching, phase transitions, and rubric-based grading. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, each with their own lesson progress. Dashboard, lesson flow, and all four phases work with real AI responses.
 
 ---
 
@@ -25,15 +25,16 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: SQLite via Prisma ORM (4 tables — Student, LessonProgress, Session, Assessment)
+- **Database**: PostgreSQL via Prisma ORM (5 tables — User, ChildProfile, LessonProgress, Session, Assessment)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
-- **Auth**: None — hardcoded student ID for now
+- **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider, JWT sessions
 
 **Package manager**: npm (not yarn, not pnpm)
-**Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` in `.env`)
+**Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` and `DATABASE_URL` in `.env`)
 **DB reset**: `npx prisma db push --force-reset && npx prisma db seed`
-**Seed data**: Seeds student Maya (age 8, tier 1) with lesson progress
+**Seed data**: Seeds parent user (`parent@example.com` / `password123`), child Maya (age 8, tier 1), child Ethan (age 11, tier 2) with lesson progress
+**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`
 
 ---
 
@@ -65,7 +66,7 @@ The session object tracks everything. Never lose or reset session state mid-less
 ```typescript
 interface SessionState {
   id: string;
-  studentId: string;
+  childId: string;
   lessonId: string;
   phase: Phase;
   phaseState: PhaseState;
@@ -119,25 +120,39 @@ src/
 │   │       │   └── *.json            # Assessment rubrics (30+ files)
 │   │       └── evals/
 │   │           └── evals.json        # Evaluation test cases
+│   ├── auth.ts                   # Auth.js v5 config (credentials provider, JWT callbacks)
 │   ├── api.ts                    # Client-side API helper (fetch wrappers)
 │   ├── curriculum.ts             # Public curriculum lookup (used by API routes)
 │   ├── rubrics.ts                # Public rubric lookup (used by API routes)
 │   └── db.ts                     # Prisma client singleton
 ├── app/
-│   ├── page.tsx                  # Student dashboard (progress, lesson cards)
+│   ├── page.tsx                  # Child dashboard (progress, lesson cards — requires active child)
 │   ├── lesson/[id]/page.tsx      # Lesson page (orchestrates all 4 phases)
 │   ├── globals.css               # Tailwind config + tier tokens + animations
-│   ├── layout.tsx                # Root layout with font imports
+│   ├── layout.tsx                # Root layout (SessionProvider + ActiveChildProvider)
+│   ├── auth/
+│   │   ├── login/page.tsx        # Login page (email/password → signIn)
+│   │   └── signup/page.tsx       # Signup page (create account → auto-login)
+│   ├── dashboard/
+│   │   ├── page.tsx              # Parent dashboard (list children, quick stats)
+│   │   └── children/
+│   │       └── new/page.tsx      # Add child form (name, age, avatar)
 │   └── api/
+│       ├── auth/
+│       │   ├── [...nextauth]/route.ts  # Auth.js route handler (GET/POST)
+│       │   └── signup/route.ts         # POST — create user account
+│       ├── children/
+│       │   ├── route.ts                # GET (list) / POST (create) children
+│       │   └── [id]/
+│       │       ├── route.ts            # GET / PATCH / DELETE child profile
+│       │       └── progress/route.ts   # GET — child dashboard data
 │       ├── lessons/
 │       │   ├── start/route.ts    # POST — creates/resumes session
 │       │   ├── message/route.ts  # POST — conversation within a phase
 │       │   ├── submit/route.ts   # POST — assessment submission + grading
 │       │   ├── revise/route.ts   # POST — revision submission + re-grading
 │       │   └── [id]/route.ts     # GET — lesson detail + rubric info
-│       ├── rubrics/[id]/route.ts # GET — rubric data
-│       └── students/[id]/
-│           └── progress/route.ts # GET — student dashboard data
+│       └── rubrics/[id]/route.ts # GET — rubric data
 ├── components/
 │   ├── InstructionPhase.tsx      # Phase 1: chat + progress steps
 │   ├── GuidedPracticePhase.tsx   # Phase 2: chat + writing cards
@@ -154,9 +169,12 @@ src/
 │       ├── SectionLabel.tsx      # Section header label
 │       └── index.ts              # Re-exports shared components
 ├── contexts/
-│   └── TierContext.tsx           # React context for tier config (name, emoji, label)
+│   ├── TierContext.tsx           # React context for tier config (name, emoji, label)
+│   └── ActiveChildContext.tsx    # React context for selected child (persists to localStorage)
+├── middleware.ts                 # Auth middleware — protects all routes except /auth/*
 └── types/
-    └── index.ts                  # All TypeScript interfaces
+    ├── index.ts                  # All TypeScript interfaces
+    └── next-auth.d.ts            # Auth.js session/JWT type augmentation
 ```
 
 ---
@@ -263,33 +281,39 @@ These two files MUST stay in sync or phase transitions will silently break.
 
 ---
 
-## Database Schema (Prisma — SQLite)
+## Database Schema (Prisma — PostgreSQL)
 
 ```
-Student
-├── id (uuid)
-├── name, age, tier
-├── → LessonProgress[] (one per lesson attempted)
-├── → Session[] (one per active lesson session)
-└── → Assessment[] (one per submitted writing)
+User
+├── id (uuid), email (unique), passwordHash, name
+├── role: PARENT | ADMIN
+├── → ChildProfile[] (parent's children)
+
+ChildProfile
+├── id (uuid), parentId → User
+├── name, age, tier (computed from age)
+├── avatarEmoji, gradeLevel?, interests?
+├── → LessonProgress[], Session[], Assessment[]
 
 LessonProgress
-├── studentId + lessonId (unique)
+├── childId + lessonId (unique)
 ├── status: not_started | in_progress | completed
 ├── currentPhase, startedAt, completedAt
 
 Session
 ├── id (uuid)
-├── studentId, lessonId
+├── childId, lessonId
 ├── phase: instruction | guided | assessment | feedback
 ├── phaseState (JSON string)
 ├── conversationHistory (JSON string — full Message[])
 └── → Assessment[]
 
 Assessment
-├── sessionId, studentId, lessonId, rubricId
+├── sessionId, childId, lessonId, rubricId
 ├── submissionText, scores (JSON), overallScore, feedback (JSON)
 ```
+
+**Key rename**: All `studentId` columns are now `childId`. All `student` relations are now `child`.
 
 **Schema change rules**:
 - NEVER rename existing columns — downstream code references them by name
@@ -301,17 +325,21 @@ Assessment
 
 ## API Routes
 
+### Auth Routes (unprotected)
+- `POST /api/auth/signup` — Create user account (name, email, password)
+- `GET/POST /api/auth/[...nextauth]` — Auth.js handlers (login, csrf, callback)
+
 ### POST /api/lessons/start
 ```typescript
-// Request
-{ studentId: string, lessonId: string }
+// Request (auth required)
+{ childId: string, lessonId: string }
 // Response
 { sessionId, resumed: boolean, phase, conversationHistory: Message[], initialPrompt: Message, lesson: { id, title, unit, type, learningObjectives } }
 ```
 
 ### POST /api/lessons/message
 ```typescript
-// Request
+// Request (auth required)
 { sessionId: string, message: string }
 // Response
 { response: Message, phaseUpdate: Phase | null, assessmentReady: boolean }
@@ -319,7 +347,7 @@ Assessment
 
 ### POST /api/lessons/submit
 ```typescript
-// Request
+// Request (auth required)
 { sessionId: string, text: string }
 // Response
 { assessmentId, scores: Record<string, number>, overallScore, feedback: { strength, growth, encouragement }, rubric }
@@ -327,17 +355,22 @@ Assessment
 
 ### POST /api/lessons/revise
 ```typescript
-// Request
+// Request (auth required)
 { sessionId: string, text: string }
 // Response
 { assessmentId, scores, overallScore, feedback, previousScores, revisionsRemaining, rubric }
 ```
 
 ### GET /api/lessons/[id]
-Returns lesson detail + rubric info.
+Returns lesson detail + rubric info. Auth required.
 
-### GET /api/students/[id]/progress
-Returns dashboard data: completed lessons, current lesson, available lessons, assessments, type stats.
+### Children Routes (auth required, ownership enforced)
+- `GET /api/children` — List parent's children
+- `POST /api/children` — Create child (name, age, avatarEmoji; tier auto-computed)
+- `GET /api/children/[id]` — Get child profile
+- `PATCH /api/children/[id]` — Update child profile
+- `DELETE /api/children/[id]` — Delete child profile
+- `GET /api/children/[id]/progress` — Dashboard data: completed lessons, current lesson, available lessons, assessments, type stats
 
 **API contract rule**: NEVER change the response shape of an existing endpoint without also updating every component that consumes it. Search the codebase for the route path before modifying.
 
@@ -380,7 +413,12 @@ Before considering any task complete, verify ALL of these:
 
 ```
 [ ] npm run dev starts without errors
-[ ] Dashboard loads at / and shows lesson cards
+[ ] Unauthenticated access redirects to /auth/login
+[ ] Signup creates account → auto-login → redirect to /dashboard
+[ ] Login works → redirect to /dashboard
+[ ] Parent dashboard lists children with stats
+[ ] Add child form creates child with auto-computed tier
+[ ] Selecting a child navigates to / with lesson cards
 [ ] Clicking a lesson navigates to /lesson/[id]
 [ ] Instruction phase: coach teaches, comprehension check appears
 [ ] Guided phase: coach responds to student messages, hints increment
@@ -403,15 +441,17 @@ Before considering any task complete, verify ALL of these:
 - [x] Rubric-based grading in /api/lessons/submit
 - [x] Student dashboard with progress visualization
 - [x] Full curriculum catalog (100+ lessons across 4 types, 3 tiers)
+- [x] Phase 1: Auth & Multi-User — Auth.js v5, PostgreSQL, parent/child management, all routes protected
+- [x] Multi-student support (ActiveChildContext, parent dashboard, child management)
+- [x] Parent dashboard (view/manage children, create new child profiles)
 
 ### Remaining
-- [ ] Authentication system (parent/child login, JWT or session-based)
-- [ ] Multi-student support (currently hardcoded to student-maya-001)
-- [ ] Placement assessment for initial tier assignment
-- [ ] Streak tracking and achievement system
-- [ ] Curriculum adaptation (adjust difficulty based on performance)
+- [ ] Phase 2: Placement assessment & personalized curricula
+- [ ] Phase 3: Enhanced writing submissions (WritingSubmission + AIFeedback split)
+- [ ] Phase 4: Skill progress & streak tracking (Recharts radar chart)
+- [ ] Phase 5: Achievement & motivation system (badges, confetti)
+- [ ] Phase 6: Parent dashboard enhancements & curriculum adaptation
 - [ ] Writing editor with auto-save and draft persistence
-- [ ] Parent dashboard (view children's progress)
 
 ---
 
@@ -420,7 +460,7 @@ Before considering any task complete, verify ALL of these:
 1. **Read this file first** on every new session
 2. **Start dev server**: `npm run dev` (requires `ANTHROPIC_API_KEY` in `.env`)
 3. **Reset database**: `npx prisma db push --force-reset && npx prisma db seed`
-4. **Seed data**: Seeds student Maya (age 8, tier 1) with lesson progress
+4. **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1), Ethan (age 11, tier 2) with lesson progress
 5. **Commit after each working feature** — small, atomic commits
 6. **Never modify multiple systems at once** — change one thing, verify, then move on
 7. **If you're unsure about a design decision**, check the skill files in `src/lib/llm/content/` — they are the source of truth for AI behavior
@@ -438,3 +478,4 @@ Before considering any task complete, verify ALL of these:
 |------|--------|-------|
 | 2026-02-11 | Initial commit — full app with Claude API integration, 4-phase lesson flow, dashboard, 100+ lesson curriculum | All files |
 | 2026-02-11 | Created CLAUDE.md matching actual project state | CLAUDE.md |
+| 2026-02-11 | Phase 1: Auth & Multi-User — SQLite→PostgreSQL, Auth.js v5, parent/child management, all routes protected, ActiveChildContext replaces hardcoded studentId | prisma/schema.prisma, src/lib/auth.ts, src/middleware.ts, src/contexts/ActiveChildContext.tsx, src/app/auth/*, src/app/dashboard/*, src/app/api/auth/*, src/app/api/children/*, all existing API routes, src/types/*, src/lib/api.ts, src/app/layout.tsx, prisma/seed.ts |

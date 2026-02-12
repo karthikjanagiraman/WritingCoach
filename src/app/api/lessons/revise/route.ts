@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
@@ -9,6 +10,11 @@ const MAX_REVISIONS = 2;
 
 export async function POST(request: NextRequest) {
   try {
+    const authSession = await auth();
+    if (!authSession?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { sessionId, text } = body;
 
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Load session
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
-      include: { student: true },
+      include: { child: true },
     });
     if (!session) {
       return NextResponse.json(
@@ -89,8 +95,8 @@ export async function POST(request: NextRequest) {
         result = await evaluateWriting(
           text.trim(),
           rubric,
-          session.student.name,
-          session.student.tier
+          session.child.name,
+          session.child.tier
         );
         rubricId = lesson.rubricId;
       }
@@ -100,7 +106,7 @@ export async function POST(request: NextRequest) {
       // No rubric — use general evaluation
       result = await evaluateWritingGeneral(
         text.trim(),
-        session.student.tier as Tier,
+        session.child.tier as Tier,
         lesson.title
       );
     }
@@ -109,7 +115,7 @@ export async function POST(request: NextRequest) {
     const assessment = await prisma.assessment.create({
       data: {
         sessionId: session.id,
-        studentId: session.studentId,
+        childId: session.childId,
         lessonId: session.lessonId,
         rubricId: rubricId ?? "general",
         submissionText: text.trim(),

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getCoachResponse } from "@/lib/llm";
 import type { Message, Phase, PhaseState, SessionState } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
+    const authSession = await auth();
+    if (!authSession?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { sessionId, message } = body;
 
@@ -26,7 +32,7 @@ export async function POST(request: NextRequest) {
     // Load session
     const session = await prisma.session.findUnique({
       where: { id: sessionId },
-      include: { student: true },
+      include: { child: true },
     });
     if (!session) {
       return NextResponse.json(
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Build session state for the LLM
     const sessionState: SessionState = {
       id: session.id,
-      studentId: session.studentId,
+      childId: session.childId,
       lessonId: session.lessonId,
       phase: session.phase as Phase,
       phaseState,
@@ -135,7 +141,7 @@ export async function POST(request: NextRequest) {
     if (phaseUpdate) {
       await prisma.lessonProgress.updateMany({
         where: {
-          studentId: session.studentId,
+          childId: session.childId,
           lessonId: session.lessonId,
         },
         data: {

@@ -132,7 +132,7 @@ export async function getInitialPrompt(
 ): Promise<string> {
   const sessionStub: SessionState = {
     id: "init",
-    studentId: "",
+    childId: "",
     lessonId: lesson.id,
     phase: "instruction",
     phaseState: {},

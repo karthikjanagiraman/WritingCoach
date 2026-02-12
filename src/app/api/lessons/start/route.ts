@@ -1,29 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getInitialPrompt } from "@/lib/llm";
 import type { Message, Phase } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { studentId, lessonId } = body;
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!studentId || !lessonId) {
+    const body = await request.json();
+    const { childId, lessonId } = body;
+
+    if (!childId || !lessonId) {
       return NextResponse.json(
-        { error: "studentId and lessonId are required" },
+        { error: "childId and lessonId are required" },
         { status: 400 }
       );
     }
 
-    // Verify student exists
-    const student = await prisma.student.findUnique({
-      where: { id: studentId },
+    // Verify child exists and belongs to this parent
+    const child = await prisma.childProfile.findFirst({
+      where: { id: childId, parentId: session.user.userId },
     });
-    if (!student) {
+    if (!child) {
       return NextResponse.json(
-        { error: "Student not found" },
-        { status: 404 }
+        { error: "Child not found or access denied" },
+        { status: 403 }
       );
     }
 
@@ -39,7 +45,7 @@ export async function POST(request: NextRequest) {
     // ── Check for an existing active session ──────────────────────────
     const existingSession = await prisma.session.findFirst({
       where: {
-        studentId,
+        childId,
         lessonId,
         // Only resume sessions that aren't in "feedback" (completed)
         NOT: { phase: "feedback" },
@@ -72,8 +78,8 @@ export async function POST(request: NextRequest) {
     // ── No active session — create a new one ──────────────────────────
     const initialPrompt = await getInitialPrompt(
       lesson,
-      student.name,
-      student.tier
+      child.name,
+      child.tier
     );
 
     const initialMessage: Message = {
@@ -83,9 +89,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     };
 
-    const session = await prisma.session.create({
+    const newSession = await prisma.session.create({
       data: {
-        studentId,
+        childId,
         lessonId,
         phase: "instruction" satisfies Phase,
         phaseState: JSON.stringify({}),
@@ -96,7 +102,7 @@ export async function POST(request: NextRequest) {
     // Upsert lesson progress to "in_progress"
     await prisma.lessonProgress.upsert({
       where: {
-        studentId_lessonId: { studentId, lessonId },
+        childId_lessonId: { childId, lessonId },
       },
       update: {
         status: "in_progress",
@@ -104,7 +110,7 @@ export async function POST(request: NextRequest) {
         startedAt: new Date(),
       },
       create: {
-        studentId,
+        childId,
         lessonId,
         status: "in_progress",
         currentPhase: "instruction",
@@ -113,7 +119,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      sessionId: session.id,
+      sessionId: newSession.id,
       resumed: false,
       phase: "instruction" as Phase,
       conversationHistory: [initialMessage],

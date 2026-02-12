@@ -1,7 +1,5 @@
 import type { AssessmentResult, Message, Phase } from "@/types";
 
-const STUDENT_ID = "student-maya-001";
-
 // ── Response types from the API ─────────────────────────────────────────────
 
 export interface StartLessonResponse {
@@ -42,7 +40,7 @@ export interface SubmitAssessmentResponse {
 }
 
 export interface StudentProgressResponse {
-  student: {
+  child: {
     id: string;
     name: string;
     age: number;
@@ -108,18 +106,14 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
-export function getStudentId(): string {
-  return STUDENT_ID;
-}
-
 export async function startLesson(
-  studentId: string,
+  childId: string,
   lessonId: string
 ): Promise<StartLessonResponse> {
   return apiFetch<StartLessonResponse>("/api/lessons/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ studentId, lessonId }),
+    body: JSON.stringify({ childId, lessonId }),
   });
 }
 
@@ -175,10 +169,10 @@ export async function reviseAssessment(
 }
 
 export async function getProgress(
-  studentId: string
+  childId: string
 ): Promise<StudentProgressResponse> {
   return apiFetch<StudentProgressResponse>(
-    `/api/students/${encodeURIComponent(studentId)}/progress`
+    `/api/children/${encodeURIComponent(childId)}/progress`
   );
 }
 

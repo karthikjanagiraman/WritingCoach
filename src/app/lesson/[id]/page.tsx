@@ -16,14 +16,15 @@ import {
   sendMessage as apiSendMessage,
   submitAssessment,
   getLessonDetail,
-  getStudentId,
   type LessonDetailResponse,
 } from "@/lib/api";
+import { useActiveChild } from "@/contexts/ActiveChildContext";
 
 export default function LessonPage() {
   const router = useRouter();
   const params = useParams();
   const lessonId = params.id as string;
+  const { activeChild } = useActiveChild();
 
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentPhase, setCurrentPhase] = useState<Phase>("instruction");
@@ -37,13 +38,18 @@ export default function LessonPage() {
   const [transition, setTransition] = useState<"instruction" | "guided" | null>(null);
 
   useEffect(() => {
+    if (!activeChild) {
+      router.push("/dashboard");
+      return;
+    }
+
     let cancelled = false;
 
     async function init() {
       try {
         const [detail, session] = await Promise.all([
           getLessonDetail(lessonId),
-          startLesson(getStudentId(), lessonId),
+          startLesson(activeChild!.id, lessonId),
         ]);
 
         if (cancelled) return;
@@ -69,7 +75,7 @@ export default function LessonPage() {
 
     init();
     return () => { cancelled = true; };
-  }, [lessonId]);
+  }, [lessonId, activeChild, router]);
 
   const handleSendMessage = useCallback(
     async (text: string): Promise<Message | null> => {
@@ -177,7 +183,7 @@ export default function LessonPage() {
     );
   }
 
-  const tier = (lessonData?.lesson.tier ?? 1) as Tier;
+  const tier = (activeChild?.tier ?? 1) as Tier;
   const unitLabel = [lesson.unit, lesson.type].filter(Boolean).join(" \u00B7 ");
 
   return (

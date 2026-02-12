@@ -3,39 +3,73 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Student {
-  id        String   @id @default(uuid())
-  name      String
-  age       Int
-  tier      Int
-  createdAt DateTime @default(now())
+// ============================================
+// Auth & Identity
+// ============================================
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         UserRole     @default(PARENT)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  children ChildProfile[]
+}
+
+enum UserRole {
+  PARENT
+  ADMIN
+}
+
+model ChildProfile {
+  id          String   @id @default(uuid())
+  parentId    String
+  parent      User     @relation(fields: [parentId], references: [id])
+  name        String
+  age         Int
+  tier        Int      // Computed from age: 7-9=1, 10-12=2, 13-15=3
+  avatarEmoji String   @default("🦉")
+  gradeLevel  String?
+  interests   String?  // JSON array of writing interests
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   lessonProgress LessonProgress[]
   sessions       Session[]
   assessments    Assessment[]
+
+  @@index([parentId])
 }
+
+// ============================================
+// Lesson Flow
+// ============================================
 
 model LessonProgress {
   id           String    @id @default(uuid())
-  studentId    String
+  childId      String
   lessonId     String
   status       String    @default("not_started")
   currentPhase String?
   startedAt    DateTime?
   completedAt  DateTime?
 
-  student Student @relation(fields: [studentId], references: [id])
+  child ChildProfile @relation(fields: [childId], references: [id])
 
-  @@unique([studentId, lessonId])
+  @@unique([childId, lessonId])
+  @@index([childId])
 }
 
 model Session {
   id                  String   @id @default(uuid())
-  studentId           String
+  childId             String
   lessonId            String
   phase               String   @default("instruction")
   phaseState          String   @default("{}")
@@ -43,14 +77,17 @@ model Session {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  student     Student      @relation(fields: [studentId], references: [id])
+  child       ChildProfile @relation(fields: [childId], references: [id])
   assessments Assessment[]
+
+  @@index([childId])
+  @@index([childId, lessonId])
 }
 
 model Assessment {
   id             String   @id @default(uuid())
   sessionId      String
-  studentId      String
+  childId        String
   lessonId       String
   rubricId       String
   submissionText String
@@ -59,6 +96,9 @@ model Assessment {
   feedback       String
   createdAt      DateTime @default(now())
 
-  session Session @relation(fields: [sessionId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  session Session      @relation(fields: [sessionId], references: [id])
+  child   ChildProfile @relation(fields: [childId], references: [id])
+
+  @@index([childId])
+  @@index([sessionId])
 }
