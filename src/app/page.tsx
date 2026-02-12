@@ -127,9 +127,12 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
       {/* Header — greeting merged into nav bar */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200/60">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => { clearActiveChild(); router.push("/dashboard"); }}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <CoachAvatar size="sm" />
-            <div>
+            <div className="text-left">
               <h1 className="text-base font-extrabold text-active-text leading-tight">
                 {getGreeting()}, {childName}!
               </h1>
@@ -137,21 +140,13 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                 {tierBadge.emoji} {tierBadge.label}
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <Link
-              href={`/portfolio/${activeChild?.id}`}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-active-primary hover:bg-active-primary/10 transition-colors"
-            >
-              My Writing
-            </Link>
-            <button
-              onClick={() => { clearActiveChild(); router.push("/dashboard"); }}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-active-text/40 hover:bg-gray-100 transition-colors"
-            >
-              Switch Child
-            </button>
-          </div>
+          </button>
+          <Link
+            href={`/portfolio/${activeChild?.id}`}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold text-active-primary hover:bg-active-primary/10 transition-colors"
+          >
+            My Writing
+          </Link>
         </div>
       </header>
 
