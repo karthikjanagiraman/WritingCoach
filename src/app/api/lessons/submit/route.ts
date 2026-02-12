@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
+import { updateSkillProgress } from "@/lib/progress-tracker";
+import { updateStreak } from "@/lib/streak-tracker";
 import type { Message, Tier } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -144,6 +146,14 @@ export async function POST(request: NextRequest) {
         completedAt: new Date(),
       },
     });
+
+    // Update skill progress and streak (non-blocking — don't fail the submission)
+    try {
+      await updateSkillProgress(session.childId, session.lessonId, result.overallScore);
+      await updateStreak(session.childId);
+    } catch (err) {
+      console.error("Failed to update skills/streak:", err);
+    }
 
     // Add feedback message to conversation history
     const conversationHistory: Message[] = JSON.parse(

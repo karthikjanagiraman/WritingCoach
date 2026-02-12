@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CoachAvatar, SectionLabel } from "@/components/shared";
+import SkillRadarChart from "@/components/SkillRadarChart";
+import StreakDisplay from "@/components/StreakDisplay";
 import {
   getProgress,
   type StudentProgressResponse,
@@ -11,6 +13,21 @@ import {
 import { TierProvider, useTier } from "@/contexts/TierContext";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
 import type { Tier } from "@/types";
+
+interface SkillCategory {
+  name: string;
+  displayName: string;
+  avgScore: number;
+  skills: { name: string; displayName: string; score: number; level: string; totalAttempts: number }[];
+}
+
+interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate: string | null;
+  weeklyGoal: number;
+  weeklyCompleted: number;
+}
 
 function ProgressBar({ value, color }: { value: number; color: string }) {
   return (
@@ -56,9 +73,11 @@ interface DashboardContentProps {
   hasPlacement: boolean | null;
   curriculum: any;
   curriculumLoading: boolean;
+  skills: SkillCategory[] | null;
+  streakData: StreakData | null;
 }
 
-function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading }: DashboardContentProps) {
+function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData }: DashboardContentProps) {
   const { coachName } = useTier();
   const [activeTab, setActiveTab] = useState<string>("all");
 
@@ -132,6 +151,19 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                 {coachName} is here to help you write something amazing today!
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Skills & Streak Section */}
+        <section className="animate-fade-in stagger-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SkillRadarChart categories={skills ?? []} />
+            <StreakDisplay
+              currentStreak={streakData?.currentStreak ?? 0}
+              longestStreak={streakData?.longestStreak ?? 0}
+              weeklyGoal={streakData?.weeklyGoal ?? 3}
+              weeklyCompleted={streakData?.weeklyCompleted ?? 0}
+            />
           </div>
         </section>
 
@@ -406,6 +438,8 @@ export default function Dashboard() {
   const [curriculum, setCurriculum] = useState<any>(null);
   const [curriculumLoading, setCurriculumLoading] = useState(true);
   const [hasPlacement, setHasPlacement] = useState<boolean | null>(null);
+  const [skills, setSkills] = useState<SkillCategory[] | null>(null);
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
 
   useEffect(() => {
     if (!activeChild) {
@@ -432,6 +466,22 @@ export default function Dashboard() {
     fetch(`/api/placement/${activeChild.id}`)
       .then(res => setHasPlacement(res.ok))
       .catch(() => setHasPlacement(false));
+  }, [activeChild]);
+
+  useEffect(() => {
+    if (!activeChild) return;
+    fetch(`/api/children/${activeChild.id}/skills`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data?.categories) setSkills(data.categories); })
+      .catch(() => null);
+  }, [activeChild]);
+
+  useEffect(() => {
+    if (!activeChild) return;
+    fetch(`/api/children/${activeChild.id}/streak`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setStreakData(data); })
+      .catch(() => null);
   }, [activeChild]);
 
   if (loading) {
@@ -472,7 +522,7 @@ export default function Dashboard() {
 
   return (
     <TierProvider tier={activeChild.tier as Tier}>
-      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} />
+      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} />
     </TierProvider>
   );
 }

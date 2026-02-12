@@ -45,6 +45,8 @@ model ChildProfile {
   sessions           Session[]
   assessments        Assessment[]
   writingSubmissions WritingSubmission[]
+  skillProgress      SkillProgress[]
+  streak             Streak?
   placementResult    PlacementResult?
   curriculum         Curriculum?
 
@@ -217,4 +219,46 @@ model AIFeedback {
   createdAt     DateTime @default(now())
 
   submission WritingSubmission @relation(fields: [submissionId], references: [id])
+}
+
+// ============================================
+// Skill Progress & Streaks
+// ============================================
+
+enum SkillLevel {
+  EMERGING
+  DEVELOPING
+  PROFICIENT
+  ADVANCED
+}
+
+model SkillProgress {
+  id             String     @id @default(uuid())
+  childId        String
+  skillCategory  String     // narrative, persuasive, expository, descriptive
+  skillName      String     // e.g. "story_structure", "voice", "organization"
+  level          SkillLevel @default(EMERGING)
+  score          Float      @default(0) // rolling average 0-5
+  totalAttempts  Int        @default(0)
+  lastAssessedAt DateTime?
+  updatedAt      DateTime   @updatedAt
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+
+  @@unique([childId, skillCategory, skillName])
+  @@index([childId])
+}
+
+model Streak {
+  id             String   @id @default(uuid())
+  childId        String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActiveDate DateTime?
+  weeklyGoal     Int      @default(3)
+  weeklyCompleted Int     @default(0)
+  weekStartDate  DateTime?
+  updatedAt      DateTime @updatedAt
+
+  child ChildProfile @relation(fields: [childId], references: [id])
 }

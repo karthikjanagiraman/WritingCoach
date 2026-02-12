@@ -25,7 +25,8 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: PostgreSQL via Prisma ORM (11 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback)
+- **Database**: PostgreSQL via Prisma ORM (14 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak)
+- **Charts**: Recharts (skill radar chart, future progress charts)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
 - **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider, JWT sessions
@@ -124,6 +125,9 @@ src/
 │   ├── api.ts                    # Client-side API helper (fetch wrappers)
 │   ├── curriculum.ts             # Public curriculum lookup (used by API routes)
 │   ├── curriculum-generator.ts   # AI-powered curriculum generation (Claude API)
+│   ├── skill-map.ts              # SKILL_DEFINITIONS + getLessonSkills() + scoreToLevel()
+│   ├── progress-tracker.ts       # updateSkillProgress() — 70/30 rolling average
+│   ├── streak-tracker.ts         # updateStreak() — consecutive day + weekly tracking
 │   ├── rubrics.ts                # Public rubric lookup (used by API routes)
 │   └── db.ts                     # Prisma client singleton
 ├── app/
@@ -154,7 +158,14 @@ src/
 │       │   ├── route.ts                # GET (list) / POST (create) children
 │       │   └── [id]/
 │       │       ├── route.ts            # GET / PATCH / DELETE child profile
-│       │       └── progress/route.ts   # GET — child dashboard data
+│       │       ├── progress/route.ts   # GET — child dashboard data
+│       │       ├── portfolio/
+│       │       │   ├── route.ts       # GET — paginated writing portfolio
+│       │       │   └── export/route.ts # GET — CSV export
+│       │       ├── skills/route.ts    # GET — skill progress by category
+│       │       └── streak/
+│       │           ├── route.ts       # GET — streak data
+│       │           └── goal/route.ts  # POST — update weekly goal
 │       ├── placement/
 │       │   ├── start/route.ts          # POST — generate 3 writing prompts via AI
 │       │   ├── submit/route.ts         # POST — submit responses, AI analyzes tier
@@ -179,6 +190,8 @@ src/
 │   ├── PhaseIndicator.tsx        # 3-dot phase progress (Learn/Practice/Write)
 │   ├── PhaseTransition.tsx       # Animated transition between phases
 │   ├── CoachMessage.tsx          # Renders markdown + strips mascot emoji
+│   ├── SkillRadarChart.tsx       # Recharts RadarChart (4 writing categories)
+│   ├── StreakDisplay.tsx          # Streak flame + weekly progress dots
 │   └── shared/
 │       ├── ChatBubble.tsx        # Coach/student message bubbles
 │       ├── ChatInput.tsx         # Text input with send button
@@ -216,7 +229,9 @@ lesson/[id]/page.tsx (orchestrator)
 /api/lessons/submit/route.ts
   ├── uses: evaluator.ts (grades writing via Claude API)
   ├── uses: rubrics.ts (loads rubric criteria)
-  ├── uses: db.ts (persists assessment, updates session to feedback phase)
+  ├── uses: db.ts (persists assessment + WritingSubmission + AIFeedback, updates session)
+  ├── calls: progress-tracker.ts → updateSkillProgress() (70/30 rolling average)
+  ├── calls: streak-tracker.ts → updateStreak() (consecutive day + weekly tracking)
   └── outputs: scores + feedback that FeedbackView renders
 
 /api/lessons/revise/route.ts
@@ -311,7 +326,8 @@ ChildProfile
 ├── id (uuid), parentId → User
 ├── name, age, tier (computed from age)
 ├── avatarEmoji, gradeLevel?, interests?
-├── → LessonProgress[], Session[], Assessment[]
+├── → LessonProgress[], Session[], Assessment[], WritingSubmission[]
+├── → SkillProgress[], Streak?, PlacementResult?, Curriculum?
 
 LessonProgress
 ├── childId + lessonId (unique)
@@ -349,6 +365,27 @@ CurriculumWeek
 CurriculumRevision
 ├── curriculumId, reason, description
 ├── previousPlan (JSON), newPlan (JSON)
+
+WritingSubmission
+├── sessionId, childId, lessonId, rubricId
+├── submissionText, wordCount, timeSpentSec?
+├── revisionOf? (→ original submission), revisionNumber (0-3)
+├── → AIFeedback?
+
+AIFeedback
+├── submissionId (unique FK)
+├── scores (JSON), overallScore, strength, growthArea, encouragement
+├── fullFeedback?, model (AI model used)
+
+SkillProgress
+├── childId + skillCategory + skillName (unique)
+├── level: EMERGING | DEVELOPING | PROFICIENT | ADVANCED
+├── score (0-5 rolling average), totalAttempts, lastAssessedAt?
+
+Streak
+├── childId (unique)
+├── currentStreak, longestStreak, lastActiveDate?
+├── weeklyGoal (default 3), weeklyCompleted, weekStartDate?
 ```
 
 **Key rename**: All `studentId` columns are now `childId`. All `student` relations are now `child`.
@@ -409,6 +446,11 @@ Returns lesson detail + rubric info. Auth required.
 - `PATCH /api/children/[id]` — Update child profile
 - `DELETE /api/children/[id]` — Delete child profile
 - `GET /api/children/[id]/progress` — Dashboard data: completed lessons, current lesson, available lessons, assessments, type stats
+- `GET /api/children/[id]/portfolio` — Paginated writing submissions with filters (type, sort, includeRevisions)
+- `GET /api/children/[id]/portfolio/export` — CSV download of all writing submissions
+- `GET /api/children/[id]/skills` — Skill progress grouped by category (narrative, persuasive, expository, descriptive)
+- `GET /api/children/[id]/streak` — Streak data (current, longest, weekly progress)
+- `POST /api/children/[id]/streak/goal` — Update weekly lesson goal (1-7)
 
 ### Placement Routes (auth required, ownership enforced)
 - `POST /api/placement/start` — Generate 3 age-appropriate writing prompts via Claude AI
@@ -496,9 +538,9 @@ Before considering any task complete, verify ALL of these:
 - [x] Parent dashboard (view/manage children, create new child profiles)
 - [x] Phase 2: Placement assessment & personalized curricula — 3-step writing wizard, AI tier recommendation, curriculum generation
 - [x] Phase 3: Enhanced writing submissions — WritingSubmission + AIFeedback split, portfolio with CSV export, revision tracking
+- [x] Phase 4: Skill progress & streak tracking — SkillProgress + Streak models, 70/30 rolling average, skill radar chart (Recharts), streak display with weekly progress, submit hook integration
 
 ### Remaining
-- [ ] Phase 4: Skill progress & streak tracking (Recharts radar chart)
 - [ ] Phase 5: Achievement & motivation system (badges, confetti)
 - [ ] Phase 6: Parent dashboard enhancements & curriculum adaptation
 - [ ] Writing editor with auto-save and draft persistence
@@ -531,3 +573,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Phase 1: Auth & Multi-User — SQLite→PostgreSQL, Auth.js v5, parent/child management, all routes protected, ActiveChildContext replaces hardcoded studentId | prisma/schema.prisma, src/lib/auth.ts, src/middleware.ts, src/contexts/ActiveChildContext.tsx, src/app/auth/*, src/app/dashboard/*, src/app/api/auth/*, src/app/api/children/*, all existing API routes, src/types/*, src/lib/api.ts, src/app/layout.tsx, prisma/seed.ts |
 | 2026-02-11 | Phase 2: Placement & Curricula — 3-step placement wizard with AI analysis, personalized curriculum generation, weekly breakdown view, dashboard integration | prisma/schema.prisma, src/lib/curriculum-generator.ts, src/app/api/placement/*, src/app/api/curriculum/*, src/app/placement/*, src/app/curriculum/*, src/app/page.tsx, src/app/dashboard/*, src/lib/api.ts, prisma/seed.ts |
 | 2026-02-11 | Phase 3: Enhanced Writing Submissions — WritingSubmission + AIFeedback split, portfolio page with filters/export, revision tracking (max 3), migration script | prisma/schema.prisma, prisma/migrate-assessments.ts, src/app/api/lessons/submit/route.ts, src/app/api/lessons/revise/route.ts, src/app/api/children/[id]/portfolio/*, src/app/portfolio/*, src/lib/api.ts |
+| 2026-02-11 | Phase 4: Skill Progress & Streak Tracking — SkillProgress + Streak models, skill map with 4 categories × 5 sub-skills, rolling average progress tracker, consecutive-day streak tracker, Recharts radar chart, streak display with weekly dots, submit hook for auto-updating | prisma/schema.prisma, src/lib/skill-map.ts, src/lib/progress-tracker.ts, src/lib/streak-tracker.ts, src/app/api/children/[id]/skills/*, src/app/api/children/[id]/streak/*, src/app/api/lessons/submit/route.ts, src/components/SkillRadarChart.tsx, src/components/StreakDisplay.tsx, src/app/page.tsx |
