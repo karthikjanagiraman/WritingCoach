@@ -16,7 +16,7 @@
 
 WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
 
-**Current State**: Core product is functional end-to-end with multi-user auth, placement assessments, and personalized curricula. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, and curriculum generation. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, each with their own placement assessment, personalized curriculum, and lesson progress. Dashboard, lesson flow, and all four phases work with real AI responses.
+**Current State**: Full-featured product with multi-user auth, placement assessments, personalized curricula, skill tracking, achievement badges, and parent progress reports. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, curriculum generation, and curriculum adaptation. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, view detailed progress reports with charts, and trigger curriculum revisions. All 6 planned phases are complete.
 
 ---
 
@@ -130,6 +130,7 @@ src/
 │   ├── streak-tracker.ts         # updateStreak() — consecutive day + weekly tracking
 │   ├── badges.ts                 # BADGE_CATALOG (24 badges) + getBadgeById()
 │   ├── badge-checker.ts          # checkAndUnlockBadges() — evaluates conditions, creates Achievements
+│   ├── curriculum-adapter.ts     # checkCurriculumAdaptation() — auto-adjusts curriculum on scores
 │   ├── rubrics.ts                # Public rubric lookup (used by API routes)
 │   └── db.ts                     # Prisma client singleton
 ├── app/
@@ -141,9 +142,10 @@ src/
 │   │   ├── login/page.tsx        # Login page (email/password → signIn)
 │   │   └── signup/page.tsx       # Signup page (create account → auto-login)
 │   ├── dashboard/
-│   │   ├── page.tsx              # Parent dashboard (list children, quick stats)
+│   │   ├── page.tsx              # Parent dashboard (list children with streak/badge stats)
 │   │   └── children/
-│   │       └── new/page.tsx      # Add child form → redirect to placement
+│   │       ├── new/page.tsx      # Add child form → redirect to placement
+│   │       └── [id]/report/page.tsx  # Full progress report with charts
 │   ├── badges/
 │   │   └── [childId]/page.tsx    # Badge collection page (earned + locked)
 │   ├── placement/
@@ -153,6 +155,7 @@ src/
 │   ├── curriculum/
 │   │   └── [childId]/
 │   │       ├── setup/page.tsx    # Curriculum preferences (lessons/week, focus)
+│   │       ├── revise/page.tsx   # Manual curriculum revision (parent options)
 │   │       └── page.tsx          # Weekly breakdown view
 │   └── api/
 │       ├── auth/
@@ -170,9 +173,12 @@ src/
 │       │       └── streak/
 │       │           ├── route.ts       # GET — streak data
 │       │           └── goal/route.ts  # POST — update weekly goal
-│       │       └── badges/
-│       │           ├── route.ts       # GET — earned badges
-│       │           └── seen/route.ts  # POST — mark badges as seen
+│       │       ├── badges/
+│       │       │   ├── route.ts       # GET — earned badges
+│       │       │   └── seen/route.ts  # POST — mark badges as seen
+│       │       └── report/
+│       │           ├── route.ts       # GET — aggregated progress report
+│       │           └── export/route.ts # GET — CSV export
 │       ├── placement/
 │       │   ├── start/route.ts          # POST — generate 3 writing prompts via AI
 │       │   ├── submit/route.ts         # POST — submit responses, AI analyzes tier
@@ -200,6 +206,9 @@ src/
 │   ├── SkillRadarChart.tsx       # Recharts RadarChart (4 writing categories)
 │   ├── StreakDisplay.tsx          # Streak flame + weekly progress dots
 │   ├── CelebrationOverlay.tsx    # Full-screen confetti + badge celebration
+│   ├── charts/
+│   │   ├── ScoreTrendChart.tsx   # Recharts BarChart (scores by writing type)
+│   │   └── ActivityHeatmap.tsx   # GitHub-style activity calendar grid
 │   └── shared/
 │       ├── ChatBubble.tsx        # Coach/student message bubbles
 │       ├── ChatInput.tsx         # Text input with send button
@@ -241,6 +250,7 @@ lesson/[id]/page.tsx (orchestrator)
   ├── calls: progress-tracker.ts → updateSkillProgress() (70/30 rolling average)
   ├── calls: streak-tracker.ts → updateStreak() (consecutive day + weekly tracking)
   ├── calls: badge-checker.ts → checkAndUnlockBadges() (evaluates 24 badge conditions)
+  ├── calls: curriculum-adapter.ts → checkCurriculumAdaptation() (auto-adjusts on score patterns)
   └── outputs: scores + feedback + newBadges that FeedbackView renders
 
 /api/lessons/revise/route.ts
@@ -466,6 +476,8 @@ Returns lesson detail + rubric info. Auth required.
 - `POST /api/children/[id]/streak/goal` — Update weekly lesson goal (1-7)
 - `GET /api/children/[id]/badges` — Earned badges (with total, unseen count)
 - `POST /api/children/[id]/badges/seen` — Mark badges as seen (body: { badgeIds })
+- `GET /api/children/[id]/report` — Aggregated progress report (summary, skills, streak, scores, activity timeline)
+- `GET /api/children/[id]/report/export` — CSV download of all submission data
 
 ### Placement Routes (auth required, ownership enforced)
 - `POST /api/placement/start` — Generate 3 age-appropriate writing prompts via Claude AI
@@ -555,9 +567,9 @@ Before considering any task complete, verify ALL of these:
 - [x] Phase 3: Enhanced writing submissions — WritingSubmission + AIFeedback split, portfolio with CSV export, revision tracking
 - [x] Phase 4: Skill progress & streak tracking — SkillProgress + Streak models, 70/30 rolling average, skill radar chart (Recharts), streak display with weekly progress, submit hook integration
 - [x] Phase 5: Achievement & motivation system — 24 badges across 5 categories, CelebrationOverlay with confetti, badge collection page, auto-unlock on submit
+- [x] Phase 6: Parent dashboard & curriculum adaptation — enhanced dashboard with streak/badge stats, progress report with charts (radar, bar, heatmap), CSV export, auto-adaptation on score patterns, manual curriculum revision
 
 ### Remaining
-- [ ] Phase 6: Parent dashboard enhancements & curriculum adaptation
 - [ ] Writing editor with auto-save and draft persistence
 
 ---
@@ -590,3 +602,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Phase 3: Enhanced Writing Submissions — WritingSubmission + AIFeedback split, portfolio page with filters/export, revision tracking (max 3), migration script | prisma/schema.prisma, prisma/migrate-assessments.ts, src/app/api/lessons/submit/route.ts, src/app/api/lessons/revise/route.ts, src/app/api/children/[id]/portfolio/*, src/app/portfolio/*, src/lib/api.ts |
 | 2026-02-11 | Phase 4: Skill Progress & Streak Tracking — SkillProgress + Streak models, skill map with 4 categories × 5 sub-skills, rolling average progress tracker, consecutive-day streak tracker, Recharts radar chart, streak display with weekly dots, submit hook for auto-updating | prisma/schema.prisma, src/lib/skill-map.ts, src/lib/progress-tracker.ts, src/lib/streak-tracker.ts, src/app/api/children/[id]/skills/*, src/app/api/children/[id]/streak/*, src/app/api/lessons/submit/route.ts, src/components/SkillRadarChart.tsx, src/components/StreakDisplay.tsx, src/app/page.tsx |
 | 2026-02-11 | Phase 5: Achievement & Motivation System — Achievement model, 24 badges across 5 categories, badge checker with auto-unlock on submit, CelebrationOverlay with canvas-confetti, badge collection page, FeedbackView integration, recent badges on dashboard | prisma/schema.prisma, src/lib/badges.ts, src/lib/badge-checker.ts, src/app/api/children/[id]/badges/*, src/app/api/lessons/submit/route.ts, src/components/CelebrationOverlay.tsx, src/components/FeedbackView.tsx, src/app/lesson/[id]/page.tsx, src/app/badges/[childId]/page.tsx, src/app/page.tsx, src/lib/api.ts |
+| 2026-02-11 | Phase 6: Parent Dashboard & Curriculum Adaptation — Enhanced parent dashboard with streak/badge stats per child, progress report page with Recharts charts (bar chart, activity heatmap), CSV export, auto-curriculum adaptation (struggling/excelling/type weakness triggers), manual curriculum revision UI, submit hook for auto-adaptation | src/app/dashboard/page.tsx, src/app/dashboard/children/[id]/report/page.tsx, src/app/api/children/[id]/report/*, src/components/charts/*, src/lib/curriculum-adapter.ts, src/app/api/lessons/submit/route.ts, src/app/curriculum/[childId]/revise/page.tsx |

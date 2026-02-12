@@ -28,6 +28,11 @@ interface ChildStatus {
   totalWeeks: number | null;
 }
 
+interface ChildExtraStats {
+  streakCount: number;
+  badgeCount: number;
+}
+
 export default function ParentDashboard() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -36,6 +41,7 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [childStatuses, setChildStatuses] = useState<Record<string, ChildStatus>>({});
+  const [childExtraStats, setChildExtraStats] = useState<Record<string, ChildExtraStats>>({});
 
   useEffect(() => {
     fetch("/api/children")
@@ -65,6 +71,24 @@ export default function ParentDashboard() {
                 hasCurriculum: !!currData,
                 currentWeek,
                 totalWeeks,
+              },
+            }));
+          });
+
+          // Fetch streak and badge data
+          Promise.all([
+            fetch(`/api/children/${child.id}/streak`)
+              .then((r) => (r.ok ? r.json() : null))
+              .catch(() => null),
+            fetch(`/api/children/${child.id}/badges`)
+              .then((r) => (r.ok ? r.json() : null))
+              .catch(() => null),
+          ]).then(([streakData, badgesData]) => {
+            setChildExtraStats((prev) => ({
+              ...prev,
+              [child.id]: {
+                streakCount: streakData?.currentStreak ?? 0,
+                badgeCount: badgesData?.total ?? 0,
               },
             }));
           });
@@ -166,6 +190,7 @@ export default function ParentDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {children.map((child) => {
                 const tierInfo = TIER_INFO[child.tier] || TIER_INFO[1];
+                const extra = childExtraStats[child.id];
                 return (
                   <div
                     key={child.id}
@@ -220,10 +245,36 @@ export default function ParentDashboard() {
                         );
                       })()}
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#2D3436]/5">
+
+                    {/* Streak & Badge Stats */}
+                    {extra && (extra.streakCount > 0 || extra.badgeCount > 0) && (
+                      <div className="flex items-center gap-3 mt-3">
+                        {extra.streakCount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-[#FF6B6B]">
+                            {"\uD83D\uDD25"} {extra.streakCount} {extra.streakCount === 1 ? "day" : "days"}
+                          </span>
+                        )}
+                        {extra.badgeCount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs font-bold text-[#FDCB6E]">
+                            {"\uD83C\uDFC6"} {extra.badgeCount} {extra.badgeCount === 1 ? "badge" : "badges"}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-4 pt-3 border-t border-[#2D3436]/5 flex items-center justify-between">
                       <span className="text-sm font-semibold text-[#FF6B6B] group-hover:text-[#FF6B6B]/80 transition-colors">
                         Start Session &rarr;
                       </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard/children/${child.id}/report`);
+                        }}
+                        className="px-3 py-1.5 text-xs font-bold text-[#2D3436]/50 hover:text-[#2D3436] bg-[#2D3436]/5 hover:bg-[#2D3436]/10 rounded-lg transition-colors"
+                      >
+                        View Report
+                      </button>
                     </div>
                   </div>
                 );

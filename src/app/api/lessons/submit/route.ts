@@ -7,6 +7,7 @@ import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
 import { updateSkillProgress } from "@/lib/progress-tracker";
 import { updateStreak } from "@/lib/streak-tracker";
 import { checkAndUnlockBadges } from "@/lib/badge-checker";
+import { checkCurriculumAdaptation } from "@/lib/curriculum-adapter";
 import type { Message, Tier } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -162,6 +163,13 @@ export async function POST(request: NextRequest) {
       newBadges = await checkAndUnlockBadges(session.childId);
     } catch (err) {
       console.error("Failed to check badges:", err);
+    }
+
+    // Check curriculum adaptation
+    try {
+      await checkCurriculumAdaptation(session.childId, session.lessonId, result.overallScore);
+    } catch (err) {
+      console.error("Failed to check curriculum adaptation:", err);
     }
 
     // Add feedback message to conversation history

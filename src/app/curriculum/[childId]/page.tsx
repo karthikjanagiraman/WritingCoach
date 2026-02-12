@@ -321,7 +321,7 @@ export default function CurriculumPage() {
         {/* Revise Curriculum */}
         <div className="mt-8 text-center animate-fade-in">
           <button
-            onClick={() => router.push(`/curriculum/${childId}/setup`)}
+            onClick={() => router.push(`/curriculum/${childId}/revise`)}
             className="text-sm font-semibold text-[#2D3436]/40 hover:text-[#2D3436]/60 transition-colors"
           >
             Revise Curriculum
