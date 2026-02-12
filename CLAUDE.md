@@ -25,7 +25,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: PostgreSQL via Prisma ORM (9 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision)
+- **Database**: PostgreSQL via Prisma ORM (11 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
 - **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider, JWT sessions
@@ -495,9 +495,9 @@ Before considering any task complete, verify ALL of these:
 - [x] Multi-student support (ActiveChildContext, parent dashboard, child management)
 - [x] Parent dashboard (view/manage children, create new child profiles)
 - [x] Phase 2: Placement assessment & personalized curricula — 3-step writing wizard, AI tier recommendation, curriculum generation
+- [x] Phase 3: Enhanced writing submissions — WritingSubmission + AIFeedback split, portfolio with CSV export, revision tracking
 
 ### Remaining
-- [ ] Phase 3: Enhanced writing submissions (WritingSubmission + AIFeedback split)
 - [ ] Phase 4: Skill progress & streak tracking (Recharts radar chart)
 - [ ] Phase 5: Achievement & motivation system (badges, confetti)
 - [ ] Phase 6: Parent dashboard enhancements & curriculum adaptation
@@ -530,3 +530,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Created CLAUDE.md matching actual project state | CLAUDE.md |
 | 2026-02-11 | Phase 1: Auth & Multi-User — SQLite→PostgreSQL, Auth.js v5, parent/child management, all routes protected, ActiveChildContext replaces hardcoded studentId | prisma/schema.prisma, src/lib/auth.ts, src/middleware.ts, src/contexts/ActiveChildContext.tsx, src/app/auth/*, src/app/dashboard/*, src/app/api/auth/*, src/app/api/children/*, all existing API routes, src/types/*, src/lib/api.ts, src/app/layout.tsx, prisma/seed.ts |
 | 2026-02-11 | Phase 2: Placement & Curricula — 3-step placement wizard with AI analysis, personalized curriculum generation, weekly breakdown view, dashboard integration | prisma/schema.prisma, src/lib/curriculum-generator.ts, src/app/api/placement/*, src/app/api/curriculum/*, src/app/placement/*, src/app/curriculum/*, src/app/page.tsx, src/app/dashboard/*, src/lib/api.ts, prisma/seed.ts |
+| 2026-02-11 | Phase 3: Enhanced Writing Submissions — WritingSubmission + AIFeedback split, portfolio page with filters/export, revision tracking (max 3), migration script | prisma/schema.prisma, prisma/migrate-assessments.ts, src/app/api/lessons/submit/route.ts, src/app/api/lessons/revise/route.ts, src/app/api/children/[id]/portfolio/*, src/app/portfolio/*, src/lib/api.ts |

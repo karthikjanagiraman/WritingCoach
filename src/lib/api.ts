@@ -204,3 +204,46 @@ export interface CurriculumResponse {
 export async function getCurriculum(childId: string): Promise<CurriculumResponse> {
   return apiFetch<CurriculumResponse>(`/api/curriculum/${encodeURIComponent(childId)}`);
 }
+
+// ── Portfolio ─────────────────────────────────────────────────────────────────
+
+export interface PortfolioSubmission {
+  id: string;
+  lessonId: string;
+  lessonTitle: string;
+  lessonType: string;
+  lessonUnit: string;
+  submissionText: string;
+  wordCount: number;
+  revisionNumber: number;
+  createdAt: string;
+  feedback: {
+    scores: Record<string, number>;
+    overallScore: number;
+    strength: string;
+    growthArea: string;
+    encouragement: string;
+  } | null;
+}
+
+export interface PortfolioResponse {
+  submissions: PortfolioSubmission[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export async function getPortfolio(
+  childId: string,
+  params?: { page?: number; limit?: number; type?: string; sort?: string }
+): Promise<PortfolioResponse> {
+  const searchParams = new URLSearchParams();
+  if (params?.page) searchParams.set("page", String(params.page));
+  if (params?.limit) searchParams.set("limit", String(params.limit));
+  if (params?.type) searchParams.set("type", params.type);
+  if (params?.sort) searchParams.set("sort", params.sort);
+  const qs = searchParams.toString();
+  return apiFetch<PortfolioResponse>(
+    `/api/children/${encodeURIComponent(childId)}/portfolio${qs ? `?${qs}` : ""}`
+  );
+}

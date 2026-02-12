@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sessionId, text } = body;
+    const { sessionId, text, timeSpentSec } = body;
 
     if (!sessionId || !text) {
       return NextResponse.json(
@@ -99,6 +99,31 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Also create WritingSubmission + AIFeedback records
+    const wordCount = text.trim().split(/\s+/).length;
+    const writingSubmission = await prisma.writingSubmission.create({
+      data: {
+        sessionId,
+        childId: session.childId,
+        lessonId: session.lessonId,
+        rubricId: rubricId ?? "general",
+        submissionText: text.trim(),
+        wordCount,
+        timeSpentSec: timeSpentSec ?? null,
+        revisionNumber: 0,
+        feedback: {
+          create: {
+            scores: JSON.stringify(result.scores),
+            overallScore: result.overallScore,
+            strength: result.feedback.strength,
+            growthArea: result.feedback.growth,
+            encouragement: result.feedback.encouragement,
+            model: "claude-sonnet-4-5-20250929",
+          },
+        },
+      },
+    });
+
     // Update session phase to feedback
     await prisma.session.update({
       where: { id: sessionId },
@@ -162,6 +187,8 @@ export async function POST(request: NextRequest) {
       overallScore: result.overallScore,
       feedback: result.feedback,
       rubric: rubricInfo,
+      submissionId: writingSubmission.id,
+      wordCount,
     });
   } catch (error) {
     console.error("POST /api/lessons/submit error:", error);

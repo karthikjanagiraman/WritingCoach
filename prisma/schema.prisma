@@ -41,11 +41,12 @@ model ChildProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  lessonProgress  LessonProgress[]
-  sessions        Session[]
-  assessments     Assessment[]
-  placementResult PlacementResult?
-  curriculum      Curriculum?
+  lessonProgress     LessonProgress[]
+  sessions           Session[]
+  assessments        Assessment[]
+  writingSubmissions WritingSubmission[]
+  placementResult    PlacementResult?
+  curriculum         Curriculum?
 
   @@index([parentId])
 }
@@ -79,8 +80,9 @@ model Session {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  child       ChildProfile @relation(fields: [childId], references: [id])
-  assessments Assessment[]
+  child              ChildProfile       @relation(fields: [childId], references: [id])
+  assessments        Assessment[]
+  writingSubmissions WritingSubmission[]
 
   @@index([childId])
   @@index([childId, lessonId])
@@ -174,4 +176,45 @@ model CurriculumRevision {
   curriculum Curriculum @relation(fields: [curriculumId], references: [id])
 
   @@index([curriculumId])
+}
+
+// ============================================
+// Writing Submissions & Feedback
+// ============================================
+
+model WritingSubmission {
+  id             String   @id @default(uuid())
+  sessionId      String
+  childId        String
+  lessonId       String
+  rubricId       String
+  submissionText String
+  wordCount      Int
+  timeSpentSec   Int?
+  revisionOf     String?  // ID of the original submission (null for originals)
+  revisionNumber Int      @default(0) // 0=original, 1-3=revisions
+  createdAt      DateTime @default(now())
+
+  session  Session      @relation(fields: [sessionId], references: [id])
+  child    ChildProfile @relation(fields: [childId], references: [id])
+  feedback AIFeedback?
+
+  @@index([childId])
+  @@index([sessionId])
+  @@index([lessonId])
+}
+
+model AIFeedback {
+  id            String   @id @default(uuid())
+  submissionId  String   @unique
+  scores        String   // JSON: Record<string, number>
+  overallScore  Float
+  strength      String
+  growthArea    String
+  encouragement String
+  fullFeedback  String?  // Full AI response text
+  model         String   // AI model used, e.g. "claude-sonnet-4-5-20250929"
+  createdAt     DateTime @default(now())
+
+  submission WritingSubmission @relation(fields: [submissionId], references: [id])
 }

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sessionId, text } = body;
+    const { sessionId, text, timeSpentSec } = body;
 
     if (!sessionId || !text) {
       return NextResponse.json(
@@ -122,6 +122,42 @@ export async function POST(request: NextRequest) {
         scores: JSON.stringify(result.scores),
         overallScore: result.overallScore,
         feedback: JSON.stringify(result.feedback),
+      },
+    });
+
+    // Also create WritingSubmission + AIFeedback records for the revision
+    const wordCount = text.trim().split(/\s+/).length;
+
+    const originalSubmission = await prisma.writingSubmission.findFirst({
+      where: { sessionId, revisionNumber: 0 },
+    });
+
+    const existingRevisions = await prisma.writingSubmission.count({
+      where: { sessionId, revisionNumber: { gt: 0 } },
+    });
+    const wsRevisionNumber = existingRevisions + 1;
+
+    const writingSubmission = await prisma.writingSubmission.create({
+      data: {
+        sessionId,
+        childId: session.childId,
+        lessonId: session.lessonId,
+        rubricId: rubricId ?? "general",
+        submissionText: text.trim(),
+        wordCount,
+        timeSpentSec: timeSpentSec ?? null,
+        revisionOf: originalSubmission?.id ?? null,
+        revisionNumber: wsRevisionNumber,
+        feedback: {
+          create: {
+            scores: JSON.stringify(result.scores),
+            overallScore: result.overallScore,
+            strength: result.feedback.strength,
+            growthArea: result.feedback.growth,
+            encouragement: result.feedback.encouragement,
+            model: "claude-sonnet-4-5-20250929",
+          },
+        },
       },
     });
 
