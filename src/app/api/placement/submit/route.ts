@@ -98,7 +98,8 @@ Return ONLY valid JSON: { "recommendedTier": 1|2|3, "confidence": 0.0-1.0, "stre
     };
 
     try {
-      analysis = JSON.parse(text);
+      const cleaned = text.replace(/```(?:json)?\s*/g, "").replace(/```\s*/g, "").trim();
+      analysis = JSON.parse(cleaned);
       if (
         typeof analysis.recommendedTier !== "number" ||
         analysis.recommendedTier < 1 ||

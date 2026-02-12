@@ -71,7 +71,9 @@ Each prompt should be 1-2 sentences, age-appropriate, and fun. Return ONLY a JSO
 
     let prompts: string[];
     try {
-      prompts = JSON.parse(text);
+      // Claude often wraps JSON in markdown code fences — strip them
+      const cleaned = text.replace(/```(?:json)?\s*/g, "").replace(/```\s*/g, "").trim();
+      prompts = JSON.parse(cleaned);
       if (!Array.isArray(prompts) || prompts.length !== 3) {
         throw new Error("Expected array of 3 prompts");
       }
