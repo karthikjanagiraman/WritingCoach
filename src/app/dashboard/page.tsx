@@ -21,6 +21,13 @@ const TIER_INFO: Record<number, { label: string; color: string }> = {
   3: { label: "Tier 3: Trailblazer", color: "bg-tier3-primary" },
 };
 
+interface ChildStatus {
+  hasPlacement: boolean;
+  hasCurriculum: boolean;
+  currentWeek: number | null;
+  totalWeeks: number | null;
+}
+
 export default function ParentDashboard() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -28,6 +35,7 @@ export default function ParentDashboard() {
   const [children, setChildren] = useState<ChildData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [childStatuses, setChildStatuses] = useState<Record<string, ChildStatus>>({});
 
   useEffect(() => {
     fetch("/api/children")
@@ -35,7 +43,33 @@ export default function ParentDashboard() {
         if (!res.ok) throw new Error("Failed to load children");
         return res.json();
       })
-      .then((data) => setChildren(data.children))
+      .then((data) => {
+        setChildren(data.children);
+        // Fetch placement/curriculum status for each child
+        for (const child of data.children) {
+          Promise.all([
+            fetch(`/api/placement/${child.id}`).then(r => r.ok).catch(() => false),
+            fetch(`/api/curriculum/${child.id}`).then(r => r.ok ? r.json() : null).catch(() => null),
+          ]).then(([hasPlacement, currData]) => {
+            let currentWeek: number | null = null;
+            let totalWeeks: number | null = null;
+            if (currData?.weeks) {
+              totalWeeks = currData.weeks.length;
+              const active = currData.weeks.find((w: any) => w.status !== "completed");
+              currentWeek = active ? active.weekNumber : totalWeeks;
+            }
+            setChildStatuses(prev => ({
+              ...prev,
+              [child.id]: {
+                hasPlacement,
+                hasCurriculum: !!currData,
+                currentWeek,
+                totalWeeks,
+              },
+            }));
+          });
+        }
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
@@ -159,9 +193,33 @@ export default function ParentDashboard() {
                     <p className="text-sm text-[#2D3436]/50 mb-3">
                       Age {child.age}
                     </p>
-                    <span className={`inline-flex items-center px-2.5 py-1 ${tierInfo.color} text-white rounded-full text-xs font-bold`}>
-                      {tierInfo.label}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 ${tierInfo.color} text-white rounded-full text-xs font-bold`}>
+                        {tierInfo.label}
+                      </span>
+                      {childStatuses[child.id] && (() => {
+                        const s = childStatuses[child.id];
+                        if (!s.hasPlacement) {
+                          return (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#FFE66D]/30 text-[#B7950B] rounded-full text-xs font-bold">
+                              {"\uD83D\uDCDD"} Needs Assessment
+                            </span>
+                          );
+                        }
+                        if (!s.hasCurriculum) {
+                          return (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#4ECDC4]/20 text-[#00897B] rounded-full text-xs font-bold">
+                              {"\uD83D\uDCDA"} Set Up Curriculum
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#00B894]/20 text-[#00896B] rounded-full text-xs font-bold">
+                            {"\uD83D\uDCC5"} Week {s.currentWeek} of {s.totalWeeks}
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <div className="mt-4 pt-3 border-t border-[#2D3436]/5">
                       <span className="text-sm font-semibold text-[#FF6B6B] group-hover:text-[#FF6B6B]/80 transition-colors">
                         Start Session &rarr;

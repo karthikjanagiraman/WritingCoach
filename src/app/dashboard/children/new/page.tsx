@@ -61,11 +61,12 @@ export default function NewChildPage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create child profile");
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to create child profile");
       }
 
-      router.push("/dashboard");
+      const data = await res.json();
+      router.push(`/placement/${data.child.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

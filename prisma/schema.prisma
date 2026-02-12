@@ -41,9 +41,11 @@ model ChildProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  lessonProgress LessonProgress[]
-  sessions       Session[]
-  assessments    Assessment[]
+  lessonProgress  LessonProgress[]
+  sessions        Session[]
+  assessments     Assessment[]
+  placementResult PlacementResult?
+  curriculum      Curriculum?
 
   @@index([parentId])
 }
@@ -101,4 +103,75 @@ model Assessment {
 
   @@index([childId])
   @@index([sessionId])
+}
+
+// ============================================
+// Placement & Curriculum
+// ============================================
+
+model PlacementResult {
+  id              String   @id @default(uuid())
+  childId         String   @unique
+  prompts         String   // JSON array of 3 writing prompts
+  responses       String   // JSON array of 3 student responses
+  aiAnalysis      String   // JSON: { strengths, gaps, reasoning }
+  recommendedTier Int
+  assignedTier    Int
+  confidence      Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+}
+
+enum CurriculumStatus {
+  GENERATING
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+model Curriculum {
+  id             String           @id @default(uuid())
+  childId        String           @unique
+  status         CurriculumStatus @default(GENERATING)
+  weekCount      Int
+  lessonsPerWeek Int              @default(3)
+  focusAreas     String?          // JSON array of writing type focus areas
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  child     ChildProfile       @relation(fields: [childId], references: [id])
+  weeks     CurriculumWeek[]
+  revisions CurriculumRevision[]
+}
+
+model CurriculumWeek {
+  id           String @id @default(uuid())
+  curriculumId String
+  weekNumber   Int
+  theme        String
+  lessonIds    String // JSON array of lesson IDs
+  status       String @default("pending") // pending | in_progress | completed
+
+  curriculum Curriculum @relation(fields: [curriculumId], references: [id])
+
+  @@unique([curriculumId, weekNumber])
+  @@index([curriculumId])
+}
+
+model CurriculumRevision {
+  id           String   @id @default(uuid())
+  curriculumId String
+  reason       String   // auto_struggling | auto_excelling | parent_request
+  description  String
+  previousPlan String   // JSON snapshot of previous week plan
+  newPlan      String   // JSON snapshot of new week plan
+  createdAt    DateTime @default(now())
+
+  curriculum Curriculum @relation(fields: [curriculumId], references: [id])
+
+  @@index([curriculumId])
 }

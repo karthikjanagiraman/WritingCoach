@@ -16,7 +16,7 @@
 
 WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
 
-**Current State**: Core product is functional end-to-end with multi-user auth. Claude API is fully integrated for coaching, phase transitions, and rubric-based grading. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, each with their own lesson progress. Dashboard, lesson flow, and all four phases work with real AI responses.
+**Current State**: Core product is functional end-to-end with multi-user auth, placement assessments, and personalized curricula. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, and curriculum generation. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, each with their own placement assessment, personalized curriculum, and lesson progress. Dashboard, lesson flow, and all four phases work with real AI responses.
 
 ---
 
@@ -25,7 +25,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: PostgreSQL via Prisma ORM (5 tables — User, ChildProfile, LessonProgress, Session, Assessment)
+- **Database**: PostgreSQL via Prisma ORM (9 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
 - **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider, JWT sessions
@@ -33,7 +33,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 **Package manager**: npm (not yarn, not pnpm)
 **Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` and `DATABASE_URL` in `.env`)
 **DB reset**: `npx prisma db push --force-reset && npx prisma db seed`
-**Seed data**: Seeds parent user (`parent@example.com` / `password123`), child Maya (age 8, tier 1), child Ethan (age 11, tier 2) with lesson progress
+**Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1) with placement + curriculum + lesson progress, Ethan (age 11, tier 2) without placement
 **Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`
 
 ---
@@ -123,6 +123,7 @@ src/
 │   ├── auth.ts                   # Auth.js v5 config (credentials provider, JWT callbacks)
 │   ├── api.ts                    # Client-side API helper (fetch wrappers)
 │   ├── curriculum.ts             # Public curriculum lookup (used by API routes)
+│   ├── curriculum-generator.ts   # AI-powered curriculum generation (Claude API)
 │   ├── rubrics.ts                # Public rubric lookup (used by API routes)
 │   └── db.ts                     # Prisma client singleton
 ├── app/
@@ -136,7 +137,15 @@ src/
 │   ├── dashboard/
 │   │   ├── page.tsx              # Parent dashboard (list children, quick stats)
 │   │   └── children/
-│   │       └── new/page.tsx      # Add child form (name, age, avatar)
+│   │       └── new/page.tsx      # Add child form → redirect to placement
+│   ├── placement/
+│   │   └── [childId]/
+│   │       ├── page.tsx          # 3-step placement writing wizard
+│   │       └── results/page.tsx  # AI tier recommendation + parent override
+│   ├── curriculum/
+│   │   └── [childId]/
+│   │       ├── setup/page.tsx    # Curriculum preferences (lessons/week, focus)
+│   │       └── page.tsx          # Weekly breakdown view
 │   └── api/
 │       ├── auth/
 │       │   ├── [...nextauth]/route.ts  # Auth.js route handler (GET/POST)
@@ -146,6 +155,15 @@ src/
 │       │   └── [id]/
 │       │       ├── route.ts            # GET / PATCH / DELETE child profile
 │       │       └── progress/route.ts   # GET — child dashboard data
+│       ├── placement/
+│       │   ├── start/route.ts          # POST — generate 3 writing prompts via AI
+│       │   ├── submit/route.ts         # POST — submit responses, AI analyzes tier
+│       │   └── [childId]/route.ts      # GET (result) / PATCH (parent override tier)
+│       ├── curriculum/
+│       │   ├── generate/route.ts       # POST — AI generates week-by-week plan
+│       │   └── [childId]/
+│       │       ├── route.ts            # GET (curriculum + weeks) / PATCH (update prefs)
+│       │       └── revise/route.ts     # POST — revise remaining weeks
 │       ├── lessons/
 │       │   ├── start/route.ts    # POST — creates/resumes session
 │       │   ├── message/route.ts  # POST — conversation within a phase
@@ -311,6 +329,26 @@ Session
 Assessment
 ├── sessionId, childId, lessonId, rubricId
 ├── submissionText, scores (JSON), overallScore, feedback (JSON)
+
+PlacementResult
+├── childId (unique FK to ChildProfile)
+├── prompts (JSON), responses (JSON), aiAnalysis (JSON)
+├── recommendedTier, assignedTier, confidence (Float)
+
+Curriculum
+├── childId (unique FK to ChildProfile)
+├── status: GENERATING | ACTIVE | PAUSED | COMPLETED
+├── weekCount, lessonsPerWeek, focusAreas (JSON?)
+├── startDate?, endDate?
+├── → CurriculumWeek[], CurriculumRevision[]
+
+CurriculumWeek
+├── curriculumId + weekNumber (unique)
+├── theme, lessonIds (JSON), status: pending | in_progress | completed
+
+CurriculumRevision
+├── curriculumId, reason, description
+├── previousPlan (JSON), newPlan (JSON)
 ```
 
 **Key rename**: All `studentId` columns are now `childId`. All `student` relations are now `child`.
@@ -371,6 +409,18 @@ Returns lesson detail + rubric info. Auth required.
 - `PATCH /api/children/[id]` — Update child profile
 - `DELETE /api/children/[id]` — Delete child profile
 - `GET /api/children/[id]/progress` — Dashboard data: completed lessons, current lesson, available lessons, assessments, type stats
+
+### Placement Routes (auth required, ownership enforced)
+- `POST /api/placement/start` — Generate 3 age-appropriate writing prompts via Claude AI
+- `POST /api/placement/submit` — Submit 3 writing responses, AI analyzes and recommends tier
+- `GET /api/placement/[childId]` — Get placement result
+- `PATCH /api/placement/[childId]` — Parent overrides assigned tier
+
+### Curriculum Routes (auth required, ownership enforced)
+- `POST /api/curriculum/generate` — AI generates week-by-week curriculum from lesson catalog
+- `GET /api/curriculum/[childId]` — Get active curriculum with enriched lesson details
+- `PATCH /api/curriculum/[childId]` — Update curriculum preferences (lessonsPerWeek, focusAreas, status)
+- `POST /api/curriculum/[childId]/revise` — AI revises remaining weeks based on parent feedback
 
 **API contract rule**: NEVER change the response shape of an existing endpoint without also updating every component that consumes it. Search the codebase for the route path before modifying.
 
@@ -444,9 +494,9 @@ Before considering any task complete, verify ALL of these:
 - [x] Phase 1: Auth & Multi-User — Auth.js v5, PostgreSQL, parent/child management, all routes protected
 - [x] Multi-student support (ActiveChildContext, parent dashboard, child management)
 - [x] Parent dashboard (view/manage children, create new child profiles)
+- [x] Phase 2: Placement assessment & personalized curricula — 3-step writing wizard, AI tier recommendation, curriculum generation
 
 ### Remaining
-- [ ] Phase 2: Placement assessment & personalized curricula
 - [ ] Phase 3: Enhanced writing submissions (WritingSubmission + AIFeedback split)
 - [ ] Phase 4: Skill progress & streak tracking (Recharts radar chart)
 - [ ] Phase 5: Achievement & motivation system (badges, confetti)
@@ -460,7 +510,7 @@ Before considering any task complete, verify ALL of these:
 1. **Read this file first** on every new session
 2. **Start dev server**: `npm run dev` (requires `ANTHROPIC_API_KEY` in `.env`)
 3. **Reset database**: `npx prisma db push --force-reset && npx prisma db seed`
-4. **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1), Ethan (age 11, tier 2) with lesson progress
+4. **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1) with placement + curriculum + lesson progress, Ethan (age 11, tier 2) without placement
 5. **Commit after each working feature** — small, atomic commits
 6. **Never modify multiple systems at once** — change one thing, verify, then move on
 7. **If you're unsure about a design decision**, check the skill files in `src/lib/llm/content/` — they are the source of truth for AI behavior
@@ -479,3 +529,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Initial commit — full app with Claude API integration, 4-phase lesson flow, dashboard, 100+ lesson curriculum | All files |
 | 2026-02-11 | Created CLAUDE.md matching actual project state | CLAUDE.md |
 | 2026-02-11 | Phase 1: Auth & Multi-User — SQLite→PostgreSQL, Auth.js v5, parent/child management, all routes protected, ActiveChildContext replaces hardcoded studentId | prisma/schema.prisma, src/lib/auth.ts, src/middleware.ts, src/contexts/ActiveChildContext.tsx, src/app/auth/*, src/app/dashboard/*, src/app/api/auth/*, src/app/api/children/*, all existing API routes, src/types/*, src/lib/api.ts, src/app/layout.tsx, prisma/seed.ts |
+| 2026-02-11 | Phase 2: Placement & Curricula — 3-step placement wizard with AI analysis, personalized curriculum generation, weekly breakdown view, dashboard integration | prisma/schema.prisma, src/lib/curriculum-generator.ts, src/app/api/placement/*, src/app/api/curriculum/*, src/app/placement/*, src/app/curriculum/*, src/app/page.tsx, src/app/dashboard/*, src/lib/api.ts, prisma/seed.ts |

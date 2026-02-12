@@ -41,7 +41,24 @@ const TIER_BADGES: Record<number, { label: string; emoji: string }> = {
   3: { label: "Tier 3 Writer", emoji: "\uD83D\uDC3A" },
 };
 
-function DashboardContent({ data, childName, childTier }: { data: StudentProgressResponse; childName: string; childTier: number }) {
+const TYPE_ICONS: Record<string, string> = {
+  narrative: "\uD83D\uDCD6",
+  persuasive: "\uD83D\uDCE2",
+  expository: "\uD83D\uDCDD",
+  descriptive: "\uD83C\uDFA8",
+};
+
+interface DashboardContentProps {
+  data: StudentProgressResponse;
+  childName: string;
+  childTier: number;
+  activeChild: { id: string; name: string; age: number; tier: 1 | 2 | 3; avatarEmoji: string };
+  hasPlacement: boolean | null;
+  curriculum: any;
+  curriculumLoading: boolean;
+}
+
+function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading }: DashboardContentProps) {
   const { coachName } = useTier();
   const [activeTab, setActiveTab] = useState<string>("all");
 
@@ -241,6 +258,78 @@ function DashboardContent({ data, childName, childTier }: { data: StudentProgres
           </div>
         </section>
 
+        {/* Placement Banner */}
+        {hasPlacement === false && (
+          <section className="animate-fade-in stagger-1">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-[#FFE66D] relative overflow-hidden">
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{"\uD83D\uDCDD"}</span>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#2D3436]">Ready to Get Started?</h3>
+                  <p className="text-sm text-[#2D3436]/60 mt-1">Take a quick writing assessment so we can create the perfect learning plan.</p>
+                </div>
+                <Link href={`/placement/${activeChild.id}`} className="px-5 py-2.5 bg-[#FF6B6B] text-white rounded-xl text-sm font-bold hover:bg-[#FF6B6B]/90 transition-colors shadow-sm whitespace-nowrap">
+                  Start Assessment
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Curriculum Setup Banner */}
+        {hasPlacement && !curriculum && !curriculumLoading && (
+          <section className="animate-fade-in stagger-1">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-[#4ECDC4] relative overflow-hidden">
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{"\uD83D\uDCDA"}</span>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[#2D3436]">Assessment Complete!</h3>
+                  <p className="text-sm text-[#2D3436]/60 mt-1">Now let{"'"}s create a personalized learning plan for you.</p>
+                </div>
+                <Link href={`/curriculum/${activeChild.id}/setup`} className="px-5 py-2.5 bg-[#4ECDC4] text-white rounded-xl text-sm font-bold hover:bg-[#4ECDC4]/90 transition-colors shadow-sm whitespace-nowrap">
+                  Set Up Curriculum
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* This Week's Lessons */}
+        {curriculum?.weeks && (
+          <section className="animate-fade-in stagger-1">
+            <SectionLabel>This Week{"'"}s Lessons</SectionLabel>
+            {(() => {
+              const currentWeek = curriculum.weeks.find((w: any) => w.status !== "completed");
+              if (!currentWeek) return <p className="text-sm text-active-text/60">All weeks completed!</p>;
+              return (
+                <div className="space-y-3">
+                  <p className="text-sm text-active-text/60 mb-2">
+                    Week {currentWeek.weekNumber}: {currentWeek.theme}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {currentWeek.lessons?.map((lesson: any) => (
+                      <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
+                        <div className="bg-white rounded-xl p-4 border border-active-primary/10 hover:shadow-md hover:border-active-primary/30 cursor-pointer transition-all duration-200">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">{TYPE_ICONS[lesson.type] || "\uD83D\uDCC4"}</span>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="text-sm font-bold text-active-text truncate">{lesson.title}</h5>
+                              <p className="text-xs text-active-text/50">{lesson.unit}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <Link href={`/curriculum/${activeChild.id}`} className="inline-block text-sm font-semibold text-active-primary hover:underline mt-2">
+                    View Full Curriculum &rarr;
+                  </Link>
+                </div>
+              );
+            })()}
+          </section>
+        )}
+
         {/* Available Lessons with Type Tabs */}
         <section className="animate-fade-in stagger-4">
           <SectionLabel>Explore Lessons</SectionLabel>
@@ -306,6 +395,9 @@ export default function Dashboard() {
   const [data, setData] = useState<StudentProgressResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [curriculum, setCurriculum] = useState<any>(null);
+  const [curriculumLoading, setCurriculumLoading] = useState(true);
+  const [hasPlacement, setHasPlacement] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!activeChild) {
@@ -317,6 +409,22 @@ export default function Dashboard() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [activeChild, router]);
+
+  useEffect(() => {
+    if (!activeChild) return;
+    fetch(`/api/curriculum/${activeChild.id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setCurriculum(data))
+      .catch(() => null)
+      .finally(() => setCurriculumLoading(false));
+  }, [activeChild]);
+
+  useEffect(() => {
+    if (!activeChild) return;
+    fetch(`/api/placement/${activeChild.id}`)
+      .then(res => setHasPlacement(res.ok))
+      .catch(() => setHasPlacement(false));
+  }, [activeChild]);
 
   if (loading) {
     return (
@@ -356,7 +464,7 @@ export default function Dashboard() {
 
   return (
     <TierProvider tier={activeChild.tier as Tier}>
-      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} />
+      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} />
     </TierProvider>
   );
 }

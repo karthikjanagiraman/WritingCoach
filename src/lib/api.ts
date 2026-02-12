@@ -183,3 +183,24 @@ export async function getLessonDetail(
     `/api/lessons/${encodeURIComponent(lessonId)}`
   );
 }
+
+export interface CurriculumResponse {
+  curriculum: {
+    id: string;
+    status: string;
+    weekCount: number;
+    lessonsPerWeek: number;
+    focusAreas: string[] | null;
+    startDate: string | null;
+  };
+  weeks: {
+    weekNumber: number;
+    theme: string;
+    status: string;
+    lessons: { id: string; title: string; type: string; unit: string }[];
+  }[];
+}
+
+export async function getCurriculum(childId: string): Promise<CurriculumResponse> {
+  return apiFetch<CurriculumResponse>(`/api/curriculum/${encodeURIComponent(childId)}`);
+}
