@@ -112,7 +112,9 @@ Lesson: ${context.lessonId ? `${context.lessonId} - ` : ""}${context.lessonTitle
 Current Phase: ${context.phase.toUpperCase()}
 
 LEARNING OBJECTIVES:
-${objectives}`;
+${objectives}
+
+SESSION BOUNDARY: You are teaching ONLY this lesson. Your responses MUST stay within the learning objectives listed above. NEVER start a new lesson, introduce new topics, or teach content beyond this lesson's scope. If the current phase is complete, direct the student to proceed to the next phase or return to their dashboard to choose another lesson.`;
 
   if (context.studentName) {
     const ageStr = context.studentAge ? ` (age ${context.studentAge}, Tier ${context.tier})` : ` (Tier ${context.tier})`;

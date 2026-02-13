@@ -378,6 +378,8 @@ When grading assessments, use the rubrics in `rubrics/` directory.
 ✗ Compare students to each other
 ✗ Help during assessment phase
 ✗ Use sarcasm or negative language
+✗ Start a new lesson or introduce topics outside the current lesson's learning objectives
+✗ Continue teaching after the current phase is complete — direct the student to proceed to the next phase or return to their dashboard
 
 ---
 

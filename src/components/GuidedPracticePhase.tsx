@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { Message } from "@/types";
 import { ChatBubble, TypingIndicator } from "./shared";
 
@@ -272,6 +273,7 @@ export default function GuidedPracticePhase({
   messages: externalMessages,
   onSendMessage,
 }: GuidedPracticePhaseProps) {
+  const router = useRouter();
   const [chatItems, setChatItems] = useState<ChatItem[]>([]);
   const [interactionState, setInteractionState] = useState<InteractionState>("WAITING_FOR_COACH");
   const [isTyping, setIsTyping] = useState(false);
@@ -565,14 +567,20 @@ export default function GuidedPracticePhase({
             </div>
           )}
 
-          {/* Ready to Write button (AI wrapped up) */}
+          {/* Practice concluded — only action buttons, no more input */}
           {practiceComplete && (
-            <div className="flex justify-center py-4 animate-fade-in">
+            <div className="flex flex-col items-center gap-3 py-6 animate-fade-in">
               <button
                 onClick={onComplete}
                 className="bg-active-secondary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-secondary/90 transition-colors"
               >
                 Ready to Write! &rarr;
+              </button>
+              <button
+                onClick={() => router.push("/")}
+                className="text-active-text/40 text-sm font-semibold hover:text-active-text/60 transition-colors"
+              >
+                Back to Dashboard
               </button>
             </div>
           )}
