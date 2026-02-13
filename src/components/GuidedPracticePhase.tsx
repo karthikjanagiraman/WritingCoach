@@ -56,8 +56,8 @@ const fallbackResponses = [
   "Amazing work! You've practiced all the key elements. You're ready to write your full story beginning!",
 ];
 
-const COMPLETION_EXCHANGE_THRESHOLD = 6;
-const WRITING_PROMPT_AUTO_COMPLETE = 3;
+// Escape hatch: show "I'm ready to write" after this many completed exchanges
+const ESCAPE_HATCH_EXCHANGES = 5;
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -451,19 +451,9 @@ export default function GuidedPracticePhase({
     });
   }, [onSendMessage, addCoachMessage]);
 
-  // ─── Check for practice completion ───────────────────────────────────────
-
-  useEffect(() => {
-    if (practiceComplete) return;
-
-    const shouldComplete =
-      (writingsDone >= 2 && totalExchanges >= COMPLETION_EXCHANGE_THRESHOLD) ||
-      writingsDone >= WRITING_PROMPT_AUTO_COMPLETE;
-
-    if (shouldComplete) {
-      setPracticeComplete(true);
-    }
-  }, [writingsDone, totalExchanges, practiceComplete]);
+  // practiceComplete is set by:
+  // 1. AI wrap-up detection (no question, no writing prompt in addCoachMessage)
+  // 2. AI phase transition marker (parent handles via handlePhaseAdvance)
 
   // ─── Submit handler (both card types) ────────────────────────────────────
 
@@ -575,7 +565,7 @@ export default function GuidedPracticePhase({
             </div>
           )}
 
-          {/* Ready to Write button */}
+          {/* Ready to Write button (AI wrapped up) */}
           {practiceComplete && (
             <div className="flex justify-center py-4 animate-fade-in">
               <button
@@ -583,6 +573,18 @@ export default function GuidedPracticePhase({
                 className="bg-active-secondary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-secondary/90 transition-colors"
               >
                 Ready to Write! &rarr;
+              </button>
+            </div>
+          )}
+
+          {/* Escape hatch: subtle option after 5+ exchanges */}
+          {!practiceComplete && totalExchanges >= ESCAPE_HATCH_EXCHANGES && (
+            <div className="flex justify-center py-2 animate-fade-in">
+              <button
+                onClick={onComplete}
+                className="text-active-text/40 text-sm font-semibold hover:text-active-primary transition-colors"
+              >
+                I&rsquo;m ready to write on my own &rarr;
               </button>
             </div>
           )}

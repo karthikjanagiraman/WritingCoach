@@ -37,13 +37,12 @@ function ProgressSteps({ current, total }: { current: number; total: number }) {
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
-            className={`flex items-center justify-center rounded-full transition-all duration-300 font-bold text-xs ${
-              i < current
+            className={`flex items-center justify-center rounded-full transition-all duration-300 font-bold text-xs ${i < current
                 ? "w-7 h-7 bg-active-secondary text-white"
                 : i === current
                   ? "w-8 h-8 bg-active-primary text-white ring-4 ring-active-primary/20 scale-110"
                   : "w-7 h-7 bg-gray-100 text-gray-300"
-            }`}
+              }`}
           >
             {i < current ? (
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,6 +75,7 @@ export default function InstructionPhase({
   const [chatInput, setChatInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
+  const [readySent, setReadySent] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -117,9 +117,31 @@ export default function InstructionPhase({
     if (!isFirstStep) setCurrentStep((s) => s - 1);
   };
 
-  const goNext = () => {
+  const goNext = async () => {
     if (isLastStep) {
-      onComplete();
+      if (onSendMessage && !readySent) {
+        // Route through the AI — enforce comprehension check
+        setReadySent(true);
+        const text = "I\u2019ve finished reading the lesson and I\u2019m ready to practice!";
+        const studentMsg: Message = {
+          id: `student-${Date.now()}`,
+          role: "student",
+          content: text,
+          timestamp: new Date().toISOString(),
+        };
+        setChatMessages((prev) => [...prev, studentMsg]);
+        setIsTyping(true);
+        try {
+          const response = await onSendMessage(text);
+          if (response) {
+            setChatMessages((prev) => [...prev, response]);
+          }
+        } finally {
+          setIsTyping(false);
+        }
+      } else if (!onSendMessage) {
+        onComplete();
+      }
     } else {
       setCurrentStep((s) => s + 1);
     }
@@ -150,8 +172,12 @@ export default function InstructionPhase({
     }
   };
 
-  // Merge follow-up + local chat messages
-  const allChatMessages = [...followUpMessages, ...chatMessages];
+  // Merge follow-up + local chat messages, deduplicating by ID
+  const localIds = new Set(chatMessages.map((m) => m.id));
+  const allChatMessages = [
+    ...followUpMessages.filter((m) => !localIds.has(m.id)),
+    ...chatMessages,
+  ];
   const hasChatMessages = allChatMessages.length > 0 || isTyping;
 
   return (
@@ -206,11 +232,10 @@ export default function InstructionPhase({
             <button
               onClick={goBack}
               disabled={isFirstStep}
-              className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-colors duration-200 ${
-                isFirstStep
+              className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-sm transition-colors duration-200 ${isFirstStep
                   ? "text-gray-300 cursor-not-allowed"
                   : "text-active-text/60 hover:bg-active-bg hover:text-active-text"
-              }`}
+                }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -220,16 +245,25 @@ export default function InstructionPhase({
 
             <button
               onClick={goNext}
+              disabled={isLastStep && readySent}
               className={`flex items-center gap-1.5 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-colors duration-200 shadow-sm ${
-                isLastStep
-                  ? "bg-active-secondary hover:bg-active-secondary/90"
-                  : "bg-active-primary hover:bg-active-primary/90"
+                isLastStep && readySent
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : isLastStep
+                    ? "bg-active-secondary hover:bg-active-secondary/90"
+                    : "bg-active-primary hover:bg-active-primary/90"
               }`}
             >
-              {isLastStep ? "Let\u2019s Practice!" : "Next"}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              {isLastStep
+                ? readySent
+                  ? "Answer above \u2191"
+                  : "Let\u2019s Practice!"
+                : "Next"}
+              {!(isLastStep && readySent) && (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </button>
           </div>
         </div>

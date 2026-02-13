@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Only allow submission during assessment or guided phase
+    // (guided allowed because client-side escape hatch can transition
+    //  to assessment before server phase is updated)
     if (session.phase !== "assessment" && session.phase !== "guided") {
       return NextResponse.json(
         { error: "Submissions are only allowed during the assessment phase" },
