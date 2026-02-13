@@ -409,6 +409,82 @@ export const CURRICULUM_WEEKS = [
 ];
 
 // ==========================================
+// COMPLETED SESSION (for completed lesson review tests)
+// ==========================================
+
+export const SESSION_COMPLETED = {
+  id: 'session-005',
+  childId: CHILD_MAYA.id,
+  lessonId: 'N1.1.2',
+  phase: 'feedback',
+  phaseState: JSON.stringify({
+    instructionCompleted: true,
+    comprehensionCheckPassed: true,
+    guidedComplete: true,
+    revisionsUsed: 1,
+  }),
+  conversationHistory: JSON.stringify([
+    { id: 'c1', role: 'coach', content: 'Let\'s learn about characters!', timestamp: '2026-02-01T09:00:00Z' },
+    { id: 'c2', role: 'student', content: 'I understand characters.', timestamp: '2026-02-01T09:05:00Z' },
+  ]),
+  createdAt: new Date('2026-02-01'),
+  updatedAt: new Date('2026-02-01'),
+};
+
+export const ASSESSMENT_FOR_COMPLETED = {
+  id: 'assessment-completed',
+  sessionId: SESSION_COMPLETED.id,
+  childId: CHILD_MAYA.id,
+  lessonId: 'N1.1.2',
+  rubricId: 'N1_characters',
+  submissionText: 'My story about a brave knight.',
+  scores: JSON.stringify({ character: 4, setting: 3, creativity: 4 }),
+  overallScore: 3.7,
+  feedback: JSON.stringify({
+    strength: 'Great character development!',
+    growth: 'Add more sensory details.',
+    encouragement: 'You\'re becoming a wonderful storyteller!',
+  }),
+  createdAt: new Date('2026-02-01T10:00:00Z'),
+};
+
+export const SUBMISSION_FOR_COMPLETED = {
+  id: 'submission-completed',
+  sessionId: SESSION_COMPLETED.id,
+  childId: CHILD_MAYA.id,
+  lessonId: 'N1.1.2',
+  rubricId: 'N1_characters',
+  submissionText: 'My story about a brave knight.',
+  wordCount: 6,
+  timeSpentSec: 240,
+  revisionOf: null,
+  revisionNumber: 0,
+  createdAt: new Date('2026-02-01T10:00:00Z'),
+};
+
+// ==========================================
+// CURRICULUM WITH COMPLETIONS (for curriculum enrichment tests)
+// ==========================================
+
+export const CURRICULUM_WEEKS_WITH_COMPLETIONS = [
+  {
+    id: 'week-c1', curriculumId: CURRICULUM_MAYA.id, weekNumber: 1,
+    theme: 'Story Beginnings', lessonIds: JSON.stringify(['N1.1.1', 'N1.1.2', 'D1.1.1']),
+    status: 'completed',
+  },
+  {
+    id: 'week-c2', curriculumId: CURRICULUM_MAYA.id, weekNumber: 2,
+    theme: 'Building Characters', lessonIds: JSON.stringify(['N1.1.3', 'N1.1.4', 'D1.1.2']),
+    status: 'in_progress',
+  },
+  {
+    id: 'week-c3', curriculumId: CURRICULUM_MAYA.id, weekNumber: 3,
+    theme: 'Your Opinion Matters', lessonIds: JSON.stringify(['P1.1.1', 'P1.1.2', 'N1.2.1']),
+    status: 'pending',
+  },
+];
+
+// ==========================================
 // HELPER: Build submission history for adaptation tests
 // ==========================================
 

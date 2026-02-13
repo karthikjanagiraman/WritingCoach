@@ -316,6 +316,7 @@ describe('Curriculum API', () => {
         ...CURRICULUM_MAYA,
         weeks: CURRICULUM_WEEKS,
       });
+      prismaMock.lessonProgress.findMany.mockResolvedValue([]);
 
       const res = await curriculumGET(
         new Request('http://localhost/api/curriculum/' + CHILD_MAYA.id) as any,

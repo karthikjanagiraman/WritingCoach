@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { childId, lessonId } = body;
+    const { childId, lessonId, forceNew } = body;
 
     if (!childId || !lessonId) {
       return NextResponse.json(
@@ -42,40 +42,76 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Check for an existing active session ──────────────────────────
-    const existingSession = await prisma.session.findFirst({
-      where: {
-        childId,
-        lessonId,
-        // Only resume sessions that aren't in "feedback" (completed)
-        NOT: { phase: "feedback" },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
-
-    if (existingSession) {
-      // Resume the existing session
-      const conversationHistory: Message[] = JSON.parse(
-        existingSession.conversationHistory
-      );
-
-      return NextResponse.json({
-        sessionId: existingSession.id,
-        resumed: true,
-        phase: existingSession.phase as Phase,
-        conversationHistory,
-        initialPrompt: conversationHistory[0] ?? null,
-        lesson: {
-          id: lesson.id,
-          title: lesson.title,
-          unit: lesson.unit,
-          type: lesson.type,
-          learningObjectives: lesson.learningObjectives,
-        },
+    // ── Check for an existing session (active or completed) ──────────
+    // Skip this check when forceNew is requested (retake)
+    if (!forceNew) {
+      const existingSession = await prisma.session.findFirst({
+        where: { childId, lessonId },
+        orderBy: { updatedAt: "desc" },
       });
+
+      if (existingSession) {
+        const conversationHistory: Message[] = JSON.parse(
+          existingSession.conversationHistory
+        );
+
+        // If lesson is already completed (feedback phase), return it
+        // with assessment data so the frontend can show the summary.
+        if (existingSession.phase === "feedback") {
+          // Fetch the latest assessment + submission for this session
+          const assessment = await prisma.assessment.findFirst({
+            where: { sessionId: existingSession.id },
+            orderBy: { createdAt: "desc" },
+          });
+          const submission = await prisma.writingSubmission.findFirst({
+            where: { sessionId: existingSession.id },
+            orderBy: { createdAt: "desc" },
+          });
+
+          return NextResponse.json({
+            sessionId: existingSession.id,
+            resumed: true,
+            phase: existingSession.phase as Phase,
+            conversationHistory,
+            initialPrompt: conversationHistory[0] ?? null,
+            completed: true,
+            assessment: assessment
+              ? {
+                  scores: JSON.parse(assessment.scores),
+                  overallScore: assessment.overallScore,
+                  feedback: JSON.parse(assessment.feedback),
+                }
+              : null,
+            submittedText: submission?.submissionText ?? "",
+            lesson: {
+              id: lesson.id,
+              title: lesson.title,
+              unit: lesson.unit,
+              type: lesson.type,
+              learningObjectives: lesson.learningObjectives,
+            },
+          });
+        }
+
+        // Resume an in-progress session
+        return NextResponse.json({
+          sessionId: existingSession.id,
+          resumed: true,
+          phase: existingSession.phase as Phase,
+          conversationHistory,
+          initialPrompt: conversationHistory[0] ?? null,
+          lesson: {
+            id: lesson.id,
+            title: lesson.title,
+            unit: lesson.unit,
+            type: lesson.type,
+            learningObjectives: lesson.learningObjectives,
+          },
+        });
+      }
     }
 
-    // ── No active session — create a new one ──────────────────────────
+    // ── No existing session — create a new one ──────────────────────
     const initialPrompt = await getInitialPrompt(
       lesson,
       child.name,

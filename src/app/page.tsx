@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CoachAvatar, SectionLabel } from "@/components/shared";
 import {
   getProgress,
@@ -45,11 +45,6 @@ const WRITING_TYPES = [
   { key: "descriptive", label: "Descriptive", icon: "\uD83C\uDFA8" },
 ] as const;
 
-function WritingTypeIcon({ type }: { type: string }) {
-  const found = WRITING_TYPES.find((t) => t.key === type);
-  return <span className="text-2xl">{found?.icon || "\uD83D\uDCC4"}</span>;
-}
-
 const TIER_BADGES: Record<number, { label: string; emoji: string }> = {
   1: { label: "Tier 1 Writer", emoji: "\uD83E\uDD89" },
   2: { label: "Tier 2 Writer", emoji: "\uD83E\uDD8A" },
@@ -89,9 +84,11 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
   const { coachName } = useTier();
   const { clearActiveChild } = useActiveChild();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [showCelebration, setShowCelebration] = useState(false);
 
-  const { completedLessons, currentLesson, availableLessons, assessments, typeStats, stats } = data;
+  const { completedLessons, currentLesson, nextLesson, availableLessons, assessments, typeStats, stats } = data;
 
   const progressPercent =
     stats.totalAvailable > 0
@@ -121,6 +118,31 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
     const found = skills?.find((s) => s.name === cat);
     return { name: cat, displayName: found?.displayName ?? (cat.charAt(0).toUpperCase() + cat.slice(1)), avgScore: found?.avgScore ?? 0 };
   });
+
+  // Celebration banner — when returning from a completed lesson
+  const completedLessonId = searchParams.get("completed");
+  const completedLessonTitle = completedLessonId
+    ? completedLessons.find((l) => l.lessonId === completedLessonId)?.title ?? null
+    : null;
+
+  useEffect(() => {
+    if (completedLessonTitle) {
+      setShowCelebration(true);
+      const timer = setTimeout(() => setShowCelebration(false), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [completedLessonTitle]);
+
+  // Primary CTA logic: in-progress > nextLesson > all done
+  const hasCurriculum = !!curriculum;
+  const primaryAction = currentLesson
+    ? { type: "continue" as const, lessonId: currentLesson.lessonId, title: currentLesson.title }
+    : nextLesson
+      ? { type: "start" as const, lessonId: nextLesson.lessonId, title: nextLesson.title }
+      : null;
+
+  // Build completed set for weekly lesson states
+  const completedIds = new Set(completedLessons.map((l) => l.lessonId));
 
   return (
     <div className="min-h-screen bg-active-bg">
@@ -186,82 +208,67 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
           </section>
         )}
 
-        {/* CTA Card */}
-        {currentLesson && (
-          <section className="animate-fade-in stagger-1">
-            <Link href={`/lesson/${currentLesson.lessonId}`}>
-              <div className="bg-white rounded-2xl p-5 border border-gray-200/60 hover:border-active-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer group">
+        {/* Celebration Banner — after completing a lesson */}
+        {showCelebration && completedLessonTitle && (
+          <section className="animate-fade-in">
+            <div className="bg-gradient-to-r from-active-accent/20 to-active-primary/10 rounded-2xl p-5 border border-active-accent/30 relative">
+              <button
+                onClick={() => setShowCelebration(false)}
+                className="absolute top-3 right-3 text-active-text/30 hover:text-active-text/60 transition-colors"
+                aria-label="Dismiss"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{"\uD83C\uDF89"}</span>
+                <div>
+                  <h3 className="text-base font-extrabold text-active-text">
+                    Great job finishing {completedLessonTitle}!
+                  </h3>
+                  <p className="text-sm text-active-text/50 mt-0.5">You{"'"}re doing amazing. Keep it up!</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Primary CTA Card — ALWAYS visible (3 states) */}
+        <section className="animate-fade-in stagger-1">
+          {primaryAction ? (
+            <Link href={`/lesson/${primaryAction.lessonId}`}>
+              <div className="bg-white rounded-2xl p-5 border-2 border-active-primary/20 hover:border-active-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-active-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <WritingTypeIcon type="narrative" />
+                    {primaryAction.type === "continue" ? (
+                      <span className="text-2xl">{"\u270D\uFE0F"}</span>
+                    ) : (
+                      <span className="text-2xl">{"\uD83D\uDE80"}</span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold uppercase tracking-wider text-active-primary/70 mb-0.5">
-                      Continue lesson
+                      {primaryAction.type === "continue" ? "Continue lesson" : "Up Next"}
                     </p>
                     <h2 className="text-lg font-extrabold text-active-text truncate">
-                      {currentLesson.title}
+                      {primaryAction.title}
                     </h2>
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="flex-1">
-                        <ProgressBar value={progressPercent} color="bg-active-primary" height="h-1.5" />
-                      </div>
-                      <span className="text-xs font-semibold text-active-text/40 whitespace-nowrap">
-                        {stats.totalCompleted}/{stats.totalAvailable}
-                      </span>
-                    </div>
                   </div>
                   <div className="flex-shrink-0 bg-active-primary text-white rounded-xl px-5 py-2.5 text-sm font-bold group-hover:shadow-lg transition-shadow">
-                    Continue &rarr;
+                    {primaryAction.type === "continue" ? "Continue" : "Let\u2019s Go"} &rarr;
                   </div>
                 </div>
               </div>
             </Link>
-          </section>
-        )}
-
-        {/* Stats Row — 3 glanceable tiles */}
-        <section className="animate-fade-in stagger-1">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\uD83D\uDD25"}</div>
-              <p className="text-2xl font-extrabold text-active-text">{streakData?.currentStreak ?? 0}</p>
-              <p className="text-xs font-semibold text-active-text/40">Day streak</p>
+          ) : hasCurriculum ? (
+            <div className="bg-white rounded-2xl p-5 border-2 border-active-secondary/20 text-center">
+              <span className="text-4xl block mb-2">{"\uD83C\uDF1F"}</span>
+              <h2 className="text-lg font-extrabold text-active-text">You finished all your lessons!</h2>
+              <p className="text-sm text-active-text/50 mt-1">Amazing work! Check back soon for new lessons.</p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\u2705"}</div>
-              <p className="text-2xl font-extrabold text-active-text">{stats.totalCompleted}</p>
-              <p className="text-xs font-semibold text-active-text/40">Lessons done</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\u2B50"}</div>
-              <p className="text-2xl font-extrabold text-active-secondary">
-                {stats.averageScore !== null ? stats.averageScore : "\u2014"}
-              </p>
-              <p className="text-xs font-semibold text-active-text/40">Avg score</p>
-            </div>
-          </div>
+          ) : null}
         </section>
 
-        {/* Weekly Goal — slim inline bar */}
-        <section className="animate-fade-in stagger-1">
-          <div className="bg-white rounded-xl px-5 py-3.5 border border-gray-200/60 flex items-center gap-4">
-            <p className="text-sm font-bold text-active-text/70 whitespace-nowrap">This week</p>
-            <div className="flex gap-1.5 flex-1">
-              {Array.from({ length: weeklyGoal }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2.5 flex-1 rounded-full ${i < weeklyCompleted ? "bg-active-primary" : "bg-gray-100"}`}
-                />
-              ))}
-            </div>
-            <p className="text-xs font-semibold text-active-text/40 whitespace-nowrap">
-              {weeklyCompleted} of {weeklyGoal} lessons
-            </p>
-          </div>
-        </section>
-
-        {/* This Week's Lessons */}
+        {/* This Week's Lessons — with done/next/upcoming states */}
         {curriculum?.weeks && (
           <section className="animate-fade-in stagger-2">
             <div className="flex items-center justify-between mb-3">
@@ -273,21 +280,37 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
             {(() => {
               const currentWeek = curriculum.weeks.find((w: any) => w.status !== "completed");
               if (!currentWeek) return <p className="text-sm text-active-text/50">All weeks completed!</p>;
+              const weekLessons = currentWeek.lessons ?? [];
+              const weekDone = weekLessons.filter((l: any) => completedIds.has(l.id)).length;
               return (
                 <div>
                   <p className="text-sm text-active-text/50 mb-3">
-                    Week {currentWeek.weekNumber}: {currentWeek.theme}
+                    Week {currentWeek.weekNumber}: {currentWeek.theme} &middot; {weekDone} of {weekLessons.length} done
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {currentWeek.lessons?.map((lesson: any) => (
-                      <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                        <div className="bg-white rounded-xl p-4 border border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm cursor-pointer transition-all">
-                          <div className="text-lg mb-1">{TYPE_ICONS[lesson.type] || "\uD83D\uDCC4"}</div>
-                          <h5 className="text-sm font-bold text-active-text leading-snug">{lesson.title}</h5>
-                          <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
-                        </div>
-                      </Link>
-                    ))}
+                    {weekLessons.map((lesson: any) => {
+                      const isDone = completedIds.has(lesson.id);
+                      const isNext = !isDone && lesson.id === nextLesson?.lessonId;
+                      return (
+                        <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
+                          <div className={`rounded-xl p-4 border cursor-pointer transition-all ${
+                            isDone
+                              ? "bg-active-secondary/5 border-active-secondary/20"
+                              : isNext
+                                ? "bg-white border-2 border-active-primary/40 shadow-sm"
+                                : "bg-white border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm"
+                          }`}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-lg">{TYPE_ICONS[lesson.type] || "\uD83D\uDCC4"}</span>
+                              {isDone && <span className="text-xs font-bold text-active-secondary bg-active-secondary/10 px-2 py-0.5 rounded-full">Done!</span>}
+                              {isNext && <span className="text-xs font-bold text-active-primary bg-active-primary/10 px-2 py-0.5 rounded-full">Up Next</span>}
+                            </div>
+                            <h5 className={`text-sm font-bold leading-snug ${isDone ? "text-active-text/50" : "text-active-text"}`}>{lesson.title}</h5>
+                            <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -295,8 +318,31 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
           </section>
         )}
 
-        {/* My Progress — combined skills + badges card */}
+        {/* Stats Row — 3 glanceable tiles (moved below lessons) */}
         <section className="animate-fade-in stagger-2">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+              <div className="text-2xl mb-1">{"\uD83D\uDD25"}</div>
+              <p className="text-2xl font-extrabold text-active-text">{streakData?.currentStreak ?? 0}</p>
+              <p className="text-xs font-semibold text-active-text/40">Day streak</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+              <div className="text-2xl mb-1">{"\u2705"}</div>
+              <p className="text-2xl font-extrabold text-active-text">
+                {weeklyCompleted} of {weeklyGoal}
+              </p>
+              <p className="text-xs font-semibold text-active-text/40">This week</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+              <div className="text-2xl mb-1">{"\uD83D\uDCDA"}</div>
+              <p className="text-2xl font-extrabold text-active-text">{stats.totalCompleted}</p>
+              <p className="text-xs font-semibold text-active-text/40">Lessons done</p>
+            </div>
+          </div>
+        </section>
+
+        {/* My Progress — combined skills + badges card */}
+        <section className="animate-fade-in stagger-3">
           <SectionLabel>My Progress</SectionLabel>
           <div className="bg-white rounded-2xl border border-gray-200/60 overflow-hidden">
             <div className={`grid grid-cols-1 ${recentBadges && recentBadges.length > 0 ? "md:grid-cols-2 md:divide-x md:divide-gray-100" : ""}`}>
@@ -350,35 +396,12 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
           </div>
         </section>
 
-        {/* Writing Progress — compact tiles */}
-        <section className="animate-fade-in stagger-3">
-          <SectionLabel>Writing Progress</SectionLabel>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {WRITING_TYPES.map(({ key, label, icon }) => {
-              const ts = typeStats?.[key] ?? { completed: 0, total: 0, avgScore: null };
-              return (
-                <div
-                  key={key}
-                  className="bg-white rounded-xl p-3.5 border border-gray-200/60 text-center"
-                >
-                  <p className="text-lg mb-1">{icon}</p>
-                  <p className="text-xs font-bold text-active-text/70">{label}</p>
-                  <p className="text-lg font-extrabold text-active-text mt-1">
-                    {ts.completed}
-                    <span className="text-xs font-semibold text-active-text/40">/{ts.total}</span>
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
         {/* Completed Lessons — divider list */}
-        <section className="animate-fade-in stagger-3">
-          <SectionLabel>Completed</SectionLabel>
-          <div className="bg-white rounded-2xl border border-gray-200/60 divide-y divide-gray-50">
-            {completedLessons.length > 0 ? (
-              completedLessons.map((lesson) => {
+        {completedLessons.length > 0 && (
+          <section className="animate-fade-in stagger-3">
+            <SectionLabel>Completed</SectionLabel>
+            <div className="bg-white rounded-2xl border border-gray-200/60 divide-y divide-gray-50">
+              {completedLessons.map((lesson) => {
                 const assessment = assessments.find(
                   (a) => a.lessonId === lesson.lessonId
                 );
@@ -387,7 +410,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                     key={lesson.lessonId}
                     className="flex items-center gap-3 px-5 py-3.5"
                   >
-                    <span className="text-base">{"\uD83D\uDCD6"}</span>
+                    <span className="text-base">{"\u2705"}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-active-text">
                         {lesson.title}
@@ -405,63 +428,61 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                     )}
                   </div>
                 );
-              })
-            ) : (
-              <p className="text-center text-active-text/40 py-6 text-sm">
-                Your completed work will appear here!
-              </p>
-            )}
-          </div>
-        </section>
+              })}
+            </div>
+          </section>
+        )}
 
-        {/* Explore Lessons */}
-        <section className="animate-fade-in stagger-4">
-          <SectionLabel>Explore Lessons</SectionLabel>
+        {/* Explore Lessons — only show when no active curriculum */}
+        {!hasCurriculum && (
+          <section className="animate-fade-in stagger-4">
+            <SectionLabel>Explore Lessons</SectionLabel>
 
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                activeTab === "all"
-                  ? "bg-active-primary text-white shadow-sm"
-                  : "bg-white text-active-text/50 border border-gray-200/60 hover:bg-active-primary/5"
-              }`}
-            >
-              All
-            </button>
-            {WRITING_TYPES.map(({ key, label, icon }) => (
+            <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
               <button
-                key={key}
-                onClick={() => setActiveTab(key)}
+                onClick={() => setActiveTab("all")}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                  activeTab === key
+                  activeTab === "all"
                     ? "bg-active-primary text-white shadow-sm"
                     : "bg-white text-active-text/50 border border-gray-200/60 hover:bg-active-primary/5"
                 }`}
               >
-                {icon} {label}
+                All
               </button>
-            ))}
-          </div>
+              {WRITING_TYPES.map(({ key, label, icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
+                    activeTab === key
+                      ? "bg-active-primary text-white shadow-sm"
+                      : "bg-white text-active-text/50 border border-gray-200/60 hover:bg-active-primary/5"
+                  }`}
+                >
+                  {icon} {label}
+                </button>
+              ))}
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredLessons.slice(0, 9).map((lesson) => (
-              <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                <div className="bg-white rounded-xl p-4 border border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm cursor-pointer transition-all">
-                  <h5 className="text-sm font-bold text-active-text">
-                    {lesson.title}
-                  </h5>
-                  <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          {filteredLessons.length === 0 && (
-            <p className="text-center text-active-text/40 py-6 text-sm">
-              No lessons available in this category yet.
-            </p>
-          )}
-        </section>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredLessons.slice(0, 9).map((lesson) => (
+                <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
+                  <div className="bg-white rounded-xl p-4 border border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm cursor-pointer transition-all">
+                    <h5 className="text-sm font-bold text-active-text">
+                      {lesson.title}
+                    </h5>
+                    <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            {filteredLessons.length === 0 && (
+              <p className="text-center text-active-text/40 py-6 text-sm">
+                No lessons available in this category yet.
+              </p>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );
@@ -569,7 +590,9 @@ export default function Dashboard() {
 
   return (
     <TierProvider tier={activeChild.tier as Tier}>
-      <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} />
+      <Suspense>
+        <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} />
+      </Suspense>
     </TierProvider>
   );
 }

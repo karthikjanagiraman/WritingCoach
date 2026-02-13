@@ -15,6 +15,7 @@ interface FeedbackViewProps {
   onNextLesson: () => void;
   newBadges?: string[];
   childId?: string;
+  onRetake?: () => void;
 }
 
 function StarRating({
@@ -123,9 +124,11 @@ export default function FeedbackView({
   onNextLesson,
   newBadges,
   childId,
+  onRetake,
 }: FeedbackViewProps) {
   const { tier, coachName } = useTier();
   const [showWriting, setShowWriting] = useState(false);
+  const [showRetakeConfirm, setShowRetakeConfirm] = useState(false);
   const [isRevising, setIsRevising] = useState(false);
   const [revisionText, setRevisionText] = useState(submittedText);
   const [submittingRevision, setSubmittingRevision] = useState(false);
@@ -418,7 +421,7 @@ export default function FeedbackView({
         >
           {showWriting ? "Hide My Writing" : "View My Writing"}
         </button>
-        {canRevise && (
+        {!onRetake && canRevise && (
           <button
             onClick={handleStartRevision}
             className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
@@ -426,13 +429,50 @@ export default function FeedbackView({
             {reviseButtonText}
           </button>
         )}
+        {onRetake && (
+          <button
+            onClick={() => setShowRetakeConfirm(true)}
+            className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
+          >
+            Retake Lesson
+          </button>
+        )}
         <button
           onClick={onNextLesson}
           className="bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
         >
-          Next Lesson &rarr;
+          {onRetake ? "Back to Dashboard" : "Continue"} &rarr;
         </button>
       </div>
+
+      {/* Retake Confirmation */}
+      {showRetakeConfirm && onRetake && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-xl">
+            <div className="text-center mb-4">
+              <span className="text-4xl block mb-2">{"\u26A0\uFE0F"}</span>
+              <h3 className="text-lg font-extrabold text-active-text">Retake this lesson?</h3>
+              <p className="text-sm text-active-text/60 mt-2 leading-relaxed">
+                Your current stars and scores for this lesson will be replaced by your new results.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRetakeConfirm(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm border-2 border-gray-200 text-active-text/60 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setShowRetakeConfirm(false); onRetake(); }}
+                className="flex-1 px-4 py-2.5 rounded-xl font-bold text-sm bg-active-primary text-white hover:bg-active-primary/90 transition-colors shadow-sm"
+              >
+                Yes, retake
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Badge Celebration Overlay */}
       {showCelebration && resolvedBadges.length > 0 && (

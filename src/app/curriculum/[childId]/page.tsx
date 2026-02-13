@@ -15,6 +15,7 @@ interface Lesson {
   title: string;
   type: string;
   unit: string;
+  completed?: boolean;
 }
 
 interface Week {
@@ -98,9 +99,13 @@ export default function CurriculumPage() {
     });
   }
 
-  const completedCount = weeks.filter((w) => w.status === "completed").length;
+  const totalLessons = weeks.reduce((sum, w) => sum + w.lessons.length, 0);
+  const completedLessonCount = weeks.reduce(
+    (sum, w) => sum + w.lessons.filter((l) => l.completed).length,
+    0
+  );
   const currentWeekNumber =
-    weeks.find((w) => w.status !== "completed")?.weekNumber ?? weeks.length;
+    weeks.find((w) => w.lessons.some((l) => !l.completed))?.weekNumber ?? weeks.length;
 
   if (loading) {
     return (
@@ -187,14 +192,14 @@ export default function CurriculumPage() {
               Week {currentWeekNumber} of {weeks.length}
             </span>
             <span className="text-xs font-semibold text-[#2D3436]/50">
-              {completedCount} of {weeks.length} completed
+              {completedLessonCount} of {totalLessons} completed
             </span>
           </div>
           <div className="w-full h-3 bg-[#2D3436]/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#4ECDC4] rounded-full transition-all duration-500"
               style={{
-                width: `${weeks.length > 0 ? (completedCount / weeks.length) * 100 : 0}%`,
+                width: `${totalLessons > 0 ? (completedLessonCount / totalLessons) * 100 : 0}%`,
               }}
             />
           </div>
@@ -204,10 +209,10 @@ export default function CurriculumPage() {
         <div className="space-y-3 animate-fade-in stagger-1">
           {weeks.map((week) => {
             const isExpanded = expandedWeeks.has(week.weekNumber);
-            const isCurrent =
-              week.status !== "completed" &&
-              (week.weekNumber === currentWeekNumber);
-            const isCompleted = week.status === "completed";
+            const weekLessonsDone = week.lessons.filter((l) => l.completed).length;
+            const allWeekDone = week.lessons.length > 0 && weekLessonsDone === week.lessons.length;
+            const isCompleted = allWeekDone;
+            const isCurrent = !isCompleted && week.weekNumber === currentWeekNumber;
 
             return (
               <div
@@ -280,13 +285,17 @@ export default function CurriculumPage() {
                         <button
                           key={lesson.id}
                           onClick={() => router.push(`/lesson/${lesson.id}`)}
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#2D3436]/[0.02] hover:bg-[#2D3436]/[0.05] transition-colors text-left"
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-left ${
+                            lesson.completed
+                              ? "bg-[#4ECDC4]/[0.06] hover:bg-[#4ECDC4]/[0.10]"
+                              : "bg-[#2D3436]/[0.02] hover:bg-[#2D3436]/[0.05]"
+                          }`}
                         >
                           <span className="text-lg">
-                            {TYPE_ICONS[lesson.type] || "\uD83D\uDCDD"}
+                            {lesson.completed ? "\u2705" : (TYPE_ICONS[lesson.type] || "\uD83D\uDCDD")}
                           </span>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold text-[#2D3436] truncate">
+                            <div className={`text-sm font-semibold truncate ${lesson.completed ? "text-[#2D3436]/50" : "text-[#2D3436]"}`}>
                               {lesson.title}
                             </div>
                             <div className="text-xs text-[#2D3436]/40">
@@ -295,14 +304,18 @@ export default function CurriculumPage() {
                               &middot; {lesson.unit}
                             </div>
                           </div>
-                          <svg
-                            className="w-4 h-4 text-[#2D3436]/20 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          {lesson.completed ? (
+                            <span className="text-xs font-bold text-[#4ECDC4]">Done</span>
+                          ) : (
+                            <svg
+                              className="w-4 h-4 text-[#2D3436]/20 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          )}
                         </button>
                       ))}
                       {week.lessons.length === 0 && (

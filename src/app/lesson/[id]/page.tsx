@@ -37,6 +37,7 @@ export default function LessonPage() {
   const [submitting, setSubmitting] = useState(false);
   const [transition, setTransition] = useState<"instruction" | "guided" | null>(null);
   const [newBadges, setNewBadges] = useState<string[]>([]);
+  const [isCompletedReview, setIsCompletedReview] = useState(false);
 
   useEffect(() => {
     if (!activeChild) {
@@ -58,7 +59,14 @@ export default function LessonPage() {
         setLessonData(detail);
         setSessionId(session.sessionId);
 
-        if (session.resumed) {
+        // If lesson was already completed, show the feedback summary
+        const sessionAny = session as any;
+        if (sessionAny.completed && sessionAny.assessment) {
+          setAssessmentResult(sessionAny.assessment);
+          setSubmittedText(sessionAny.submittedText ?? "");
+          setCurrentPhase("feedback");
+          setIsCompletedReview(true);
+        } else if (session.resumed) {
           setMessages(session.conversationHistory);
           setCurrentPhase(session.phase);
         } else {
@@ -149,8 +157,28 @@ export default function LessonPage() {
   );
 
   const handleNextLesson = () => {
-    router.push("/");
+    router.push(`/?completed=${lessonId}`);
   };
+
+  const handleRetake = useCallback(async () => {
+    if (!activeChild) return;
+    setLoading(true);
+    setIsCompletedReview(false);
+    setAssessmentResult(null);
+    setSubmittedText("");
+    setNewBadges([]);
+    setMessages([]);
+    try {
+      const session = await startLesson(activeChild.id, lessonId, true);
+      setSessionId(session.sessionId);
+      setMessages([session.initialPrompt]);
+      setCurrentPhase("instruction");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to restart lesson");
+    } finally {
+      setLoading(false);
+    }
+  }, [activeChild, lessonId]);
 
   const lesson = lessonData?.lesson || { title: "Writing Lesson", unit: "Writing", type: "" };
 
@@ -274,6 +302,7 @@ export default function LessonPage() {
                   onNextLesson={handleNextLesson}
                   newBadges={newBadges}
                   childId={activeChild?.id}
+                  onRetake={isCompletedReview ? handleRetake : undefined}
                 />
               )}
             </>

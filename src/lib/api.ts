@@ -58,6 +58,14 @@ export interface StudentProgressResponse {
     currentPhase: string | null;
     startedAt: string | null;
   } | null;
+  nextLesson: {
+    lessonId: string;
+    title: string;
+    type: string;
+    unit: string;
+    weekNumber: number;
+    weekTheme: string;
+  } | null;
   availableLessons: {
     id: string;
     title: string;
@@ -109,12 +117,13 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 
 export async function startLesson(
   childId: string,
-  lessonId: string
+  lessonId: string,
+  forceNew?: boolean
 ): Promise<StartLessonResponse> {
   return apiFetch<StartLessonResponse>("/api/lessons/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ childId, lessonId }),
+    body: JSON.stringify({ childId, lessonId, forceNew }),
   });
 }
 
@@ -198,7 +207,7 @@ export interface CurriculumResponse {
     weekNumber: number;
     theme: string;
     status: string;
-    lessons: { id: string; title: string; type: string; unit: string }[];
+    lessons: { id: string; title: string; type: string; unit: string; completed?: boolean }[];
   }[];
 }
 

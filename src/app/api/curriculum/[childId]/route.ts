@@ -35,14 +35,21 @@ export async function GET(
       );
     }
 
+    // Get completed lesson IDs for this child
+    const completedProgress = await prisma.lessonProgress.findMany({
+      where: { childId, status: "completed" },
+      select: { lessonId: true },
+    });
+    const completedIds = new Set(completedProgress.map((p) => p.lessonId));
+
     // Enrich weeks with lesson details from the catalog
     const weeks = curriculum.weeks.map((w) => {
       const lessonIds: string[] = JSON.parse(w.lessonIds);
       const lessons = lessonIds.map((id) => {
         const lesson = getLessonById(id);
         return lesson
-          ? { id: lesson.id, title: lesson.title, type: lesson.type, unit: lesson.unit }
-          : { id, title: "Unknown lesson", type: "unknown", unit: "unknown" };
+          ? { id: lesson.id, title: lesson.title, type: lesson.type, unit: lesson.unit, completed: completedIds.has(id) }
+          : { id, title: "Unknown lesson", type: "unknown", unit: "unknown", completed: false };
       });
       return {
         weekNumber: w.weekNumber,

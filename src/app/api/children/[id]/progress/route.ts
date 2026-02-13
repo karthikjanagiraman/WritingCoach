@@ -77,6 +77,55 @@ export async function GET(
       createdAt: a.createdAt,
     }));
 
+    // Determine next lesson from curriculum
+    let nextLesson: {
+      lessonId: string;
+      title: string;
+      type: string;
+      unit: string;
+      weekNumber: number;
+      weekTheme: string;
+    } | null = null;
+
+    const curriculum = await prisma.curriculum.findUnique({
+      where: { childId },
+      include: {
+        weeks: { orderBy: { weekNumber: "asc" } },
+      },
+    });
+
+    if (curriculum && curriculum.status === "ACTIVE") {
+      const currentLessonId = currentLesson?.lessonId ?? null;
+      for (const week of curriculum.weeks) {
+        let lessonIds: string[] = [];
+        try {
+          const parsed = typeof week.lessonIds === "string"
+            ? JSON.parse(week.lessonIds)
+            : week.lessonIds;
+          if (Array.isArray(parsed)) lessonIds = parsed;
+        } catch {
+          // skip malformed week
+        }
+        for (const lid of lessonIds) {
+          if (!completedIds.has(lid) && lid !== currentLessonId) {
+            const lessonMeta = getLessonById(lid);
+            if (lessonMeta) {
+              nextLesson = {
+                lessonId: lid,
+                title: lessonMeta.title,
+                type: lessonMeta.type,
+                unit: lessonMeta.unit,
+                weekNumber: week.weekNumber,
+                weekTheme: week.theme,
+              };
+            }
+            break;
+          }
+        }
+        if (nextLesson) break;
+      }
+    }
+
     // Calculate per-writing-type stats
     const allLessons = getAllLessons();
     const completedProgress = progressRecords.filter((p) => p.status === "completed");
@@ -124,6 +173,7 @@ export async function GET(
             startedAt: currentLesson.startedAt,
           }
         : null,
+      nextLesson,
       availableLessons,
       assessments: assessmentSummary,
       typeStats,

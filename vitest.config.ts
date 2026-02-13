@@ -13,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/lib/**', 'src/app/api/**'],
+      include: ['src/lib/**', 'src/app/api/**', 'src/components/**'],
       exclude: ['src/lib/llm/content/**'],
     },
     alias: {
