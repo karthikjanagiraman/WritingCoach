@@ -78,14 +78,31 @@ export default function LessonPage() {
     return () => { cancelled = true; };
   }, [lessonId, activeChild, router]);
 
+  const handlePhaseAdvance = useCallback((nextPhase: Phase) => {
+    if (nextPhase === "guided") {
+      setTransition("instruction");
+    } else if (nextPhase === "assessment") {
+      setTransition("guided");
+    } else {
+      setCurrentPhase(nextPhase);
+    }
+  }, []);
+
   const handleSendMessage = useCallback(
     async (text: string): Promise<Message | null> => {
       if (!sessionId) return null;
+      const studentMsg: Message = {
+        id: `student-${Date.now()}`,
+        role: "student",
+        content: text,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, studentMsg]);
       try {
         const result = await apiSendMessage(sessionId, text);
         setMessages((prev) => [...prev, result.response]);
         if (result.phaseUpdate) {
-          setCurrentPhase(result.phaseUpdate);
+          handlePhaseAdvance(result.phaseUpdate);
         }
         return result.response;
       } catch (err) {
@@ -93,7 +110,7 @@ export default function LessonPage() {
         return null;
       }
     },
-    [sessionId]
+    [sessionId, handlePhaseAdvance]
   );
 
   const handleAssessmentSubmit = useCallback(
@@ -130,16 +147,6 @@ export default function LessonPage() {
     },
     [sessionId]
   );
-
-  const handlePhaseAdvance = useCallback((nextPhase: Phase) => {
-    if (nextPhase === "guided") {
-      setTransition("instruction");
-    } else if (nextPhase === "assessment") {
-      setTransition("guided");
-    } else {
-      setCurrentPhase(nextPhase);
-    }
-  }, []);
 
   const handleNextLesson = () => {
     router.push("/");
@@ -192,87 +199,87 @@ export default function LessonPage() {
 
   return (
     <TierProvider tier={tier}>
-    <div className="min-h-screen bg-active-bg flex flex-col">
-      {/* Sticky Header — merged with phase dots */}
-      <header className="sticky top-0 z-30 bg-white border-b border-[#e0dcd5] shadow-sm">
-        <div className="max-w-[640px] mx-auto px-4 py-3">
-          {/* Top row: back button + title */}
-          <div className="flex items-center gap-3 mb-2.5">
-            <button
-              onClick={() => router.push("/")}
-              aria-label="Go back"
-              className="w-9 h-9 rounded-full bg-active-bg flex items-center justify-center flex-shrink-0 hover:bg-[#f0ebe3] transition-colors"
-            >
-              <svg className="w-5 h-5 text-active-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <div className="flex-1 min-w-0">
-              {unitLabel && (
-                <div className="text-[0.75rem] font-semibold text-active-text/50 uppercase tracking-wide">
-                  {unitLabel}
-                </div>
-              )}
-              <h1 className="text-[1.05rem] font-extrabold text-active-text leading-tight truncate">
-                {lesson.title}
-              </h1>
+      <div className="min-h-screen bg-active-bg flex flex-col">
+        {/* Sticky Header — merged with phase dots */}
+        <header className="sticky top-0 z-30 bg-white border-b border-[#e0dcd5] shadow-sm">
+          <div className="max-w-[640px] mx-auto px-4 py-3">
+            {/* Top row: back button + title */}
+            <div className="flex items-center gap-3 mb-2.5">
+              <button
+                onClick={() => router.push("/")}
+                aria-label="Go back"
+                className="w-9 h-9 rounded-full bg-active-bg flex items-center justify-center flex-shrink-0 hover:bg-[#f0ebe3] transition-colors"
+              >
+                <svg className="w-5 h-5 text-active-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <div className="flex-1 min-w-0">
+                {unitLabel && (
+                  <div className="text-[0.75rem] font-semibold text-active-text/50 uppercase tracking-wide">
+                    {unitLabel}
+                  </div>
+                )}
+                <h1 className="text-[1.05rem] font-extrabold text-active-text leading-tight truncate">
+                  {lesson.title}
+                </h1>
+              </div>
             </div>
+            {/* Phase dots row */}
+            <PhaseIndicator currentPhase={currentPhase} />
           </div>
-          {/* Phase dots row */}
-          <PhaseIndicator currentPhase={currentPhase} />
-        </div>
-      </header>
+        </header>
 
-      {/* Phase Content */}
-      <main className="flex-1 min-h-0">
-        {transition ? (
-          <PhaseTransition
-            fromPhase={transition}
-            onContinue={() => {
-              const nextPhase = transition === "instruction" ? "guided" : "assessment";
-              setTransition(null);
-              setCurrentPhase(nextPhase);
-            }}
-          />
-        ) : (
-          <>
-            {currentPhase === "instruction" && (
-              <InstructionPhase
-                lessonTitle={lesson.title}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onComplete={() => handlePhaseAdvance("guided")}
-              />
-            )}
-            {currentPhase === "guided" && (
-              <GuidedPracticePhase
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onComplete={() => handlePhaseAdvance("assessment")}
-              />
-            )}
-            {currentPhase === "assessment" && (
-              <AssessmentPhase
-                lessonTitle={lesson.title}
-                rubric={lessonData?.rubric ?? undefined}
-                onSubmit={handleAssessmentSubmit}
-                submitting={submitting}
-              />
-            )}
-            {currentPhase === "feedback" && assessmentResult && (
-              <FeedbackView
-                result={assessmentResult}
-                submittedText={submittedText}
-                sessionId={sessionId}
-                onNextLesson={handleNextLesson}
-                newBadges={newBadges}
-                childId={activeChild?.id}
-              />
-            )}
-          </>
-        )}
-      </main>
-    </div>
+        {/* Phase Content */}
+        <main className="flex-1 min-h-0">
+          {transition ? (
+            <PhaseTransition
+              fromPhase={transition}
+              onContinue={() => {
+                const nextPhase = transition === "instruction" ? "guided" : "assessment";
+                setTransition(null);
+                setCurrentPhase(nextPhase);
+              }}
+            />
+          ) : (
+            <>
+              {currentPhase === "instruction" && (
+                <InstructionPhase
+                  lessonTitle={lesson.title}
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  onComplete={() => handlePhaseAdvance("guided")}
+                />
+              )}
+              {currentPhase === "guided" && (
+                <GuidedPracticePhase
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  onComplete={() => handlePhaseAdvance("assessment")}
+                />
+              )}
+              {currentPhase === "assessment" && (
+                <AssessmentPhase
+                  lessonTitle={lesson.title}
+                  rubric={lessonData?.rubric ?? undefined}
+                  onSubmit={handleAssessmentSubmit}
+                  submitting={submitting}
+                />
+              )}
+              {currentPhase === "feedback" && assessmentResult && (
+                <FeedbackView
+                  result={assessmentResult}
+                  submittedText={submittedText}
+                  sessionId={sessionId}
+                  onNextLesson={handleNextLesson}
+                  newBadges={newBadges}
+                  childId={activeChild?.id}
+                />
+              )}
+            </>
+          )}
+        </main>
+      </div>
     </TierProvider>
   );
 }

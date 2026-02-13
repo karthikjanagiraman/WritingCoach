@@ -239,16 +239,20 @@ function LockedCard() {
   );
 }
 
-function BottomProgressBar({ writingsDone }: { writingsDone: number }) {
+function BottomProgressBar({ writingsDone, practiceComplete }: { writingsDone: number; practiceComplete: boolean }) {
   const total = 3;
-  const pct = Math.min((writingsDone / total) * 100, 100);
+  const pct = practiceComplete ? 100 : Math.min((writingsDone / total) * 100, 100);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#e0dcd5] shadow-[0_-2px_12px_rgba(0,0,0,0.05)]">
       <div className="max-w-[640px] mx-auto px-4 py-3">
         <div className="flex items-center justify-center gap-1.5 text-[0.78rem] font-bold text-active-text/50">
           <span>&#x270F;&#xFE0F;</span>
-          <span>{writingsDone} of {total} writing challenges done</span>
+          <span>
+            {practiceComplete
+              ? "Practice complete!"
+              : `${writingsDone} of ${total} writing challenges done`}
+          </span>
           <div className="flex-1 max-w-[140px] h-1.5 bg-[#eae6df] rounded-full overflow-hidden">
             <div
               className="h-full bg-active-primary rounded-full transition-all duration-500"
@@ -324,14 +328,21 @@ export default function GuidedPracticePhase({
         setChatItems((prev) => [...prev, writingItem]);
         setInteractionState("WRITING_ACTIVE");
       } else {
-        const answerItem: ChatItem = {
-          type: "quick-answer",
-          id: generateId(),
-          answer: "",
-          completed: false,
-        };
-        setChatItems((prev) => [...prev, answerItem]);
-        setInteractionState("ANSWER_ACTIVE");
+        // Check if the coach message contains a question — if not, it's a wrap-up
+        const hasQuestion = text.trim().endsWith("?") || /\?\s*$/.test(text.trim());
+        if (hasQuestion) {
+          const answerItem: ChatItem = {
+            type: "quick-answer",
+            id: generateId(),
+            answer: "",
+            completed: false,
+          };
+          setChatItems((prev) => [...prev, answerItem]);
+          setInteractionState("ANSWER_ACTIVE");
+        } else {
+          // No question and no writing prompt — coach is wrapping up
+          setPracticeComplete(true);
+        }
       }
 
       return { writingPrompt };
@@ -536,7 +547,7 @@ export default function GuidedPracticePhase({
                   <div key={item.id} className="mb-2">
                     <QuickAnswerCardCompleted answer={item.answer} />
                   </div>
-                ) : (
+                ) : practiceComplete ? null : (
                   <div key={item.id} className="mb-2">
                     <QuickAnswerCardActive onSubmit={handleSubmit} />
                   </div>
@@ -547,7 +558,7 @@ export default function GuidedPracticePhase({
                   <div key={item.id} className="my-2">
                     <WritingCardCompleted prompt={item.prompt} answer={item.answer} />
                   </div>
-                ) : (
+                ) : practiceComplete ? null : (
                   <div key={item.id} className="my-2">
                     <WritingCardActive prompt={item.prompt} onSubmit={handleSubmit} />
                   </div>
@@ -581,7 +592,7 @@ export default function GuidedPracticePhase({
       </div>
 
       {/* Fixed bottom progress bar */}
-      <BottomProgressBar writingsDone={writingsDone} />
+      <BottomProgressBar writingsDone={writingsDone} practiceComplete={practiceComplete} />
     </div>
   );
 }
