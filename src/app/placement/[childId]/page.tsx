@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -14,6 +14,8 @@ function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
 export default function PlacementAssessmentPage() {
   const { childId } = useParams<{ childId: string }>();
   const router = useRouter();
@@ -26,6 +28,81 @@ export default function PlacementAssessmentPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+
+  // Refs for debounced save
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const responsesRef = useRef(responses);
+  const stepRef = useRef(step);
+  const isMountedRef = useRef(true);
+  const hasLoadedRef = useRef(false);
+
+  // Keep refs in sync
+  responsesRef.current = responses;
+  stepRef.current = step;
+
+  const saveDraft = useCallback(
+    async (responsesToSave?: string[], stepToSave?: number) => {
+      // Don't save before data has loaded (prevents strict mode cleanup from creating empty drafts)
+      if (!hasLoadedRef.current) return;
+
+      const r = responsesToSave ?? responsesRef.current;
+      const s = stepToSave ?? stepRef.current;
+
+      try {
+        setSaveStatus("saving");
+        const res = await fetch("/api/placement/save-draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ childId, responses: r, step: s }),
+        });
+
+        if (!isMountedRef.current) return;
+
+        if (res.ok) {
+          setSaveStatus("saved");
+          setTimeout(() => {
+            if (isMountedRef.current) setSaveStatus("idle");
+          }, 2000);
+        } else {
+          setSaveStatus("error");
+          setTimeout(() => {
+            if (isMountedRef.current) setSaveStatus("idle");
+          }, 3000);
+        }
+      } catch {
+        if (!isMountedRef.current) return;
+        setSaveStatus("error");
+        setTimeout(() => {
+          if (isMountedRef.current) setSaveStatus("idle");
+        }, 3000);
+      }
+    },
+    [childId]
+  );
+
+  const debouncedSave = useCallback(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = setTimeout(() => {
+      saveDraft();
+    }, 3000);
+  }, [saveDraft]);
+
+  // Cleanup on unmount: flush any pending save
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+      // Best-effort final save
+      saveDraft();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -58,6 +135,21 @@ export default function PlacementAssessmentPage() {
       }
 
       setPrompts(startData.prompts);
+      hasLoadedRef.current = true;
+
+      // Restore from draft if available
+      if (startData.hasDraft) {
+        if (Array.isArray(startData.responses)) {
+          setResponses(startData.responses);
+        }
+        if (
+          typeof startData.step === "number" &&
+          startData.step >= 0 &&
+          startData.step <= 2
+        ) {
+          setStep(startData.step);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -76,6 +168,12 @@ export default function PlacementAssessmentPage() {
   }, [status, router, fetchData]);
 
   async function handleSubmit() {
+    // Flush any pending save
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+
     setSubmitting(true);
     setError(null);
 
@@ -104,6 +202,17 @@ export default function PlacementAssessmentPage() {
       updated[step] = value;
       return updated;
     });
+    debouncedSave();
+  }
+
+  function handleStepChange(newStep: number) {
+    // Flush pending debounce and save immediately with the new step
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    setStep(newStep);
+    saveDraft(responsesRef.current, newStep);
   }
 
   const currentWords = countWords(responses[step]);
@@ -288,7 +397,7 @@ export default function PlacementAssessmentPage() {
           />
         </div>
 
-        {/* Word count */}
+        {/* Word count + save status */}
         <div className="flex items-center justify-between mb-8 px-1">
           <p
             className={`text-sm font-semibold ${
@@ -305,6 +414,25 @@ export default function PlacementAssessmentPage() {
               </span>
             )}
           </p>
+          <p
+            className={`text-xs font-medium transition-opacity duration-300 ${
+              saveStatus === "idle"
+                ? "opacity-0"
+                : "opacity-100"
+            } ${
+              saveStatus === "saving"
+                ? "text-[#2D3436]/40"
+                : saveStatus === "saved"
+                  ? "text-[#4ECDC4]"
+                  : saveStatus === "error"
+                    ? "text-red-400"
+                    : ""
+            }`}
+          >
+            {saveStatus === "saving" && "Saving..."}
+            {saveStatus === "saved" && "Saved"}
+            {saveStatus === "error" && "Could not save"}
+          </p>
         </div>
 
         {/* Navigation buttons */}
@@ -312,7 +440,7 @@ export default function PlacementAssessmentPage() {
           {step > 0 && (
             <button
               type="button"
-              onClick={() => setStep(step - 1)}
+              onClick={() => handleStepChange(step - 1)}
               className="flex-1 px-6 py-3 bg-white border border-[#2D3436]/10 text-[#2D3436]/60 rounded-xl text-sm font-bold hover:bg-[#2D3436]/5 transition-colors"
             >
               Back
@@ -322,7 +450,7 @@ export default function PlacementAssessmentPage() {
             <button
               type="button"
               disabled={!canProceed}
-              onClick={() => setStep(step + 1)}
+              onClick={() => handleStepChange(step + 1)}
               className={`flex-1 px-6 py-3 rounded-xl text-sm font-bold transition-colors shadow-sm ${
                 canProceed
                   ? "bg-[#FF6B6B] text-white hover:bg-[#FF6B6B]/90"

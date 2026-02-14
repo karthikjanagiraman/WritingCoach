@@ -33,6 +33,7 @@ export const prismaMock = {
   lessonProgress: createModelMock(),
   session: createModelMock(),
   assessment: createModelMock(),
+  placementDraft: createModelMock(),
   placementResult: createModelMock(),
   curriculum: createModelMock(),
   curriculumWeek: createModelMock(),

@@ -48,6 +48,7 @@ model ChildProfile {
   skillProgress      SkillProgress[]
   streak             Streak?
   achievements       Achievement[]
+  placementDraft     PlacementDraft?
   placementResult    PlacementResult?
   curriculum         Curriculum?
 
@@ -113,6 +114,18 @@ model Assessment {
 // ============================================
 // Placement & Curriculum
 // ============================================
+
+model PlacementDraft {
+  id        String   @id @default(uuid())
+  childId   String   @unique
+  prompts   String   // JSON array of 3 prompts
+  responses String   // JSON array of 3 responses (partially filled)
+  step      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+}
 
 model PlacementResult {
   id              String   @id @default(uuid())

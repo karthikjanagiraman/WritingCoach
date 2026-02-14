@@ -91,6 +91,8 @@ describe('Placement API', () => {
     it('generates 3 age-appropriate writing prompts', async () => {
       prismaMock.childProfile.findFirst.mockResolvedValue(CHILD_MAYA);
       prismaMock.placementResult.findUnique.mockResolvedValue(null); // No existing placement
+      prismaMock.placementDraft.findUnique.mockResolvedValue(null); // No existing draft
+      prismaMock.placementDraft.create.mockResolvedValue({} as any); // Draft creation
 
       // Mock the Anthropic API to return 3 prompts
       mockCreate.mockResolvedValue({
@@ -135,7 +137,7 @@ describe('Placement API', () => {
       prismaMock.placementResult.findUnique.mockResolvedValue(null); // No existing placement
       prismaMock.placementResult.create.mockResolvedValue(PLACEMENT_MAYA);
       prismaMock.childProfile.update.mockResolvedValue({ ...CHILD_MAYA, tier: 1 });
-      prismaMock.$transaction.mockResolvedValue([PLACEMENT_MAYA, { ...CHILD_MAYA, tier: 1 }]);
+      prismaMock.$transaction.mockResolvedValue([PLACEMENT_MAYA, { ...CHILD_MAYA, tier: 1 }, { count: 1 }]);
 
       // Mock the Anthropic API analysis
       mockCreate.mockResolvedValue({
@@ -186,7 +188,7 @@ describe('Placement API', () => {
       prismaMock.$transaction.mockImplementation(async (items: any[]) => {
         // The $transaction is called with an array of Prisma operations
         // We verify the data passed to create
-        return [PLACEMENT_MAYA, { ...CHILD_MAYA, tier: 1 }];
+        return [PLACEMENT_MAYA, { ...CHILD_MAYA, tier: 1 }, { count: 1 }];
       });
 
       mockCreate.mockResolvedValue({

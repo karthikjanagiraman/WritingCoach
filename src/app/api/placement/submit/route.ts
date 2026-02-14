@@ -125,7 +125,7 @@ Return ONLY valid JSON: { "recommendedTier": 1|2|3, "confidence": 0.0-1.0, "stre
       );
     }
 
-    // Create PlacementResult and update child tier in a transaction
+    // Create PlacementResult, update child tier, and clean up draft in a transaction
     const [placementResult] = await prisma.$transaction([
       prisma.placementResult.create({
         data: {
@@ -145,6 +145,9 @@ Return ONLY valid JSON: { "recommendedTier": 1|2|3, "confidence": 0.0-1.0, "stre
       prisma.childProfile.update({
         where: { id: childId },
         data: { tier: analysis.recommendedTier },
+      }),
+      prisma.placementDraft.deleteMany({
+        where: { childId },
       }),
     ]);
 

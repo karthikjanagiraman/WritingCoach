@@ -47,6 +47,20 @@ export async function POST(request: Request) {
       });
     }
 
+    // Check for an existing draft (resume in-progress placement)
+    const existingDraft = await prisma.placementDraft.findUnique({
+      where: { childId },
+    });
+
+    if (existingDraft) {
+      return NextResponse.json({
+        prompts: JSON.parse(existingDraft.prompts),
+        responses: JSON.parse(existingDraft.responses),
+        step: existingDraft.step,
+        hasDraft: true,
+      });
+    }
+
     // Generate 3 age-appropriate writing prompts via Claude
     const systemPrompt = `You are generating writing assessment prompts for a ${child.age}-year-old child. Create exactly 3 short, engaging writing prompts:
 1. A NARRATIVE prompt (tell a story)
@@ -84,6 +98,16 @@ Each prompt should be 1-2 sentences, age-appropriate, and fun. Return ONLY a JSO
         { status: 500 }
       );
     }
+
+    // Persist draft so the child can resume later
+    await prisma.placementDraft.create({
+      data: {
+        childId,
+        prompts: JSON.stringify(prompts),
+        responses: JSON.stringify(["", "", ""]),
+        step: 0,
+      },
+    });
 
     return NextResponse.json({ prompts });
   } catch (error) {
