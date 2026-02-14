@@ -91,6 +91,11 @@ export async function POST(request: NextRequest) {
       phaseState.comprehensionCheckPassed = true;
     }
 
+    // Track Phase 1 step progress
+    if (session.phase === "instruction" && coachResult.stepUpdate) {
+      phaseState.phase1Step = coachResult.stepUpdate;
+    }
+
     // Gate instruction->guided on comprehension check
     if (phaseUpdate === "guided" && !phaseState.comprehensionCheckPassed) {
       phaseUpdate = undefined; // Don't transition yet
@@ -154,6 +159,7 @@ export async function POST(request: NextRequest) {
       response: coachMessage,
       phaseUpdate: phaseUpdate ?? null,
       assessmentReady: coachResult.assessmentReady ?? false,
+      stepUpdate: coachResult.stepUpdate ?? null,
     });
   } catch (error) {
     console.error("POST /api/lessons/message error:", error);

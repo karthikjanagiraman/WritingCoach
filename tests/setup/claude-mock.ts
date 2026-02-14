@@ -20,6 +20,7 @@ export const claudeMock = {
     assessmentReady: false,
     comprehensionPassed: false,
     hintGiven: false,
+    stepUpdate: undefined,
   }),
 
   getInitialPrompt: vi.fn().mockResolvedValue(
@@ -58,6 +59,7 @@ export const COACH_RESPONSES = {
     assessmentReady: false,
     comprehensionPassed: true,
     hintGiven: false,
+    stepUpdate: undefined,
   },
   guidedWithHint: {
     message: 'Good try! Think about what would make a reader curious. What if something unexpected happened?',
@@ -65,6 +67,7 @@ export const COACH_RESPONSES = {
     assessmentReady: false,
     comprehensionPassed: false,
     hintGiven: true,
+    stepUpdate: undefined,
   },
   guidedToAssessment: {
     message: 'Excellent work on the practice! You\'re ready to write on your own now.',
@@ -72,6 +75,7 @@ export const COACH_RESPONSES = {
     assessmentReady: true,
     comprehensionPassed: false,
     hintGiven: false,
+    stepUpdate: undefined,
   },
   instructionToGuided: {
     message: 'You got it! Ready to try it together?',
@@ -79,6 +83,7 @@ export const COACH_RESPONSES = {
     assessmentReady: false,
     comprehensionPassed: false,
     hintGiven: false,
+    stepUpdate: undefined,
   },
 };
 
@@ -156,6 +161,7 @@ export function resetClaudeMock() {
     assessmentReady: false,
     comprehensionPassed: false,
     hintGiven: false,
+    stepUpdate: undefined,
   });
 
   claudeMock.getInitialPrompt.mockResolvedValue(

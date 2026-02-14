@@ -21,6 +21,7 @@ export interface SendMessageResponse {
   response: Message;
   phaseUpdate: Phase | null;
   assessmentReady: boolean;
+  stepUpdate?: number | null;
 }
 
 export interface SubmitAssessmentResponse {

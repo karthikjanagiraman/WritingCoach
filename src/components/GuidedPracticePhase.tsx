@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { Message } from "@/types";
-import { ChatBubble, TypingIndicator } from "./shared";
+import { useTier } from "@/contexts/TierContext";
+import { ChatBubble, CoachAvatar, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted } from "./shared";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ interface GuidedPracticePhaseProps {
   onSendMessage?: (text: string) => Promise<Message | null>;
 }
 
-type InteractionState = "WAITING_FOR_COACH" | "ANSWER_ACTIVE" | "WRITING_ACTIVE";
+type InteractionState = "WAITING_FOR_COACH" | "ANSWER_ACTIVE" | "WRITING_ACTIVE" | "CONTINUE_ACTIVE";
 
 type ChatItem =
   | { type: "coach"; id: string; message: Message; writingPrompt: string | null }
@@ -34,6 +35,17 @@ function parseWritingPrompt(content: string): {
     };
   }
   return { text: content, writingPrompt: null };
+}
+
+function parseExpectsResponse(content: string): {
+  text: string;
+  expectsResponse: boolean;
+} {
+  const marker = /\[EXPECTS_RESPONSE\]\s*/gi;
+  if (marker.test(content)) {
+    return { text: content.replace(/\[EXPECTS_RESPONSE\]\s*/gi, "").trim(), expectsResponse: true };
+  }
+  return { text: content, expectsResponse: false };
 }
 
 function generateId(): string {
@@ -61,85 +73,6 @@ const fallbackResponses = [
 const ESCAPE_HATCH_EXCHANGES = 5;
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
-
-function QuickAnswerCardCompleted({ answer }: { answer: string }) {
-  return (
-    <div className="w-full rounded-2xl bg-[#e6f9f3] border-2 border-[#00b894] px-[18px] py-3.5 animate-fade-in">
-      <div className="text-[0.72rem] font-extrabold uppercase tracking-wider text-[#00b894] mb-1 flex items-center gap-1">
-        💬 Your answer
-        <span className="bg-[#00b894] text-white px-2 py-0.5 rounded-[10px] text-[0.72rem] font-bold ml-1.5 normal-case tracking-normal">
-          Completed
-        </span>
-      </div>
-      <div className="text-active-text font-semibold text-[0.95rem] leading-relaxed">{answer}</div>
-      <div className="flex justify-end mt-1.5">
-        <span className="text-[#00b894] text-[0.85rem] font-bold flex items-center gap-1">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="16 9 10.5 14.5 8 12" />
-          </svg>
-          Done
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function QuickAnswerCardActive({
-  onSubmit,
-}: {
-  onSubmit: (answer: string) => void;
-}) {
-  const [value, setValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => inputRef.current?.focus(), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleSubmit = () => {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-    onSubmit(trimmed);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  return (
-    <div className="w-full rounded-2xl bg-gradient-to-br from-active-accent/10 to-active-accent/5 border-2 border-dashed border-active-accent px-[18px] py-3.5 animate-fade-in animate-pulse-border">
-      <div className="text-[0.82rem] font-extrabold uppercase tracking-wider text-[#c5a31d] mb-2 flex items-center gap-1">
-        💬 Your answer
-      </div>
-      <input
-        ref={inputRef}
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="w-full h-[42px] px-3.5 rounded-lg border-[1.5px] border-[#e0dcd5] bg-white text-[0.95rem] text-active-text outline-none transition-all focus:border-active-accent focus:shadow-[0_0_0_3px_rgba(255,230,109,0.25)] placeholder:text-[#b2bec3]"
-        placeholder="Type your answer..."
-      />
-      <div className="flex justify-end mt-3 items-center gap-3">
-        <span className="text-[0.75rem] font-semibold text-active-text/40">
-          {value.length} characters
-        </span>
-        <button
-          onClick={handleSubmit}
-          disabled={!value.trim()}
-          className="inline-flex items-center gap-1.5 px-7 py-2.5 border-none rounded-full bg-active-primary text-white font-bold text-[0.92rem] cursor-pointer transition-all shadow-sm hover:bg-[#e85d5d] hover:-translate-y-px hover:shadow-md active:translate-y-0 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
-        >
-          Done ✓
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function WritingCardCompleted({
   prompt,
@@ -274,10 +207,11 @@ export default function GuidedPracticePhase({
   onSendMessage,
 }: GuidedPracticePhaseProps) {
   const router = useRouter();
+  const { coachName } = useTier();
   const [chatItems, setChatItems] = useState<ChatItem[]>([]);
   const [interactionState, setInteractionState] = useState<InteractionState>("WAITING_FOR_COACH");
   const [isTyping, setIsTyping] = useState(false);
-  const [practiceComplete, setPracticeComplete] = useState(false);
+  const [isLoadingFirstQuestion, setIsLoadingFirstQuestion] = useState(false);
   const [fallbackIndex, setFallbackIndex] = useState(0);
 
   const scrollEndRef = useRef<HTMLDivElement>(null);
@@ -306,7 +240,8 @@ export default function GuidedPracticePhase({
 
   const addCoachMessage = useCallback(
     (msg: Message): { writingPrompt: string | null } => {
-      const { text, writingPrompt } = parseWritingPrompt(msg.content);
+      const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(msg.content);
+      const { text, expectsResponse } = parseExpectsResponse(textAfterWriting);
 
       const cleanMessage: Message = { ...msg, content: text };
 
@@ -329,22 +264,19 @@ export default function GuidedPracticePhase({
         };
         setChatItems((prev) => [...prev, writingItem]);
         setInteractionState("WRITING_ACTIVE");
+      } else if (expectsResponse) {
+        // Coach asked a question — show QuickAnswerCard
+        const answerItem: ChatItem = {
+          type: "quick-answer",
+          id: generateId(),
+          answer: "",
+          completed: false,
+        };
+        setChatItems((prev) => [...prev, answerItem]);
+        setInteractionState("ANSWER_ACTIVE");
       } else {
-        // Check if the coach message contains a question — if not, it's a wrap-up
-        const hasQuestion = text.trim().endsWith("?") || /\?\s*$/.test(text.trim());
-        if (hasQuestion) {
-          const answerItem: ChatItem = {
-            type: "quick-answer",
-            id: generateId(),
-            answer: "",
-            completed: false,
-          };
-          setChatItems((prev) => [...prev, answerItem]);
-          setInteractionState("ANSWER_ACTIVE");
-        } else {
-          // No question and no writing prompt — coach is wrapping up
-          setPracticeComplete(true);
-        }
+        // Statement with no question — show Continue button
+        setInteractionState("CONTINUE_ACTIVE");
       }
 
       return { writingPrompt };
@@ -370,7 +302,8 @@ export default function GuidedPracticePhase({
       const msg = sourceMessages[i];
 
       if (msg.role === "coach") {
-        const { text, writingPrompt } = parseWritingPrompt(msg.content);
+        const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(msg.content);
+        const { text } = parseExpectsResponse(textAfterWriting);
         const cleanMessage: Message = { ...msg, content: text };
         items.push({
           type: "coach",
@@ -413,9 +346,9 @@ export default function GuidedPracticePhase({
         });
         setInteractionState("WRITING_ACTIVE");
       } else {
-        // Check if the last coach message contains a question (ends with ?)
-        const hasQuestion = lastMsg.content.trim().includes("?");
-        if (hasQuestion) {
+        // Check if the last coach message has an [EXPECTS_RESPONSE] marker
+        const { expectsResponse } = parseExpectsResponse(lastMsg.content);
+        if (expectsResponse) {
           items.push({
             type: "quick-answer",
             id: generateId(),
@@ -424,9 +357,10 @@ export default function GuidedPracticePhase({
           });
           setInteractionState("ANSWER_ACTIVE");
         } else {
-          // Transition statement without a question — auto-fetch first guided question
+          // No marker — auto-fetch first guided question
           setInteractionState("WAITING_FOR_COACH");
           needsAutoFetch.current = true;
+          setIsLoadingFirstQuestion(true);
         }
       }
     } else {
@@ -445,17 +379,15 @@ export default function GuidedPracticePhase({
     setIsTyping(true);
     onSendMessage("I'm ready to practice!").then((coachResponse) => {
       setIsTyping(false);
+      setIsLoadingFirstQuestion(false);
       if (coachResponse) {
         addCoachMessage(coachResponse);
       }
     }).catch(() => {
       setIsTyping(false);
+      setIsLoadingFirstQuestion(false);
     });
   }, [onSendMessage, addCoachMessage]);
-
-  // practiceComplete is set by:
-  // 1. AI wrap-up detection (no question, no writing prompt in addCoachMessage)
-  // 2. AI phase transition marker (parent handles via handlePhaseAdvance)
 
   // ─── Submit handler (both card types) ────────────────────────────────────
 
@@ -518,91 +450,114 @@ export default function GuidedPracticePhase({
     [onSendMessage, fallbackIndex, addCoachMessage]
   );
 
+  // ─── Continue handler (no-question coach statements) ────────────────────
+
+  const handleContinue = useCallback(async () => {
+    setInteractionState("WAITING_FOR_COACH");
+    setIsTyping(true);
+    if (onSendMessage) {
+      try {
+        const coachResponse = await onSendMessage("Continue");
+        setIsTyping(false);
+        if (coachResponse) addCoachMessage(coachResponse);
+      } catch {
+        setIsTyping(false);
+      }
+    }
+  }, [onSendMessage, addCoachMessage]);
+
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col h-[var(--content-height)]">
-      {/* Scrollable chat flow */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-20 bg-active-bg/30">
-        <div className="max-w-[640px] mx-auto flex flex-col gap-2">
-          {chatItems.map((item) => {
-            switch (item.type) {
-              case "coach":
-                return (
-                  <div key={item.id} className="mb-2">
-                    <ChatBubble message={item.message} />
-                  </div>
-                );
-
-              case "quick-answer":
-                return item.completed ? (
-                  <div key={item.id} className="mb-2">
-                    <QuickAnswerCardCompleted answer={item.answer} />
-                  </div>
-                ) : practiceComplete ? null : (
-                  <div key={item.id} className="mb-2">
-                    <QuickAnswerCardActive onSubmit={handleSubmit} />
-                  </div>
-                );
-
-              case "writing-response":
-                return item.completed ? (
-                  <div key={item.id} className="my-2">
-                    <WritingCardCompleted prompt={item.prompt} answer={item.answer} />
-                  </div>
-                ) : practiceComplete ? null : (
-                  <div key={item.id} className="my-2">
-                    <WritingCardActive prompt={item.prompt} onSubmit={handleSubmit} />
-                  </div>
-                );
-
-              default:
-                return null;
-            }
-          })}
-
-          {isTyping && (
-            <div className="mb-2">
-              <TypingIndicator />
-            </div>
-          )}
-
-          {/* Practice concluded — only action buttons, no more input */}
-          {practiceComplete && (
-            <div className="flex flex-col items-center gap-3 py-6 animate-fade-in">
-              <button
-                onClick={onComplete}
-                className="bg-active-secondary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-secondary/90 transition-colors"
-              >
-                Ready to Write! &rarr;
-              </button>
-              <button
-                onClick={() => router.push("/")}
-                className="text-active-text/40 text-sm font-semibold hover:text-active-text/60 transition-colors"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          )}
-
-          {/* Escape hatch: subtle option after 5+ exchanges */}
-          {!practiceComplete && totalExchanges >= ESCAPE_HATCH_EXCHANGES && (
-            <div className="flex justify-center py-2 animate-fade-in">
-              <button
-                onClick={onComplete}
-                className="text-active-text/40 text-sm font-semibold hover:text-active-primary transition-colors"
-              >
-                I&rsquo;m ready to write on my own &rarr;
-              </button>
-            </div>
-          )}
-
-          <div ref={scrollEndRef} />
+      {isLoadingFirstQuestion ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center text-center px-6">
+            <CoachAvatar size="lg" animate />
+            <p className="mt-4 text-active-text/60 font-semibold animate-fade-in">
+              {coachName} is setting up your practice...
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Scrollable chat flow */}
+          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-20 bg-active-bg/30">
+            <div className="max-w-[640px] mx-auto flex flex-col gap-2">
+              {chatItems.map((item) => {
+                switch (item.type) {
+                  case "coach":
+                    return (
+                      <div key={item.id} className="mb-2">
+                        <ChatBubble message={item.message} />
+                      </div>
+                    );
 
-      {/* Fixed bottom progress bar */}
-      <BottomProgressBar writingsDone={writingsDone} practiceComplete={practiceComplete} />
+                  case "quick-answer":
+                    return item.completed ? (
+                      <div key={item.id} className="mb-2">
+                        <QuickAnswerCardCompleted answer={item.answer} />
+                      </div>
+                    ) : (
+                      <div key={item.id} className="mb-2">
+                        <QuickAnswerCardActive onSubmit={handleSubmit} />
+                      </div>
+                    );
+
+                  case "writing-response":
+                    return item.completed ? (
+                      <div key={item.id} className="my-2">
+                        <WritingCardCompleted prompt={item.prompt} answer={item.answer} />
+                      </div>
+                    ) : (
+                      <div key={item.id} className="my-2">
+                        <WritingCardActive prompt={item.prompt} onSubmit={handleSubmit} />
+                      </div>
+                    );
+
+                  default:
+                    return null;
+                }
+              })}
+
+              {isTyping && (
+                <div className="mb-2">
+                  <TypingIndicator />
+                </div>
+              )}
+
+              {/* Continue button for non-question coach statements */}
+              {interactionState === "CONTINUE_ACTIVE" && !isTyping && (
+                <div className="flex justify-center py-4 animate-fade-in">
+                  <button
+                    onClick={handleContinue}
+                    className="bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 transition-colors"
+                  >
+                    Continue &rarr;
+                  </button>
+                </div>
+              )}
+
+              {/* Escape hatch: subtle option after 5+ exchanges */}
+              {totalExchanges >= ESCAPE_HATCH_EXCHANGES && (
+                <div className="flex justify-center py-2 animate-fade-in">
+                  <button
+                    onClick={onComplete}
+                    className="text-active-text/40 text-sm font-semibold hover:text-active-primary transition-colors"
+                  >
+                    I&rsquo;m ready to write on my own &rarr;
+                  </button>
+                </div>
+              )}
+
+              <div ref={scrollEndRef} />
+            </div>
+          </div>
+
+          {/* Fixed bottom progress bar */}
+          <BottomProgressBar writingsDone={writingsDone} practiceComplete={false} />
+        </>
+      )}
     </div>
   );
 }

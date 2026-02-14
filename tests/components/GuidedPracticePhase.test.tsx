@@ -29,7 +29,7 @@ function makeMsg(role: 'coach' | 'student', content: string, id?: string): Messa
 describe('GuidedPracticePhase', () => {
   it('renders initial coach messages as chat items', () => {
     const messages: Message[] = [
-      makeMsg('coach', 'Let us practice together! What character will your story be about?'),
+      makeMsg('coach', 'Let us practice together! What character will your story be about?\n\n[EXPECTS_RESPONSE]'),
     ];
     renderWithProviders(
       <GuidedPracticePhase
@@ -58,9 +58,9 @@ describe('GuidedPracticePhase', () => {
     expect(screen.getByText(/Your turn to write/)).toBeInTheDocument();
   });
 
-  it('creates quick-answer cards when coach message ends with question', () => {
+  it('creates quick-answer cards when coach message has [EXPECTS_RESPONSE]', () => {
     const messages: Message[] = [
-      makeMsg('coach', 'What is your favorite animal?'),
+      makeMsg('coach', 'What is your favorite animal?\n\n[EXPECTS_RESPONSE]'),
     ];
     renderWithProviders(
       <GuidedPracticePhase
@@ -71,14 +71,16 @@ describe('GuidedPracticePhase', () => {
     );
     // Should show an active quick-answer card with a "Type your answer..." placeholder
     expect(screen.getByPlaceholderText('Type your answer...')).toBeInTheDocument();
+    // The marker text should NOT be visible
+    expect(screen.queryByText(/EXPECTS_RESPONSE/)).not.toBeInTheDocument();
   });
 
   it('submitting a quick answer sends it to onSendMessage', async () => {
     const onSendMessage = vi.fn().mockResolvedValue(
-      makeMsg('coach', 'Wonderful choice! Where does the story take place?')
+      makeMsg('coach', 'Wonderful choice! Where does the story take place?\n\n[EXPECTS_RESPONSE]')
     );
     const messages: Message[] = [
-      makeMsg('coach', 'Who is your main character?'),
+      makeMsg('coach', 'Who is your main character?\n\n[EXPECTS_RESPONSE]'),
     ];
     renderWithProviders(
       <GuidedPracticePhase
@@ -123,11 +125,11 @@ describe('GuidedPracticePhase', () => {
     // Build conversation history with 5 completed question-answer exchanges
     const messages: Message[] = [];
     for (let i = 0; i < 5; i++) {
-      messages.push(makeMsg('coach', `Question ${i + 1}?`));
+      messages.push(makeMsg('coach', `Question ${i + 1}?\n\n[EXPECTS_RESPONSE]`));
       messages.push(makeMsg('student', `Answer ${i + 1}`));
     }
-    // End with another question so it's not practice-complete
-    messages.push(makeMsg('coach', 'One more question?'));
+    // End with another question so practice continues
+    messages.push(makeMsg('coach', 'One more question?\n\n[EXPECTS_RESPONSE]'));
 
     renderWithProviders(
       <GuidedPracticePhase
@@ -139,14 +141,13 @@ describe('GuidedPracticePhase', () => {
     expect(screen.getByText(/ready to write on my own/)).toBeInTheDocument();
   });
 
-  it('shows "Ready to Write!" button when practice complete', async () => {
-    // Provide a coach question, student answer, then onSendMessage returns a wrap-up (no question)
-    // This triggers practiceComplete via addCoachMessage path
+  it('shows Continue button when coach message has no marker', async () => {
+    // Coach sends a statement without [EXPECTS_RESPONSE] — should show Continue, not "Ready to Write!"
     const onSendMessage = vi.fn().mockResolvedValue(
-      makeMsg('coach', 'Amazing work today. You are ready to write your story!')
+      makeMsg('coach', 'Great observation! 🌟')
     );
     const messages: Message[] = [
-      makeMsg('coach', 'What is your favorite part of writing?'),
+      makeMsg('coach', 'What is your favorite part of writing?\n\n[EXPECTS_RESPONSE]'),
     ];
     renderWithProviders(
       <GuidedPracticePhase
@@ -156,38 +157,78 @@ describe('GuidedPracticePhase', () => {
       />,
       { tier: 1 }
     );
-    // Submit the quick answer to trigger the coach wrap-up
+    // Submit the quick answer to trigger the coach response (no marker)
     const input = screen.getByPlaceholderText('Type your answer...');
     fireEvent.change(input, { target: { value: 'I love creating characters' } });
     fireEvent.click(screen.getByText(/Done/));
     await waitFor(() => {
-      expect(screen.getByText(/Ready to Write/)).toBeInTheDocument();
+      expect(screen.getByText(/Continue/)).toBeInTheDocument();
     });
+    // Should NOT show "Ready to Write!" — that's no longer in the component
+    expect(screen.queryByText(/Ready to Write/)).not.toBeInTheDocument();
   });
 
-  it('calls onComplete when "Ready to Write!" clicked', async () => {
-    const onComplete = vi.fn();
+  it('does not prematurely complete practice when question has emoji after ?', async () => {
+    // Emoji after ? without [EXPECTS_RESPONSE] should show Continue button, NOT premature exit
     const onSendMessage = vi.fn().mockResolvedValue(
-      makeMsg('coach', 'You are ready to write your full story beginning now.')
+      makeMsg('coach', 'Tell me! 🗺️')
     );
     const messages: Message[] = [
-      makeMsg('coach', 'Tell me about a character you like?'),
+      makeMsg('coach', 'Who is your hero?\n\n[EXPECTS_RESPONSE]'),
     ];
     renderWithProviders(
       <GuidedPracticePhase
-        onComplete={onComplete}
+        onComplete={vi.fn()}
         messages={messages}
         onSendMessage={onSendMessage}
       />,
       { tier: 1 }
     );
     const input = screen.getByPlaceholderText('Type your answer...');
-    fireEvent.change(input, { target: { value: 'A brave explorer' } });
+    fireEvent.change(input, { target: { value: 'A dragon tamer' } });
     fireEvent.click(screen.getByText(/Done/));
     await waitFor(() => {
-      expect(screen.getByText(/Ready to Write/)).toBeInTheDocument();
+      expect(screen.getByText(/Continue/)).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByText(/Ready to Write/));
+    // Should NOT show "Ready to Write!" — practice is not complete
+    expect(screen.queryByText(/Ready to Write/)).not.toBeInTheDocument();
+  });
+
+  it('calls onComplete via escape hatch after 5+ exchanges', () => {
+    const onComplete = vi.fn();
+    const messages: Message[] = [];
+    for (let i = 0; i < 5; i++) {
+      messages.push(makeMsg('coach', `Question ${i + 1}?\n\n[EXPECTS_RESPONSE]`));
+      messages.push(makeMsg('student', `Answer ${i + 1}`));
+    }
+    messages.push(makeMsg('coach', 'Another question?\n\n[EXPECTS_RESPONSE]'));
+
+    renderWithProviders(
+      <GuidedPracticePhase
+        onComplete={onComplete}
+        messages={messages}
+      />,
+      { tier: 1 }
+    );
+    fireEvent.click(screen.getByText(/ready to write on my own/));
     expect(onComplete).toHaveBeenCalledOnce();
+  });
+
+  it('shows loading state when auto-fetching first practice question', () => {
+    // Non-question message with no marker → triggers auto-fetch with loading state
+    const onSendMessage = vi.fn().mockReturnValue(new Promise(() => {})); // never resolves
+    const messages: Message[] = [
+      makeMsg('coach', 'Great job passing the knowledge check! Let us practice together.'),
+    ];
+    renderWithProviders(
+      <GuidedPracticePhase
+        onComplete={vi.fn()}
+        messages={messages}
+        onSendMessage={onSendMessage}
+      />,
+      { tier: 1 }
+    );
+    // Should show the loading state with coach name
+    expect(screen.getByText(/setting up your practice/)).toBeInTheDocument();
   });
 });

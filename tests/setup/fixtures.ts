@@ -112,6 +112,7 @@ export const SESSION_INSTRUCTION = {
   phaseState: JSON.stringify({
     instructionCompleted: false,
     comprehensionCheckPassed: false,
+    phase1Step: 1,
   }),
   conversationHistory: JSON.stringify([]),
   createdAt: new Date('2026-02-01'),

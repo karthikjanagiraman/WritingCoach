@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         childId,
         lessonId,
         phase: "instruction" satisfies Phase,
-        phaseState: JSON.stringify({}),
+        phaseState: JSON.stringify({ phase1Step: 1 }),
         conversationHistory: JSON.stringify([initialMessage]),
       },
     });

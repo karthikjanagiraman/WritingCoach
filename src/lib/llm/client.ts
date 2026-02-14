@@ -13,6 +13,7 @@ export interface CoachResponse {
   assessmentReady?: boolean;
   comprehensionPassed?: boolean;
   hintGiven?: boolean;
+  stepUpdate?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,12 +114,17 @@ export async function getCoachResponse(
   // Detect hint marker
   const hintGiven = /\[HINT_GIVEN\]/i.test(responseText);
 
+  // Detect step marker (Phase 1 interactive lesson steps)
+  const stepMatch = responseText.match(/\[STEP:\s*(\d)\]/i);
+  const stepUpdate = stepMatch ? parseInt(stepMatch[1], 10) : undefined;
+
   return {
     message: stripPhaseMarkers(responseText),
     phaseUpdate,
     assessmentReady,
     comprehensionPassed,
     hintGiven,
+    stepUpdate,
   };
 }
 

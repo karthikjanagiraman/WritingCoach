@@ -4,7 +4,7 @@ import CoachAvatar from "./CoachAvatar";
 
 export default function TypingIndicator() {
   return (
-    <div className="flex items-end gap-2 max-w-[85%] animate-fade-in">
+    <div data-testid="typing-indicator" className="flex items-end gap-2 max-w-[85%] animate-fade-in">
       <CoachAvatar size="xs" />
       <div className="bg-white border border-[#e0dcd5] rounded-2xl rounded-tl-[4px] px-5 py-3.5 shadow-sm">
         <div className="flex gap-[5px]">

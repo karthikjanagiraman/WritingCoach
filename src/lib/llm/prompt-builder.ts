@@ -82,6 +82,7 @@ export interface PromptContext {
   phaseState?: {
     instructionCompleted?: boolean;
     comprehensionPassed?: boolean;
+    phase1Step?: number;
     guidedAttempts?: number;
     hintsGiven?: number;
     assessmentSubmitted?: boolean;
@@ -127,6 +128,7 @@ SESSION BOUNDARY: You are teaching ONLY this lesson. Your responses MUST stay wi
 Phase State:
 - Instruction completed: ${context.phaseState.instructionCompleted ?? false}
 - Comprehension check passed: ${context.phaseState.comprehensionPassed ?? false}
+- Phase 1 current step: ${context.phaseState.phase1Step ?? 1}
 - Guided practice attempts: ${context.phaseState.guidedAttempts ?? 0}
 - Hints given: ${context.phaseState.hintsGiven ?? 0}
 - Assessment submitted: ${context.phaseState.assessmentSubmitted ?? false}`;
@@ -169,6 +171,7 @@ export function buildPromptFromSession(
       ? {
           instructionCompleted: session.phaseState.instructionCompleted,
           comprehensionPassed: session.phaseState.comprehensionCheckPassed,
+          phase1Step: session.phaseState.phase1Step,
           guidedAttempts: session.phaseState.guidedAttempts,
           hintsGiven: session.phaseState.hintsGiven,
         }

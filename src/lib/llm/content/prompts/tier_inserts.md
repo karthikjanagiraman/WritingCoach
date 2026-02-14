@@ -37,7 +37,7 @@ ENGAGEMENT:
 - Use visual thinking: "Picture this in your mind..."
 
 RESPONSE LIMITS:
-- Instruction phase: 100-150 words max
+- Phase 1 (per step): 75-125 words
 - Guided practice: 50-100 words per response
 - Feedback: 75-125 words
 
@@ -78,7 +78,7 @@ ENGAGEMENT:
 - Encourage "why" questions and analysis
 
 RESPONSE LIMITS:
-- Instruction phase: 150-250 words
+- Phase 1 (per step): 100-200 words
 - Guided practice: 75-150 words per response
 - Feedback: 100-175 words
 
@@ -121,7 +121,7 @@ ENGAGEMENT:
 - Respect their developing opinions
 
 RESPONSE LIMITS:
-- Instruction phase: 200-350 words
+- Phase 1 (per step): 150-275 words
 - Guided practice: 100-200 words per response
 - Feedback: 150-250 words
 

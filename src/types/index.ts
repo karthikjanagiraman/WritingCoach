@@ -49,6 +49,7 @@ export interface SessionState {
 export interface PhaseState {
   instructionCompleted?: boolean;
   comprehensionCheckPassed?: boolean;
+  phase1Step?: number; // 1-5, current step in Phase 1
   guidedAttempts?: number;
   hintsGiven?: number;
   guidedComplete?: boolean;
