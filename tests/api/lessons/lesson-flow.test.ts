@@ -40,14 +40,19 @@ vi.mock('@/lib/rubrics', () => ({
   getRubricById: vi.fn(() => ({
     id: 'N1_story_beginning',
     description: 'Story beginning rubric',
+    word_range: [30, 75],
     criteria: [
-      { name: 'hook', display_name: 'Hook', weight: 0.25 },
-      { name: 'character', display_name: 'Character', weight: 0.25 },
-      { name: 'setting', display_name: 'Setting', weight: 0.25 },
-      { name: 'creativity', display_name: 'Creativity', weight: 0.25 },
+      { name: 'hook', display_name: 'Hook', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'character', display_name: 'Character', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'setting', display_name: 'Setting', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'creativity', display_name: 'Creativity', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
     ],
   })),
 }));
+vi.mock('@/lib/submission-validator', async () => {
+  const actual = await vi.importActual('@/lib/submission-validator');
+  return actual;
+});
 vi.mock('@/lib/progress-tracker', () => ({
   updateSkillProgress: vi.fn().mockResolvedValue(undefined),
 }));
@@ -298,7 +303,7 @@ describe('POST /api/lessons/submit', () => {
     const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'My amazing story about a magical door.' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'The old wooden door appeared overnight in the garden wall. Emma reached out and touched the cold brass handle wondering what could be on the other side.' }),
     }) as any);
     const data = await res.json();
     expect(data.scores).toBeDefined();
@@ -336,7 +341,7 @@ describe('POST /api/lessons/submit', () => {
     await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'My story about magic.' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'The old wooden door appeared overnight in the garden wall. Emma reached out and touched the cold brass handle wondering what could be on the other side.' }),
     }) as any);
 
     expect(prismaMock.session.update).toHaveBeenCalled();
@@ -348,7 +353,7 @@ describe('POST /api/lessons/submit', () => {
     const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'My amazing story.' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'The old wooden door appeared overnight in the garden wall. Emma reached out and touched the cold brass handle wondering what could be on the other side.' }),
     }) as any);
     const data = await res.json();
     expect(data.newBadges).toBeDefined();
@@ -359,7 +364,7 @@ describe('POST /api/lessons/submit', () => {
     prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_ASSESSMENT));
     prismaMock.assessment.create.mockResolvedValue({ id: 'assessment-001' });
     prismaMock.writingSubmission.create.mockImplementation(async ({ data }: any) => {
-      expect(data.wordCount).toBe(5); // "This is my test story" = 5 words
+      expect(data.wordCount).toBe(28); // 28 words
       return { ...SUBMISSION_ORIGINAL, ...data };
     });
     prismaMock.session.update.mockResolvedValue({});
@@ -368,7 +373,7 @@ describe('POST /api/lessons/submit', () => {
     await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'This is my test story' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'The old wooden door appeared overnight in the garden wall. Emma reached out and touched the cold brass handle wondering what could be on the other side.' }),
     }) as any);
 
     expect(prismaMock.writingSubmission.create).toHaveBeenCalled();
@@ -405,7 +410,7 @@ describe('POST /api/lessons/revise', () => {
     await revisePOST(new Request('http://localhost/api/lessons/revise', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'Revised story...' }),
+      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'The mysterious wooden door appeared overnight in the old garden wall. Emma reached out her hand and carefully touched the cold brass handle wondering what adventures could be waiting on the other side.' }),
     }) as any);
 
     expect(prismaMock.writingSubmission.create).toHaveBeenCalled();
@@ -444,7 +449,7 @@ describe('POST /api/lessons/revise', () => {
     const res = await revisePOST(new Request('http://localhost/api/lessons/revise', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'My improved story...' }),
+      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'The mysterious wooden door appeared overnight in the old garden wall. Emma reached out her hand and carefully touched the cold brass handle wondering what adventures could be waiting on the other side.' }),
     }) as any);
     const data = await res.json();
     expect(data.previousScores).toBeDefined();

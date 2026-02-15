@@ -34,14 +34,19 @@ vi.mock('@/lib/rubrics', () => ({
   getRubricById: vi.fn(() => ({
     id: 'N1_story_beginning',
     description: 'Story beginning rubric',
+    word_range: [30, 75],
     criteria: [
-      { name: 'hook', display_name: 'Hook', weight: 0.25 },
-      { name: 'character', display_name: 'Character', weight: 0.25 },
-      { name: 'setting', display_name: 'Setting', weight: 0.25 },
-      { name: 'creativity', display_name: 'Creativity', weight: 0.25 },
+      { name: 'hook', display_name: 'Hook', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'character', display_name: 'Character', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'setting', display_name: 'Setting', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'creativity', display_name: 'Creativity', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
     ],
   })),
 }));
+vi.mock('@/lib/submission-validator', async () => {
+  const actual = await vi.importActual('@/lib/submission-validator');
+  return actual;
+});
 
 import { POST as revisePOST } from '@/app/api/lessons/revise/route';
 
@@ -104,10 +109,42 @@ describe('POST /api/lessons/revise — edge cases', () => {
     const res = await revisePOST(new Request('http://localhost/api/lessons/revise', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'My second revision.' }),
+      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'Once upon a time there was a brave little fox who loved to explore the enchanted forest every morning looking for adventure and meeting new friends along the way.' }),
     }) as any);
 
     expect(res.status).toBe(200);
     expect(prismaMock.writingSubmission.create).toHaveBeenCalled();
+  });
+
+  // ==========================================
+  // Quality Gate
+  // ==========================================
+  it('returns 422 for too-short revision', async () => {
+    prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_FEEDBACK));
+    prismaMock.assessment.count.mockResolvedValue(1);
+
+    const res = await revisePOST(new Request('http://localhost/api/lessons/revise', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: 'Short.' }),
+    }) as any);
+    expect(res.status).toBe(422);
+    const data = await res.json();
+    expect(data.error).toBe('too_short');
+  });
+
+  it('returns 422 for gibberish revision', async () => {
+    prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_FEEDBACK));
+    prismaMock.assessment.count.mockResolvedValue(1);
+
+    const gibberish = 'bcd fgh jkl mnp qrs tvw xyz bcd fgh jkl mnp qrs tvw xyz bcd';
+    const res = await revisePOST(new Request('http://localhost/api/lessons/revise', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: SESSION_FEEDBACK.id, text: gibberish }),
+    }) as any);
+    expect(res.status).toBe(422);
+    const data = await res.json();
+    expect(data.error).toBe('gibberish');
   });
 });

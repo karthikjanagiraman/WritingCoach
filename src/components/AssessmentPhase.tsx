@@ -8,6 +8,7 @@ interface AssessmentPhaseProps {
   lessonTitle: string;
   onSubmit: (text: string) => void | Promise<void>;
   submitting?: boolean;
+  qualityError?: string | null;
   rubric?: {
     description: string;
     wordRange: [number, number];
@@ -31,6 +32,7 @@ export default function AssessmentPhase({
   lessonTitle,
   onSubmit,
   submitting = false,
+  qualityError,
   rubric,
 }: AssessmentPhaseProps) {
   const { coachName } = useTier();
@@ -146,6 +148,16 @@ export default function AssessmentPhase({
           </div>
         </div>
       </div>
+
+      {/* Quality Gate Error */}
+      {qualityError && (
+        <div className="flex-shrink-0 bg-active-accent/10 border-b border-active-accent/20">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+            <CoachAvatar size="sm" />
+            <p className="text-sm font-semibold text-active-text/80">{qualityError}</p>
+          </div>
+        </div>
+      )}
 
       {/* Writing Area */}
       <div className="flex-1 min-h-0 overflow-y-auto bg-white">

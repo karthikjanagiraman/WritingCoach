@@ -1,6 +1,6 @@
 export type Tier = 1 | 2 | 3;
 export type Phase = "instruction" | "guided" | "assessment" | "feedback";
-export type LessonStatus = "not_started" | "in_progress" | "completed";
+export type LessonStatus = "not_started" | "in_progress" | "completed" | "needs_improvement";
 export type WritingType = "narrative" | "persuasive" | "expository" | "descriptive";
 
 export interface Student {

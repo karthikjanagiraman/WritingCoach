@@ -143,6 +143,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
 
   // Build completed set for weekly lesson states
   const completedIds = new Set(completedLessons.map((l) => l.lessonId));
+  const needsImprovementIds = new Set(completedLessons.filter((l) => l.needsImprovement).map((l) => l.lessonId));
 
   return (
     <div className="min-h-screen bg-active-bg">
@@ -290,11 +291,14 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {weekLessons.map((lesson: any) => {
                       const isDone = completedIds.has(lesson.id);
+                      const needsWork = needsImprovementIds.has(lesson.id);
                       const isNext = !isDone && lesson.id === nextLesson?.lessonId;
                       return (
                         <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
                           <div className={`rounded-xl p-4 border cursor-pointer transition-all ${
-                            isDone
+                            needsWork
+                              ? "bg-amber-50 border-amber-200"
+                              : isDone
                               ? "bg-active-secondary/5 border-active-secondary/20"
                               : isNext
                                 ? "bg-white border-2 border-active-primary/40 shadow-sm"
@@ -302,10 +306,11 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                           }`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-lg">{TYPE_ICONS[lesson.type] || "\uD83D\uDCC4"}</span>
-                              {isDone && <span className="text-xs font-bold text-active-secondary bg-active-secondary/10 px-2 py-0.5 rounded-full">Done!</span>}
+                              {needsWork && <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Needs Revision</span>}
+                              {isDone && !needsWork && <span className="text-xs font-bold text-active-secondary bg-active-secondary/10 px-2 py-0.5 rounded-full">Done!</span>}
                               {isNext && <span className="text-xs font-bold text-active-primary bg-active-primary/10 px-2 py-0.5 rounded-full">Up Next</span>}
                             </div>
-                            <h5 className={`text-sm font-bold leading-snug ${isDone ? "text-active-text/50" : "text-active-text"}`}>{lesson.title}</h5>
+                            <h5 className={`text-sm font-bold leading-snug ${isDone && !needsWork ? "text-active-text/50" : "text-active-text"}`}>{lesson.title}</h5>
                             <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
                           </div>
                         </Link>
@@ -406,27 +411,32 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                   (a) => a.lessonId === lesson.lessonId
                 );
                 return (
-                  <div
-                    key={lesson.lessonId}
-                    className="flex items-center gap-3 px-5 py-3.5"
-                  >
-                    <span className="text-base">{"\u2705"}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-active-text">
-                        {lesson.title}
-                      </p>
-                      <p className="text-xs text-active-text/40">
-                        {lesson.completedAt
-                          ? new Date(lesson.completedAt).toLocaleDateString()
-                          : "Completed"}
-                      </p>
+                  <Link key={lesson.lessonId} href={`/lesson/${lesson.lessonId}`}>
+                    <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-active-bg/50 transition-colors cursor-pointer">
+                      <span className="text-base">{lesson.needsImprovement ? "\u26A0\uFE0F" : "\u2705"}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-active-text">
+                          {lesson.title}
+                        </p>
+                        <p className="text-xs text-active-text/40">
+                          {lesson.needsImprovement
+                            ? "Needs Revision"
+                            : lesson.completedAt
+                              ? new Date(lesson.completedAt).toLocaleDateString()
+                              : "Completed"}
+                        </p>
+                      </div>
+                      {lesson.needsImprovement ? (
+                        <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                          Needs Revision
+                        </span>
+                      ) : assessment ? (
+                        <span className="text-xs font-bold text-active-accent">
+                          {"\u2B50"} {assessment.overallScore}
+                        </span>
+                      ) : null}
                     </div>
-                    {assessment && (
-                      <span className="text-xs font-bold text-active-accent">
-                        {"\u2B50"} {assessment.overallScore}
-                      </span>
-                    )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>

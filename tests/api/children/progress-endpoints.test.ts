@@ -52,6 +52,9 @@ vi.mock('@/lib/skill-map', () => ({
     expository: { displayName: 'Expository', skills: {} },
   },
 }));
+vi.mock('@/lib/llm', () => ({
+  sendMessage: vi.fn().mockResolvedValue('AI summary text'),
+}));
 vi.mock('@/lib/badges', () => ({
   getBadgeById: vi.fn((id: string) => {
     const badges: Record<string, any> = {

@@ -25,7 +25,12 @@ yarn-error.log*
 prisma/dev.db
 prisma/dev.db-journal
 
+# testing
+test-results/
+.playwright-mcp/
+
 # misc
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+*.png

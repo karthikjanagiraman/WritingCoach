@@ -20,6 +20,7 @@ interface ReportChild {
 interface ReportSummary {
   totalLessons: number;
   completedLessons: number;
+  needsImprovementLessons?: number;
   averageScore: number | null;
   totalWords: number;
   totalSubmissions: number;
@@ -43,7 +44,14 @@ interface ReportAssessment {
   lessonId: string;
   lessonTitle: string;
   lessonType: string;
+  learningObjectives?: string[];
   overallScore: number;
+  scores?: Record<string, number>;
+  feedback?: { strength: string; growth: string; encouragement: string } | null;
+  submittedText?: string | null;
+  wordCount?: number | null;
+  revisionCount?: number;
+  status?: string;
   createdAt: string;
 }
 
@@ -91,12 +99,32 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+function StarRating({ score, maxScore = 4 }: { score: number; maxScore?: number }) {
+  const rounded = Math.round(score * 2) / 2;
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: maxScore }, (_, i) => {
+        const isFull = i < Math.floor(rounded);
+        const isHalf = !isFull && i < rounded;
+        return (
+          <span key={i} className="text-base">
+            {isFull ? "\u2B50" : isHalf ? "\u2B50" : "\u2606"}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 function ReportContent({ childId }: { childId: string }) {
   const router = useRouter();
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [expandedAssessments, setExpandedAssessments] = useState<Set<string>>(new Set());
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
 
   useEffect(() => {
     fetch(`/api/children/${encodeURIComponent(childId)}/report`)
@@ -132,6 +160,31 @@ function ReportContent({ childId }: { childId: string }) {
     } finally {
       setExporting(false);
     }
+  }
+
+  async function handleGenerateSummary() {
+    setGeneratingSummary(true);
+    try {
+      const res = await fetch(
+        `/api/children/${encodeURIComponent(childId)}/report?generateSummary=true`
+      );
+      if (!res.ok) throw new Error("Failed to generate summary");
+      const data = await res.json();
+      setAiSummary(data.aiSummary ?? null);
+    } catch {
+      setAiSummary(null);
+    } finally {
+      setGeneratingSummary(false);
+    }
+  }
+
+  function toggleAssessment(lessonId: string) {
+    setExpandedAssessments((prev) => {
+      const next = new Set(prev);
+      if (next.has(lessonId)) next.delete(lessonId);
+      else next.add(lessonId);
+      return next;
+    });
   }
 
   if (loading) {
@@ -324,6 +377,57 @@ function ReportContent({ childId }: { childId: string }) {
           </div>
         </section>
 
+        {/* Needs Improvement Alert */}
+        {(summary.needsImprovementLessons ?? 0) > 0 && (
+          <section className="bg-amber-50 rounded-2xl p-4 border border-amber-200 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{"\u26A0\uFE0F"}</span>
+              <div>
+                <span className="text-sm font-bold text-amber-800">
+                  {summary.needsImprovementLessons} {summary.needsImprovementLessons === 1 ? "lesson needs" : "lessons need"} revision
+                </span>
+                <p className="text-xs text-amber-700/70 mt-0.5">
+                  These lessons scored below expectations. Encourage your child to try revising their work.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* AI Summary Card */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-active-primary/10 animate-fade-in stagger-1">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-active-text flex items-center gap-2">
+              <span>{"\uD83E\uDD16"}</span> AI Progress Summary
+            </h3>
+            {!aiSummary && (
+              <button
+                onClick={handleGenerateSummary}
+                disabled={generatingSummary}
+                className="px-4 py-1.5 text-xs font-bold text-active-primary border border-active-primary/20 rounded-lg hover:bg-active-primary/5 transition-colors disabled:opacity-50"
+              >
+                {generatingSummary ? "Generating..." : "Generate Summary"}
+              </button>
+            )}
+          </div>
+          {generatingSummary && (
+            <div className="flex items-center gap-3 py-4">
+              <div className="w-5 h-5 border-2 border-active-primary/30 border-t-active-primary rounded-full animate-spin" />
+              <p className="text-sm text-active-text/50">Analyzing progress and generating insights...</p>
+            </div>
+          )}
+          {aiSummary && (
+            <div className="text-sm text-active-text/80 leading-relaxed whitespace-pre-wrap">
+              {aiSummary}
+            </div>
+          )}
+          {!aiSummary && !generatingSummary && (
+            <p className="text-sm text-active-text/40 py-2">
+              Generate a personalized AI summary of your child&apos;s writing progress, strengths, and suggestions for home support.
+            </p>
+          )}
+        </section>
+
         {/* Streak Summary */}
         {streak.currentStreak > 0 && (
           <section className="bg-white rounded-2xl p-4 shadow-sm border border-active-primary/10 animate-fade-in">
@@ -357,7 +461,7 @@ function ReportContent({ childId }: { childId: string }) {
           <ActivityHeatmap data={activityTimeline} />
         </section>
 
-        {/* Recent Assessments */}
+        {/* Recent Assessments — Expandable */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-active-primary/10 animate-fade-in stagger-1">
           <h3 className="text-sm font-bold text-active-text mb-4">
             Recent Assessments
@@ -368,38 +472,137 @@ function ReportContent({ childId }: { childId: string }) {
             </p>
           ) : (
             <div className="space-y-2">
-              {recentAssessments.map((assessment, idx) => (
-                <div
-                  key={`${assessment.lessonId}-${idx}`}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-active-bg/50 hover:bg-active-bg transition-colors"
-                >
-                  <span className="text-lg flex-shrink-0">
-                    {TYPE_ICONS[assessment.lessonType] || "\uD83D\uDCDD"}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-active-text truncate">
-                      {assessment.lessonTitle}
-                    </div>
-                    <div className="text-xs text-active-text/40">
-                      {capitalize(assessment.lessonType)} &middot;{" "}
-                      {new Date(assessment.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                        assessment.overallScore >= 4
-                          ? "bg-success/10 text-success"
-                          : assessment.overallScore >= 2.5
-                          ? "bg-warning/10 text-yellow-700"
-                          : "bg-error/10 text-error"
-                      }`}
+              {recentAssessments.map((assessment, idx) => {
+                const isExpanded = expandedAssessments.has(assessment.lessonId);
+                const isNeedsImprovement = assessment.status === "needs_improvement";
+                return (
+                  <div key={`${assessment.lessonId}-${idx}`}>
+                    <button
+                      onClick={() => toggleAssessment(assessment.lessonId)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-active-bg/50 hover:bg-active-bg transition-colors text-left"
                     >
-                      {assessment.overallScore.toFixed(1)}/5
-                    </span>
+                      <span className="text-lg flex-shrink-0">
+                        {TYPE_ICONS[assessment.lessonType] || "\uD83D\uDCDD"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-active-text truncate">
+                          {assessment.lessonTitle}
+                        </div>
+                        <div className="text-xs text-active-text/40">
+                          {capitalize(assessment.lessonType)} &middot;{" "}
+                          {new Date(assessment.createdAt).toLocaleDateString()}
+                          {(assessment.revisionCount ?? 0) > 0 && (
+                            <span> &middot; {assessment.revisionCount} revision{assessment.revisionCount !== 1 ? "s" : ""}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {isNeedsImprovement && (
+                          <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                            Needs Improvement
+                          </span>
+                        )}
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                            assessment.overallScore >= 3.5
+                              ? "bg-green-100 text-green-700"
+                              : assessment.overallScore >= 2.5
+                              ? "bg-yellow-100 text-yellow-700"
+                              : assessment.overallScore >= 1.5
+                              ? "bg-orange-100 text-orange-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {assessment.overallScore.toFixed(1)}/4
+                        </span>
+                        <svg
+                          className={`w-4 h-4 text-active-text/30 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                        >
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                      </div>
+                    </button>
+
+                    {/* Expanded Detail */}
+                    {isExpanded && (
+                      <div className="mt-1 ml-10 mr-2 p-4 bg-white rounded-xl border border-gray-100 space-y-3 animate-fade-in">
+                        {/* Learning Objectives */}
+                        {assessment.learningObjectives && assessment.learningObjectives.length > 0 && (
+                          <div>
+                            <h4 className="text-xs font-bold text-active-text/50 uppercase tracking-wider mb-1">Learning Objectives</h4>
+                            <ul className="space-y-0.5">
+                              {assessment.learningObjectives.map((obj, i) => (
+                                <li key={i} className="text-xs text-active-text/60 flex items-start gap-1.5">
+                                  <span className="text-active-secondary">&#8226;</span> {obj}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Per-Criterion Scores */}
+                        {assessment.scores && Object.keys(assessment.scores).length > 0 && (
+                          <div>
+                            <h4 className="text-xs font-bold text-active-text/50 uppercase tracking-wider mb-1">Scores</h4>
+                            <div className="space-y-1">
+                              {Object.entries(assessment.scores).map(([criterion, score]) => (
+                                <div key={criterion} className="flex items-center justify-between">
+                                  <span className="text-xs font-semibold text-active-text/70 capitalize">
+                                    {criterion.replace(/_/g, " ")}
+                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <StarRating score={score} />
+                                    <span className="text-xs text-active-text/40">{score.toFixed(1)}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Feedback */}
+                        {assessment.feedback && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="bg-active-secondary/5 rounded-lg p-3 border border-active-secondary/10">
+                              <p className="text-xs font-bold text-active-secondary mb-1">Strength</p>
+                              <p className="text-xs text-active-text/70 leading-relaxed">{assessment.feedback.strength}</p>
+                            </div>
+                            <div className="bg-active-accent/5 rounded-lg p-3 border border-active-accent/10">
+                              <p className="text-xs font-bold text-active-text/60 mb-1">Growth Area</p>
+                              <p className="text-xs text-active-text/70 leading-relaxed">{assessment.feedback.growth}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Writing Excerpt */}
+                        {assessment.submittedText && (
+                          <div>
+                            <h4 className="text-xs font-bold text-active-text/50 uppercase tracking-wider mb-1">
+                              Writing Excerpt {assessment.wordCount ? `(${assessment.wordCount} words)` : ""}
+                            </h4>
+                            <div className="bg-active-bg rounded-lg p-3">
+                              <p className="text-xs text-active-text/70 leading-relaxed font-[Literata,serif] italic">
+                                &ldquo;{assessment.submittedText.length > 200
+                                  ? assessment.submittedText.slice(0, 200) + "..."
+                                  : assessment.submittedText}&rdquo;
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* View Full Detail Link */}
+                        <Link
+                          href={`/dashboard/children/${childId}/report/${assessment.lessonId}`}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-active-primary hover:underline mt-1"
+                        >
+                          View Full Detail &rarr;
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

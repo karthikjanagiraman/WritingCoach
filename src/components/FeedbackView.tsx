@@ -29,21 +29,41 @@ function StarRating({
   size?: "sm" | "lg";
   animate?: boolean;
 }) {
-  const rounded = Math.round(score);
+  // Round to nearest 0.5
+  const rounded = Math.round(score * 2) / 2;
   const starSize = size === "lg" ? "text-3xl" : "text-base";
 
   return (
     <span className="inline-flex items-center gap-0.5">
-      {Array.from({ length: maxScore }, (_, i) => (
-        <span
-          key={i}
-          className={`${starSize} ${
-            animate ? `animate-star-pop stagger-${i + 1}` : ""
-          }`}
-        >
-          {i < rounded ? "\u2B50" : "\u2606"}
-        </span>
-      ))}
+      {Array.from({ length: maxScore }, (_, i) => {
+        const isFull = i < Math.floor(rounded);
+        const isHalf = !isFull && i < rounded;
+
+        return (
+          <span
+            key={i}
+            className={`${starSize} ${
+              animate ? `animate-star-pop stagger-${i + 1}` : ""
+            }`}
+          >
+            {isFull ? (
+              "\u2B50"
+            ) : isHalf ? (
+              <span className="relative inline-block">
+                <span className="text-inherit opacity-30">{"\u2B50"}</span>
+                <span
+                  className="absolute inset-0 overflow-hidden"
+                  style={{ width: "50%" }}
+                >
+                  <span className="text-inherit">{"\u2B50"}</span>
+                </span>
+              </span>
+            ) : (
+              "\u2606"
+            )}
+          </span>
+        );
+      })}
     </span>
   );
 }
@@ -167,7 +187,7 @@ export default function FeedbackView({
     }
   };
 
-  const roundedOverall = Math.round(currentResult.overallScore);
+  const roundedOverall = Math.round(currentResult.overallScore * 2) / 2;
   const canRevise = revisionsRemaining > 0 && sessionId;
   const reviseButtonText = tier === 1 ? "Try Again" : "Revise My Writing";
 
@@ -282,17 +302,62 @@ export default function FeedbackView({
       {/* Celebration Header */}
       <div className="text-center animate-fade-in">
         <div className="text-5xl mb-3">
-          <span className="inline-block animate-star-pop stagger-1">
-            {"\uD83C\uDF89"}
-          </span>
-          {" "}
-          <span className="inline-block animate-star-pop stagger-2">
-            {showImprovement ? "Great Revision!" : "Amazing!"}
-          </span>
-          {" "}
-          <span className="inline-block animate-star-pop stagger-3">
-            {"\uD83C\uDF89"}
-          </span>
+          {(() => {
+            if (showImprovement) {
+              return (
+                <>
+                  <span className="inline-block animate-star-pop stagger-1">{"\uD83C\uDF89"}</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-2">Great Revision!</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-3">{"\uD83C\uDF89"}</span>
+                </>
+              );
+            }
+            const s = currentResult.overallScore;
+            if (s >= 3.5) {
+              return (
+                <>
+                  <span className="inline-block animate-star-pop stagger-1">{"\uD83C\uDF1F"}</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-2">Amazing Work!</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-3">{"\uD83C\uDF1F"}</span>
+                </>
+              );
+            }
+            if (s >= 2.5) {
+              return (
+                <>
+                  <span className="inline-block animate-star-pop stagger-1">{"\u2B50"}</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-2">Nice Job!</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-3">{"\u2B50"}</span>
+                </>
+              );
+            }
+            if (s >= 1.5) {
+              return (
+                <>
+                  <span className="inline-block animate-star-pop stagger-1">{"\uD83D\uDCAA"}</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-2">Good Effort!</span>
+                  {" "}
+                  <span className="inline-block animate-star-pop stagger-3">{"\uD83D\uDCAA"}</span>
+                </>
+              );
+            }
+            return (
+              <>
+                <span className="inline-block animate-star-pop stagger-1">{"\uD83C\uDF31"}</span>
+                {" "}
+                <span className="inline-block animate-star-pop stagger-2">Keep Growing!</span>
+                {" "}
+                <span className="inline-block animate-star-pop stagger-3">{"\uD83C\uDF31"}</span>
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -302,7 +367,7 @@ export default function FeedbackView({
           <StarRating score={currentResult.overallScore} animate />
         </div>
         <p className="text-active-text/70 font-semibold text-sm">
-          {roundedOverall} out of 4 stars
+          {Number.isInteger(roundedOverall) ? roundedOverall : roundedOverall.toFixed(1)} out of 4 stars
         </p>
       </div>
 
@@ -389,6 +454,23 @@ export default function FeedbackView({
         </div>
       )}
 
+      {/* Revision Nudge — shown for low scores when revision is available */}
+      {currentResult.overallScore < 1.5 && canRevise && !showImprovement && (
+        <div className="bg-gradient-to-br from-active-primary/10 to-active-accent/10 rounded-2xl p-5 border-2 border-active-primary/20 animate-fade-in stagger-4">
+          <div className="flex items-start gap-3">
+            <CoachAvatar size="sm" />
+            <div className="flex-1">
+              <h3 className="font-bold text-active-text text-sm mb-1">
+                Your writing has room to grow!
+              </h3>
+              <p className="text-active-text/70 text-[15px] leading-relaxed">
+                Try revising it &mdash; I bet you can do even better. Look at the feedback above and give it another shot!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Coach's Encouragement */}
       <div className="bg-active-primary/5 rounded-2xl p-5 border border-active-primary/15 flex items-start gap-3 animate-fade-in stagger-5">
         <CoachAvatar size="sm" />
@@ -414,36 +496,47 @@ export default function FeedbackView({
       )}
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 pb-4 animate-fade-in stagger-5">
-        <button
-          onClick={() => setShowWriting(!showWriting)}
-          className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-primary hover:bg-active-primary/5 transition-colors"
-        >
-          {showWriting ? "Hide My Writing" : "View My Writing"}
-        </button>
-        {!onRetake && canRevise && (
-          <button
-            onClick={handleStartRevision}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
-          >
-            {reviseButtonText}
-          </button>
-        )}
-        {onRetake && (
-          <button
-            onClick={() => setShowRetakeConfirm(true)}
-            className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
-          >
-            Retake Lesson
-          </button>
-        )}
-        <button
-          onClick={onNextLesson}
-          className="bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
-        >
-          {onRetake ? "Back to Dashboard" : "Continue"} &rarr;
-        </button>
-      </div>
+      {(() => {
+        const needsWork = currentResult.overallScore < 1.5 && canRevise && !showImprovement;
+        return (
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 pb-4 animate-fade-in stagger-5">
+            <button
+              onClick={() => setShowWriting(!showWriting)}
+              className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-primary hover:bg-active-primary/5 transition-colors"
+            >
+              {showWriting ? "Hide My Writing" : "View My Writing"}
+            </button>
+            {!onRetake && canRevise && (
+              <button
+                onClick={handleStartRevision}
+                className={needsWork
+                  ? "bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
+                  : "px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
+                }
+              >
+                {reviseButtonText}
+              </button>
+            )}
+            {onRetake && (
+              <button
+                onClick={() => setShowRetakeConfirm(true)}
+                className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
+              >
+                Retake Lesson
+              </button>
+            )}
+            <button
+              onClick={onNextLesson}
+              className={needsWork
+                ? "px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-text/50 hover:bg-active-primary/5 transition-colors"
+                : "bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
+              }
+            >
+              {onRetake ? "Back to Dashboard" : needsWork ? "Skip for now" : "Continue"} &rarr;
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Retake Confirmation */}
       {showRetakeConfirm && onRetake && (

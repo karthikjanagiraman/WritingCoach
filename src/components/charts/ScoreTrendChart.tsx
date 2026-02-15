@@ -72,8 +72,8 @@ export default function ScoreTrendChart({ data }: ScoreTrendChartProps) {
             axisLine={{ stroke: "#e5e7eb" }}
           />
           <YAxis
-            domain={[0, 5]}
-            ticks={[0, 1, 2, 3, 4, 5]}
+            domain={[0, 4]}
+            ticks={[0, 1, 2, 3, 4]}
             tick={{ fontSize: 10, fill: "#b2bec3" }}
             tickLine={false}
             axisLine={false}

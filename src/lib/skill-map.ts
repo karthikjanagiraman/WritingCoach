@@ -102,12 +102,12 @@ export function getLessonSkills(lessonId: string): {
   return { category, skills };
 }
 
-/** Convert a numeric score (0-5) to a SkillLevel enum value */
+/** Convert a numeric score (1-4 scale) to a SkillLevel enum value */
 export function scoreToLevel(
   score: number
 ): "EMERGING" | "DEVELOPING" | "PROFICIENT" | "ADVANCED" {
-  if (score >= 4.5) return "ADVANCED";
-  if (score >= 3.5) return "PROFICIENT";
-  if (score >= 2.0) return "DEVELOPING";
+  if (score >= 3.7) return "ADVANCED";
+  if (score >= 2.8) return "PROFICIENT";
+  if (score >= 1.8) return "DEVELOPING";
   return "EMERGING";
 }

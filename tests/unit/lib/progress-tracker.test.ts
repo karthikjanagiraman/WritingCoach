@@ -48,7 +48,7 @@ describe('progress-tracker', () => {
             skillCategory: 'narrative',
             skillName: 'story_beginnings',
             score: 3.0,
-            level: 'DEVELOPING',
+            level: 'PROFICIENT',
             totalAttempts: 1,
           }),
         })
@@ -84,13 +84,13 @@ describe('progress-tracker', () => {
       });
       prismaMock.skillProgress.upsert.mockResolvedValue({});
 
-      await updateSkillProgress(CHILD_MAYA.id, 'N1.1.1', 5.0);
+      await updateSkillProgress(CHILD_MAYA.id, 'N1.1.1', 4.0);
 
-      // Expected: 5.0 * 0.7 + 1.0 * 0.3 = 3.5 + 0.3 = 3.8
+      // Expected: 4.0 * 0.7 + 1.0 * 0.3 = 2.8 + 0.3 = 3.1
       expect(prismaMock.skillProgress.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           update: expect.objectContaining({
-            score: expect.closeTo(3.8, 2),
+            score: expect.closeTo(3.1, 2),
             level: 'PROFICIENT',
           }),
         })

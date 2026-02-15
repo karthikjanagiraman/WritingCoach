@@ -61,7 +61,7 @@ export default function SkillRadarChart({ categories }: SkillRadarChartProps) {
     return {
       subject: found?.displayName ?? type.displayName,
       score: found?.avgScore ?? 0,
-      fullMark: 5,
+      fullMark: 4,
     };
   });
 
@@ -77,8 +77,8 @@ export default function SkillRadarChart({ categories }: SkillRadarChartProps) {
           />
           <PolarRadiusAxis
             angle={90}
-            domain={[0, 5]}
-            tickCount={6}
+            domain={[0, 4]}
+            tickCount={5}
             tick={{ fontSize: 9, fill: "#b2bec3" }}
             axisLine={false}
           />

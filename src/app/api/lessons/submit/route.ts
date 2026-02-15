@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
+import { validateSubmissionQuality } from "@/lib/submission-validator";
 import { updateSkillProgress } from "@/lib/progress-tracker";
 import { updateStreak } from "@/lib/streak-tracker";
 import { checkAndUnlockBadges } from "@/lib/badge-checker";
@@ -65,6 +66,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Quality gate — reject gibberish or too-short submissions before calling Claude
+    const rubricForValidation = lesson.rubricId ? getRubricById(lesson.rubricId) : null;
+    const validation = validateSubmissionQuality(text.trim(), rubricForValidation ?? null);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error, message: validation.message, wordCount: validation.wordCount, minWords: validation.minWords },
+        { status: 422 }
+      );
+    }
+
+    // Build lesson context for the evaluator
+    const lessonContext = {
+      title: lesson.title,
+      learningObjectives: lesson.learningObjectives ?? [],
+    };
+
     // Evaluate the writing submission — with rubric if available, general otherwise
     let result;
     let rubricId: string | undefined;
@@ -76,7 +93,8 @@ export async function POST(request: NextRequest) {
           text.trim(),
           rubric,
           session.child.name,
-          session.child.tier
+          session.child.tier,
+          lessonContext
         );
         rubricId = lesson.rubricId;
       }
@@ -87,7 +105,8 @@ export async function POST(request: NextRequest) {
       result = await evaluateWritingGeneral(
         text.trim(),
         session.child.tier as Tier,
-        lesson.title
+        lesson.title,
+        lessonContext
       );
     }
 
@@ -138,14 +157,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Mark lesson as completed
+    // Mark lesson status based on score — soft completion gate
+    const lessonStatus = result.overallScore < 1.5 ? "needs_improvement" : "completed";
     await prisma.lessonProgress.updateMany({
       where: {
         childId: session.childId,
         lessonId: session.lessonId,
       },
       data: {
-        status: "completed",
+        status: lessonStatus,
         currentPhase: "feedback",
         completedAt: new Date(),
       },
@@ -219,6 +239,7 @@ export async function POST(request: NextRequest) {
       submissionId: writingSubmission.id,
       wordCount,
       newBadges,
+      lessonStatus,
     });
   } catch (error) {
     console.error("POST /api/lessons/submit error:", error);

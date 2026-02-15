@@ -1,4 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import {
+  loginAndSelectMaya,
+  navigateToLesson,
+  waitForAIResponse,
+  interactWithStep,
+  getCurrentStep,
+} from "./helpers";
 
 /**
  * E2E test: Phase 1 Interactive 5-Step Masterclass
@@ -13,61 +20,9 @@ import { test, expect, type Page } from "@playwright/test";
  *   - ANTHROPIC_API_KEY set in .env
  */
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-async function loginAndSelectMaya(page: Page) {
-  // Login
-  await page.goto("/auth/login");
-  await page.fill('input[id="email"]', "parent@example.com");
-  await page.fill('input[id="password"]', "password123");
-  await page.click('button[type="submit"]');
-  await page.waitForURL("**/dashboard", { timeout: 15_000 });
-  await expect(page.getByText("Welcome back")).toBeVisible({ timeout: 10_000 });
-
-  // Click Maya's card — sets activeChild in React context + localStorage, navigates to /
-  const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
-  await mayaCard.click();
-
-  // Wait for the student dashboard to load
-  await page.waitForURL("/", { timeout: 10_000 });
-
-  // Wait for the dashboard to fully render (lesson cards appear)
-  await page.waitForFunction(
-    () => {
-      const text = document.body.innerText;
-      return text.includes("Up Next") || text.includes("Continue lesson") || text.includes("This Week");
-    },
-    { timeout: 15_000 }
-  );
-}
-
-async function navigateToLesson(page: Page, lessonId: string) {
-  // Use SPA navigation by clicking a lesson link on the student dashboard.
-  // This preserves React context (activeChild stays set).
-  const lessonLink = page.locator(`a[href="/lesson/${lessonId}"]`);
-
-  if (await lessonLink.first().isVisible({ timeout: 3_000 }).catch(() => false)) {
-    await lessonLink.first().click();
-  } else {
-    // If the specific lesson isn't visible on the dashboard, click the primary CTA
-    // (which should be the next available lesson)
-    const primaryCta = page.locator('a[href^="/lesson/"]').first();
-    await primaryCta.click();
-  }
-
-  // Wait for the lesson to load — InstructionPhase renders "Step X of 5"
-  await page.waitForFunction(
-    () => document.body.innerText.includes("of 5"),
-    { timeout: 60_000 }
-  );
-}
-
-async function navigateToAnyLesson(page: Page) {
-  // Click the primary CTA or first available lesson link
+async function navigateToAnyLesson(page: import("@playwright/test").Page) {
   const lessonLink = page.locator('a[href^="/lesson/"]').first();
   await lessonLink.click();
-
-  // Wait for lesson to load
   await page.waitForFunction(
     () => document.body.innerText.includes("of 5"),
     { timeout: 60_000 }
@@ -273,64 +228,3 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
     }
   });
 });
-
-// ── Utility Functions ────────────────────────────────────────────────────────
-
-/** Interact with the current step — either answer a question or click Continue */
-async function interactWithStep(page: Page) {
-  await page.waitForTimeout(500);
-
-  const quickAnswer = page.getByPlaceholder("Type your answer...");
-  const continueBtn = page.getByRole("button", { name: "Continue" });
-
-  if (await quickAnswer.isVisible().catch(() => false)) {
-    const answers = [
-      "I think hooks are sentences that grab your attention right away!",
-      "A question like 'Have you ever wondered why the sky is blue?'",
-      "The author used a surprising fact to make me curious!",
-      "I would start with an exciting action scene!",
-      "The question hook because it makes you think about the answer!",
-    ];
-    const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
-    await quickAnswer.fill(randomAnswer);
-
-    const doneBtn = page.getByRole("button", { name: /done/i });
-    if (await doneBtn.isVisible().catch(() => false)) {
-      await doneBtn.click();
-    }
-  } else if (await continueBtn.isVisible().catch(() => false)) {
-    await continueBtn.click();
-  } else {
-    await page.waitForTimeout(2000);
-    const cb = page.getByRole("button", { name: "Continue" });
-    if (await cb.isVisible().catch(() => false)) {
-      await cb.click();
-    }
-  }
-}
-
-/** Wait for the AI response — typing indicator appears and then disappears */
-async function waitForAIResponse(page: Page) {
-  const typing = page.locator('[data-testid="typing-indicator"]');
-
-  try {
-    await expect(typing).toBeVisible({ timeout: 15_000 });
-  } catch {
-    await page.waitForTimeout(1000);
-    return;
-  }
-
-  await expect(typing).not.toBeVisible({ timeout: 90_000 });
-  await page.waitForTimeout(500);
-}
-
-/** Parse the current step number from the progress bar text */
-async function getCurrentStep(page: Page): Promise<number> {
-  for (let step = 5; step >= 1; step--) {
-    const stepText = page.getByText(`Step ${step} of 5`);
-    if (await stepText.isVisible().catch(() => false)) {
-      return step;
-    }
-  }
-  return 1;
-}

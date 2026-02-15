@@ -35,11 +35,12 @@ vi.mock('@/lib/rubrics', () => ({
   getRubricById: vi.fn(() => ({
     id: 'N1_story_beginning',
     description: 'Story beginning rubric',
+    word_range: [30, 75],
     criteria: [
-      { name: 'hook', display_name: 'Hook', weight: 0.25 },
-      { name: 'character', display_name: 'Character', weight: 0.25 },
-      { name: 'setting', display_name: 'Setting', weight: 0.25 },
-      { name: 'creativity', display_name: 'Creativity', weight: 0.25 },
+      { name: 'hook', display_name: 'Hook', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'character', display_name: 'Character', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'setting', display_name: 'Setting', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'creativity', display_name: 'Creativity', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
     ],
   })),
 }));
@@ -55,6 +56,10 @@ vi.mock('@/lib/badge-checker', () => ({
 vi.mock('@/lib/curriculum-adapter', () => ({
   checkCurriculumAdaptation: vi.fn().mockResolvedValue(undefined),
 }));
+vi.mock('@/lib/submission-validator', async () => {
+  const actual = await vi.importActual('@/lib/submission-validator');
+  return actual;
+});
 
 import { POST as submitPOST } from '@/app/api/lessons/submit/route';
 import { updateSkillProgress } from '@/lib/progress-tracker';
@@ -88,7 +93,7 @@ describe('POST /api/lessons/submit — edge cases', () => {
     const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_GUIDED.id, text: 'My short story about hooks.' }),
+      body: JSON.stringify({ sessionId: SESSION_GUIDED.id, text: 'Once upon a time there was a little cat who loved to explore the big garden behind the house every sunny afternoon and play with butterflies.' }),
     }) as any);
     expect(res.status).toBe(200);
     const data = await res.json();
@@ -143,7 +148,7 @@ describe('POST /api/lessons/submit — edge cases', () => {
     const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'My amazing story.' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'Once upon a time there was a little cat who loved to explore the big garden behind the house every sunny afternoon and play with butterflies.' }),
     }) as any);
     expect(res.status).toBe(200);
     const data = await res.json();
@@ -158,12 +163,63 @@ describe('POST /api/lessons/submit — edge cases', () => {
     const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'My amazing story.' }),
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'Once upon a time there was a little cat who loved to explore the big garden behind the house every sunny afternoon and play with butterflies.' }),
     }) as any);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.scores).toBeDefined();
     // newBadges should be empty array (default when badge check fails)
     expect(data.newBadges).toEqual([]);
+  });
+
+  // ==========================================
+  // Quality Gate
+  // ==========================================
+  it('returns 422 for too-short submissions', async () => {
+    prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_ASSESSMENT));
+    setupSubmitMocks();
+
+    const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: 'Too short.' }),
+    }) as any);
+    expect(res.status).toBe(422);
+    const data = await res.json();
+    expect(data.error).toBe('too_short');
+    expect(data.message).toBeDefined();
+    expect(data.wordCount).toBe(2);
+  });
+
+  it('returns 422 for gibberish submissions', async () => {
+    prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_ASSESSMENT));
+    setupSubmitMocks();
+
+    // 15 "words" with no vowels — 0% vowel ratio
+    const gibberish = 'bcd fgh jkl mnp qrs tvw xyz bcd fgh jkl mnp qrs tvw xyz bcd';
+    const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: gibberish }),
+    }) as any);
+    expect(res.status).toBe(422);
+    const data = await res.json();
+    expect(data.error).toBe('gibberish');
+    expect(data.message).toBeDefined();
+  });
+
+  it('passes quality gate for real writing', async () => {
+    prismaMock.session.findUnique.mockResolvedValue(sessionWithChild(SESSION_ASSESSMENT));
+    setupSubmitMocks();
+
+    const realWriting = 'Once upon a time there was a little cat who loved to explore the big garden behind the house every sunny afternoon.';
+    const res = await submitPOST(new Request('http://localhost/api/lessons/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: SESSION_ASSESSMENT.id, text: realWriting }),
+    }) as any);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.scores).toBeDefined();
   });
 });

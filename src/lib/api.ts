@@ -39,6 +39,7 @@ export interface SubmitAssessmentResponse {
     criteria: { name: string; displayName: string; weight: number }[];
   };
   newBadges?: string[];
+  lessonStatus?: "completed" | "needs_improvement";
 }
 
 export interface StudentProgressResponse {
@@ -52,6 +53,7 @@ export interface StudentProgressResponse {
     lessonId: string;
     title: string;
     completedAt: string | null;
+    needsImprovement?: boolean;
   }[];
   currentLesson: {
     lessonId: string;
@@ -107,11 +109,22 @@ export interface LessonDetailResponse {
 
 // ── API client functions ────────────────────────────────────────────────────
 
+export class ApiError extends Error {
+  status: number;
+  body: Record<string, unknown>;
+  constructor(status: number, body: Record<string, unknown>) {
+    super(body.error as string || body.message as string || `API error: ${status}`);
+    this.name = "ApiError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(body.error || `API error: ${res.status}`);
+    throw new ApiError(res.status, body);
   }
   return res.json();
 }
@@ -256,5 +269,60 @@ export async function getPortfolio(
   const qs = searchParams.toString();
   return apiFetch<PortfolioResponse>(
     `/api/children/${encodeURIComponent(childId)}/portfolio${qs ? `?${qs}` : ""}`
+  );
+}
+
+// ── Report helpers ──────────────────────────────────────────────────────────
+
+export interface ReportSummaryResponse {
+  summary: string;
+}
+
+export async function generateReportSummary(
+  childId: string
+): Promise<ReportSummaryResponse> {
+  return apiFetch<ReportSummaryResponse>(
+    `/api/children/${encodeURIComponent(childId)}/report?generateSummary=true`
+  );
+}
+
+export interface LessonReportResponse {
+  lesson: {
+    id: string;
+    title: string;
+    type: string;
+    unit: string;
+    learningObjectives: string[];
+  };
+  status: string;
+  assessment: {
+    overallScore: number;
+    scores: Record<string, number>;
+    feedback: { strength: string; growth: string; encouragement: string };
+    createdAt: string;
+  } | null;
+  submissions: {
+    id: string;
+    submissionText: string;
+    wordCount: number;
+    revisionNumber: number;
+    createdAt: string;
+    feedback: {
+      overallScore: number;
+      scores: Record<string, number>;
+      strength: string;
+      growthArea: string;
+      encouragement: string;
+    } | null;
+  }[];
+  parentTips: string | null;
+}
+
+export async function getLessonReport(
+  childId: string,
+  lessonId: string
+): Promise<LessonReportResponse> {
+  return apiFetch<LessonReportResponse>(
+    `/api/children/${encodeURIComponent(childId)}/report/${encodeURIComponent(lessonId)}`
   );
 }

@@ -38,14 +38,19 @@ vi.mock('@/lib/rubrics', () => ({
   getRubricById: vi.fn(() => ({
     id: 'N1_story_beginning',
     description: 'Story beginning rubric',
+    word_range: [30, 75],
     criteria: [
-      { name: 'hook', display_name: 'Hook', weight: 0.25 },
-      { name: 'character', display_name: 'Character', weight: 0.25 },
-      { name: 'setting', display_name: 'Setting', weight: 0.25 },
-      { name: 'creativity', display_name: 'Creativity', weight: 0.25 },
+      { name: 'hook', display_name: 'Hook', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'character', display_name: 'Character', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'setting', display_name: 'Setting', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
+      { name: 'creativity', display_name: 'Creativity', weight: 0.25, levels: {}, feedback_stems: { strength: '', growth: '' } },
     ],
   })),
 }));
+vi.mock('@/lib/submission-validator', async () => {
+  const actual = await vi.importActual('@/lib/submission-validator');
+  return actual;
+});
 vi.mock('@/lib/progress-tracker', () => ({
   updateSkillProgress: vi.fn().mockResolvedValue(undefined),
 }));
@@ -153,7 +158,7 @@ describe('E2E: Lesson Lifecycle', () => {
 
     const submitRes = await submitPOST(makeRequest('http://localhost/api/lessons/submit', {
       sessionId: SESSION_ASSESSMENT.id,
-      text: 'The door wasnt there yesterday. Emma stared at it.',
+      text: 'The door wasnt there yesterday. Emma stared at it and wondered where it came from. She reached out her small hand and touched the cold handle gently.',
     }));
     const submitData = await submitRes.json();
 
@@ -228,7 +233,7 @@ describe('E2E: Lesson Lifecycle', () => {
 
     const revise1Res = await revisePOST(makeRequest('http://localhost/api/lessons/revise', {
       sessionId: SESSION_FEEDBACK.id,
-      text: 'Revised story attempt 1...',
+      text: 'The mysterious door appeared in the garden wall overnight. Emma touched the brass handle and felt a tingle of magic run through her fingers as she pulled it open.',
     }));
     const revise1Data = await revise1Res.json();
     expect(revise1Data.scores).toBeDefined();
@@ -257,7 +262,7 @@ describe('E2E: Lesson Lifecycle', () => {
 
     const revise2Res = await revisePOST(makeRequest('http://localhost/api/lessons/revise', {
       sessionId: SESSION_FEEDBACK.id,
-      text: 'Revised story attempt 2...',
+      text: 'Behind the mysterious door was an enchanted forest filled with glowing flowers and tiny fairies. Emma gasped with wonder and stepped through into the magical world.',
     }));
     const revise2Data = await revise2Res.json();
     expect(revise2Data.scores).toBeDefined();
@@ -285,7 +290,7 @@ describe('E2E: Lesson Lifecycle', () => {
 
     const res = await submitPOST(makeRequest('http://localhost/api/lessons/submit', {
       sessionId: SESSION_ASSESSMENT.id,
-      text: 'The sky turned an impossible shade of green.',
+      text: 'The sky turned an impossible shade of green as Emma looked up from the garden. Strange clouds swirled overhead and she knew something magical was about to happen in their quiet little town.',
     }));
     const data = await res.json();
 

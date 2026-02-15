@@ -16,6 +16,7 @@ import {
   sendMessage as apiSendMessage,
   submitAssessment,
   getLessonDetail,
+  ApiError,
   type LessonDetailResponse,
 } from "@/lib/api";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
@@ -38,6 +39,7 @@ export default function LessonPage() {
   const [transition, setTransition] = useState<"instruction" | "guided" | null>(null);
   const [newBadges, setNewBadges] = useState<string[]>([]);
   const [isCompletedReview, setIsCompletedReview] = useState(false);
+  const [qualityError, setQualityError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!activeChild) {
@@ -126,6 +128,7 @@ export default function LessonPage() {
       if (!sessionId) return;
       setSubmittedText(text);
       setSubmitting(true);
+      setQualityError(null);
       try {
         const result = await submitAssessment(sessionId, text);
         setAssessmentResult({
@@ -138,6 +141,11 @@ export default function LessonPage() {
         }
         setCurrentPhase("feedback");
       } catch (err) {
+        // Quality gate rejection — stay on assessment phase with friendly message
+        if (err instanceof ApiError && err.status === 422) {
+          setQualityError(err.body.message as string);
+          return;
+        }
         console.error("Submit assessment error:", err);
         setAssessmentResult({
           scores: {},
@@ -292,6 +300,7 @@ export default function LessonPage() {
                   rubric={lessonData?.rubric ?? undefined}
                   onSubmit={handleAssessmentSubmit}
                   submitting={submitting}
+                  qualityError={qualityError}
                 />
               )}
               {currentPhase === "feedback" && assessmentResult && (

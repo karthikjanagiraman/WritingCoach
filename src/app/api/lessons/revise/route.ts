@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
+import { validateSubmissionQuality } from "@/lib/submission-validator";
 import type { Message, PhaseState, Tier } from "@/types";
 
 const MAX_REVISIONS = 2;
@@ -75,6 +76,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Quality gate — reject gibberish or too-short submissions before calling Claude
+    const rubricForValidation = lesson.rubricId ? getRubricById(lesson.rubricId) : null;
+    const validation = validateSubmissionQuality(text.trim(), rubricForValidation ?? null);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error, message: validation.message, wordCount: validation.wordCount, minWords: validation.minWords },
+        { status: 422 }
+      );
+    }
+
+    // Build lesson context for the evaluator
+    const lessonContext = {
+      title: lesson.title,
+      learningObjectives: lesson.learningObjectives ?? [],
+    };
+
     // Get previous assessment scores for comparison
     const previousAssessment = await prisma.assessment.findFirst({
       where: { sessionId },
@@ -96,7 +113,8 @@ export async function POST(request: NextRequest) {
           text.trim(),
           rubric,
           session.child.name,
-          session.child.tier
+          session.child.tier,
+          lessonContext
         );
         rubricId = lesson.rubricId;
       }
@@ -107,7 +125,8 @@ export async function POST(request: NextRequest) {
       result = await evaluateWritingGeneral(
         text.trim(),
         session.child.tier as Tier,
-        lesson.title
+        lesson.title,
+        lessonContext
       );
     }
 
@@ -160,6 +179,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Upgrade lesson status if revision improved the score above threshold
+    if (result.overallScore >= 1.5) {
+      await prisma.lessonProgress.updateMany({
+        where: {
+          childId: session.childId,
+          lessonId: session.lessonId,
+          status: "needs_improvement",
+        },
+        data: { status: "completed" },
+      });
+    }
 
     // Add revision feedback to conversation history
     const conversationHistory: Message[] = JSON.parse(

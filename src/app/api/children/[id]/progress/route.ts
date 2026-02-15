@@ -40,15 +40,16 @@ export async function GET(
       take: 10,
     });
 
-    // Categorize progress
+    // Categorize progress — include both completed and needs_improvement
     const completedLessons = progressRecords
-      .filter((p) => p.status === "completed")
+      .filter((p) => p.status === "completed" || p.status === "needs_improvement")
       .map((p) => {
         const lesson = getLessonById(p.lessonId);
         return {
           lessonId: p.lessonId,
           title: lesson?.title ?? "Unknown Lesson",
           completedAt: p.completedAt,
+          needsImprovement: p.status === "needs_improvement",
         };
       });
 
@@ -128,7 +129,7 @@ export async function GET(
 
     // Calculate per-writing-type stats
     const allLessons = getAllLessons();
-    const completedProgress = progressRecords.filter((p) => p.status === "completed");
+    const completedProgress = progressRecords.filter((p) => p.status === "completed" || p.status === "needs_improvement");
     const typeStats: Record<string, { completed: number; total: number; avgScore: number | null }> = {};
     for (const type of ["narrative", "persuasive", "expository", "descriptive"]) {
       const typeLessons = allLessons.filter((l) => l.type === type && l.tier === child.tier);

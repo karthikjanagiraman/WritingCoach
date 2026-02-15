@@ -39,39 +39,44 @@ describe('skill-map', () => {
   });
 
   // ==========================================
-  // Score to Level
+  // Score to Level (1-4 scale)
   // ==========================================
   describe('scoreToLevel()', () => {
-    it('returns EMERGING for scores below 2.0', () => {
+    it('returns EMERGING for scores below 1.8', () => {
       expect(scoreToLevel(0)).toBe('EMERGING');
       expect(scoreToLevel(1.0)).toBe('EMERGING');
-      expect(scoreToLevel(1.99)).toBe('EMERGING');
+      expect(scoreToLevel(1.79)).toBe('EMERGING');
     });
 
-    it('returns DEVELOPING for scores 2.0-3.49', () => {
+    it('returns DEVELOPING for scores 1.8-2.79', () => {
+      expect(scoreToLevel(1.8)).toBe('DEVELOPING');
       expect(scoreToLevel(2.0)).toBe('DEVELOPING');
       expect(scoreToLevel(2.5)).toBe('DEVELOPING');
-      expect(scoreToLevel(3.4)).toBe('DEVELOPING');
-      expect(scoreToLevel(3.49)).toBe('DEVELOPING');
+      expect(scoreToLevel(2.79)).toBe('DEVELOPING');
     });
 
-    it('returns PROFICIENT for scores 3.5-4.49', () => {
+    it('returns PROFICIENT for scores 2.8-3.69', () => {
+      expect(scoreToLevel(2.8)).toBe('PROFICIENT');
+      expect(scoreToLevel(3.0)).toBe('PROFICIENT');
       expect(scoreToLevel(3.5)).toBe('PROFICIENT');
-      expect(scoreToLevel(4.0)).toBe('PROFICIENT');
-      expect(scoreToLevel(4.49)).toBe('PROFICIENT');
+      expect(scoreToLevel(3.69)).toBe('PROFICIENT');
     });
 
-    it('returns ADVANCED for scores 4.5+', () => {
-      expect(scoreToLevel(4.5)).toBe('ADVANCED');
-      expect(scoreToLevel(5.0)).toBe('ADVANCED');
+    it('returns ADVANCED for scores 3.7+', () => {
+      expect(scoreToLevel(3.7)).toBe('ADVANCED');
+      expect(scoreToLevel(4.0)).toBe('ADVANCED');
     });
 
-    it('boundary: 3.5 is PROFICIENT, not DEVELOPING', () => {
-      expect(scoreToLevel(3.5)).toBe('PROFICIENT');
+    it('boundary: 1.8 is DEVELOPING, not EMERGING', () => {
+      expect(scoreToLevel(1.8)).toBe('DEVELOPING');
     });
 
-    it('boundary: 4.5 is ADVANCED, not PROFICIENT', () => {
-      expect(scoreToLevel(4.5)).toBe('ADVANCED');
+    it('boundary: 2.8 is PROFICIENT, not DEVELOPING', () => {
+      expect(scoreToLevel(2.8)).toBe('PROFICIENT');
+    });
+
+    it('boundary: 3.7 is ADVANCED, not PROFICIENT', () => {
+      expect(scoreToLevel(3.7)).toBe('ADVANCED');
     });
   });
 

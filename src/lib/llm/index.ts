@@ -8,6 +8,7 @@ export {
 export type { CoachResponse } from "./client";
 
 export { evaluateWriting, evaluateSubmission, evaluateWritingGeneral } from "./evaluator";
+export type { LessonContext } from "./evaluator";
 
 export {
   buildPrompt,
