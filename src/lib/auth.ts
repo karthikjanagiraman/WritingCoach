@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcryptjs from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { authConfig } from "@/lib/auth.config";
@@ -7,6 +8,10 @@ import { authConfig } from "@/lib/auth.config";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     Credentials({
       name: "credentials",
       credentials: {
@@ -25,7 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { email },
         });
 
-        if (!user) {
+        if (!user || !user.passwordHash) {
           return null;
         }
 
@@ -47,4 +52,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        let dbUser = await prisma.user.findUnique({
+          where: { email: user.email!.toLowerCase() },
+        });
+        if (!dbUser) {
+          dbUser = await prisma.user.create({
+            data: {
+              email: user.email!.toLowerCase(),
+              name: user.name || "Parent",
+              role: "PARENT",
+            },
+          });
+        }
+        user.id = dbUser.id;
+        (user as Record<string, unknown>).role = dbUser.role;
+      }
+      return true;
+    },
+  },
 });
