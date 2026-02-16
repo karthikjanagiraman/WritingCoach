@@ -99,14 +99,16 @@ Each prompt should be 1-2 sentences, age-appropriate, and fun. Return ONLY a JSO
       );
     }
 
-    // Persist draft so the child can resume later
-    await prisma.placementDraft.create({
-      data: {
+    // Persist draft so the child can resume later (upsert to handle race conditions)
+    await prisma.placementDraft.upsert({
+      where: { childId },
+      create: {
         childId,
         prompts: JSON.stringify(prompts),
         responses: JSON.stringify(["", "", ""]),
         step: 0,
       },
+      update: {},
     });
 
     return NextResponse.json({ prompts });

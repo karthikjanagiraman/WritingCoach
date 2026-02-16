@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock D v5c: Adventure Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Literata:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+    background: #FFF9F0;
+    color: #2D3436;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* ══════════════════════════════════════════
+     WARM PLAYFUL BACKGROUND — Tier 1 palette
+  ══════════════════════════════════════════ */
+  .bg-scene {
+    position: fixed; inset: 0; z-index: 0;
+    background: #FFF9F0;
+    overflow: hidden;
+  }
+  /* Soft color washes */
+  .bg-shelf {
+    position: absolute; bottom: 0; width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 20% 80%, #FF6B6B12 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, #4ECDC412 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, #FFE66D10 0%, transparent 40%);
+    opacity: 1; filter: none;
+  }
+  .bg-glow {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    filter: blur(80px); opacity: 0.15; pointer-events: none;
+  }
+  .bg-glow-1 { background: #FF6B6B; top: 5%; left: 10%; }
+  .bg-glow-2 { background: #4ECDC4; top: 40%; right: 5%; opacity: 0.12; }
+  .bg-glow-3 { background: #FFE66D; bottom: 5%; left: 40%; opacity: 0.1; }
+  .bg-star {
+    position: absolute; border-radius: 50%; background: #FF6B6B;
+    animation: starTwinkle ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.8); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ══════════════════════════════════════════
+     LAYOUT — Single centered column
+  ══════════════════════════════════════════ */
+  .stage {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 640px;
+    padding: 24px 16px 60px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* ══════════════════════════════════════════
+     QUEST TRAIL — Horizontal stepping stones
+  ══════════════════════════════════════════ */
+  .quest-trail {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .trail-step {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; z-index: 2;
+    transition: all 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .trail-step.hidden-step { opacity: 0; width: 0; overflow: hidden; transform: scale(0.3); }
+  .trail-step.visible-step { opacity: 1; width: auto; transform: scale(1); }
+
+  .trail-step-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: all 0.4s;
+  }
+  .trail-step-icon.active {
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow:
+      0 4px 0 #FF6B6B30,
+      0 6px 16px rgba(255,107,107,0.15),
+      0 0 20px #FFE66D20;
+    animation: stepBounce 2.5s ease-in-out infinite;
+  }
+  .trail-step-icon.done {
+    background: linear-gradient(145deg, #D4F5E0, #A8E6C4);
+    box-shadow: 0 3px 0 #4ECDC440, 0 6px 14px rgba(78,205,196,0.15);
+  }
+  .trail-step-icon.locked {
+    background: linear-gradient(145deg, #F0EBE3, #E6DFD3);
+    box-shadow: 0 3px 0 #D4C5B040, 0 6px 14px rgba(0,0,0,0.06);
+    opacity: 0.45;
+  }
+  @keyframes stepBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  .trail-step-icon svg { width: 42px; height: 42px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+  .trail-step-icon.locked svg { filter: grayscale(0.6) brightness(0.8) opacity(0.5); }
+
+  .trail-step-check {
+    position: absolute; top: -2px; right: -2px; width: 22px; height: 22px;
+    border-radius: 50%; background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 11px; font-weight: 900;
+    box-shadow: 0 2px 8px #4ECDC450;
+    animation: checkPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes checkPop { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
+
+  .trail-step-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+    margin-top: 6px; text-align: center;
+    transition: color 0.4s;
+  }
+  .trail-step.active .trail-step-label { color: #FF6B6B; }
+  .trail-step.done .trail-step-label { color: #4ECDC4; }
+  .trail-step.locked .trail-step-label { color: #C4B8A8; }
+
+  /* Winding path between steps */
+  .trail-connector {
+    width: 60px; height: 4px; position: relative; margin: 0 4px;
+    margin-bottom: 18px;
+    border-radius: 2px;
+    background: #FF6B6B15;
+    overflow: hidden;
+    transition: opacity 0.6s;
+  }
+  .trail-connector.hidden-conn { opacity: 0; width: 0; margin: 0; }
+  .trail-connector.visible-conn { opacity: 1; width: 60px; }
+  .trail-connector-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: linear-gradient(90deg, #4ECDC4, #FFE66D);
+    border-radius: 2px;
+    box-shadow: 0 0 8px #4ECDC430;
+    transition: width 1s ease;
+  }
+
+  /* Current quest label */
+  .trail-current-label {
+    position: absolute; top: -22px;
+    font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+    color: #FF6B6B; white-space: nowrap;
+    animation: labelPulse 2s ease-in-out infinite;
+    transition: left 0.6s, opacity 0.3s;
+  }
+  @keyframes labelPulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+  /* ══════════════════════════════════════════
+     CHARACTER STAGE — Big character + speech
+  ══════════════════════════════════════════ */
+  .character-stage {
+    display: flex; align-items: flex-start; gap: 16px;
+    width: 100%; margin-bottom: 20px;
+    padding: 0 4px;
+  }
+
+  .character-big {
+    width: 88px; height: 88px; border-radius: 24px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow:
+      0 6px 0 #C49A2A30,
+      0 10px 24px rgba(0,0,0,0.1),
+      inset 0 2px 4px rgba(255,255,255,0.5),
+      0 0 20px #FFE66D15;
+    animation: charFloat 3s ease-in-out infinite;
+    transition: all 0.4s;
+  }
+  @keyframes charFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(2deg); } }
+  .character-big svg { width: 62px; height: 62px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+
+  .speech-bubble {
+    flex: 1; position: relative;
+    background: white;
+    border-radius: 20px; padding: 16px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,107,107,0.08);
+  }
+  /* Speech pointer */
+  .speech-bubble::before {
+    content: ''; position: absolute; left: -10px; top: 24px;
+    width: 0; height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 12px solid white;
+    filter: drop-shadow(-2px 0 2px rgba(0,0,0,0.03));
+  }
+  .speech-trial-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    background: #FF6B6B12;
+    border: 1px solid #FF6B6B20;
+    font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #FF6B6B; margin-bottom: 8px;
+  }
+  .speech-title {
+    font-size: 20px; font-weight: 900; color: #2D3436; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .speech-text {
+    font-size: 13.5px; font-weight: 600; color: #636e72;
+    line-height: 1.65; font-style: italic;
+  }
+
+  /* ══════════════════════════════════════════
+     CHALLENGE SCROLL
+  ══════════════════════════════════════════ */
+  .challenge-scroll {
+    width: 100%; position: relative;
+    padding: 16px 20px 16px 24px;
+    background: linear-gradient(135deg, #FFF5E6, #FFF0D8);
+    border-radius: 18px; margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #FFE66D40;
+  }
+  .challenge-seal {
+    position: absolute; left: -14px; top: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FF6B6B, #E74C3C);
+    box-shadow:
+      0 3px 10px rgba(255,107,107,0.35),
+      inset 0 2px 3px rgba(255,255,255,0.25),
+      inset 0 -2px 4px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #FFE66D; font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .challenge-seal::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 50%;
+    border: 1px solid rgba(255,230,109,0.2);
+  }
+  .challenge-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+    color: #FF6B6B80; margin-bottom: 5px;
+  }
+  .challenge-text {
+    font-size: 14.5px; font-weight: 700; color: #2D3436; line-height: 1.65;
+  }
+
+  /* ══════════════════════════════════════════
+     WRITING PAD — notebook-style
+  ══════════════════════════════════════════ */
+  .writing-pad {
+    width: 100%; position: relative; margin-bottom: 16px;
+  }
+  .writing-area {
+    width: 100%; min-height: 200px; border: none; border-radius: 18px;
+    padding: 20px 22px;
+    font-family: 'Literata', 'Georgia', serif; font-size: 15px;
+    color: #2D3436; resize: vertical; outline: none; line-height: 1.9;
+    background: white;
+    background-image:
+      repeating-linear-gradient(transparent, transparent 27px, #FF6B6B08 27px, #FF6B6B08 28px),
+      linear-gradient(180deg, white, #FFFBF5);
+    box-shadow:
+      inset 0 2px 6px rgba(0,0,0,0.04),
+      0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid #FF6B6B10;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+  .writing-area:focus {
+    box-shadow:
+      inset 0 2px 4px rgba(0,0,0,0.03),
+      0 0 0 3px #FF6B6B15,
+      0 2px 12px rgba(0,0,0,0.06);
+    border-color: #FF6B6B25;
+  }
+  .writing-area::placeholder { color: #b2bec3; font-style: italic; }
+  .spark-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 18px; }
+  .spark {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%;
+    background: #FFD54F; pointer-events: none;
+    animation: sparkFly 0.8s ease-out forwards;
+  }
+  @keyframes sparkFly {
+    0% { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); }
+  }
+
+  /* ══════════════════════════════════════════
+     BOTTOM BAR — meter + button
+  ══════════════════════════════════════════ */
+  .bottom-bar {
+    width: 100%; display: flex; align-items: center; gap: 16px;
+    padding: 0 4px;
+  }
+  .spark-meter {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+  }
+  .spark-tube {
+    flex: 1; max-width: 200px; height: 16px; border-radius: 10px; position: relative; overflow: hidden;
+    background: #f0ece6;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e0d8cc;
+  }
+  .spark-fire {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    border-radius: 9px;
+    background: linear-gradient(90deg, #FF6B6B, #FF8E53, #FFD54F, #FFED8A);
+    box-shadow: 0 0 12px #FF8E5340, inset 0 -2px 4px rgba(0,0,0,0.1);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+  }
+  .spark-fire::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
+    animation: fireShimmer 2s ease-in-out infinite;
+  }
+  @keyframes fireShimmer { 0%,100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+  .spark-fire.full { box-shadow: 0 0 12px #FF6B6B30; }
+  .spark-label {
+    font-size: 11px; font-weight: 800; color: #b2bec3; white-space: nowrap;
+  }
+  .spark-label.ready { color: #FF6B6B; }
+
+  .btn-prove {
+    border: none; padding: 14px 32px; border-radius: 16px;
+    font-family: inherit; font-size: 14px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: not-allowed; position: relative; overflow: hidden;
+    transition: all 0.4s;
+    color: #ddd;
+    background: #e8e2da;
+    box-shadow: 0 3px 0 #d4cec4;
+  }
+  .btn-prove.ready {
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(145deg, #FF6B6B, #FF5252);
+    box-shadow:
+      0 5px 0 #d44040,
+      0 8px 24px rgba(255,107,107,0.3),
+      inset 0 2px 3px rgba(255,255,255,0.2);
+    animation: btnGlow 2s ease-in-out infinite;
+  }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 5px 0 #d44040, 0 8px 24px rgba(255,107,107,0.25), inset 0 2px 3px rgba(255,255,255,0.2); }
+    50% { box-shadow: 0 5px 0 #d44040, 0 8px 30px rgba(255,107,107,0.4), inset 0 2px 3px rgba(255,255,255,0.2), 0 0 16px #FF6B6B20; }
+  }
+  .btn-prove.ready:hover { transform: translateY(-2px); }
+  .btn-prove.ready:active { transform: translateY(2px); box-shadow: 0 2px 0 #d44040; }
+  .btn-prove.ready::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: btnSweep 3s ease-in-out infinite;
+  }
+  @keyframes btnSweep { 0%,100% { left: -100%; } 50% { left: 150%; } }
+
+  /* ══════════════════════════════════════════
+     CELEBRATION OVERLAY
+  ══════════════════════════════════════════ */
+  .celebration {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.6s;
+  }
+  .celebration.show { opacity: 1; pointer-events: auto; }
+  .celeb-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #FFF9F0f0, #FFF0E0f5); }
+  .celeb-content { position: relative; z-index: 2; text-align: center; }
+  .celeb-icon {
+    width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 50%;
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow: 0 8px 0 #C49A2A30, 0 16px 40px rgba(0,0,0,0.1), 0 0 40px #FFE66D20;
+    display: flex; align-items: center; justify-content: center;
+    animation: celebBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .celeb-icon svg { width: 76px; height: 76px; }
+  @keyframes celebBounce { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.1) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+  .celeb-title { font-size: 28px; font-weight: 900; color: #FF6B6B; margin: 8px 0; animation: fadeUp 0.4s 0.2s both; }
+  .celeb-sub { font-size: 15px; font-weight: 600; color: #636e72; max-width: 340px; line-height: 1.55; margin: 0 auto; animation: fadeUp 0.4s 0.3s both; }
+  .confetti { position: absolute; z-index: 1; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(var(--fd,400px)) rotate(var(--rot,720deg)) scale(0.5); opacity: 0; } }
+
+  /* ══════════════════════════════════════════
+     FINALE SCREEN
+  ══════════════════════════════════════════ */
+  .final-screen {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px; opacity: 0; pointer-events: none; transition: opacity 0.8s;
+    overflow: hidden;
+  }
+  .final-screen.show { opacity: 1; pointer-events: auto; }
+  .final-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, #FFF9F0, #FFF0E0, #FFE8D0);
+  }
+  .final-stars { position: absolute; inset: 0; pointer-events: none; }
+  .final-star { position: absolute; border-radius: 50%; background: #FF6B6B; animation: starTwinkle ease-in-out infinite; }
+
+  .final-content { position: relative; z-index: 2; text-align: center; }
+  .final-owl { margin-bottom: 8px; animation: ollieFloat 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+  .final-owl svg { width: 80px; height: 80px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+  @keyframes ollieFloat { 0% { transform: scale(0) translateY(40px); } 60% { transform: scale(1.15) translateY(-10px); } 100% { transform: scale(1) translateY(0); } }
+  .final-title { font-size: 28px; font-weight: 900; color: #FF6B6B; margin-bottom: 10px; animation: fadeUp 0.5s 0.2s both; }
+  .final-sub { font-size: 15px; font-weight: 600; color: #636e72; max-width: 380px; line-height: 1.6; text-align: center; margin: 0 auto 32px; animation: fadeUp 0.5s 0.3s both; }
+
+  .final-chars { display: flex; gap: 28px; margin-bottom: 32px; }
+  .final-char-item { text-align: center; opacity: 0; animation: charReveal 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .final-char-item:nth-child(1) { animation-delay: 0.5s; }
+  .final-char-item:nth-child(2) { animation-delay: 0.7s; }
+  .final-char-item:nth-child(3) { animation-delay: 0.9s; }
+  @keyframes charReveal { from { opacity: 0; transform: translateY(30px) scale(0.5) rotate(-10deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+
+  .final-char-icon {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: var(--fc-bg); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 0 var(--fc-shadow), 0 10px 30px rgba(0,0,0,0.08), 0 0 20px var(--fc-glow);
+    position: relative;
+    border: 3px solid var(--fc-border, transparent);
+  }
+  .final-char-icon svg { width: 58px; height: 58px; }
+  .final-char-icon::after {
+    content: ''; position: absolute; top: -5px; right: -5px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+    box-shadow: 0 2px 8px #4ECDC450;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-size: 14px; background-repeat: no-repeat; background-position: center;
+  }
+  .final-char-name { font-size: 11px; font-weight: 800; color: #636e72; margin-top: 10px; }
+
+  .final-loading {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px; border-radius: 12px;
+    background: rgba(255,107,107,0.06); border: 1px solid #FF6B6B15;
+    animation: fadeUp 0.5s 1.2s both;
+  }
+  .final-spinner { width: 20px; height: 20px; border: 3px solid #FF6B6B20; border-top-color: #FF6B6B; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .final-loading-text { font-size: 13px; font-weight: 700; color: #636e72; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══════════════════════════════════════════
+     ENTRANCE ANIMATIONS
+  ══════════════════════════════════════════ */
+  .stage { animation: fadeUp 0.6s ease both; }
+  .quest-trail { animation: fadeUp 0.5s 0.1s ease both; }
+  .character-stage { animation: fadeUp 0.5s 0.25s ease both; }
+  .challenge-scroll { animation: fadeUp 0.5s 0.4s ease both; }
+  .writing-pad { animation: fadeUp 0.5s 0.5s ease both; }
+  .bottom-bar { animation: fadeUp 0.5s 0.6s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Background Scene -->
+<div class="bg-scene">
+  <div class="bg-shelf"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+  <div id="bgStars"></div>
+</div>
+
+<!-- SVG Defs -->
+<svg style="position:absolute;width:0;height:0;">
+<defs>
+  <!-- Ignis: Flame on open book -->
+  <symbol id="char-ignis" viewBox="0 0 100 100">
+    <path d="M20 72 Q50 65 80 72 L82 78 Q50 72 18 78Z" fill="#8B6914" opacity="0.7"/>
+    <path d="M22 68 Q50 62 78 68 L80 74 Q50 68 20 74Z" fill="#D4AA3A"/>
+    <line x1="50" y1="63" x2="50" y2="74" stroke="#B8941A" stroke-width="0.8" opacity="0.4"/>
+    <path d="M50 14 C65 28, 70 40, 65 52 C62 58, 56 62, 50 62 C44 62, 38 58, 35 52 C30 40, 35 28, 50 14Z" fill="url(#flameGrad)"/>
+    <path d="M50 24 C59 34, 62 42, 59 50 C57 54, 54 56, 50 56 C46 56, 43 54, 41 50 C38 42, 41 34, 50 24Z" fill="#FFD93D" opacity="0.9"/>
+    <path d="M50 32 C55 38, 56 43, 54 48 C53 50, 51 51, 50 51 C49 51, 47 50, 46 48 C44 43, 45 38, 50 32Z" fill="#FFF4CC"/>
+    <ellipse cx="44" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="56" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="45" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <ellipse cx="57" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <path d="M44 49 Q50 54, 56 49" stroke="#C44D34" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M65 54 Q72 48 76 44" stroke="#FFB347" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <line x1="76" y1="44" x2="82" y2="34" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M82 34 L86 28 L80 32Z" fill="#FF6B6B" opacity="0.7"/>
+    <path d="M18 22 L20 16 L22 22 L28 24 L22 26 L20 32 L18 26 L12 24Z" fill="#FFE66D" opacity="0.8"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/></path>
+    <path d="M78 18 L79.5 14 L81 18 L85 19.5 L81 21 L79.5 25 L78 21 L74 19.5Z" fill="#FF8E8E" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="2.5s" repeatCount="indefinite"/></path>
+  </symbol>
+
+  <!-- Bloom: Nature spirit on mushroom -->
+  <symbol id="char-bloom" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="78" rx="18" ry="5" fill="#5D4037" opacity="0.25"/>
+    <rect x="44" y="68" width="12" height="14" rx="3" fill="#BCAAA4"/>
+    <ellipse cx="50" cy="68" rx="20" ry="10" fill="#E57373" opacity="0.4"/>
+    <circle cx="43" cy="66" r="2.5" fill="white" opacity="0.5"/>
+    <circle cx="56" cy="64" r="2" fill="white" opacity="0.4"/>
+    <ellipse cx="50" cy="48" rx="16" ry="20" fill="url(#bloomGrad)"/>
+    <ellipse cx="50" cy="46" rx="11" ry="12" fill="#C8E6C9" opacity="0.5"/>
+    <ellipse cx="44" cy="44" rx="3.2" ry="3.8" fill="#2D3436"/>
+    <ellipse cx="56" cy="44" rx="3.2" ry="3.8" fill="#2D3436"/>
+    <ellipse cx="44.8" cy="42.5" rx="1.3" ry="1.6" fill="white"/>
+    <ellipse cx="56.8" cy="42.5" rx="1.3" ry="1.6" fill="white"/>
+    <ellipse cx="39" cy="49" rx="3.5" ry="2.2" fill="#FF8A80" opacity="0.35"/>
+    <ellipse cx="61" cy="49" rx="3.5" ry="2.2" fill="#FF8A80" opacity="0.35"/>
+    <path d="M46 51 Q50 55, 54 51" stroke="#2D3436" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="26" cy="42" rx="12" ry="7" fill="#A5D6A7" opacity="0.55" transform="rotate(-15 26 42)"/>
+    <ellipse cx="74" cy="42" rx="12" ry="7" fill="#A5D6A7" opacity="0.55" transform="rotate(15 74 42)"/>
+    <circle cx="42" cy="30" r="4" fill="#CE93D8" opacity="0.7"/><circle cx="42" cy="30" r="2" fill="#FFE66D"/>
+    <circle cx="50" cy="27" r="5" fill="#E040FB" opacity="0.6"/><circle cx="50" cy="27" r="2.5" fill="#FFE66D"/>
+    <circle cx="58" cy="30" r="4" fill="#F48FB1" opacity="0.6"/><circle cx="58" cy="30" r="2" fill="#FFE66D"/>
+    <circle cx="16" cy="28" r="2" fill="#A5D6A7" opacity="0.5"><animate attributeName="cy" values="28;22;28" dur="3s" repeatCount="indefinite"/></circle>
+    <circle cx="84" cy="24" r="1.8" fill="#CE93D8" opacity="0.5"><animate attributeName="cy" values="24;18;24" dur="3.5s" repeatCount="indefinite"/></circle>
+  </symbol>
+
+  <!-- Rumble: Thunder cloud with cape -->
+  <symbol id="char-rumble" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="82" rx="24" ry="4" fill="#546E7A" opacity="0.15"/>
+    <path d="M28 50 C22 55, 20 65, 24 78 Q30 82, 36 76 C32 65, 30 58, 32 52Z" fill="#E17055" opacity="0.5"/>
+    <path d="M72 50 C78 55, 80 65, 76 78 Q70 82, 64 76 C68 65, 70 58, 68 52Z" fill="#E17055" opacity="0.5"/>
+    <ellipse cx="50" cy="42" rx="26" ry="20" fill="#B0BEC5"/>
+    <ellipse cx="34" cy="44" rx="16" ry="14" fill="#B0BEC5"/>
+    <ellipse cx="66" cy="44" rx="16" ry="14" fill="#B0BEC5"/>
+    <ellipse cx="50" cy="38" rx="22" ry="18" fill="#CFD8DC"/>
+    <ellipse cx="40" cy="34" rx="14" ry="12" fill="#E0E5E8"/>
+    <ellipse cx="58" cy="36" rx="13" ry="11" fill="#E0E5E8"/>
+    <ellipse cx="42" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="58" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="42.8" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <ellipse cx="58.8" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <path d="M37 34 L44 36.5" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M63 34 L56 36.5" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M44 49 Q50 54, 56 49" stroke="#2D3436" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <polygon points="44,58 48,58 46,66 52,66 40,82 44,70 38,70" fill="#FFD54F"/>
+    <polygon points="56,60 59,60 57.5,66 62,66 54,76 56.5,68 53,68" fill="#FFD54F" opacity="0.7"/>
+    <circle cx="20" cy="30" r="2.5" fill="#FFD54F" opacity="0.6"><animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite"/></circle>
+    <path d="M82 52 L83.5 49 L85 52 L88 53.5 L85 55 L83.5 58 L82 55 L79 53.5Z" fill="#FFD54F" opacity="0.4"><animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.2s" repeatCount="indefinite"/></path>
+  </symbol>
+
+  <!-- Ollie the Owl with spectacles -->
+  <symbol id="char-ollie" viewBox="0 0 64 64">
+    <ellipse cx="32" cy="42" rx="18" ry="20" fill="#8B6914"/>
+    <ellipse cx="32" cy="40" rx="15" ry="17" fill="#A67C28"/>
+    <ellipse cx="32" cy="46" rx="10" ry="12" fill="#D4AA3A" opacity="0.5"/>
+    <ellipse cx="14" cy="40" rx="8" ry="12" fill="#8B6914" transform="rotate(-10 14 40)"/>
+    <ellipse cx="50" cy="40" rx="8" ry="12" fill="#8B6914" transform="rotate(10 50 40)"/>
+    <circle cx="24" cy="30" r="9" fill="white"/>
+    <circle cx="40" cy="30" r="9" fill="white"/>
+    <circle cx="24" cy="30" r="5.5" fill="#3D2E1E"/>
+    <circle cx="40" cy="30" r="5.5" fill="#3D2E1E"/>
+    <circle cx="25.5" cy="28" r="2" fill="white"/>
+    <circle cx="41.5" cy="28" r="2" fill="white"/>
+    <circle cx="24" cy="30" r="10" fill="none" stroke="#5D4037" stroke-width="1.5"/>
+    <circle cx="40" cy="30" r="10" fill="none" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="34" y1="30" x2="30" y2="30" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="14" y1="28" x2="10" y2="26" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="50" y1="28" x2="54" y2="26" stroke="#5D4037" stroke-width="1.5"/>
+    <path d="M29 36 L32 40 L35 36Z" fill="#FF8E53"/>
+    <path d="M18 18 Q20 12, 24 20" fill="#8B6914"/>
+    <path d="M46 18 Q44 12, 40 20" fill="#8B6914"/>
+    <path d="M24 60 L20 63 M24 60 L24 63 M24 60 L28 63" stroke="#D4AA3A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M40 60 L36 63 M40 60 L40 63 M40 60 L44 63" stroke="#D4AA3A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FF6B6B"/><stop offset="40%" stop-color="#FF8E53"/><stop offset="100%" stop-color="#FFB347"/>
+  </linearGradient>
+  <linearGradient id="bloomGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#66BB6A"/><stop offset="100%" stop-color="#81C784"/>
+  </linearGradient>
+</defs>
+</svg>
+
+<!-- ══════════════ STAGE ══════════════ -->
+<div class="stage" id="stage">
+
+  <!-- Horizontal Quest Trail -->
+  <div class="quest-trail" id="questTrail">
+    <div class="trail-current-label" id="currentLabel" style="left: 14px;">Current Quest</div>
+
+    <div class="trail-step active visible-step" id="step0">
+      <div class="trail-step-icon active" id="stepIcon0">
+        <svg><use href="#char-ignis"/></svg>
+      </div>
+      <div class="trail-step-label">Story Spark</div>
+    </div>
+
+    <div class="trail-connector visible-conn" id="conn0">
+      <div class="trail-connector-fill" id="connFill0"></div>
+    </div>
+
+    <div class="trail-step locked hidden-step" id="step1">
+      <div class="trail-step-icon locked" id="stepIcon1">
+        <svg><use href="#char-bloom"/></svg>
+      </div>
+      <div class="trail-step-label">Sense Weaver</div>
+    </div>
+
+    <div class="trail-connector hidden-conn" id="conn1">
+      <div class="trail-connector-fill" id="connFill1"></div>
+    </div>
+
+    <div class="trail-step locked hidden-step" id="step2">
+      <div class="trail-step-icon locked" id="stepIcon2">
+        <svg><use href="#char-rumble"/></svg>
+      </div>
+      <div class="trail-step-label">Thunder Voice</div>
+    </div>
+  </div>
+
+  <!-- Character + Speech Bubble -->
+  <div class="character-stage">
+    <div class="character-big" id="charBig">
+      <svg><use href="#char-ignis"/></svg>
+    </div>
+    <div class="speech-bubble">
+      <div class="speech-trial-badge" id="trialBadge">Trial 1 of 3</div>
+      <div class="speech-title" id="titleText">The Story Spark</div>
+      <div class="speech-text" id="owlSpeech">Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!</div>
+    </div>
+  </div>
+
+  <!-- Challenge Scroll -->
+  <div class="challenge-scroll">
+    <div class="challenge-seal">&#x2726;</div>
+    <div class="challenge-label">Your Challenge</div>
+    <div class="challenge-text" id="challengeText">Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?</div>
+  </div>
+
+  <!-- Writing Pad -->
+  <div class="writing-pad">
+    <textarea class="writing-area" id="writingArea" placeholder="Start writing your story here..." oninput="onType(event)"></textarea>
+    <div class="spark-container" id="sparkContainer"></div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="spark-meter">
+      <div class="spark-tube"><div class="spark-fire" id="sparkFire"></div></div>
+      <span class="spark-label" id="sparkLabel">0 / 20 sparks</span>
+    </div>
+    <button class="btn-prove" id="btnProve" onclick="submitTrial()">Prove It!</button>
+  </div>
+</div>
+
+<!-- Celebration -->
+<div class="celebration" id="celebration">
+  <div class="celeb-bg"></div>
+  <div class="celeb-content">
+    <div class="celeb-icon" id="celebIcon"><svg width="76" height="76"><use href="#char-ignis"/></svg></div>
+    <div class="celeb-title" id="celebTitle">Trial Passed!</div>
+    <div class="celeb-sub" id="celebSub">...</div>
+  </div>
+</div>
+
+<!-- Finale -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-bg"></div>
+  <div class="final-stars" id="finalStars"></div>
+  <div class="final-content">
+    <div class="final-owl"><svg><use href="#char-ollie"/></svg></div>
+    <div class="final-title">You've proven yourself worthy!</div>
+    <div class="final-sub">Welcome to the quest, <strong>Maya</strong>. Ollie is preparing your personal adventure path...</div>
+    <div class="final-chars">
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#FFF3D4,#FFE4A8);--fc-shadow:#C49A2A20;--fc-glow:#FFE66D20;--fc-border:#FF6B6B60;"><svg><use href="#char-ignis"/></svg></div><div class="final-char-name" style="color:#FF6B6B;">Story Spark</div></div>
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#E8F5E9,#C8E6C9);--fc-shadow:#2E7D3220;--fc-glow:#4ECDC420;--fc-border:#4ECDC460;"><svg><use href="#char-bloom"/></svg></div><div class="final-char-name" style="color:#4ECDC4;">Sense Weaver</div></div>
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#ECEFF1,#CFD8DC);--fc-shadow:#455A6420;--fc-glow:#90A4AE20;--fc-border:#90A4AE60;"><svg><use href="#char-rumble"/></svg></div><div class="final-char-name" style="color:#90A4AE;">Thunder Voice</div></div>
+    </div>
+    <div class="final-loading"><div class="final-spinner"></div><span class="final-loading-text">Crafting your curriculum...</span></div>
+  </div>
+</div>
+
+<script>
+  // Floating sparkle dots
+  (function() {
+    const c = document.getElementById('bgStars');
+    const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#FF6B6B'];
+    for (let i = 0; i < 25; i++) {
+      const s = document.createElement('div');
+      s.className = 'bg-star';
+      s.style.left = (Math.random()*100)+'%';
+      s.style.top = (Math.random()*100)+'%';
+      const sz = 3+Math.random()*5;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      s.style.background = colors[Math.floor(Math.random()*colors.length)];
+      s.style.animationDuration = (3+Math.random()*4)+'s';
+      s.style.animationDelay = (Math.random()*5)+'s';
+      c.appendChild(s);
+    }
+  })();
+
+  // Finale sparkles
+  (function() {
+    const c = document.getElementById('finalStars');
+    const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#FF6B6B'];
+    for (let i = 0; i < 25; i++) {
+      const s = document.createElement('div');
+      s.className = 'final-star';
+      s.style.left = (Math.random()*100)+'%'; s.style.top = (Math.random()*100)+'%';
+      const sz = 3+Math.random()*5;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      s.style.background = colors[Math.floor(Math.random()*colors.length)];
+      s.style.animationDuration = (2+Math.random()*3)+'s';
+      s.style.animationDelay = (Math.random()*3)+'s';
+      c.appendChild(s);
+    }
+  })();
+
+  let currentTrial = 0;
+  const trials = [
+    { badge:'Trial 1 of 3', title:'The Story Spark', char:'#char-ignis', ollie:"Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!", prompt:"Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?", celebTitle:'Story Spark — Proven!', celebSub:"I can feel the storytelling magic in you! A new trial awaits..." },
+    { badge:'Trial 2 of 3', title:'The Sense Weaver', char:'#char-bloom', ollie:"A true writer doesn't just tell — they make readers SEE, HEAR, and FEEL. Show me you can weave the senses into your words!", prompt:"Describe your favorite place in the world so vividly that someone who's never been there can close their eyes and feel like they're standing right in it.", celebTitle:'Sense Weaver — Proven!', celebSub:"Brilliant! One final trial remains — the hardest one..." },
+    { badge:'Final Trial', title:'The Voice of Thunder', char:'#char-rumble', ollie:"The mightiest power a writer has is the power to change minds. Show me your voice of thunder — convince me!", prompt:"Should kids have a say in what they learn at school? Pick a side and write your strongest argument to convince your principal.", celebTitle:'All Trials Complete!', celebSub:"You've done it, Maya! You are worthy." },
+  ];
+
+  let lastTypedAt = 0;
+  function onType(e) {
+    const val = document.getElementById('writingArea').value;
+    const words = val.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words/20, 1);
+    const fire = document.getElementById('sparkFire');
+    const label = document.getElementById('sparkLabel');
+    const btn = document.getElementById('btnProve');
+    fire.style.width = (pct*100)+'%';
+    label.textContent = words + ' / 20 sparks';
+    if (pct >= 1) {
+      fire.classList.add('full'); label.classList.add('ready');
+      label.textContent = words+' sparks \u2713';
+      btn.classList.add('ready');
+      if(currentTrial===2) btn.textContent='Complete the Trial!';
+    } else {
+      fire.classList.remove('full'); label.classList.remove('ready');
+      btn.classList.remove('ready'); btn.textContent='Prove It!';
+    }
+    const now = Date.now();
+    if (now - lastTypedAt > 60) { lastTypedAt = now; spawnTypingSpark(); }
+  }
+
+  function spawnTypingSpark() {
+    const c = document.getElementById('sparkContainer');
+    const ta = document.getElementById('writingArea');
+    for (let i = 0; i < 2; i++) {
+      const s = document.createElement('div'); s.className = 'spark';
+      const x = 40 + Math.random() * (ta.offsetWidth - 80);
+      const y = 20 + Math.random() * 40;
+      s.style.left = x+'px'; s.style.top = y+'px';
+      s.style.setProperty('--sx', ((Math.random()-0.5)*40)+'px');
+      s.style.setProperty('--sy', (-(10+Math.random()*30))+'px');
+      s.style.background = ['#FF6B6B','#4ECDC4','#FFE66D','#FF6B6B'][Math.floor(Math.random()*4)];
+      const sz = 2+Math.random()*4;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      c.appendChild(s);
+      setTimeout(()=>s.remove(), 800);
+    }
+  }
+
+  function submitTrial() {
+    if (!document.getElementById('btnProve').classList.contains('ready')) return;
+    const t = trials[currentTrial];
+
+    // Mark trail step as done
+    const step = document.getElementById('step'+currentTrial);
+    step.classList.remove('active'); step.classList.add('done');
+    const stepIcon = document.getElementById('stepIcon'+currentTrial);
+    stepIcon.classList.remove('active'); stepIcon.classList.add('done');
+    stepIcon.innerHTML += '<div class="trail-step-check">\u2713</div>';
+
+    // Fill connector
+    const connFill = document.getElementById('connFill'+currentTrial);
+    if (connFill) connFill.style.width = '100%';
+
+    showCeleb(t.char, t.celebTitle, t.celebSub);
+
+    if (currentTrial < 2) {
+      setTimeout(() => {
+        currentTrial++;
+        const nt = trials[currentTrial];
+
+        // Reveal next step + connector
+        const nextStep = document.getElementById('step'+currentTrial);
+        nextStep.classList.remove('hidden-step','locked'); nextStep.classList.add('visible-step','active');
+        const nextIcon = document.getElementById('stepIcon'+currentTrial);
+        nextIcon.classList.remove('locked'); nextIcon.classList.add('active');
+
+        // Reveal next connector if exists
+        const nextConn = document.getElementById('conn'+currentTrial);
+        if (nextConn) { nextConn.classList.remove('hidden-conn'); nextConn.classList.add('visible-conn'); }
+
+        // Move "Current Quest" label
+        const label = document.getElementById('currentLabel');
+        const stepEl = document.getElementById('step'+currentTrial);
+        // Position relative to trail container
+        setTimeout(() => {
+          const trail = document.getElementById('questTrail');
+          const trailRect = trail.getBoundingClientRect();
+          const stepRect = stepEl.getBoundingClientRect();
+          label.style.left = (stepRect.left - trailRect.left + stepRect.width/2 - label.offsetWidth/2) + 'px';
+        }, 100);
+
+        // Update content with fade
+        const stage = document.getElementById('stage');
+        const charBig = document.getElementById('charBig');
+        charBig.style.transition = 'opacity 0.3s, transform 0.3s';
+        charBig.style.opacity = '0'; charBig.style.transform = 'scale(0.8)';
+
+        setTimeout(() => {
+          document.getElementById('trialBadge').textContent = nt.badge;
+          document.getElementById('titleText').textContent = nt.title;
+          charBig.innerHTML = '<svg><use href="'+nt.char+'"/></svg>';
+          document.getElementById('owlSpeech').textContent = nt.ollie;
+          document.getElementById('challengeText').textContent = nt.prompt;
+          document.getElementById('writingArea').value = '';
+          document.getElementById('sparkFire').style.width = '0%'; document.getElementById('sparkFire').classList.remove('full');
+          document.getElementById('sparkLabel').textContent = '0 / 20 sparks'; document.getElementById('sparkLabel').classList.remove('ready');
+          document.getElementById('btnProve').classList.remove('ready'); document.getElementById('btnProve').textContent = 'Prove It!';
+
+          charBig.style.opacity = '1'; charBig.style.transform = 'scale(1)';
+        }, 300);
+
+        hideCeleb();
+      }, 2500);
+    } else {
+      setTimeout(() => {
+        hideCeleb();
+        setTimeout(() => {
+          document.getElementById('finalScreen').classList.add('show');
+          spawnConfetti(document.getElementById('finalScreen'));
+        }, 300);
+      }, 3000);
+    }
+  }
+
+  function showCeleb(charId, title, sub) {
+    const el = document.getElementById('celebration');
+    document.getElementById('celebIcon').innerHTML = '<svg width="76" height="76"><use href="'+charId+'"/></svg>';
+    document.getElementById('celebTitle').textContent = title;
+    document.getElementById('celebSub').textContent = sub;
+    el.classList.add('show');
+    spawnConfetti(el);
+  }
+  function hideCeleb() { document.getElementById('celebration').classList.remove('show'); }
+
+  function spawnConfetti(container) {
+    const colors = ['#FFD54F','#FF6B6B','#4ECDC4','#FF8E53','#6C5CE7','#E17055','#FFE66D','#A29BFE'];
+    for (let i = 0; i < 55; i++) {
+      const c = document.createElement('div'); c.className = 'confetti';
+      const s = Math.random()*10+4;
+      c.style.width = s+'px'; c.style.height = (s*(Math.random()*0.5+0.5))+'px';
+      c.style.borderRadius = Math.random()>0.4?'50%':Math.random()>0.5?'2px':'0';
+      c.style.background = colors[i%colors.length];
+      c.style.left = (25+Math.random()*50)+'%'; c.style.top = (20+Math.random()*15)+'%';
+      c.style.setProperty('--fd',(250+Math.random()*450)+'px');
+      c.style.setProperty('--rot',((Math.random()-0.5)*1440)+'deg');
+      c.style.transform = 'translateX('+((Math.random()-0.5)*600)+'px)';
+      c.style.animationDuration = (1.2+Math.random()*1.5)+'s';
+      c.style.animationDelay = (Math.random()*0.5)+'s';
+      container.appendChild(c);
+      setTimeout(()=>c.remove(), 3500);
+    }
+  }
+</script>
+</body>
+</html>

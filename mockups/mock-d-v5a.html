@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock D v5: Adventure Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Literata:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ══════════════════════════════════════════
+     FANTASY LIBRARY BACKGROUND
+  ══════════════════════════════════════════ */
+  body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+    background: #1a1228;
+    color: #3D2E1E;
+  }
+  .bg-scene {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 30% 70%, #2a1f3d 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 30%, #3d2a1f 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, #1f1428 0%, #0d0a14 100%);
+    overflow: hidden;
+  }
+  /* Bookshelf silhouettes */
+  .bg-shelf {
+    position: absolute; bottom: 0; width: 100%; height: 45%;
+    background:
+      linear-gradient(0deg, #0d0a1490 0%, transparent 100%),
+      repeating-linear-gradient(90deg,
+        #1a1228 0px, #1a1228 8px,
+        #231a30 8px, #231a30 60px,
+        #2a1f3d 60px, #2a1f3d 68px,
+        #1f1830 68px, #1f1830 120px
+      );
+    opacity: 0.4; filter: blur(3px);
+  }
+  /* Warm ambient glow */
+  .bg-glow {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    filter: blur(100px); opacity: 0.3; pointer-events: none;
+  }
+  .bg-glow-1 { background: #FF8C42; top: 10%; left: 20%; }
+  .bg-glow-2 { background: #FFD54F; top: 30%; right: 10%; opacity: 0.2; }
+  .bg-glow-3 { background: #C17832; bottom: 10%; left: 50%; opacity: 0.15; }
+
+  /* Floating stars */
+  .bg-star {
+    position: absolute; border-radius: 50%; background: #FFD54F;
+    animation: starTwinkle ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.3); }
+  }
+
+  /* ══════════════════════════════════════════
+     LAYOUT
+  ══════════════════════════════════════════ */
+  .main {
+    display: flex; max-width: 1080px; margin: 0 auto;
+    padding: 28px 20px 60px; gap: 20px;
+    position: relative; z-index: 1;
+    min-height: 100vh; align-items: flex-start;
+  }
+
+  /* ══════════════════════════════════════════
+     QUEST SIDEBAR — winding glowing path
+  ══════════════════════════════════════════ */
+  .quest-sidebar { width: 180px; flex-shrink: 0; padding-top: 12px; }
+
+  .quest-sidebar-title {
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 2.5px; color: #FFD54F80; text-align: center; margin-bottom: 20px;
+  }
+  .quest-trail { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+  /* Glowing winding path SVG */
+  .trail-path-svg {
+    position: absolute; top: 55px; left: 50%; transform: translateX(-50%);
+    width: 60px; pointer-events: none; z-index: 0;
+  }
+  .trail-path-bg { stroke: #FFD54F20; stroke-width: 5; fill: none; stroke-linecap: round; }
+  .trail-path-glow { stroke: #FFD54F; stroke-width: 4; fill: none; stroke-linecap: round;
+    filter: url(#glowFilter); transition: stroke-dashoffset 1.5s ease; opacity: 0.9; }
+  .trail-path-dots { stroke: #FFD54F40; stroke-width: 5; stroke-dasharray: 3 10; fill: none; stroke-linecap: round; }
+
+  /* Quest nodes — squishy 3D icons */
+  .quest-node {
+    position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 20px; transition: all 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .quest-node.hidden-node { opacity: 0; height: 0; margin: 0; overflow: hidden; transform: scale(0.5); }
+  .quest-node.visible-node { opacity: 1; height: auto; transform: scale(1); }
+
+  .quest-node-label {
+    font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+    color: #FFD54F; margin-bottom: 6px;
+    text-shadow: 0 0 10px #FFD54F60;
+    animation: labelPulse 2s ease-in-out infinite;
+  }
+  @keyframes labelPulse { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
+
+  .quest-icon-wrap {
+    width: 100px; height: 100px; border-radius: 24px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    cursor: default; transition: all 0.4s;
+  }
+  /* 3D squishy effect */
+  .quest-icon-wrap.active {
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow:
+      0 8px 0 #C49A2A40,
+      0 12px 24px rgba(0,0,0,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.6),
+      0 0 30px #FFD54F25;
+    transform: translateY(-2px);
+    animation: iconFloat 3s ease-in-out infinite;
+  }
+  .quest-icon-wrap.done {
+    background: linear-gradient(145deg, #D4F5E0, #A8E6C4);
+    box-shadow:
+      0 6px 0 #2A9D5040,
+      0 10px 20px rgba(0,0,0,0.2),
+      inset 0 2px 4px rgba(255,255,255,0.5);
+  }
+  .quest-icon-wrap.locked {
+    background: linear-gradient(145deg, #3D3350, #2D2540);
+    box-shadow:
+      0 6px 0 #1a142840,
+      0 10px 20px rgba(0,0,0,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.05);
+    opacity: 0.5;
+  }
+  @keyframes iconFloat { 0%,100% { transform: translateY(-2px); } 50% { transform: translateY(-6px); } }
+
+  .quest-icon-wrap svg { width: 64px; height: 64px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); }
+  .quest-icon-wrap.locked svg { filter: grayscale(0.8) brightness(0.5); }
+
+  .quest-icon-check {
+    position: absolute; top: -4px; right: -4px; width: 28px; height: 28px;
+    border-radius: 50%; background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 900;
+    box-shadow: 0 3px 10px #4ECDC460;
+    animation: checkPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes checkPop { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
+
+  .quest-node-name {
+    font-size: 11px; font-weight: 800; color: #FFD54Fcc; margin-top: 8px;
+    text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .quest-node.done .quest-node-name { color: #4ECDC4cc; }
+  .quest-node.locked .quest-node-name { color: #FFFFFF30; }
+
+  /* ══════════════════════════════════════════
+     MAGIC PARCHMENT CARD
+  ══════════════════════════════════════════ */
+  .parchment {
+    flex: 1; min-width: 0; border-radius: 20px; position: relative;
+    background:
+      linear-gradient(170deg, #FFF8E7 0%, #F5E6C8 40%, #EEDCB3 100%);
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.4),
+      0 2px 4px rgba(0,0,0,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.6),
+      inset 0 -2px 6px rgba(180,140,80,0.15);
+    overflow: hidden;
+  }
+  /* Deckled edge texture */
+  .parchment::before {
+    content: ''; position: absolute; inset: -2px; z-index: 0;
+    border-radius: 22px;
+    background: linear-gradient(170deg, #FFF8E7, #EEDCB3);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.03' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.03' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  /* Subtle paper grain */
+  .parchment::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; border-radius: 20px;
+    opacity: 0.04; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+  .parchment-inner { position: relative; z-index: 1; }
+
+  /* ── Parchment Header ── */
+  .parchment-header {
+    padding: 24px 28px 18px; position: relative;
+    border-bottom: 2px solid #D4B87820;
+  }
+  .parchment-header-glow {
+    position: absolute; top: -20px; right: -20px; width: 200px; height: 200px;
+    background: radial-gradient(circle, #FFD54F15, transparent 70%);
+    pointer-events: none;
+  }
+
+  .trial-badge {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    background: linear-gradient(135deg, #FF6B6B20, #FFD54F15);
+    border: 1px solid #FF6B6B30;
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: #C0392B; margin-bottom: 8px;
+  }
+  .parchment-title {
+    font-size: 24px; font-weight: 900; color: #3D2E1E;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .parchment-title-char {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow: 0 4px 0 #C49A2A30, 0 6px 16px rgba(0,0,0,0.1), inset 0 2px 3px rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    animation: charBob 2.5s ease-in-out infinite;
+  }
+  @keyframes charBob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(2deg); } }
+  .parchment-title-char svg { width: 40px; height: 40px; }
+
+  /* ── Owl Mentor ── */
+  .owl-mentor {
+    display: flex; align-items: flex-start; gap: 14px; margin-top: 16px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #FFFFFF80, #FFF8E740);
+    border-radius: 16px; border: 1px solid #D4B87830;
+    position: relative;
+  }
+  .owl-avatar {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: linear-gradient(145deg, #C49A2A, #8B6914);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 #4A340D50, 0 6px 14px rgba(0,0,0,0.2), inset 0 2px 3px rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px;
+  }
+  .owl-avatar svg { width: 42px; height: 42px; }
+  .owl-speech {
+    flex: 1; font-size: 13.5px; font-weight: 600; color: #5D4E37;
+    line-height: 1.65; font-style: italic;
+  }
+  /* Speech bubble pointer */
+  .owl-mentor::before {
+    content: ''; position: absolute; left: 32px; top: -8px;
+    width: 16px; height: 16px; background: linear-gradient(135deg, #FFFFFF80, #FFF8E740);
+    border-left: 1px solid #D4B87830; border-top: 1px solid #D4B87830;
+    transform: rotate(45deg);
+  }
+
+  /* ── Challenge Scroll ── */
+  .challenge-scroll {
+    margin: 20px 28px 0; padding: 16px 20px 16px 24px;
+    background:
+      linear-gradient(135deg, #FFF0D0, #FFE8B8);
+    border-radius: 14px; position: relative;
+    box-shadow: 0 3px 0 #C49A2A20, 0 4px 12px rgba(0,0,0,0.06),
+      inset 0 1px 2px rgba(255,255,255,0.5);
+    border: 1px solid #D4B87840;
+  }
+  .challenge-scroll-seal {
+    position: absolute; left: -16px; top: 10px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #E74C3C, #B71C1C);
+    box-shadow:
+      0 3px 10px rgba(183,28,28,0.5),
+      inset 0 2px 3px rgba(255,255,255,0.25),
+      inset 0 -2px 4px rgba(0,0,0,0.2),
+      0 0 0 2px #8B111180;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: #FFD54F; font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .challenge-scroll-seal::after {
+    content: ''; position: absolute; inset: 3px; border-radius: 50%;
+    border: 1px solid rgba(255,200,100,0.2);
+  }
+  .challenge-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
+    color: #8B691480; margin-bottom: 6px;
+  }
+  .challenge-text {
+    font-size: 14.5px; font-weight: 700; color: #3D2E1E; line-height: 1.65;
+  }
+
+  /* ── Writing Pad (aged paper) ── */
+  .writing-pad {
+    margin: 20px 28px 0; position: relative;
+  }
+  .writing-area {
+    width: 100%; min-height: 200px; border: none; border-radius: 14px;
+    padding: 20px 22px;
+    font-family: 'Literata', 'Georgia', serif; font-size: 15px;
+    color: #3D2E1E; resize: vertical; outline: none; line-height: 1.9;
+    background:
+      linear-gradient(180deg, #FFF5E0, #F0DFBE);
+    background-image:
+      repeating-linear-gradient(transparent, transparent 27px, #D4B87812 27px, #D4B87812 28px),
+      linear-gradient(180deg, #FFF5E0, #F0DFBE);
+    box-shadow:
+      inset 0 3px 10px rgba(139,105,20,0.12),
+      inset 0 0 0 2px #D4B87825,
+      0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.3s;
+  }
+  .writing-area:focus {
+    box-shadow:
+      inset 0 2px 8px rgba(139,105,20,0.08),
+      inset 0 0 0 2px #FFD54F40,
+      0 0 20px #FFD54F12,
+      0 2px 8px rgba(0,0,0,0.04);
+  }
+  .writing-area::placeholder {
+    color: #C49A2A40; font-style: italic;
+  }
+  /* Spark particles container */
+  .spark-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 14px; }
+  .spark {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%;
+    background: #FFD54F; pointer-events: none;
+    animation: sparkFly 0.8s ease-out forwards;
+  }
+  @keyframes sparkFly {
+    0% { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); }
+  }
+
+  /* ── Spark Meter (glass tube with fire) ── */
+  .spark-meter-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px 24px; gap: 16px;
+  }
+  .spark-meter {
+    flex: 1; max-width: 240px; display: flex; align-items: center; gap: 12px;
+  }
+  .spark-tube {
+    flex: 1; height: 18px; border-radius: 10px; position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #D4B87830, #C49A2A15);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(255,255,255,0.3);
+    border: 1px solid #D4B87840;
+  }
+  .spark-fire {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    border-radius: 9px;
+    background: linear-gradient(90deg, #FF6B6B, #FF8E53, #FFD54F, #FFED8A);
+    box-shadow: 0 0 12px #FF8E5340, inset 0 -2px 4px rgba(0,0,0,0.1);
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+  }
+  .spark-fire::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 40%,
+      rgba(255,255,255,0.3) 50%, transparent 60%);
+    animation: fireShimmer 2s ease-in-out infinite;
+  }
+  @keyframes fireShimmer { 0%,100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+  .spark-fire.full { box-shadow: 0 0 20px #FFD54F50, 0 0 40px #FF8E5320; }
+
+  .spark-label {
+    font-size: 12px; font-weight: 800; color: #8B691480; white-space: nowrap;
+  }
+  .spark-label.ready { color: #FF8E53; text-shadow: 0 0 8px #FF8E5330; }
+
+  /* ── Golden Button ── */
+  .btn-prove {
+    border: none; padding: 14px 36px; border-radius: 14px;
+    font-family: inherit; font-size: 15px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    cursor: not-allowed; position: relative; overflow: hidden;
+    transition: all 0.4s;
+    color: #8B691460;
+    background: linear-gradient(145deg, #D4B87830, #C49A2A20);
+    box-shadow: 0 4px 0 #C49A2A15;
+  }
+  .btn-prove.ready {
+    cursor: pointer;
+    color: #5D3A0A;
+    background: linear-gradient(145deg, #FFD54F, #FFC107, #FFB300);
+    box-shadow:
+      0 6px 0 #C49A2A60,
+      0 10px 30px rgba(255,193,7,0.3),
+      inset 0 2px 4px rgba(255,255,255,0.4);
+    animation: btnGlow 2s ease-in-out infinite;
+  }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 6px 0 #C49A2A60, 0 10px 30px rgba(255,193,7,0.3), inset 0 2px 4px rgba(255,255,255,0.4); }
+    50% { box-shadow: 0 6px 0 #C49A2A60, 0 10px 40px rgba(255,193,7,0.5), inset 0 2px 4px rgba(255,255,255,0.4), 0 0 20px #FFD54F30; }
+  }
+  .btn-prove.ready:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 #C49A2A60, 0 14px 40px rgba(255,193,7,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+  }
+  .btn-prove.ready:active { transform: translateY(2px); box-shadow: 0 2px 0 #C49A2A60; }
+  /* Shine sweep */
+  .btn-prove.ready::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: btnSweep 3s ease-in-out infinite;
+  }
+  @keyframes btnSweep { 0%,100% { left: -100%; } 50% { left: 150%; } }
+
+  /* ══════════════════════════════════════════
+     CELEBRATION OVERLAY
+  ══════════════════════════════════════════ */
+  .celebration {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.6s;
+  }
+  .celebration.show { opacity: 1; pointer-events: auto; }
+  .celeb-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #1f1830ee, #0d0a14f0); }
+  .celeb-content { position: relative; z-index: 2; text-align: center; }
+  .celeb-icon {
+    width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 28px;
+    background: linear-gradient(145deg, #FFF3D4, #FFE4A8);
+    box-shadow: 0 8px 0 #C49A2A40, 0 16px 40px rgba(0,0,0,0.3), 0 0 60px #FFD54F20;
+    display: flex; align-items: center; justify-content: center;
+    animation: celebBounce 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .celeb-icon svg { width: 76px; height: 76px; }
+  @keyframes celebBounce { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.1) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+  .celeb-title { font-size: 28px; font-weight: 900; color: #FFD54F; margin: 8px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.3); animation: fadeUp 0.4s 0.2s both; }
+  .celeb-sub { font-size: 15px; font-weight: 600; color: #FFD54Faa; max-width: 340px; line-height: 1.55; margin: 0 auto; animation: fadeUp 0.4s 0.3s both; }
+  .confetti { position: absolute; z-index: 1; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(var(--fd,400px)) rotate(var(--rot,720deg)) scale(0.5); opacity: 0; } }
+
+  /* ══════════════════════════════════════════
+     FINALE SCREEN
+  ══════════════════════════════════════════ */
+  .final-screen {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px; opacity: 0; pointer-events: none; transition: opacity 0.8s;
+    overflow: hidden;
+  }
+  .final-screen.show { opacity: 1; pointer-events: auto; }
+  .final-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, #2a1f3d, #1a1228, #0d0a14);
+  }
+  .final-stars { position: absolute; inset: 0; pointer-events: none; }
+  .final-star { position: absolute; border-radius: 50%; background: #FFD54F; animation: starTwinkle ease-in-out infinite; }
+
+  .final-content { position: relative; z-index: 2; text-align: center; }
+  .final-owl { margin-bottom: 8px; animation: ollieFloat 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+  .final-owl svg { width: 80px; height: 80px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+  @keyframes ollieFloat { 0% { transform: scale(0) translateY(40px); } 60% { transform: scale(1.15) translateY(-10px); } 100% { transform: scale(1) translateY(0); } }
+  .final-title { font-size: 28px; font-weight: 900; color: #FFD54F; margin-bottom: 10px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); animation: fadeUp 0.5s 0.2s both; }
+  .final-sub { font-size: 15px; font-weight: 600; color: #FFD54Faa; max-width: 380px; line-height: 1.6; text-align: center; margin: 0 auto 32px; animation: fadeUp 0.5s 0.3s both; }
+
+  .final-chars { display: flex; gap: 28px; margin-bottom: 32px; }
+  .final-char-item { text-align: center; opacity: 0; animation: charReveal 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .final-char-item:nth-child(1) { animation-delay: 0.5s; }
+  .final-char-item:nth-child(2) { animation-delay: 0.7s; }
+  .final-char-item:nth-child(3) { animation-delay: 0.9s; }
+  @keyframes charReveal { from { opacity: 0; transform: translateY(30px) scale(0.5) rotate(-10deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+
+  .final-char-icon {
+    width: 90px; height: 90px; border-radius: 22px;
+    background: var(--fc-bg); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 0 var(--fc-shadow), 0 10px 30px rgba(0,0,0,0.3), 0 0 30px var(--fc-glow);
+    position: relative;
+    border: 3px solid var(--fc-border, transparent);
+  }
+  .final-char-icon svg { width: 58px; height: 58px; }
+  .final-char-icon::after {
+    content: ''; position: absolute; top: -5px; right: -5px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+    box-shadow: 0 2px 8px #4ECDC450;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-size: 14px; background-repeat: no-repeat; background-position: center;
+  }
+  .final-char-name { font-size: 11px; font-weight: 800; color: #FFD54Faa; margin-top: 10px; }
+
+  .final-loading {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px; border-radius: 12px;
+    background: rgba(255,213,79,0.08); border: 1px solid #FFD54F15;
+    animation: fadeUp 0.5s 1.2s both;
+  }
+  .final-spinner { width: 20px; height: 20px; border: 3px solid #FFD54F20; border-top-color: #FFD54F; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .final-loading-text { font-size: 13px; font-weight: 700; color: #FFD54Faa; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ══ Background Scene ══ -->
+<div class="bg-scene">
+  <div class="bg-shelf"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+  <div id="bgStars"></div>
+</div>
+
+<!-- SVG Defs -->
+<svg style="position:absolute;width:0;height:0;">
+<defs>
+  <filter id="glowFilter"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+  <!-- Ignis: Flame on open book -->
+  <symbol id="char-ignis" viewBox="0 0 100 100">
+    <path d="M20 72 Q50 65 80 72 L82 78 Q50 72 18 78Z" fill="#8B6914" opacity="0.7"/>
+    <path d="M22 68 Q50 62 78 68 L80 74 Q50 68 20 74Z" fill="#D4AA3A"/>
+    <line x1="50" y1="63" x2="50" y2="74" stroke="#B8941A" stroke-width="0.8" opacity="0.4"/>
+    <path d="M50 14 C65 28, 70 40, 65 52 C62 58, 56 62, 50 62 C44 62, 38 58, 35 52 C30 40, 35 28, 50 14Z" fill="url(#flameGrad)"/>
+    <path d="M50 24 C59 34, 62 42, 59 50 C57 54, 54 56, 50 56 C46 56, 43 54, 41 50 C38 42, 41 34, 50 24Z" fill="#FFD93D" opacity="0.9"/>
+    <path d="M50 32 C55 38, 56 43, 54 48 C53 50, 51 51, 50 51 C49 51, 47 50, 46 48 C44 43, 45 38, 50 32Z" fill="#FFF4CC"/>
+    <ellipse cx="44" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="56" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="45" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <ellipse cx="57" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <path d="M44 49 Q50 54, 56 49" stroke="#C44D34" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M65 54 Q72 48 76 44" stroke="#FFB347" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <line x1="76" y1="44" x2="82" y2="34" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M82 34 L86 28 L80 32Z" fill="#FF6B6B" opacity="0.7"/>
+    <path d="M18 22 L20 16 L22 22 L28 24 L22 26 L20 32 L18 26 L12 24Z" fill="#FFE66D" opacity="0.8"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/></path>
+    <path d="M78 18 L79.5 14 L81 18 L85 19.5 L81 21 L79.5 25 L78 21 L74 19.5Z" fill="#FF8E8E" opacity="0.7"><animate attributeName="opacity" values="0.7;0.2;0.7" dur="2.5s" repeatCount="indefinite"/></path>
+  </symbol>
+
+  <!-- Bloom: Nature spirit on mushroom -->
+  <symbol id="char-bloom" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="78" rx="18" ry="5" fill="#5D4037" opacity="0.25"/>
+    <rect x="44" y="68" width="12" height="14" rx="3" fill="#BCAAA4"/>
+    <ellipse cx="50" cy="68" rx="20" ry="10" fill="#E57373" opacity="0.4"/>
+    <circle cx="43" cy="66" r="2.5" fill="white" opacity="0.5"/>
+    <circle cx="56" cy="64" r="2" fill="white" opacity="0.4"/>
+    <ellipse cx="50" cy="48" rx="16" ry="20" fill="url(#bloomGrad)"/>
+    <ellipse cx="50" cy="46" rx="11" ry="12" fill="#C8E6C9" opacity="0.5"/>
+    <ellipse cx="44" cy="44" rx="3.2" ry="3.8" fill="#2D3436"/>
+    <ellipse cx="56" cy="44" rx="3.2" ry="3.8" fill="#2D3436"/>
+    <ellipse cx="44.8" cy="42.5" rx="1.3" ry="1.6" fill="white"/>
+    <ellipse cx="56.8" cy="42.5" rx="1.3" ry="1.6" fill="white"/>
+    <ellipse cx="39" cy="49" rx="3.5" ry="2.2" fill="#FF8A80" opacity="0.35"/>
+    <ellipse cx="61" cy="49" rx="3.5" ry="2.2" fill="#FF8A80" opacity="0.35"/>
+    <path d="M46 51 Q50 55, 54 51" stroke="#2D3436" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="26" cy="42" rx="12" ry="7" fill="#A5D6A7" opacity="0.55" transform="rotate(-15 26 42)"/>
+    <ellipse cx="74" cy="42" rx="12" ry="7" fill="#A5D6A7" opacity="0.55" transform="rotate(15 74 42)"/>
+    <circle cx="42" cy="30" r="4" fill="#CE93D8" opacity="0.7"/><circle cx="42" cy="30" r="2" fill="#FFE66D"/>
+    <circle cx="50" cy="27" r="5" fill="#E040FB" opacity="0.6"/><circle cx="50" cy="27" r="2.5" fill="#FFE66D"/>
+    <circle cx="58" cy="30" r="4" fill="#F48FB1" opacity="0.6"/><circle cx="58" cy="30" r="2" fill="#FFE66D"/>
+    <circle cx="16" cy="28" r="2" fill="#A5D6A7" opacity="0.5"><animate attributeName="cy" values="28;22;28" dur="3s" repeatCount="indefinite"/></circle>
+    <circle cx="84" cy="24" r="1.8" fill="#CE93D8" opacity="0.5"><animate attributeName="cy" values="24;18;24" dur="3.5s" repeatCount="indefinite"/></circle>
+  </symbol>
+
+  <!-- Rumble: Thunder cloud with cape -->
+  <symbol id="char-rumble" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="82" rx="24" ry="4" fill="#546E7A" opacity="0.15"/>
+    <path d="M28 50 C22 55, 20 65, 24 78 Q30 82, 36 76 C32 65, 30 58, 32 52Z" fill="#E17055" opacity="0.5"/>
+    <path d="M72 50 C78 55, 80 65, 76 78 Q70 82, 64 76 C68 65, 70 58, 68 52Z" fill="#E17055" opacity="0.5"/>
+    <ellipse cx="50" cy="42" rx="26" ry="20" fill="#B0BEC5"/>
+    <ellipse cx="34" cy="44" rx="16" ry="14" fill="#B0BEC5"/>
+    <ellipse cx="66" cy="44" rx="16" ry="14" fill="#B0BEC5"/>
+    <ellipse cx="50" cy="38" rx="22" ry="18" fill="#CFD8DC"/>
+    <ellipse cx="40" cy="34" rx="14" ry="12" fill="#E0E5E8"/>
+    <ellipse cx="58" cy="36" rx="13" ry="11" fill="#E0E5E8"/>
+    <ellipse cx="42" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="58" cy="42" rx="3.5" ry="4" fill="#2D3436"/>
+    <ellipse cx="42.8" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <ellipse cx="58.8" cy="40.5" rx="1.5" ry="1.8" fill="white"/>
+    <path d="M37 34 L44 36.5" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M63 34 L56 36.5" stroke="#455A64" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M44 49 Q50 54, 56 49" stroke="#2D3436" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <polygon points="44,58 48,58 46,66 52,66 40,82 44,70 38,70" fill="#FFD54F"/>
+    <polygon points="56,60 59,60 57.5,66 62,66 54,76 56.5,68 53,68" fill="#FFD54F" opacity="0.7"/>
+    <circle cx="20" cy="30" r="2.5" fill="#FFD54F" opacity="0.6"><animate attributeName="opacity" values="0.6;0.2;0.6" dur="1.5s" repeatCount="indefinite"/></circle>
+    <path d="M82 52 L83.5 49 L85 52 L88 53.5 L85 55 L83.5 58 L82 55 L79 53.5Z" fill="#FFD54F" opacity="0.4"><animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.2s" repeatCount="indefinite"/></path>
+  </symbol>
+
+  <!-- Ollie the Owl with spectacles -->
+  <symbol id="char-ollie" viewBox="0 0 64 64">
+    <!-- Body -->
+    <ellipse cx="32" cy="42" rx="18" ry="20" fill="#8B6914"/>
+    <ellipse cx="32" cy="40" rx="15" ry="17" fill="#A67C28"/>
+    <!-- Belly -->
+    <ellipse cx="32" cy="46" rx="10" ry="12" fill="#D4AA3A" opacity="0.5"/>
+    <!-- Wings -->
+    <ellipse cx="14" cy="40" rx="8" ry="12" fill="#8B6914" transform="rotate(-10 14 40)"/>
+    <ellipse cx="50" cy="40" rx="8" ry="12" fill="#8B6914" transform="rotate(10 50 40)"/>
+    <!-- Eyes (large) -->
+    <circle cx="24" cy="30" r="9" fill="white"/>
+    <circle cx="40" cy="30" r="9" fill="white"/>
+    <circle cx="24" cy="30" r="5.5" fill="#3D2E1E"/>
+    <circle cx="40" cy="30" r="5.5" fill="#3D2E1E"/>
+    <circle cx="25.5" cy="28" r="2" fill="white"/>
+    <circle cx="41.5" cy="28" r="2" fill="white"/>
+    <!-- Spectacles -->
+    <circle cx="24" cy="30" r="10" fill="none" stroke="#5D4037" stroke-width="1.5"/>
+    <circle cx="40" cy="30" r="10" fill="none" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="34" y1="30" x2="30" y2="30" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="14" y1="28" x2="10" y2="26" stroke="#5D4037" stroke-width="1.5"/>
+    <line x1="50" y1="28" x2="54" y2="26" stroke="#5D4037" stroke-width="1.5"/>
+    <!-- Beak -->
+    <path d="M29 36 L32 40 L35 36Z" fill="#FF8E53"/>
+    <!-- Ear tufts -->
+    <path d="M18 18 Q20 12, 24 20" fill="#8B6914"/>
+    <path d="M46 18 Q44 12, 40 20" fill="#8B6914"/>
+    <!-- Feet -->
+    <path d="M24 60 L20 63 M24 60 L24 63 M24 60 L28 63" stroke="#D4AA3A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M40 60 L36 63 M40 60 L40 63 M40 60 L44 63" stroke="#D4AA3A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#FF6B6B"/><stop offset="40%" stop-color="#FF8E53"/><stop offset="100%" stop-color="#FFB347"/>
+  </linearGradient>
+  <linearGradient id="bloomGrad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#66BB6A"/><stop offset="100%" stop-color="#81C784"/>
+  </linearGradient>
+</defs>
+</svg>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main" id="main">
+
+  <!-- Quest Sidebar -->
+  <div class="quest-sidebar">
+    <div class="quest-sidebar-title">Your Quest</div>
+    <div class="quest-trail" id="questTrail">
+      <!-- Winding path SVG -->
+      <svg class="trail-path-svg" width="60" height="280" viewBox="0 0 60 280">
+        <path class="trail-path-bg" d="M30 0 C10 50, 50 80, 30 130 C10 180, 50 210, 30 280"/>
+        <path class="trail-path-dots" d="M30 0 C10 50, 50 80, 30 130 C10 180, 50 210, 30 280"/>
+        <path class="trail-path-glow" id="trailGlow" d="M30 0 C10 50, 50 80, 30 130 C10 180, 50 210, 30 280"
+          stroke-dasharray="340" stroke-dashoffset="340"/>
+      </svg>
+
+      <div class="quest-node visible-node" id="node0">
+        <div class="quest-node-label" id="nodeLabel0">Current Quest</div>
+        <div class="quest-icon-wrap active" id="icon0">
+          <svg><use href="#char-ignis"/></svg>
+        </div>
+        <div class="quest-node-name">Story Spark</div>
+      </div>
+
+      <div class="quest-node hidden-node" id="node1">
+        <div class="quest-node-label" id="nodeLabel1" style="display:none;">Current Quest</div>
+        <div class="quest-icon-wrap locked" id="icon1">
+          <svg><use href="#char-bloom"/></svg>
+        </div>
+        <div class="quest-node-name">Sense Weaver</div>
+      </div>
+
+      <div class="quest-node hidden-node" id="node2">
+        <div class="quest-node-label" id="nodeLabel2" style="display:none;">Final Trial</div>
+        <div class="quest-icon-wrap locked" id="icon2">
+          <svg><use href="#char-rumble"/></svg>
+        </div>
+        <div class="quest-node-name">Thunder Voice</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parchment Card -->
+  <div class="parchment" id="parchment">
+    <div class="parchment-inner">
+      <!-- Header -->
+      <div class="parchment-header">
+        <div class="parchment-header-glow"></div>
+        <div class="trial-badge" id="trialBadge">Trial 1 of 3</div>
+        <div class="parchment-title">
+          <div class="parchment-title-char" id="titleChar">
+            <svg><use href="#char-ignis"/></svg>
+          </div>
+          <span id="titleText">The Story Spark</span>
+        </div>
+
+        <!-- Owl Mentor -->
+        <div class="owl-mentor">
+          <div class="owl-avatar"><svg><use href="#char-ollie"/></svg></div>
+          <div class="owl-speech" id="owlSpeech">Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!</div>
+        </div>
+      </div>
+
+      <!-- Challenge Scroll -->
+      <div class="challenge-scroll">
+        <div class="challenge-scroll-seal">&#x2726;</div>
+        <div class="challenge-label">Your Challenge</div>
+        <div class="challenge-text" id="challengeText">Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?</div>
+      </div>
+
+      <!-- Writing Pad -->
+      <div class="writing-pad">
+        <textarea class="writing-area" id="writingArea" placeholder="Start writing your story here..." oninput="onType(event)"></textarea>
+        <div class="spark-container" id="sparkContainer"></div>
+      </div>
+
+      <!-- Spark Meter + Button -->
+      <div class="spark-meter-row">
+        <div class="spark-meter">
+          <div class="spark-tube"><div class="spark-fire" id="sparkFire"></div></div>
+          <span class="spark-label" id="sparkLabel">0 / 20 sparks</span>
+        </div>
+        <button class="btn-prove" id="btnProve" onclick="submitTrial()">Prove It!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Celebration -->
+<div class="celebration" id="celebration">
+  <div class="celeb-bg"></div>
+  <div class="celeb-content">
+    <div class="celeb-icon" id="celebIcon"><svg width="76" height="76"><use href="#char-ignis"/></svg></div>
+    <div class="celeb-title" id="celebTitle">Trial Passed!</div>
+    <div class="celeb-sub" id="celebSub">...</div>
+  </div>
+</div>
+
+<!-- Finale -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-bg"></div>
+  <div class="final-stars" id="finalStars"></div>
+  <div class="final-content">
+    <div class="final-owl"><svg><use href="#char-ollie"/></svg></div>
+    <div class="final-title">You've proven yourself worthy!</div>
+    <div class="final-sub">Welcome to the quest, <strong>Maya</strong>. Ollie is preparing your personal adventure path...</div>
+    <div class="final-chars">
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#FFF3D4,#FFE4A8);--fc-shadow:#C49A2A40;--fc-glow:#FFD54F30;--fc-border:#FF6B6B80;"><svg><use href="#char-ignis"/></svg></div><div class="final-char-name" style="color:#FF8E53cc;">Story Spark</div></div>
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#E8F5E9,#C8E6C9);--fc-shadow:#2E7D3240;--fc-glow:#66BB6A30;--fc-border:#66BB6A80;"><svg><use href="#char-bloom"/></svg></div><div class="final-char-name" style="color:#81C784cc;">Sense Weaver</div></div>
+      <div class="final-char-item"><div class="final-char-icon" style="--fc-bg:linear-gradient(145deg,#ECEFF1,#CFD8DC);--fc-shadow:#455A6440;--fc-glow:#90A4AE30;--fc-border:#90A4AE80;"><svg><use href="#char-rumble"/></svg></div><div class="final-char-name" style="color:#B0BEC5cc;">Thunder Voice</div></div>
+    </div>
+    <div class="final-loading"><div class="final-spinner"></div><span class="final-loading-text">Crafting your curriculum...</span></div>
+  </div>
+</div>
+
+<script>
+  // ── Background stars ──
+  (function() {
+    const c = document.getElementById('bgStars');
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('div');
+      s.className = 'bg-star';
+      s.style.left = (Math.random()*100)+'%';
+      s.style.top = (Math.random()*70)+'%';
+      const sz = 1.5+Math.random()*3;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      s.style.animationDuration = (2+Math.random()*3)+'s';
+      s.style.animationDelay = (Math.random()*4)+'s';
+      c.appendChild(s);
+    }
+  })();
+
+  // ── Finale stars ──
+  (function() {
+    const c = document.getElementById('finalStars');
+    for (let i = 0; i < 35; i++) {
+      const s = document.createElement('div');
+      s.className = 'final-star';
+      s.style.left = (Math.random()*100)+'%'; s.style.top = (Math.random()*100)+'%';
+      const sz = 1.5+Math.random()*3;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      s.style.animationDuration = (1.5+Math.random()*2)+'s';
+      s.style.animationDelay = (Math.random()*3)+'s';
+      c.appendChild(s);
+    }
+  })();
+
+  let currentTrial = 0;
+  const trials = [
+    { badge:'Trial 1 of 3', title:'The Story Spark', char:'#char-ignis', ollie:"Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!", prompt:"Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?", celebTitle:'Story Spark — Proven!', celebSub:"I can feel the storytelling magic in you! A new trial awaits..." },
+    { badge:'Trial 2 of 3', title:'The Sense Weaver', char:'#char-bloom', ollie:"A true writer doesn't just tell — they make readers SEE, HEAR, and FEEL. Show me you can weave the senses into your words!", prompt:"Describe your favorite place in the world so vividly that someone who's never been there can close their eyes and feel like they're standing right in it.", celebTitle:'Sense Weaver — Proven!', celebSub:"Brilliant! One final trial remains — the hardest one..." },
+    { badge:'Final Trial', title:'The Voice of Thunder', char:'#char-rumble', ollie:"The mightiest power a writer has is the power to change minds. Show me your voice of thunder — convince me!", prompt:"Should kids have a say in what they learn at school? Pick a side and write your strongest argument to convince your principal.", celebTitle:'All Trials Complete!', celebSub:"You've done it, Maya! You are worthy." },
+  ];
+  const trailOffsets = [225, 110, 0];
+
+  let lastTypedAt = 0;
+  function onType(e) {
+    const val = document.getElementById('writingArea').value;
+    const words = val.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words/20, 1);
+    const fire = document.getElementById('sparkFire');
+    const label = document.getElementById('sparkLabel');
+    const btn = document.getElementById('btnProve');
+    fire.style.width = (pct*100)+'%';
+    label.textContent = words + ' / 20 sparks';
+    if (pct >= 1) { fire.classList.add('full'); label.classList.add('ready'); label.textContent = words+' sparks \u2713'; btn.classList.add('ready'); if(currentTrial===2) btn.textContent='Complete the Trial!'; }
+    else { fire.classList.remove('full'); label.classList.remove('ready'); btn.classList.remove('ready'); btn.textContent='Prove It!'; }
+
+    // Spark particles on typing
+    const now = Date.now();
+    if (now - lastTypedAt > 60) {
+      lastTypedAt = now;
+      spawnTypingSpark();
+    }
+  }
+
+  function spawnTypingSpark() {
+    const c = document.getElementById('sparkContainer');
+    const ta = document.getElementById('writingArea');
+    for (let i = 0; i < 2; i++) {
+      const s = document.createElement('div'); s.className = 'spark';
+      const x = 40 + Math.random() * (ta.offsetWidth - 80);
+      const y = 20 + Math.random() * 40;
+      s.style.left = x+'px'; s.style.top = y+'px';
+      s.style.setProperty('--sx', ((Math.random()-0.5)*40)+'px');
+      s.style.setProperty('--sy', (-(10+Math.random()*30))+'px');
+      s.style.background = ['#FFD54F','#FF8E53','#FF6B6B','#FFF4CC'][Math.floor(Math.random()*4)];
+      const sz = 2+Math.random()*4;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      c.appendChild(s);
+      setTimeout(()=>s.remove(), 800);
+    }
+  }
+
+  function submitTrial() {
+    if (!document.getElementById('btnProve').classList.contains('ready')) return;
+    const t = trials[currentTrial];
+
+    // Mark sidebar done
+    const icon = document.getElementById('icon'+currentTrial);
+    icon.classList.remove('active'); icon.classList.add('done');
+    icon.innerHTML += '<div class="quest-icon-check">\u2713</div>';
+    document.getElementById('nodeLabel'+currentTrial).style.display='none';
+
+    // Fill trail path
+    document.getElementById('trailGlow').style.strokeDashoffset = trailOffsets[currentTrial];
+
+    showCeleb(t.char, t.celebTitle, t.celebSub);
+
+    if (currentTrial < 2) {
+      setTimeout(() => {
+        currentTrial++;
+        const nt = trials[currentTrial];
+
+        // Reveal next node
+        const node = document.getElementById('node'+currentTrial);
+        node.classList.remove('hidden-node'); node.classList.add('visible-node');
+        const ni = document.getElementById('icon'+currentTrial);
+        ni.classList.remove('locked'); ni.classList.add('active');
+        document.getElementById('nodeLabel'+currentTrial).style.display='';
+
+        // Fade card out/in
+        const p = document.getElementById('parchment');
+        p.style.opacity = '0'; p.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+          document.getElementById('trialBadge').textContent = nt.badge;
+          document.getElementById('titleText').textContent = nt.title;
+          document.getElementById('titleChar').innerHTML = '<svg><use href="'+nt.char+'"/></svg>';
+          document.getElementById('owlSpeech').textContent = nt.ollie;
+          document.getElementById('challengeText').textContent = nt.prompt;
+          document.getElementById('writingArea').value = '';
+          document.getElementById('sparkFire').style.width = '0%'; document.getElementById('sparkFire').classList.remove('full');
+          document.getElementById('sparkLabel').textContent = '0 / 20 sparks'; document.getElementById('sparkLabel').classList.remove('ready');
+          document.getElementById('btnProve').classList.remove('ready'); document.getElementById('btnProve').textContent = 'Prove It!';
+
+          p.style.opacity = '1'; p.style.transform = 'translateY(0)';
+        }, 300);
+
+        hideCeleb();
+      }, 2500);
+    } else {
+      setTimeout(() => { hideCeleb(); setTimeout(() => { document.getElementById('finalScreen').classList.add('show'); spawnConfetti(document.getElementById('finalScreen')); }, 300); }, 3000);
+    }
+  }
+
+  function showCeleb(charId, title, sub) {
+    const el = document.getElementById('celebration');
+    document.getElementById('celebIcon').innerHTML = '<svg width="76" height="76"><use href="'+charId+'"/></svg>';
+    document.getElementById('celebTitle').textContent = title;
+    document.getElementById('celebSub').textContent = sub;
+    el.classList.add('show');
+    spawnConfetti(el);
+  }
+  function hideCeleb() { document.getElementById('celebration').classList.remove('show'); }
+
+  function spawnConfetti(container) {
+    const colors = ['#FFD54F','#FF6B6B','#4ECDC4','#FF8E53','#6C5CE7','#E17055','#FFE66D','#A29BFE'];
+    for (let i = 0; i < 55; i++) {
+      const c = document.createElement('div'); c.className = 'confetti';
+      const s = Math.random()*10+4;
+      c.style.width = s+'px'; c.style.height = (s*(Math.random()*0.5+0.5))+'px';
+      c.style.borderRadius = Math.random()>0.4?'50%':Math.random()>0.5?'2px':'0';
+      c.style.background = colors[i%colors.length];
+      c.style.left = (25+Math.random()*50)+'%'; c.style.top = (20+Math.random()*15)+'%';
+      c.style.setProperty('--fd',(250+Math.random()*450)+'px');
+      c.style.setProperty('--rot',((Math.random()-0.5)*1440)+'deg');
+      c.style.transform = 'translateX('+((Math.random()-0.5)*600)+'px)';
+      c.style.animationDuration = (1.2+Math.random()*1.5)+'s';
+      c.style.animationDelay = (Math.random()*0.5)+'s';
+      container.appendChild(c);
+      setTimeout(()=>c.remove(), 3500);
+    }
+  }
+
+  // Parchment transition
+  document.getElementById('parchment').style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+</script>
+</body>
+</html>

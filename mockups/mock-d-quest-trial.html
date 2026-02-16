@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock D: The Writer's Quest Trial</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #FFF9F0; min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Intro Sequence ── */
+  .intro {
+    position: fixed; inset: 0; z-index: 100; background: #FFF9F0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; transition: opacity 0.6s, transform 0.5s;
+  }
+  .intro.hidden { opacity: 0; transform: translateY(-20px); pointer-events: none; }
+
+  .intro-mascot { font-size: 72px; animation: float 2.5s ease-in-out infinite; margin-bottom: 8px; }
+
+  /* Typewriter-style narration area */
+  .narration-box {
+    max-width: 420px; text-align: center; min-height: 180px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .narration-text {
+    font-size: 17px; font-weight: 700; color: #2D3436cc; line-height: 1.7;
+    margin-bottom: 24px; min-height: 100px;
+  }
+  .narration-text .highlight { color: #FF6B6B; font-weight: 800; }
+  .narration-text .name { color: #FF6B6B; font-weight: 900; }
+
+  .btn-narration {
+    background: #FF6B6B; color: white; border: none; padding: 14px 40px;
+    border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer;
+    font-family: inherit; transition: all 0.2s; box-shadow: 0 4px 15px #FF6B6B40;
+    opacity: 0; animation: fadeUp 0.5s 0.3s forwards;
+  }
+  .btn-narration:hover { transform: translateY(-2px); box-shadow: 0 6px 20px #FF6B6B50; }
+  .btn-narration.secondary {
+    background: white; color: #FF6B6B; border: 2px solid #FF6B6B30;
+    box-shadow: none; margin-top: 8px; font-size: 14px; padding: 10px 28px;
+  }
+  .btn-narration.secondary:hover { background: #FF6B6B08; }
+
+  /* Tiny dots for narration step */
+  .narration-dots {
+    display: flex; gap: 6px; margin-bottom: 20px;
+  }
+  .narration-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #2D343615;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .narration-dot.active { background: #FF6B6B; transform: scale(1.3); }
+  .narration-dot.done { background: #4ECDC4; }
+
+  /* ── Main Assessment ── */
+  .main { max-width: 560px; margin: 0 auto; padding: 20px 24px 60px; display: none; }
+
+  .main-header { text-align: center; margin-bottom: 20px; animation: fadeUp 0.5s ease-out; }
+  .main-header h1 { font-size: 18px; font-weight: 800; color: #2D3436; }
+  .main-header p { font-size: 13px; font-weight: 600; color: #2D3436aa; margin-top: 2px; }
+
+  /* ── Trail Section ── */
+  .trail { display: flex; flex-direction: column; align-items: center; gap: 0; margin-bottom: 24px; }
+
+  .trial-block {
+    width: 100%; opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .trial-block.visible { opacity: 1; transform: translateY(0); }
+
+  .trial-header {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    border-radius: 16px; transition: all 0.3s; cursor: default;
+  }
+  .trial-header.active { background: white; box-shadow: 0 2px 12px #2D343608; border: 2px solid #FF6B6B20; }
+  .trial-header.done { background: #4ECDC408; border: 2px solid #4ECDC420; }
+  .trial-header.locked { opacity: 0.35; }
+
+  .trial-icon {
+    width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center;
+    justify-content: center; font-size: 26px; flex-shrink: 0; position: relative;
+    background: #2D343608; transition: all 0.3s;
+  }
+  .trial-header.active .trial-icon { background: #FF6B6B10; box-shadow: 0 0 0 3px #FF6B6B25; }
+  .trial-header.done .trial-icon { background: #4ECDC415; }
+
+  .trial-badge {
+    position: absolute; top: -5px; right: -5px; width: 20px; height: 20px;
+    border-radius: 50%; background: #4ECDC4; display: flex; align-items: center;
+    justify-content: center; color: white; font-size: 11px; font-weight: 900;
+    box-shadow: 0 2px 6px #4ECDC440; animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .trial-info { flex: 1; }
+  .trial-label { font-size: 10px; font-weight: 800; color: #FF6B6B; text-transform: uppercase; letter-spacing: 1.5px; }
+  .trial-header.done .trial-label { color: #4ECDC4; }
+  .trial-title { font-size: 16px; font-weight: 800; color: #2D3436; margin: 1px 0; }
+  .trial-desc { font-size: 12px; font-weight: 600; color: #2D3436aa; }
+
+  /* Trail connector */
+  .trail-connector {
+    width: 3px; height: 32px; margin: 4px 0; border-radius: 2px;
+    background: #2D343610; position: relative; overflow: hidden;
+    transition: opacity 0.6s;
+  }
+  .trail-connector .connector-fill {
+    width: 100%; height: 0%; background: #4ECDC4; border-radius: 2px;
+    transition: height 0.6s ease-out;
+  }
+  .trail-connector .connector-fill.complete { height: 100%; }
+
+  /* ── Quest Card ── */
+  .quest-card {
+    background: white; border-radius: 20px; padding: 24px;
+    box-shadow: 0 4px 20px #2D343608; border: 2px solid #FF6B6B10;
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .quest-ollie {
+    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;
+    padding: 14px; background: #FFE66D15; border-radius: 14px; border: 1px solid #FFE66D30;
+  }
+  .quest-ollie-avatar { font-size: 28px; flex-shrink: 0; }
+  .quest-ollie-text { font-size: 14px; font-weight: 600; color: #2D3436cc; line-height: 1.5; font-style: italic; }
+
+  .quest-prompt-wrap { margin-bottom: 16px; }
+  .quest-prompt-label { font-size: 10px; font-weight: 800; color: #2D343640; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .quest-prompt {
+    font-size: 15px; font-weight: 700; color: #2D3436; line-height: 1.5;
+    padding: 14px 16px; background: #FFF9F0; border-radius: 12px;
+    border-left: 4px solid #FFE66D;
+  }
+
+  .quest-textarea {
+    width: 100%; min-height: 150px; border: 2px solid #2D343610; border-radius: 12px;
+    padding: 14px; font-family: 'Literata', 'Georgia', serif; font-size: 15px;
+    color: #2D3436; resize: vertical; outline: none; line-height: 1.8;
+    transition: border-color 0.2s;
+  }
+  .quest-textarea:focus { border-color: #FF6B6B50; box-shadow: 0 0 0 3px #FF6B6B10; }
+  .quest-textarea::placeholder { color: #2D343625; }
+
+  .quest-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+
+  /* Word gauge */
+  .word-gauge { display: flex; align-items: center; gap: 8px; }
+  .gauge-bar { width: 90px; height: 8px; background: #2D34360a; border-radius: 4px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 4px; transition: width 0.3s, background 0.3s; background: #2D343618; width: 0%; }
+  .gauge-fill.ready { background: linear-gradient(90deg, #4ECDC480, #4ECDC4); }
+  .gauge-text { font-size: 12px; font-weight: 700; color: #2D343650; }
+  .gauge-text.ready { color: #4ECDC4; }
+
+  .btn-submit {
+    background: #ddd; color: white; border: none; padding: 12px 28px;
+    border-radius: 12px; font-size: 14px; font-weight: 800; cursor: not-allowed;
+    font-family: inherit; transition: all 0.3s;
+  }
+  .btn-submit.ready { background: #FF6B6B; cursor: pointer; box-shadow: 0 4px 12px #FF6B6B30; }
+  .btn-submit.ready:hover { transform: translateY(-1px); box-shadow: 0 6px 16px #FF6B6B40; }
+
+  /* ── Celebration Overlay ── */
+  .celebration {
+    position: fixed; inset: 0; z-index: 200; background: rgba(255,249,240,0.96);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .celebration.show { opacity: 1; pointer-events: auto; }
+  .celeb-mascot { font-size: 56px; margin-bottom: 8px; animation: float 1.5s ease-in-out infinite; }
+  .celeb-emoji { font-size: 48px; margin-bottom: 12px; animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .celeb-title { font-size: 22px; font-weight: 900; color: #2D3436; text-align: center; }
+  .celeb-sub { font-size: 14px; font-weight: 600; color: #2D3436aa; margin-top: 6px; text-align: center; max-width: 320px; line-height: 1.5; }
+
+  .sparkle {
+    position: absolute; border-radius: 50%;
+    animation: sparkle 1.2s ease-out forwards;
+  }
+
+  /* ── Final Screen ── */
+  .final-screen {
+    position: fixed; inset: 0; z-index: 200; background: #FFF9F0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .final-screen.show { opacity: 1; pointer-events: auto; }
+  .final-emoji { font-size: 64px; margin-bottom: 12px; animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .final-title { font-size: 24px; font-weight: 900; color: #2D3436; text-align: center; margin-bottom: 6px; }
+  .final-sub { font-size: 15px; font-weight: 600; color: #2D3436aa; text-align: center; max-width: 340px; line-height: 1.6; }
+  .final-loading { margin-top: 24px; display: flex; align-items: center; gap: 8px; }
+  .final-spinner { width: 20px; height: 20px; border: 3px solid #FF6B6B20; border-top-color: #FF6B6B; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .final-loading-text { font-size: 13px; font-weight: 700; color: #FF6B6Baa; }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes sparkle {
+    0% { transform: scale(0) translate(0, 0); opacity: 1; }
+    100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ INTRO SEQUENCE ══════════════ -->
+<div class="intro" id="intro">
+  <div class="intro-mascot" id="introMascot">🦉</div>
+  <div class="narration-dots" id="narrationDots">
+    <div class="narration-dot active" id="dot0"></div>
+    <div class="narration-dot" id="dot1"></div>
+    <div class="narration-dot" id="dot2"></div>
+    <div class="narration-dot" id="dot3"></div>
+  </div>
+  <div class="narration-box" id="narrationBox">
+    <!-- Step 0 -->
+    <div class="narration-text" id="narrationText">
+      Psst... <span class="name">Maya</span>! Over here! I'm <span class="highlight">Ollie</span>, keeper of the Story Realm — a world made entirely of words, where every tale ever told lives and breathes.
+    </div>
+    <button class="btn-narration" id="btnNarration" onclick="nextNarration()">Tell me more...</button>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ASSESSMENT ══════════════ -->
+<div class="main" id="main">
+  <div class="main-header">
+    <h1>🦉 The Writer's Trial</h1>
+    <p>Prove your skills. Join the quest.</p>
+  </div>
+
+  <div class="trail" id="trail">
+    <!-- Trial 1 -->
+    <div class="trial-block visible" id="block0">
+      <div class="trial-header active" id="header0">
+        <div class="trial-icon" id="icon0">🏰</div>
+        <div class="trial-info">
+          <div class="trial-label">Trial 1 of 3</div>
+          <div class="trial-title">The Story Spark</div>
+          <div class="trial-desc">Show me you can spin a tale</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connector 0→1 (hidden initially) -->
+    <div class="trail-connector" id="conn0" style="opacity:0">
+      <div class="connector-fill" id="connFill0"></div>
+    </div>
+
+    <!-- Trial 2 (hidden) -->
+    <div class="trial-block" id="block1">
+      <div class="trial-header locked" id="header1">
+        <div class="trial-icon" id="icon1">🌿</div>
+        <div class="trial-info">
+          <div class="trial-label">Trial 2 of 3</div>
+          <div class="trial-title">The Sense Weaver</div>
+          <div class="trial-desc">Paint the world with your words</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connector 1→2 (hidden) -->
+    <div class="trail-connector" id="conn1" style="opacity:0">
+      <div class="connector-fill" id="connFill1"></div>
+    </div>
+
+    <!-- Trial 3 (hidden) -->
+    <div class="trial-block" id="block2">
+      <div class="trial-header locked" id="header2">
+        <div class="trial-icon" id="icon2">🔥</div>
+        <div class="trial-info">
+          <div class="trial-label">Final Trial</div>
+          <div class="trial-title">The Voice of Thunder</div>
+          <div class="trial-desc">Convince me with your words</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quest Card -->
+  <div class="quest-card" id="questCard">
+    <div class="quest-ollie" id="questOllie">
+      <div class="quest-ollie-avatar">🦉</div>
+      <div class="quest-ollie-text" id="questOllieSays">
+        Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!
+      </div>
+    </div>
+    <div class="quest-prompt-wrap">
+      <div class="quest-prompt-label">Your Challenge</div>
+      <div class="quest-prompt" id="questPrompt">
+        Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?
+      </div>
+    </div>
+    <textarea class="quest-textarea" id="questTextarea" placeholder="Start your story here..." oninput="onType()"></textarea>
+    <div class="quest-footer">
+      <div class="word-gauge">
+        <div class="gauge-bar"><div class="gauge-fill" id="gaugeFill"></div></div>
+        <span class="gauge-text" id="gaugeText">0 / 20 words</span>
+      </div>
+      <button class="btn-submit" id="btnSubmit" onclick="submitTrial()">Prove It! ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CELEBRATION ══════════════ -->
+<div class="celebration" id="celebration">
+  <div class="celeb-mascot">🦉</div>
+  <div class="celeb-emoji" id="celebEmoji">⭐</div>
+  <div class="celeb-title" id="celebTitle">Trial Passed!</div>
+  <div class="celeb-sub" id="celebSub">You've proven your storytelling spark. But the journey isn't over yet...</div>
+</div>
+
+<!-- ══════════════ FINAL SCREEN ══════════════ -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-emoji">🎉</div>
+  <div class="final-title">You've proven yourself worthy!</div>
+  <div class="final-sub">
+    Welcome to the quest, <strong>Maya</strong>. Ollie is preparing your personal adventure path based on the skills you just showed...
+  </div>
+  <div class="final-loading">
+    <div class="final-spinner"></div>
+    <span class="final-loading-text">Crafting your curriculum...</span>
+  </div>
+</div>
+
+<script>
+  // ── Narration Steps ──
+  let narrationStep = 0;
+  const narrations = [
+    {
+      text: `Psst... <span class="name">Maya</span>! Over here! I'm <span class="highlight">Ollie</span>, keeper of the Story Realm — a world made entirely of words, where every tale ever told lives and breathes.`,
+      btn: 'Tell me more...',
+    },
+    {
+      text: `But the Story Realm is in trouble. Its pages are <span class="highlight">fading</span>, and I need a new writer to join my quest and bring them back to life. I've been searching for someone with real writing magic...`,
+      btn: 'Could that be me?',
+    },
+    {
+      text: `I think it could! But first, every writer who joins the quest must pass <span class="highlight">three trials</span> — to prove they have the spark of storytelling, the eye of a sense weaver, and the voice to move mountains.`,
+      btn: 'What kind of trials?',
+    },
+    {
+      text: `Don't worry — there are no wrong answers, and this isn't a test. I just need to see <span class="highlight">how you write</span> so I can plan the perfect adventure for you. Ready to show me what you've got?`,
+      btn: "I'm ready! Let's go!",
+    },
+  ];
+
+  function nextNarration() {
+    narrationStep++;
+    if (narrationStep >= narrations.length) {
+      // Transition to main
+      document.getElementById('intro').classList.add('hidden');
+      setTimeout(() => {
+        document.getElementById('main').style.display = 'block';
+      }, 400);
+      return;
+    }
+
+    const n = narrations[narrationStep];
+    // Update dots
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('dot' + i);
+      dot.classList.remove('active', 'done');
+      if (i < narrationStep) dot.classList.add('done');
+      else if (i === narrationStep) dot.classList.add('active');
+    }
+
+    // Fade text
+    const textEl = document.getElementById('narrationText');
+    const btnEl = document.getElementById('btnNarration');
+    textEl.style.opacity = '0';
+    btnEl.style.opacity = '0';
+
+    setTimeout(() => {
+      textEl.innerHTML = n.text;
+      btnEl.textContent = n.btn;
+      textEl.style.opacity = '1';
+      btnEl.style.opacity = '1';
+      textEl.style.transition = 'opacity 0.4s';
+      btnEl.style.transition = 'opacity 0.4s';
+    }, 300);
+  }
+
+  // ── Quest Logic ──
+  let currentTrial = 0;
+
+  const trials = [
+    {
+      ollieSays: "Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!",
+      prompt: "Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?",
+      celebEmoji: '⭐',
+      celebTitle: 'The Story Spark — Proven!',
+      celebSub: "I can feel the storytelling magic in you! But can your words paint a picture too? A new trial awaits...",
+    },
+    {
+      ollieSays: "A true writer doesn't just tell — they make readers SEE, HEAR, and FEEL. Show me you can weave the senses into your words!",
+      prompt: "Describe your favorite place in the world so vividly that someone who's never been there can close their eyes and feel like they're standing right in it.",
+      celebEmoji: '🌟',
+      celebTitle: 'The Sense Weaver — Proven!',
+      celebSub: "Brilliant! Your words are vivid and alive. One final trial remains — the hardest one of all...",
+    },
+    {
+      ollieSays: "The mightiest power a writer has is the power to change minds. Show me your voice of thunder — convince me of something you believe in!",
+      prompt: "Should kids have a say in what they learn at school? Pick a side and write your strongest argument to convince your principal.",
+      celebEmoji: '🏆',
+      celebTitle: 'All Trials Complete!',
+      celebSub: "You've done it, Maya! You have the storytelling spark, the sense-weaving eye, AND the voice of thunder. You are worthy.",
+    },
+  ];
+
+  function onType() {
+    const text = document.getElementById('questTextarea').value;
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words / 20, 1);
+    const fill = document.getElementById('gaugeFill');
+    const gauge = document.getElementById('gaugeText');
+    const btn = document.getElementById('btnSubmit');
+
+    fill.style.width = (pct * 100) + '%';
+    gauge.textContent = words + ' / 20 words';
+
+    if (pct >= 1) {
+      fill.classList.add('ready');
+      gauge.classList.add('ready');
+      gauge.textContent = words + ' words ✓';
+      btn.classList.add('ready');
+      if (currentTrial === 2) btn.textContent = 'Complete the Trial! 🏆';
+    } else {
+      fill.classList.remove('ready');
+      gauge.classList.remove('ready');
+      btn.classList.remove('ready');
+      btn.textContent = 'Prove It! ✨';
+    }
+  }
+
+  function submitTrial() {
+    const t = trials[currentTrial];
+
+    // Mark current trial header as done
+    const header = document.getElementById('header' + currentTrial);
+    header.classList.remove('active');
+    header.classList.add('done');
+    document.getElementById('icon' + currentTrial).innerHTML += '<div class="trial-badge">✓</div>';
+
+    // Update label
+    header.querySelector('.trial-label').textContent = 'Passed!';
+
+    // Show celebration
+    showCelebration(t.celebEmoji, t.celebTitle, t.celebSub);
+
+    if (currentTrial < 2) {
+      setTimeout(() => {
+        // Fill connector
+        const conn = document.getElementById('conn' + currentTrial);
+        conn.style.opacity = '1';
+        document.getElementById('connFill' + currentTrial).classList.add('complete');
+
+        setTimeout(() => {
+          currentTrial++;
+
+          // Reveal next trial block
+          const nextBlock = document.getElementById('block' + currentTrial);
+          nextBlock.classList.add('visible');
+          const nextHeader = document.getElementById('header' + currentTrial);
+          nextHeader.classList.remove('locked');
+          nextHeader.classList.add('active');
+
+          // Update quest card
+          const nt = trials[currentTrial];
+          document.getElementById('questOllieSays').textContent = nt.ollieSays;
+          document.getElementById('questPrompt').textContent = nt.prompt;
+          document.getElementById('questTextarea').value = '';
+          document.getElementById('gaugeFill').style.width = '0%';
+          document.getElementById('gaugeFill').classList.remove('ready');
+          document.getElementById('gaugeText').textContent = '0 / 20 words';
+          document.getElementById('gaugeText').classList.remove('ready');
+          document.getElementById('btnSubmit').classList.remove('ready');
+          document.getElementById('btnSubmit').textContent = 'Prove It! ✨';
+
+          // Re-animate quest card
+          const card = document.getElementById('questCard');
+          card.style.animation = 'none';
+          card.offsetHeight;
+          card.style.animation = 'slideUp 0.5s ease-out';
+
+          hideCelebration();
+
+          // Scroll to the new trial
+          nextBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 600);
+      }, 2200);
+    } else {
+      // Final — show final screen after celebration
+      setTimeout(() => {
+        hideCelebration();
+        setTimeout(() => {
+          document.getElementById('finalScreen').classList.add('show');
+        }, 300);
+      }, 3000);
+    }
+  }
+
+  function showCelebration(emoji, title, sub) {
+    document.getElementById('celebEmoji').textContent = emoji;
+    document.getElementById('celebTitle').textContent = title;
+    document.getElementById('celebSub').textContent = sub;
+    const el = document.getElementById('celebration');
+    el.classList.add('show');
+
+    // Sparkles
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#6C5CE7', '#00B894'];
+    for (let i = 0; i < 24; i++) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      const size = Math.random() * 8 + 4;
+      s.style.width = size + 'px'; s.style.height = size + 'px';
+      s.style.left = '50%'; s.style.top = '42%';
+      s.style.background = colors[i % colors.length];
+      s.style.setProperty('--tx', (Math.random() - 0.5) * 350 + 'px');
+      s.style.setProperty('--ty', (Math.random() - 0.5) * 350 + 'px');
+      s.style.animationDelay = (Math.random() * 0.4) + 's';
+      el.appendChild(s);
+      setTimeout(() => s.remove(), 1800);
+    }
+  }
+
+  function hideCelebration() {
+    document.getElementById('celebration').classList.remove('show');
+  }
+</script>
+</body>
+</html>

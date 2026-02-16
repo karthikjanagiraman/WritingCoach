@@ -189,6 +189,95 @@ body.tier-3 {
   outline-offset: 2px;
 }
 
+/* ══ Quest / Placement animations ══ */
+@keyframes ambientFloat {
+  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10% { opacity: var(--op, 0.3); }
+  90% { opacity: var(--op, 0.3); }
+  100% { transform: translateY(-20vh) rotate(var(--rot, 360deg)); opacity: 0; }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
+}
+
+@keyframes headerCharBreathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.03); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--glow-color, #FF6B6B)12, 0 0 24px var(--glow-color, #FF6B6B)18, 0 8px 32px var(--glow-color, #FF6B6B)15; }
+  50% { box-shadow: 0 0 0 6px var(--glow-color, #FF6B6B)18, 0 0 36px var(--glow-color, #FF6B6B)25, 0 8px 32px var(--glow-color, #FF6B6B)20; }
+}
+
+@keyframes celebBounce {
+  0% { transform: scale(0) rotate(-20deg); }
+  60% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(var(--fd, 400px)) rotate(var(--rot, 720deg)) scale(0.5); opacity: 0; }
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes charReveal {
+  from { opacity: 0; transform: translateY(30px) scale(0.5) rotate(-10deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes btnShine {
+  0%, 100% { transform: translateX(-100%) rotate(30deg); }
+  50% { transform: translateX(100%) rotate(30deg); }
+}
+
+@keyframes ollieJump {
+  0% { transform: scale(0) translateY(40px); }
+  60% { transform: scale(1.15) translateY(-10px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes badgePop {
+  from { transform: scale(0) rotate(-45deg); }
+  to { transform: scale(1) rotate(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ══ Quest Intro (V3 narration) ══ */
+@keyframes introGlowPulse {
+  0%, 100% { transform: translate(-50%, -55%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -55%) scale(1.15); opacity: 1; }
+}
+
+@keyframes introMascotEntrance {
+  from { opacity: 0; transform: translateY(-60px) scale(0.3) rotate(-15deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes introFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.intro-highlight { color: #FF6B6B; font-weight: 800; }
+.intro-name { color: #FF6B6B; font-weight: 900; }
+
 /* Accessibility: respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

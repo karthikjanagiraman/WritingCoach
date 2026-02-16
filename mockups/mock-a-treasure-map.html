@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock A: Treasure Map Trail</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #FFF9F0; min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Intro Screen ── */
+  .intro-screen {
+    position: fixed; inset: 0; z-index: 100;
+    background: linear-gradient(135deg, #FFF9F0 0%, #FFE66D33 50%, #FFF9F0 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .intro-screen.hidden { opacity: 0; transform: scale(1.05); pointer-events: none; }
+  .intro-mascot { font-size: 80px; animation: float 2s ease-in-out infinite; }
+  .intro-title { font-size: 28px; font-weight: 900; color: #2D3436; margin: 16px 0 8px; }
+  .intro-subtitle { font-size: 16px; color: #2D3436aa; font-weight: 700; max-width: 360px; text-align: center; line-height: 1.5; margin-bottom: 8px; }
+  .intro-name { color: #FF6B6B; }
+  .intro-bubble {
+    background: white; border-radius: 20px; padding: 20px 28px; margin: 20px 0 32px;
+    box-shadow: 0 4px 20px #FF6B6B15; border: 2px solid #FF6B6B20;
+    max-width: 400px; text-align: center; position: relative;
+    font-size: 15px; color: #2D3436cc; line-height: 1.6; font-weight: 600;
+  }
+  .intro-bubble::after {
+    content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    border-left: 10px solid transparent; border-right: 10px solid transparent;
+    border-bottom: 10px solid white;
+  }
+  .btn-start {
+    background: #FF6B6B; color: white; border: none; padding: 16px 48px;
+    border-radius: 16px; font-size: 18px; font-weight: 800; cursor: pointer;
+    font-family: inherit; transition: all 0.2s; box-shadow: 0 4px 15px #FF6B6B40;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px #FF6B6B50; }
+
+  /* ── Map Trail ── */
+  .map-container {
+    max-width: 600px; margin: 0 auto; padding: 20px 24px 40px;
+  }
+  .map-header {
+    text-align: center; padding: 16px 0 8px;
+  }
+  .map-header h1 { font-size: 18px; font-weight: 800; color: #2D3436; }
+
+  .trail {
+    display: flex; flex-direction: column; align-items: center; gap: 0; margin: 24px 0;
+    position: relative;
+  }
+
+  .trail-stop {
+    display: flex; align-items: center; gap: 16px; width: 100%;
+    padding: 0 20px; position: relative; z-index: 2;
+  }
+  .trail-stop.right { flex-direction: row-reverse; }
+
+  .stop-icon {
+    width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center;
+    justify-content: center; font-size: 36px; flex-shrink: 0;
+    border: 3px solid #2D343615; background: white;
+    transition: all 0.4s; position: relative;
+  }
+  .stop-icon.active { border-color: #FF6B6B; box-shadow: 0 0 0 4px #FF6B6B20, 0 4px 15px #FF6B6B30; transform: scale(1.08); }
+  .stop-icon.done { border-color: #4ECDC4; background: #4ECDC410; }
+  .stop-icon.locked { opacity: 0.4; }
+
+  .stop-checkmark {
+    position: absolute; top: -6px; right: -6px; width: 24px; height: 24px;
+    background: #4ECDC4; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: white; font-size: 14px; font-weight: 900;
+    box-shadow: 0 2px 8px #4ECDC440;
+  }
+
+  .stop-info { flex: 1; }
+  .stop-label { font-size: 11px; font-weight: 800; color: #FF6B6B; text-transform: uppercase; letter-spacing: 1px; }
+  .stop-title { font-size: 17px; font-weight: 800; color: #2D3436; margin: 2px 0; }
+  .stop-desc { font-size: 13px; color: #2D3436aa; font-weight: 600; }
+  .stop-info.locked .stop-title, .stop-info.locked .stop-desc { opacity: 0.4; }
+
+  .trail-path {
+    width: 4px; height: 50px; position: relative; z-index: 1;
+    background: #2D343615; border-radius: 2px; overflow: hidden;
+  }
+  .trail-path .fill {
+    width: 100%; height: 0%; background: linear-gradient(180deg, #4ECDC4, #4ECDC480);
+    border-radius: 2px; transition: height 0.8s ease-out;
+  }
+  .trail-path .fill.complete { height: 100%; }
+
+  /* Mascot on trail */
+  .trail-mascot {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 32px; z-index: 10; transition: top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+  }
+
+  /* ── Quest Card (active prompt) ── */
+  .quest-card {
+    background: white; border-radius: 24px; padding: 28px; margin-top: 24px;
+    border: 2px solid #FF6B6B15; box-shadow: 0 4px 20px #2D343608;
+    animation: slideUp 0.5s ease-out;
+  }
+  .quest-prompt-label { font-size: 11px; font-weight: 800; color: #FF6B6Baa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .quest-prompt {
+    font-size: 16px; font-weight: 700; color: #2D3436; line-height: 1.5;
+    padding: 16px; background: #FFE66D20; border-radius: 14px; border-left: 4px solid #FFE66D;
+  }
+  .quest-textarea {
+    width: 100%; min-height: 160px; border: 2px solid #2D343610; border-radius: 14px;
+    padding: 16px; font-family: 'Literata', 'Georgia', serif; font-size: 15px;
+    color: #2D3436; resize: vertical; outline: none; margin-top: 16px;
+    line-height: 1.8; transition: border-color 0.2s;
+  }
+  .quest-textarea:focus { border-color: #FF6B6B60; }
+  .quest-textarea::placeholder { color: #2D343630; }
+
+  .quest-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .word-gauge { display: flex; align-items: center; gap: 8px; }
+  .gauge-bar { width: 100px; height: 8px; background: #2D34360a; border-radius: 4px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 4px; transition: width 0.3s, background 0.3s; background: #2D343620; }
+  .gauge-fill.ready { background: #4ECDC4; }
+  .gauge-text { font-size: 12px; font-weight: 700; color: #2D343660; }
+  .gauge-text.ready { color: #4ECDC4; }
+
+  .btn-next {
+    background: #ccc; color: white; border: none; padding: 12px 32px;
+    border-radius: 12px; font-size: 14px; font-weight: 800; cursor: not-allowed;
+    font-family: inherit; transition: all 0.3s;
+  }
+  .btn-next.ready { background: #FF6B6B; cursor: pointer; box-shadow: 0 4px 12px #FF6B6B30; }
+  .btn-next.ready:hover { transform: translateY(-1px); }
+
+  /* ── Celebration Overlay ── */
+  .celebration {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(255, 249, 240, 0.95);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s;
+  }
+  .celebration.show { opacity: 1; pointer-events: auto; }
+  .celebration-emoji { font-size: 72px; animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .celebration-text { font-size: 24px; font-weight: 900; color: #2D3436; margin: 16px 0 4px; }
+  .celebration-sub { font-size: 14px; font-weight: 700; color: #2D3436aa; }
+
+  .sparkle {
+    position: absolute; width: 8px; height: 8px; border-radius: 50%;
+    animation: sparkle 1s ease-out forwards;
+  }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes sparkle {
+    0% { transform: scale(0) translate(0, 0); opacity: 1; }
+    100% { transform: scale(1) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro Screen -->
+<div class="intro-screen" id="introScreen">
+  <div class="intro-mascot">🦉</div>
+  <div class="intro-title">Hey <span class="intro-name">Maya</span>!</div>
+  <div class="intro-bubble">
+    I'm <strong>Ollie</strong>, and I found a mysterious map with <strong>3 secret quests</strong>!
+    I need YOUR writing magic to unlock them all. No grades, no tests — just adventure!
+  </div>
+  <button class="btn-start" onclick="startAdventure()">Let's Go! ✨</button>
+</div>
+
+<!-- Main Assessment -->
+<div class="map-container" id="mainContent" style="display:none">
+  <div class="map-header">
+    <h1>🗺️ Maya's Writing Quest</h1>
+  </div>
+
+  <!-- Trail Map -->
+  <div class="trail" id="trail">
+    <div class="trail-mascot" id="mascot" style="top: 0px;">🦉</div>
+
+    <!-- Stop 1 -->
+    <div class="trail-stop" id="stop0">
+      <div class="stop-icon active" id="icon0">🏰</div>
+      <div class="stop-info">
+        <div class="stop-label">Quest 1</div>
+        <div class="stop-title">The Story Spark</div>
+        <div class="stop-desc">Tell a tale only you can imagine</div>
+      </div>
+    </div>
+
+    <div class="trail-path"><div class="fill" id="path0"></div></div>
+
+    <!-- Stop 2 -->
+    <div class="trail-stop right" id="stop1">
+      <div class="stop-icon locked" id="icon1">🌴</div>
+      <div class="stop-info locked" id="info1">
+        <div class="stop-label">Quest 2</div>
+        <div class="stop-title">The Sense Safari</div>
+        <div class="stop-desc">Paint a picture with your words</div>
+      </div>
+    </div>
+
+    <div class="trail-path"><div class="fill" id="path1"></div></div>
+
+    <!-- Stop 3 -->
+    <div class="trail-stop" id="stop2">
+      <div class="stop-icon locked" id="icon2">🌋</div>
+      <div class="stop-info locked" id="info2">
+        <div class="stop-label">Quest 3</div>
+        <div class="stop-title">The Convince-a-Thon</div>
+        <div class="stop-desc">Use your words to change minds</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Quest Card -->
+  <div class="quest-card" id="questCard">
+    <div class="quest-prompt-label" id="questLabel">Quest 1 — The Story Spark</div>
+    <div class="quest-prompt" id="questPrompt">
+      Write a short story about a kid who finds a secret door in their school that leads somewhere magical. What do they find?
+    </div>
+    <textarea class="quest-textarea" id="questTextarea" placeholder="Start writing here... let your ideas flow!" oninput="onType()"></textarea>
+    <div class="quest-footer">
+      <div class="word-gauge">
+        <div class="gauge-bar"><div class="gauge-fill" id="gaugeFill"></div></div>
+        <span class="gauge-text" id="gaugeText">0 / 20 words</span>
+      </div>
+      <button class="btn-next" id="btnNext" onclick="completeQuest()">Next Quest →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Celebration Overlay -->
+<div class="celebration" id="celebration">
+  <div class="celebration-emoji" id="celebEmoji">⭐</div>
+  <div class="celebration-text" id="celebText">Quest Complete!</div>
+  <div class="celebration-sub" id="celebSub">Onward to the next adventure...</div>
+</div>
+
+<script>
+  let currentStep = 0;
+  const quests = [
+    { label: 'Quest 1 — The Story Spark', prompt: 'Write a short story about a kid who finds a secret door in their school that leads somewhere magical. What do they find?', emoji: '⭐', text: 'Story Spark Complete!', sub: 'Your tale is told — onward to the Sense Safari!' },
+    { label: 'Quest 2 — The Sense Safari', prompt: 'Describe your favorite place in the world using all five senses. What do you see, hear, smell, taste, and feel there?', emoji: '🌟', text: 'Sense Safari Done!', sub: 'Words painted beautifully — one quest left!' },
+    { label: 'Quest 3 — The Convince-a-Thon', prompt: 'Should kids get to pick what they learn in school? Write a short argument to convince your principal.', emoji: '🏆', text: 'All Quests Complete!', sub: 'Ollie is reading your writing...' },
+  ];
+
+  const mascotPositions = [10, 94, 178]; // px from top of trail
+
+  function startAdventure() {
+    document.getElementById('introScreen').classList.add('hidden');
+    setTimeout(() => { document.getElementById('mainContent').style.display = 'block'; }, 300);
+  }
+
+  function onType() {
+    const text = document.getElementById('questTextarea').value;
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words / 20, 1);
+    const fill = document.getElementById('gaugeFill');
+    const gauge = document.getElementById('gaugeText');
+    const btn = document.getElementById('btnNext');
+
+    fill.style.width = (pct * 100) + '%';
+    gauge.textContent = words + ' / 20 words';
+
+    if (pct >= 1) {
+      fill.classList.add('ready');
+      gauge.classList.add('ready');
+      gauge.textContent = words + ' words ✓';
+      btn.classList.add('ready');
+      btn.disabled = false;
+    } else {
+      fill.classList.remove('ready');
+      gauge.classList.remove('ready');
+      btn.classList.remove('ready');
+      btn.disabled = true;
+    }
+
+    if (currentStep === 2 && pct >= 1) {
+      btn.textContent = 'Finish Quest! 🎉';
+    }
+  }
+
+  function completeQuest() {
+    const q = quests[currentStep];
+
+    // Mark current stop as done
+    const icon = document.getElementById('icon' + currentStep);
+    icon.classList.remove('active');
+    icon.classList.add('done');
+    icon.innerHTML += '<div class="stop-checkmark">✓</div>';
+
+    // Fill path
+    if (currentStep < 2) {
+      document.getElementById('path' + currentStep).classList.add('complete');
+    }
+
+    // Show celebration
+    showCelebration(q.emoji, q.text, q.sub);
+
+    if (currentStep < 2) {
+      setTimeout(() => {
+        currentStep++;
+        // Move mascot
+        document.getElementById('mascot').style.top = mascotPositions[currentStep] + 'px';
+
+        // Unlock next stop
+        const nextIcon = document.getElementById('icon' + currentStep);
+        nextIcon.classList.remove('locked');
+        nextIcon.classList.add('active');
+        const nextInfo = document.getElementById('info' + currentStep);
+        if (nextInfo) nextInfo.classList.remove('locked');
+
+        // Update quest card
+        const nq = quests[currentStep];
+        document.getElementById('questLabel').textContent = nq.label;
+        document.getElementById('questPrompt').textContent = nq.prompt;
+        document.getElementById('questTextarea').value = '';
+        document.getElementById('gaugeFill').style.width = '0%';
+        document.getElementById('gaugeFill').classList.remove('ready');
+        document.getElementById('gaugeText').textContent = '0 / 20 words';
+        document.getElementById('gaugeText').classList.remove('ready');
+        document.getElementById('btnNext').classList.remove('ready');
+        document.getElementById('btnNext').textContent = currentStep === 2 ? 'Finish Quest! 🎉' : 'Next Quest →';
+
+        hideCelebration();
+      }, 2000);
+    }
+  }
+
+  function showCelebration(emoji, text, sub) {
+    document.getElementById('celebEmoji').textContent = emoji;
+    document.getElementById('celebText').textContent = text;
+    document.getElementById('celebSub').textContent = sub;
+    const el = document.getElementById('celebration');
+    el.classList.add('show');
+
+    // Sparkles
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#6C5CE7', '#FF6B6B'];
+    for (let i = 0; i < 20; i++) {
+      const s = document.createElement('div');
+      s.className = 'sparkle';
+      s.style.left = '50%'; s.style.top = '45%';
+      s.style.background = colors[i % colors.length];
+      s.style.setProperty('--tx', (Math.random() - 0.5) * 300 + 'px');
+      s.style.setProperty('--ty', (Math.random() - 0.5) * 300 + 'px');
+      s.style.animationDelay = (Math.random() * 0.3) + 's';
+      el.appendChild(s);
+      setTimeout(() => s.remove(), 1500);
+    }
+  }
+
+  function hideCelebration() {
+    document.getElementById('celebration').classList.remove('show');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock B: Portal Worlds</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #FFF9F0; min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Intro ── */
+  .intro {
+    position: fixed; inset: 0; z-index: 100;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .intro.hidden { opacity: 0; transform: scale(1.1); pointer-events: none; }
+  .intro-stars {
+    position: absolute; inset: 0; overflow: hidden;
+  }
+  .star {
+    position: absolute; width: 3px; height: 3px; background: white; border-radius: 50%;
+    animation: twinkle 2s infinite alternate;
+  }
+  .intro-content { position: relative; z-index: 2; text-align: center; }
+  .intro-mascot { font-size: 80px; animation: float 2.5s ease-in-out infinite; margin-bottom: 12px; }
+  .intro-title { font-size: 28px; font-weight: 900; color: white; margin-bottom: 8px; }
+  .intro-name { color: #FFE66D; }
+  .intro-bubble {
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 20px;
+    padding: 20px 28px; margin: 16px auto 32px; max-width: 400px;
+    font-size: 15px; color: rgba(255,255,255,0.9); line-height: 1.6; font-weight: 600;
+  }
+  .btn-start {
+    background: linear-gradient(135deg, #FF6B6B, #ee5a6f); color: white; border: none;
+    padding: 16px 48px; border-radius: 50px; font-size: 18px; font-weight: 800;
+    cursor: pointer; font-family: inherit; transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(255,107,107,0.4);
+  }
+  .btn-start:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(255,107,107,0.5); }
+
+  /* ── World Container ── */
+  .world-container { max-width: 600px; margin: 0 auto; padding: 20px 24px 40px; }
+
+  /* ── World Header ── */
+  .world-header {
+    text-align: center; padding: 20px 0 16px; animation: slideUp 0.5s ease-out;
+  }
+  .world-number { font-size: 12px; font-weight: 800; color: #FF6B6Baa; text-transform: uppercase; letter-spacing: 2px; }
+  .world-title { font-size: 26px; font-weight: 900; margin: 4px 0; }
+  .world-subtitle { font-size: 14px; font-weight: 600; color: #2D3436aa; }
+
+  /* World themes */
+  .world-0 .world-title { color: #6C5CE7; }
+  .world-1 .world-title { color: #00B894; }
+  .world-2 .world-title { color: #E17055; }
+
+  /* ── Progress Orbs ── */
+  .progress-orbs {
+    display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 24px;
+  }
+  .orb {
+    width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; transition: all 0.4s;
+    border: 3px solid #2D343615; background: white;
+  }
+  .orb.active { border-color: currentColor; transform: scale(1.15); box-shadow: 0 0 0 4px currentColor; }
+  .orb.done { border-color: #4ECDC4; background: #4ECDC4; }
+  .orb.done::after { content: '✓'; color: white; font-size: 16px; font-weight: 900; }
+  .orb.locked { opacity: 0.3; }
+  .orb-connector { width: 32px; height: 3px; border-radius: 2px; background: #2D343615; transition: background 0.4s; }
+  .orb-connector.done { background: #4ECDC4; }
+  .orb-0.active { color: #6C5CE7; }
+  .orb-1.active { color: #00B894; }
+  .orb-2.active { color: #E17055; }
+
+  /* ── World Scene (the themed prompt area) ── */
+  .world-scene {
+    border-radius: 24px; padding: 28px; margin-bottom: 16px;
+    animation: slideUp 0.5s ease-out; transition: background 0.4s;
+  }
+  .world-0 .world-scene { background: linear-gradient(135deg, #a29bfe22, #6c5ce715); border: 2px solid #6C5CE720; }
+  .world-1 .world-scene { background: linear-gradient(135deg, #55efc422, #00b89415); border: 2px solid #00B89420; }
+  .world-2 .world-scene { background: linear-gradient(135deg, #fab1a022, #e1705515); border: 2px solid #E1705520; }
+
+  .scene-mascot { font-size: 40px; text-align: center; margin-bottom: 12px; }
+  .scene-prompt-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .world-0 .scene-prompt-label { color: #6C5CE7; }
+  .world-1 .scene-prompt-label { color: #00B894; }
+  .world-2 .scene-prompt-label { color: #E17055; }
+
+  .scene-prompt {
+    font-size: 16px; font-weight: 700; color: #2D3436; line-height: 1.5;
+    background: white; border-radius: 14px; padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  /* ── Writing Area ── */
+  .writing-card {
+    background: white; border-radius: 20px; padding: 24px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.04); animation: slideUp 0.6s ease-out;
+  }
+  .writing-label { font-size: 13px; font-weight: 800; color: #2D3436; margin-bottom: 8px; }
+  .writing-area {
+    width: 100%; min-height: 160px; border: 2px solid #2D343610; border-radius: 14px;
+    padding: 16px; font-family: 'Georgia', serif; font-size: 15px;
+    color: #2D3436; resize: vertical; outline: none; line-height: 1.8;
+    transition: border-color 0.2s;
+  }
+  .writing-area:focus { border-color: #6C5CE760; }
+  .world-1 .writing-area:focus { border-color: #00B89460; }
+  .world-2 .writing-area:focus { border-color: #E1705560; }
+  .writing-area::placeholder { color: #2D343630; }
+
+  .writing-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+
+  /* Energy bar */
+  .energy-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .energy-label { font-size: 11px; font-weight: 800; color: #2D343650; text-transform: uppercase; }
+  .energy-bar { width: 120px; height: 10px; background: #2D34360a; border-radius: 5px; overflow: hidden; }
+  .energy-fill { height: 100%; border-radius: 5px; transition: width 0.3s, background 0.3s; width: 0%; }
+  .world-0 .energy-fill { background: #6C5CE740; }
+  .world-0 .energy-fill.full { background: #6C5CE7; }
+  .world-1 .energy-fill { background: #00B89440; }
+  .world-1 .energy-fill.full { background: #00B894; }
+  .world-2 .energy-fill { background: #E1705540; }
+  .world-2 .energy-fill.full { background: #E17055; }
+  .energy-count { font-size: 12px; font-weight: 700; color: #2D343660; }
+  .energy-count.full { color: #4ECDC4; }
+
+  .btn-portal {
+    background: #ccc; color: white; border: none; padding: 12px 28px;
+    border-radius: 50px; font-size: 14px; font-weight: 800; cursor: not-allowed;
+    font-family: inherit; transition: all 0.3s;
+  }
+  .btn-portal.ready { cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+  .world-0 .btn-portal.ready { background: #6C5CE7; }
+  .world-1 .btn-portal.ready { background: #00B894; }
+  .world-2 .btn-portal.ready { background: #E17055; }
+  .btn-portal.ready:hover { transform: translateY(-2px); }
+
+  /* ── Portal Transition ── */
+  .portal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .portal-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .portal-bg-0 { background: radial-gradient(circle, #6C5CE7 0%, #1a1a2e 70%); }
+  .portal-bg-1 { background: radial-gradient(circle, #00B894 0%, #0d4f3c 70%); }
+  .portal-bg-2 { background: radial-gradient(circle, #E17055 0%, #4a1a0f 70%); }
+
+  .portal-ring {
+    width: 200px; height: 200px; border-radius: 50%;
+    border: 6px solid rgba(255,255,255,0.4);
+    animation: portalSpin 1s linear infinite, portalPulse 0.5s ease-in-out infinite alternate;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .portal-emoji { font-size: 64px; animation: portalFloat 0.8s ease-in-out infinite alternate; }
+  .portal-text { color: white; font-size: 20px; font-weight: 800; margin-top: 24px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .portal-subtext { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 600; margin-top: 4px; }
+
+  .portal-particles {
+    position: absolute; inset: 0; overflow: hidden;
+  }
+  .particle {
+    position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%;
+    animation: particleFly 1.5s linear infinite;
+  }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes portalSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes portalPulse { from { box-shadow: 0 0 30px rgba(255,255,255,0.2); } to { box-shadow: 0 0 60px rgba(255,255,255,0.5); } }
+  @keyframes portalFloat { from { transform: translateY(-5px); } to { transform: translateY(5px); } }
+  @keyframes particleFly {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro -->
+<div class="intro" id="intro">
+  <div class="intro-stars" id="stars"></div>
+  <div class="intro-content">
+    <div class="intro-mascot">🦉</div>
+    <div class="intro-title">Welcome, <span class="intro-name">Maya</span>!</div>
+    <div class="intro-bubble">
+      I'm <strong>Ollie</strong>, your guide through <strong>3 magical worlds</strong>!
+      Each world has a writing quest. Complete them all to discover your Writer's Power Level!
+    </div>
+    <button class="btn-start" onclick="startAdventure()">Enter the First World ✨</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="world-container world-0" id="main" style="display:none">
+  <div class="world-header" id="worldHeader">
+    <div class="world-number" id="worldNumber">World 1 of 3</div>
+    <div class="world-title" id="worldTitle">🏰 The Enchanted Castle</div>
+    <div class="world-subtitle" id="worldSubtitle">Where stories come alive</div>
+  </div>
+
+  <!-- Progress Orbs -->
+  <div class="progress-orbs">
+    <div class="orb orb-0 active" id="orb0">🏰</div>
+    <div class="orb-connector" id="conn0"></div>
+    <div class="orb orb-1 locked" id="orb1">🌴</div>
+    <div class="orb-connector" id="conn1"></div>
+    <div class="orb orb-2 locked" id="orb2">🌋</div>
+  </div>
+
+  <!-- Scene -->
+  <div class="world-scene" id="worldScene">
+    <div class="scene-mascot">🦉</div>
+    <div class="scene-prompt-label" id="promptLabel">Your Quest</div>
+    <div class="scene-prompt" id="promptText">
+      Write a short story about a kid who finds a secret door in their school that leads somewhere magical. What do they find?
+    </div>
+  </div>
+
+  <!-- Writing -->
+  <div class="writing-card">
+    <div class="writing-label">Your Writing</div>
+    <textarea class="writing-area" id="textarea" placeholder="Start writing here... let your imagination run wild!" oninput="onType()"></textarea>
+    <div class="writing-footer">
+      <div class="energy-bar-wrap">
+        <span class="energy-label">Power</span>
+        <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+        <span class="energy-count" id="energyCount">0/20</span>
+      </div>
+      <button class="btn-portal" id="btnPortal" onclick="openPortal()">Open Portal →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Portal Transition -->
+<div class="portal-overlay portal-bg-0" id="portal">
+  <div class="portal-particles" id="particles"></div>
+  <div class="portal-ring">
+    <div class="portal-emoji" id="portalEmoji">🌴</div>
+  </div>
+  <div class="portal-text" id="portalText">Entering the Jungle of Senses...</div>
+  <div class="portal-subtext" id="portalSub">Quest 1 complete!</div>
+</div>
+
+<script>
+  let step = 0;
+  const worlds = [
+    { number: 'World 1 of 3', title: '🏰 The Enchanted Castle', subtitle: 'Where stories come alive', prompt: 'Write a short story about a kid who finds a secret door in their school that leads somewhere magical. What do they find?', portalEmoji: '🌴', portalText: 'Entering the Jungle of Senses...', portalSub: 'Quest 1 complete!', portalBg: 'portal-bg-0' },
+    { number: 'World 2 of 3', title: '🌴 The Jungle of Senses', subtitle: 'Where every word paints a picture', prompt: 'Describe your favorite place in the world using all five senses. What do you see, hear, smell, taste, and feel there?', portalEmoji: '🌋', portalText: 'Entering the Volcano of Ideas...', portalSub: 'Quest 2 complete!', portalBg: 'portal-bg-1' },
+    { number: 'World 3 of 3', title: '🌋 The Volcano of Ideas', subtitle: 'Where opinions ignite', prompt: 'Should kids get to pick what they learn in school? Write a short argument to convince your principal.', portalEmoji: '🏆', portalText: 'All Worlds Conquered!', portalSub: 'Ollie is analyzing your powers...', portalBg: 'portal-bg-2' },
+  ];
+
+  // Generate stars
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDelay = Math.random() * 2 + 's';
+    s.style.width = s.style.height = (Math.random() * 3 + 1) + 'px';
+    starsEl.appendChild(s);
+  }
+
+  function startAdventure() {
+    document.getElementById('intro').classList.add('hidden');
+    setTimeout(() => { document.getElementById('main').style.display = 'block'; }, 400);
+  }
+
+  function onType() {
+    const text = document.getElementById('textarea').value;
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words / 20, 1);
+    const fill = document.getElementById('energyFill');
+    const count = document.getElementById('energyCount');
+    const btn = document.getElementById('btnPortal');
+
+    fill.style.width = (pct * 100) + '%';
+    count.textContent = words + '/20';
+
+    if (pct >= 1) {
+      fill.classList.add('full');
+      count.classList.add('full');
+      count.textContent = words + ' ✓';
+      btn.classList.add('ready');
+      if (step === 2) btn.textContent = 'Finish! 🎉';
+    } else {
+      fill.classList.remove('full');
+      count.classList.remove('full');
+      btn.classList.remove('ready');
+      btn.textContent = 'Open Portal →';
+    }
+  }
+
+  function openPortal() {
+    const w = worlds[step];
+    const portal = document.getElementById('portal');
+
+    // Set portal theme
+    portal.className = 'portal-overlay ' + w.portalBg;
+    document.getElementById('portalEmoji').textContent = w.portalEmoji;
+    document.getElementById('portalText').textContent = w.portalText;
+    document.getElementById('portalSub').textContent = w.portalSub;
+
+    // Add particles
+    const pEl = document.getElementById('particles');
+    pEl.innerHTML = '';
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = '50%'; p.style.top = '40%';
+      p.style.setProperty('--px', (Math.random() - 0.5) * 400 + 'px');
+      p.style.setProperty('--py', (Math.random() - 0.5) * 400 + 'px');
+      p.style.animationDelay = Math.random() * 1 + 's';
+      pEl.appendChild(p);
+    }
+
+    portal.classList.add('show');
+
+    // Mark orb done
+    const orb = document.getElementById('orb' + step);
+    orb.classList.remove('active');
+    orb.classList.add('done');
+    orb.textContent = '';
+    document.getElementById('conn' + step)?.classList.add('done');
+
+    if (step < 2) {
+      setTimeout(() => {
+        step++;
+        const nw = worlds[step];
+        const main = document.getElementById('main');
+        main.className = 'world-container world-' + step;
+
+        document.getElementById('worldNumber').textContent = nw.number;
+        document.getElementById('worldTitle').textContent = nw.title;
+        document.getElementById('worldSubtitle').textContent = nw.subtitle;
+        document.getElementById('promptText').textContent = nw.prompt;
+        document.getElementById('textarea').value = '';
+        document.getElementById('energyFill').style.width = '0%';
+        document.getElementById('energyFill').classList.remove('full');
+        document.getElementById('energyCount').textContent = '0/20';
+        document.getElementById('energyCount').classList.remove('full');
+        document.getElementById('btnPortal').classList.remove('ready');
+        document.getElementById('btnPortal').textContent = 'Open Portal →';
+
+        // Unlock next orb
+        const nextOrb = document.getElementById('orb' + step);
+        nextOrb.classList.remove('locked');
+        nextOrb.classList.add('active');
+
+        portal.classList.remove('show');
+      }, 2500);
+    }
+  }
+</script>
+</body>
+</html>

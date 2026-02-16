@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock D v3: The Writer's Quest Trial</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #FFF9F0; min-height: 100vh; overflow-x: hidden; }
+
+  /* ── Ambient Particles ── */
+  .ambient-particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .ambient-particle {
+    position: absolute; border-radius: 50%; opacity: 0;
+    animation: ambientFloat linear infinite;
+  }
+  @keyframes ambientFloat {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { opacity: 0; transform: translateY(-20vh) scale(1); }
+  }
+
+  /* ── Intro Sequence ── */
+  .intro {
+    position: fixed; inset: 0; z-index: 100;
+    background: linear-gradient(170deg, #FFF9F0 0%, #FFE8D6 40%, #FFF0E6 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; transition: opacity 0.8s, transform 0.6s;
+  }
+  .intro.hidden { opacity: 0; transform: scale(1.04); pointer-events: none; }
+
+  .intro-bg-glow {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, #FF6B6B15 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -55%);
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%, 100% { transform: translate(-50%, -55%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -55%) scale(1.15); opacity: 1; } }
+
+  .intro-mascot-wrap {
+    position: relative; z-index: 2;
+    animation: mascotEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes mascotEntrance { from { opacity: 0; transform: translateY(-60px) scale(0.3) rotate(-15deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
+  .intro-mascot { font-size: 80px; animation: float 2.5s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(255,107,107,0.2)); }
+
+  .narration-dots { display: flex; gap: 8px; margin: 16px 0 24px; position: relative; z-index: 2; }
+  .narration-dot {
+    width: 10px; height: 10px; border-radius: 50%; background: #2D343612;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .narration-dot.active { background: #FF6B6B; transform: scale(1.4); box-shadow: 0 0 12px #FF6B6B60; }
+  .narration-dot.done { background: #4ECDC4; transform: scale(1.1); }
+
+  .narration-box {
+    max-width: 440px; text-align: center; min-height: 200px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+  }
+  .narration-text {
+    font-size: 18px; font-weight: 700; color: #2D3436cc; line-height: 1.75;
+    margin-bottom: 28px; min-height: 100px;
+    transition: opacity 0.35s, transform 0.35s;
+  }
+  .narration-text.fading { opacity: 0; transform: translateY(8px); }
+  .narration-text .highlight { color: #FF6B6B; font-weight: 800; }
+  .narration-text .name { color: #FF6B6B; font-weight: 900; }
+
+  .btn-narration {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E8E); color: white; border: none;
+    padding: 15px 44px; border-radius: 16px; font-size: 16px; font-weight: 800;
+    cursor: pointer; font-family: inherit; transition: all 0.25s;
+    box-shadow: 0 4px 20px #FF6B6B35; position: relative; overflow: hidden;
+  }
+  .btn-narration:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 28px #FF6B6B45; }
+  .btn-narration::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%); transition: transform 0.5s;
+  }
+  .btn-narration:hover::after { transform: translateX(100%); }
+
+  /* ══════════════ MAIN LAYOUT: Side-by-side ══════════════ */
+  .main {
+    display: none; max-width: 960px; margin: 0 auto; padding: 24px 24px 60px;
+    position: relative; z-index: 1;
+  }
+  .main-header {
+    text-align: center; margin-bottom: 24px;
+    animation: fadeUp 0.6s ease-out;
+  }
+  .main-header h1 { font-size: 22px; font-weight: 900; color: #2D3436; }
+  .main-header p { font-size: 14px; font-weight: 600; color: #2D3436aa; margin-top: 4px; }
+
+  .main-body {
+    display: flex; gap: 32px; align-items: flex-start;
+  }
+
+  /* ── Left: Trail Sidebar ── */
+  .trail-sidebar {
+    width: 200px; flex-shrink: 0; position: sticky; top: 24px;
+    animation: fadeUp 0.5s 0.2s both;
+  }
+
+  .trail-nodes { position: relative; padding: 8px 0; }
+
+  /* SVG connector between nodes */
+  .trail-svg-wrap {
+    position: absolute; left: 32px; top: 0; bottom: 0; width: 4px;
+    z-index: 0;
+  }
+  .trail-line-bg {
+    position: absolute; left: 0; top: 32px; bottom: 32px; width: 4px;
+    background: repeating-linear-gradient(to bottom, #2D343612 0, #2D343612 6px, transparent 6px, transparent 12px);
+    border-radius: 2px;
+  }
+  .trail-line-fill {
+    position: absolute; left: 0; top: 32px; width: 4px;
+    background: linear-gradient(180deg, #4ECDC4, #26D0CE);
+    border-radius: 2px; height: 0;
+    transition: height 1s ease-in-out;
+  }
+
+  /* ── Trail Node ── */
+  .trail-node {
+    display: flex; align-items: center; gap: 14px;
+    padding: 8px 0; position: relative; z-index: 2;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .trail-node.hidden-node { opacity: 0; transform: translateX(-16px) scale(0.8); pointer-events: none; height: 0; padding: 0; overflow: hidden; }
+  .trail-node.visible-node { opacity: 1; transform: translateX(0) scale(1); height: auto; }
+
+  /* Circular emblem icons */
+  .node-emblem {
+    width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; position: relative; flex-shrink: 0;
+    transition: all 0.4s;
+  }
+  .node-emblem-inner {
+    width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 26px;
+    background: white; position: relative; z-index: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.4s;
+  }
+
+  /* Active state: animated ring */
+  .node-emblem.active-emblem {
+    background: conic-gradient(var(--node-color, #FF6B6B), var(--node-color-light, #FF8E8E), var(--node-color, #FF6B6B));
+    animation: embleSpin 4s linear infinite;
+  }
+  @keyframes embleSpin { to { transform: rotate(360deg); } }
+  .node-emblem.active-emblem .node-emblem-inner {
+    box-shadow: 0 0 16px var(--node-glow, #FF6B6B20), 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  /* Done state: solid teal ring */
+  .node-emblem.done-emblem {
+    background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+  }
+  .node-emblem.done-emblem .node-emblem-inner {
+    background: linear-gradient(135deg, #F0FFFC, white);
+  }
+
+  /* Locked state: dashed grey */
+  .node-emblem.locked-emblem {
+    background: transparent;
+    border: 2.5px dashed #2D343618;
+    opacity: 0.4;
+  }
+  .node-emblem.locked-emblem .node-emblem-inner {
+    background: #F8F8F8;
+    box-shadow: none;
+  }
+
+  .node-badge {
+    position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; z-index: 3;
+    border-radius: 50%; background: linear-gradient(135deg, #4ECDC4, #26D0CE);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 12px; font-weight: 900;
+    box-shadow: 0 2px 8px #4ECDC450;
+    animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes badgePop { from { transform: scale(0) rotate(-180deg); } to { transform: scale(1) rotate(0); } }
+
+  .node-text { flex: 1; min-width: 0; }
+  .node-tag {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--node-color, #FF6B6B); margin-bottom: 1px;
+  }
+  .trail-node.done-node .node-tag { color: #4ECDC4; }
+  .node-title { font-size: 13px; font-weight: 800; color: #2D3436; line-height: 1.2; }
+  .node-desc { font-size: 11px; font-weight: 600; color: #2D3436aa; margin-top: 1px; }
+
+  /* Ollie indicator */
+  .trail-ollie-indicator {
+    position: absolute; left: -6px; z-index: 5;
+    font-size: 20px; transition: top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  }
+
+  /* Node spacer for hidden nodes */
+  .node-spacer { height: 16px; }
+
+  /* ── Right: Quest Card ── */
+  .quest-panel { flex: 1; min-width: 0; animation: cardSlideUp 0.6s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  .quest-card {
+    background: white; border-radius: 24px; padding: 28px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+    border: 2px solid var(--trial-color, #FF6B6B12);
+  }
+  @keyframes cardSlideUp { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .quest-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--trial-color, #FF6B6B), var(--trial-color-light, #FF8E8E));
+  }
+
+  .quest-trial-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 10px; margin-bottom: 16px;
+    background: var(--trial-color-bg, #FF6B6B08);
+    border: 1px solid var(--trial-color-border, #FF6B6B15);
+  }
+  .quest-trial-badge-emoji { font-size: 18px; }
+  .quest-trial-badge-text {
+    font-size: 12px; font-weight: 800; color: var(--trial-color, #FF6B6B);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .quest-ollie {
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px;
+    padding: 16px; background: linear-gradient(135deg, #FFE66D10, #FFE66D05);
+    border-radius: 16px; border: 1px solid #FFE66D25;
+  }
+  .quest-ollie-avatar { font-size: 32px; flex-shrink: 0; animation: float 2.5s ease-in-out infinite; }
+  .quest-ollie-text { font-size: 14.5px; font-weight: 600; color: #2D3436bb; line-height: 1.6; font-style: italic; }
+
+  .quest-prompt-wrap { margin-bottom: 20px; }
+  .quest-prompt-label {
+    font-size: 10px; font-weight: 800; color: var(--trial-color, #FF6B6B88);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .quest-prompt {
+    font-size: 15px; font-weight: 700; color: #2D3436; line-height: 1.6;
+    padding: 16px 18px; background: #FFF9F0; border-radius: 14px;
+    border-left: 4px solid var(--trial-color, #FFE66D);
+  }
+
+  .quest-textarea {
+    width: 100%; min-height: 180px; border: 2px solid #2D343610; border-radius: 14px;
+    padding: 16px; font-family: 'Literata', 'Georgia', serif; font-size: 15px;
+    color: #2D3436; resize: vertical; outline: none; line-height: 1.8;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: linear-gradient(to bottom, white, #FEFCF8);
+  }
+  .quest-textarea:focus {
+    border-color: var(--trial-color, #FF6B6B50);
+    box-shadow: 0 0 0 4px var(--trial-glow, #FF6B6B08);
+  }
+  .quest-textarea::placeholder { color: #2D343620; }
+
+  .quest-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+
+  .ink-meter { display: flex; align-items: center; gap: 10px; }
+  .ink-bar { width: 100px; height: 10px; background: #2D34360a; border-radius: 6px; overflow: hidden; }
+  .ink-fill {
+    height: 100%; border-radius: 6px; transition: width 0.4s, background 0.4s;
+    background: #2D343615; width: 0%;
+  }
+  .ink-fill.ready {
+    background: linear-gradient(90deg, #4ECDC4, #26D0CE);
+    box-shadow: 0 0 12px #4ECDC430;
+  }
+  .ink-text { font-size: 12px; font-weight: 700; color: #2D343650; transition: color 0.3s; }
+  .ink-text.ready { color: #4ECDC4; font-weight: 800; }
+
+  .btn-submit {
+    background: #ddd; color: white; border: none; padding: 13px 32px;
+    border-radius: 14px; font-size: 14px; font-weight: 800; cursor: not-allowed;
+    font-family: inherit; transition: all 0.35s; position: relative; overflow: hidden;
+  }
+  .btn-submit.ready {
+    background: linear-gradient(135deg, var(--trial-color, #FF6B6B), var(--trial-color-light, #FF8E8E));
+    cursor: pointer; box-shadow: 0 4px 20px var(--trial-glow, #FF6B6B30);
+  }
+  .btn-submit.ready:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--trial-glow, #FF6B6B40); }
+  .btn-submit.ready::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmerBtn 2s ease-in-out infinite;
+  }
+  @keyframes shimmerBtn { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* ── Celebration Overlay ── */
+  .celebration {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s;
+  }
+  .celebration.show { opacity: 1; pointer-events: auto; }
+  .celeb-backdrop {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255,249,240,0.98), rgba(255,249,240,0.95));
+  }
+  .celeb-golden-flash {
+    position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+    width: 0; height: 0; border-radius: 50%;
+    background: radial-gradient(circle, #FFE66D30, transparent 70%);
+    transition: width 0.6s, height 0.6s; opacity: 0;
+  }
+  .celebration.show .celeb-golden-flash { width: 600px; height: 600px; opacity: 1; }
+
+  .celeb-content { position: relative; z-index: 2; text-align: center; }
+  .celeb-mascot { font-size: 60px; margin-bottom: 4px; animation: celebBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes celebBounce { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0); } }
+  .celeb-emoji { font-size: 56px; margin-bottom: 16px; animation: celebStar 0.7s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  @keyframes celebStar { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+  .celeb-title { font-size: 24px; font-weight: 900; color: #2D3436; margin-bottom: 8px; animation: fadeUp 0.5s 0.25s both; }
+  .celeb-sub { font-size: 15px; font-weight: 600; color: #2D3436aa; max-width: 340px; line-height: 1.6; animation: fadeUp 0.5s 0.35s both; }
+
+  .confetti { position: absolute; z-index: 1; animation: confettiFall linear forwards; }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(var(--fall-distance, 400px)) rotate(var(--rotation, 720deg)) scale(0.5); opacity: 0; }
+  }
+  .celeb-ring {
+    position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%);
+    width: 10px; height: 10px; border-radius: 50%; border: 3px solid #FFE66D60;
+    animation: ringBurst 0.8s ease-out forwards;
+  }
+  @keyframes ringBurst { 0% { width: 10px; height: 10px; opacity: 1; border-width: 3px; } 100% { width: 300px; height: 300px; opacity: 0; border-width: 1px; } }
+
+  /* ── Final Screen ── */
+  .final-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: linear-gradient(170deg, #FFF9F0, #FFE8D6);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.6s;
+  }
+  .final-screen.show { opacity: 1; pointer-events: auto; }
+  .final-glow {
+    position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+    width: 350px; height: 350px; border-radius: 50%;
+    background: radial-gradient(circle, #FFE66D25 0%, transparent 70%);
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  .final-content { position: relative; z-index: 2; text-align: center; }
+  .final-emoji { font-size: 72px; margin-bottom: 8px; animation: celebStar 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .final-title { font-size: 26px; font-weight: 900; color: #2D3436; margin-bottom: 8px; }
+  .final-sub { font-size: 15px; font-weight: 600; color: #2D3436aa; max-width: 360px; line-height: 1.65; }
+
+  .final-badges { display: flex; gap: 20px; margin: 28px 0; justify-content: center; }
+  .final-badge-item {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: badgeFlyIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .final-badge-item:nth-child(1) { animation-delay: 0.3s; }
+  .final-badge-item:nth-child(2) { animation-delay: 0.5s; }
+  .final-badge-item:nth-child(3) { animation-delay: 0.7s; }
+  @keyframes badgeFlyIn { from { opacity: 0; transform: translateY(30px) scale(0.5); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .final-badge-circle {
+    width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 32px;
+    background: linear-gradient(135deg, #4ECDC420, #4ECDC408);
+    border: 3px solid #4ECDC4;
+    box-shadow: 0 4px 20px #4ECDC420;
+  }
+  .final-badge-name { font-size: 11px; font-weight: 800; color: #2D3436aa; }
+
+  .final-loading { margin-top: 24px; display: flex; align-items: center; gap: 10px; }
+  .final-spinner { width: 22px; height: 22px; border: 3px solid #FF6B6B15; border-top-color: #FF6B6B; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .final-loading-text { font-size: 14px; font-weight: 700; color: #FF6B6Baa; }
+
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive: stack on narrow screens ── */
+  @media (max-width: 700px) {
+    .main-body { flex-direction: column; }
+    .trail-sidebar { width: 100%; position: static; }
+    .trail-nodes { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 0; }
+    .trail-node { padding: 4px; gap: 0; flex-direction: column; text-align: center; }
+    .node-text { display: none; }
+    .trail-svg-wrap, .trail-line-bg, .trail-line-fill { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient-particles" id="ambientParticles"></div>
+
+<!-- ══════════════ INTRO ══════════════ -->
+<div class="intro" id="intro">
+  <div class="intro-bg-glow"></div>
+  <div class="intro-mascot-wrap"><div class="intro-mascot">🦉</div></div>
+  <div class="narration-dots" id="narrationDots">
+    <div class="narration-dot active" id="dot0"></div>
+    <div class="narration-dot" id="dot1"></div>
+    <div class="narration-dot" id="dot2"></div>
+    <div class="narration-dot" id="dot3"></div>
+  </div>
+  <div class="narration-box">
+    <div class="narration-text" id="narrationText">
+      Psst... <span class="name">Maya</span>! Over here! I'm <span class="highlight">Ollie</span>, keeper of the Story Realm — a world made entirely of words, where every tale ever told lives and breathes.
+    </div>
+    <button class="btn-narration" id="btnNarration" onclick="nextNarration()">Tell me more...</button>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main" id="main">
+  <div class="main-header">
+    <h1>The Writer's Trial</h1>
+    <p>Prove your skills. Join the quest.</p>
+  </div>
+
+  <div class="main-body">
+    <!-- ── Left: Trail Sidebar ── -->
+    <div class="trail-sidebar">
+      <div class="trail-nodes" id="trailNodes">
+        <!-- Vertical connector line -->
+        <div class="trail-svg-wrap">
+          <div class="trail-line-bg"></div>
+          <div class="trail-line-fill" id="trailFill"></div>
+        </div>
+
+        <!-- Ollie indicator -->
+        <div class="trail-ollie-indicator" id="trailOllie" style="top: 20px;">🦉</div>
+
+        <!-- Node 0 -->
+        <div class="trail-node visible-node" id="node0">
+          <div class="node-emblem active-emblem" id="emblem0"
+               style="--node-color:#FF6B6B; --node-color-light:#FF8E8E; --node-glow:#FF6B6B25;">
+            <div class="node-emblem-inner" id="emblemInner0">🏰</div>
+          </div>
+          <div class="node-text">
+            <div class="node-tag" style="--node-color:#FF6B6B;">Trial 1 of 3</div>
+            <div class="node-title">The Story Spark</div>
+            <div class="node-desc">Spin a tale</div>
+          </div>
+        </div>
+
+        <div class="node-spacer"></div>
+
+        <!-- Node 1 -->
+        <div class="trail-node hidden-node" id="node1">
+          <div class="node-emblem locked-emblem" id="emblem1"
+               style="--node-color:#6C5CE7; --node-color-light:#A29BFE; --node-glow:#6C5CE725;">
+            <div class="node-emblem-inner" id="emblemInner1">🌿</div>
+          </div>
+          <div class="node-text">
+            <div class="node-tag" style="--node-color:#6C5CE7;">Trial 2 of 3</div>
+            <div class="node-title">The Sense Weaver</div>
+            <div class="node-desc">Paint with words</div>
+          </div>
+        </div>
+
+        <div class="node-spacer"></div>
+
+        <!-- Node 2 -->
+        <div class="trail-node hidden-node" id="node2">
+          <div class="node-emblem locked-emblem" id="emblem2"
+               style="--node-color:#E17055; --node-color-light:#FAB1A0; --node-glow:#E1705525;">
+            <div class="node-emblem-inner" id="emblemInner2">🔥</div>
+          </div>
+          <div class="node-text">
+            <div class="node-tag" style="--node-color:#E17055;">Final Trial</div>
+            <div class="node-title">Voice of Thunder</div>
+            <div class="node-desc">Convince me</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right: Quest Card ── -->
+    <div class="quest-panel" id="questPanel">
+      <div class="quest-card" id="questCard"
+           style="--trial-color:#FF6B6B; --trial-color-light:#FF8E8E; --trial-glow:#FF6B6B25; --trial-color-bg:#FF6B6B08; --trial-color-border:#FF6B6B15;">
+        <div class="quest-trial-badge" id="questBadge">
+          <span class="quest-trial-badge-emoji" id="questBadgeEmoji">🏰</span>
+          <span class="quest-trial-badge-text" id="questBadgeText">Trial 1 — The Story Spark</span>
+        </div>
+        <div class="quest-ollie">
+          <div class="quest-ollie-avatar">🦉</div>
+          <div class="quest-ollie-text" id="questOllieSays">
+            Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!
+          </div>
+        </div>
+        <div class="quest-prompt-wrap">
+          <div class="quest-prompt-label">Your Challenge</div>
+          <div class="quest-prompt" id="questPrompt">
+            Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?
+          </div>
+        </div>
+        <textarea class="quest-textarea" id="questTextarea" placeholder="Start your story here..." oninput="onType()"></textarea>
+        <div class="quest-footer">
+          <div class="ink-meter">
+            <div class="ink-bar"><div class="ink-fill" id="inkFill"></div></div>
+            <span class="ink-text" id="inkText">0 / 20 words</span>
+          </div>
+          <button class="btn-submit" id="btnSubmit" onclick="submitTrial()">Prove It!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CELEBRATION ══════════════ -->
+<div class="celebration" id="celebration">
+  <div class="celeb-backdrop"></div>
+  <div class="celeb-golden-flash"></div>
+  <div class="celeb-ring"></div>
+  <div class="celeb-content">
+    <div class="celeb-mascot">🦉</div>
+    <div class="celeb-emoji" id="celebEmoji">⭐</div>
+    <div class="celeb-title" id="celebTitle">Trial Passed!</div>
+    <div class="celeb-sub" id="celebSub">You've proven your storytelling spark.</div>
+  </div>
+</div>
+
+<!-- ══════════════ FINAL SCREEN ══════════════ -->
+<div class="final-screen" id="finalScreen">
+  <div class="final-glow"></div>
+  <div class="final-content">
+    <div class="final-emoji">🎉</div>
+    <div class="final-title">You've proven yourself worthy!</div>
+    <div class="final-sub">
+      Welcome to the quest, <strong>Maya</strong>. Ollie is preparing your personal adventure path based on the skills you just showed...
+    </div>
+    <div class="final-badges">
+      <div class="final-badge-item">
+        <div class="final-badge-circle">🏰</div>
+        <div class="final-badge-name">Story Spark</div>
+      </div>
+      <div class="final-badge-item">
+        <div class="final-badge-circle">🌿</div>
+        <div class="final-badge-name">Sense Weaver</div>
+      </div>
+      <div class="final-badge-item">
+        <div class="final-badge-circle">🔥</div>
+        <div class="final-badge-name">Thunder Voice</div>
+      </div>
+    </div>
+    <div class="final-loading">
+      <div class="final-spinner"></div>
+      <span class="final-loading-text">Crafting your curriculum...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Ambient particles ──
+  (function() {
+    const c = document.getElementById('ambientParticles');
+    const colors = ['#FF6B6B20', '#4ECDC420', '#FFE66D30', '#6C5CE720'];
+    for (let i = 0; i < 15; i++) {
+      const p = document.createElement('div');
+      p.className = 'ambient-particle';
+      const size = Math.random() * 5 + 3;
+      p.style.width = size + 'px'; p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.background = colors[i % colors.length];
+      p.style.animationDuration = (Math.random() * 12 + 10) + 's';
+      p.style.animationDelay = (Math.random() * 15) + 's';
+      c.appendChild(p);
+    }
+  })();
+
+  // ── Narration ──
+  let narrationStep = 0;
+  const narrations = [
+    { text: `Psst... <span class="name">Maya</span>! Over here! I'm <span class="highlight">Ollie</span>, keeper of the Story Realm — a world made entirely of words, where every tale ever told lives and breathes.`, btn: 'Tell me more...' },
+    { text: `But the Story Realm is in trouble. Its pages are <span class="highlight">fading</span>, and I need a new writer to join my quest and bring them back to life. I've been searching for someone with real writing magic...`, btn: 'Could that be me?' },
+    { text: `I think it could! But first, every writer who joins the quest must pass <span class="highlight">three trials</span> — to prove they have the spark of storytelling, the eye of a sense weaver, and the voice to move mountains.`, btn: 'What kind of trials?' },
+    { text: `Don't worry — there are no wrong answers, and this isn't a test. I just need to see <span class="highlight">how you write</span> so I can plan the perfect adventure for you. Ready to show me what you've got?`, btn: "I'm ready! Let's go!" },
+  ];
+
+  function nextNarration() {
+    const textEl = document.getElementById('narrationText');
+    const btnEl = document.getElementById('btnNarration');
+    textEl.classList.add('fading');
+    btnEl.style.opacity = '0'; btnEl.style.transform = 'translateY(8px)';
+    btnEl.style.transition = 'opacity 0.3s, transform 0.3s';
+
+    setTimeout(() => {
+      narrationStep++;
+      if (narrationStep >= narrations.length) {
+        document.getElementById('intro').classList.add('hidden');
+        setTimeout(() => { document.getElementById('main').style.display = 'block'; }, 500);
+        return;
+      }
+      const n = narrations[narrationStep];
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        dot.classList.remove('active', 'done');
+        if (i < narrationStep) dot.classList.add('done');
+        else if (i === narrationStep) dot.classList.add('active');
+      }
+      textEl.innerHTML = n.text;
+      btnEl.textContent = n.btn;
+      requestAnimationFrame(() => {
+        textEl.classList.remove('fading');
+        btnEl.style.opacity = '1'; btnEl.style.transform = 'translateY(0)';
+      });
+    }, 350);
+  }
+
+  // ── Trail + Quest logic ──
+  let currentTrial = 0;
+
+  // Ollie positions (top offset in px for each node)
+  const ollieTopPositions = [20, 108, 196];
+  // Trail fill heights (px) for each completed trial
+  const trailFillHeights = [0, 88, 176];
+
+  const trialThemes = [
+    { color: '#FF6B6B', colorLight: '#FF8E8E', glow: '#FF6B6B25', bg: '#FF6B6B08', border: '#FF6B6B15', emoji: '🏰', label: 'Trial 1 — The Story Spark' },
+    { color: '#6C5CE7', colorLight: '#A29BFE', glow: '#6C5CE725', bg: '#6C5CE708', border: '#6C5CE715', emoji: '🌿', label: 'Trial 2 — The Sense Weaver' },
+    { color: '#E17055', colorLight: '#FAB1A0', glow: '#E1705525', bg: '#E1705508', border: '#E1705515', emoji: '🔥', label: 'Final Trial — Voice of Thunder' },
+  ];
+
+  const trials = [
+    { ollieSays: "Every great quest begins with a story. Show me the spark of imagination inside you — write me a tale, and make it your own!", prompt: "Write a short story about a kid who discovers something impossible hiding in an ordinary place. What is it? What happens next?", celebEmoji: '⭐', celebTitle: 'The Story Spark — Proven!', celebSub: "I can feel the storytelling magic in you! But can your words paint a picture too? A new trial awaits..." },
+    { ollieSays: "A true writer doesn't just tell — they make readers SEE, HEAR, and FEEL. Show me you can weave the senses into your words!", prompt: "Describe your favorite place in the world so vividly that someone who's never been there can close their eyes and feel like they're standing right in it.", celebEmoji: '🌟', celebTitle: 'The Sense Weaver — Proven!', celebSub: "Brilliant! Your words are vivid and alive. One final trial remains — the hardest one of all..." },
+    { ollieSays: "The mightiest power a writer has is the power to change minds. Show me your voice of thunder — convince me of something you believe in!", prompt: "Should kids have a say in what they learn at school? Pick a side and write your strongest argument to convince your principal.", celebEmoji: '🏆', celebTitle: 'All Trials Complete!', celebSub: "You've done it, Maya! You have the storytelling spark, the sense-weaving eye, AND the voice of thunder. You are worthy." },
+  ];
+
+  function onType() {
+    const text = document.getElementById('questTextarea').value;
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const pct = Math.min(words / 20, 1);
+    const fill = document.getElementById('inkFill');
+    const txt = document.getElementById('inkText');
+    const btn = document.getElementById('btnSubmit');
+
+    fill.style.width = (pct * 100) + '%';
+    txt.textContent = words + ' / 20 words';
+
+    if (pct >= 1) {
+      fill.classList.add('ready');
+      txt.classList.add('ready');
+      txt.textContent = words + ' words \u2713';
+      btn.classList.add('ready');
+      if (currentTrial === 2) btn.textContent = 'Complete the Trial!';
+    } else {
+      fill.classList.remove('ready');
+      txt.classList.remove('ready');
+      btn.classList.remove('ready');
+      btn.textContent = 'Prove It!';
+    }
+  }
+
+  function submitTrial() {
+    if (!document.getElementById('btnSubmit').classList.contains('ready')) return;
+    const t = trials[currentTrial];
+
+    // Mark emblem as done
+    const emblem = document.getElementById('emblem' + currentTrial);
+    emblem.classList.remove('active-emblem');
+    emblem.classList.add('done-emblem');
+    emblem.innerHTML = '<div class="node-emblem-inner">' + emblem.querySelector('.node-emblem-inner').textContent + '</div><div class="node-badge">\u2713</div>';
+
+    // Mark node as done
+    const node = document.getElementById('node' + currentTrial);
+    node.classList.add('done-node');
+    node.querySelector('.node-tag').textContent = 'Passed!';
+
+    // Fill trail line
+    document.getElementById('trailFill').style.height = trailFillHeights[currentTrial] + 'px';
+
+    // Show celebration
+    showCelebration(t.celebEmoji, t.celebTitle, t.celebSub);
+
+    if (currentTrial < 2) {
+      setTimeout(() => {
+        currentTrial++;
+        const theme = trialThemes[currentTrial];
+
+        // Move Ollie
+        document.getElementById('trailOllie').style.top = ollieTopPositions[currentTrial] + 'px';
+
+        // Reveal next node
+        const nextNode = document.getElementById('node' + currentTrial);
+        nextNode.classList.remove('hidden-node');
+        nextNode.classList.add('visible-node');
+        const nextEmblem = document.getElementById('emblem' + currentTrial);
+        nextEmblem.classList.remove('locked-emblem');
+        nextEmblem.classList.add('active-emblem');
+
+        // Update quest card theme
+        const card = document.getElementById('questCard');
+        card.style.setProperty('--trial-color', theme.color);
+        card.style.setProperty('--trial-color-light', theme.colorLight);
+        card.style.setProperty('--trial-glow', theme.glow);
+        card.style.setProperty('--trial-color-bg', theme.bg);
+        card.style.setProperty('--trial-color-border', theme.border);
+
+        // Update quest badge
+        document.getElementById('questBadgeEmoji').textContent = theme.emoji;
+        document.getElementById('questBadgeText').textContent = theme.label;
+
+        // Update quest content
+        const nt = trials[currentTrial];
+        document.getElementById('questOllieSays').textContent = nt.ollieSays;
+        document.getElementById('questPrompt').textContent = nt.prompt;
+        document.getElementById('questTextarea').value = '';
+        document.getElementById('inkFill').style.width = '0%';
+        document.getElementById('inkFill').classList.remove('ready');
+        document.getElementById('inkText').textContent = '0 / 20 words';
+        document.getElementById('inkText').classList.remove('ready');
+        document.getElementById('btnSubmit').classList.remove('ready');
+        document.getElementById('btnSubmit').textContent = 'Prove It!';
+
+        // Re-animate card
+        const panel = document.getElementById('questPanel');
+        panel.style.animation = 'none';
+        panel.offsetHeight;
+        panel.style.animation = 'cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        hideCelebration();
+      }, 2500);
+    } else {
+      setTimeout(() => {
+        hideCelebration();
+        setTimeout(() => {
+          document.getElementById('finalScreen').classList.add('show');
+          spawnFinalConfetti();
+        }, 300);
+      }, 3000);
+    }
+  }
+
+  function showCelebration(emoji, title, sub) {
+    const el = document.getElementById('celebration');
+    document.getElementById('celebEmoji').textContent = emoji;
+    document.getElementById('celebTitle').textContent = title;
+    document.getElementById('celebSub').textContent = sub;
+    el.classList.add('show');
+
+    const shapes = ['circle', 'rect', 'triangle'];
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#6C5CE7', '#00B894', '#E17055', '#FF8E8E', '#A29BFE'];
+    for (let i = 0; i < 50; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const shape = shapes[i % shapes.length];
+      const color = colors[i % colors.length];
+      const size = Math.random() * 10 + 5;
+      if (shape === 'circle') { c.style.width = size + 'px'; c.style.height = size + 'px'; c.style.borderRadius = '50%'; c.style.background = color; }
+      else if (shape === 'rect') { c.style.width = size + 'px'; c.style.height = (size * 0.6) + 'px'; c.style.borderRadius = '2px'; c.style.background = color; }
+      else { c.style.width = '0'; c.style.height = '0'; c.style.borderLeft = (size/2)+'px solid transparent'; c.style.borderRight = (size/2)+'px solid transparent'; c.style.borderBottom = size+'px solid '+color; }
+      c.style.left = (40 + Math.random() * 20) + '%';
+      c.style.top = (30 + Math.random() * 15) + '%';
+      c.style.setProperty('--fall-distance', (200 + Math.random() * 400) + 'px');
+      c.style.setProperty('--rotation', ((Math.random() - 0.5) * 1440) + 'deg');
+      c.style.transform = 'translateX(' + ((Math.random() - 0.5) * 500) + 'px)';
+      c.style.animationDuration = (1 + Math.random() * 1.5) + 's';
+      c.style.animationDelay = (Math.random() * 0.4) + 's';
+      el.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }
+    const ring = el.querySelector('.celeb-ring');
+    ring.style.animation = 'none'; ring.offsetHeight;
+    ring.style.animation = 'ringBurst 0.8s ease-out forwards';
+  }
+
+  function hideCelebration() { document.getElementById('celebration').classList.remove('show'); }
+
+  function spawnFinalConfetti() {
+    const container = document.getElementById('finalScreen');
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#6C5CE7', '#00B894'];
+    for (let i = 0; i < 40; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const size = Math.random() * 8 + 4;
+      c.style.width = size + 'px'; c.style.height = size + 'px';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.background = colors[i % colors.length];
+      c.style.left = Math.random() * 100 + '%'; c.style.top = '-5%';
+      c.style.setProperty('--fall-distance', (window.innerHeight + 100) + 'px');
+      c.style.setProperty('--rotation', (Math.random() * 720) + 'deg');
+      c.style.animationDuration = (2 + Math.random() * 2) + 's';
+      c.style.animationDelay = (Math.random() * 1.5) + 's';
+      container.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }
+  }
+</script>
+</body>
+</html>
