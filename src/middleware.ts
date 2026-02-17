@@ -5,7 +5,7 @@ export const { auth: middleware } = NextAuth(authConfig);
 
 export const config = {
   matcher: [
-    "/",
+    "/home",
     "/dashboard/:path*",
     "/lesson/:path*",
     "/placement/:path*",

@@ -16,7 +16,7 @@
 
 WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
 
-**Current State**: Full-featured product with multi-user auth, placement assessments, personalized curricula, skill tracking, achievement badges, and parent progress reports. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, curriculum generation, and curriculum adaptation. Auth.js v5 provides parent login/signup with credentials provider. Parents can manage multiple children, view detailed progress reports with charts, and trigger curriculum revisions. All 6 planned phases are complete.
+**Current State**: Full-featured product with multi-user auth (email/password + Google OAuth), placement assessments, personalized curricula, skill tracking, achievement badges, and parent progress reports. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, curriculum generation, and curriculum adaptation. Auth.js v5 provides parent login/signup with credentials provider and Google OAuth. Parents can manage multiple children, view detailed progress reports with charts, and trigger curriculum revisions. All 6 planned phases are complete.
 
 ---
 
@@ -29,13 +29,13 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Charts**: Recharts (skill radar chart, future progress charts)
 - **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
-- **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider, JWT sessions
+- **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider + Google OAuth, JWT sessions
 
 **Package manager**: npm (not yarn, not pnpm)
 **Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` and `DATABASE_URL` in `.env`)
 **DB reset**: `npx prisma db push --force-reset && npx prisma db seed`
 **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1) with placement + curriculum + lesson progress, Ethan (age 11, tier 2) without placement
-**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`
+**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
 ---
 
@@ -121,7 +121,7 @@ src/
 │   │       │   └── *.json            # Assessment rubrics (30+ files)
 │   │       └── evals/
 │   │           └── evals.json        # Evaluation test cases
-│   ├── auth.ts                   # Auth.js v5 config (credentials provider, JWT callbacks)
+│   ├── auth.ts                   # Auth.js v5 config (credentials + Google OAuth, signIn callback)
 │   ├── api.ts                    # Client-side API helper (fetch wrappers)
 │   ├── curriculum.ts             # Public curriculum lookup (used by API routes)
 │   ├── curriculum-generator.ts   # AI-powered curriculum generation (Claude API)
@@ -139,8 +139,8 @@ src/
 │   ├── globals.css               # Tailwind config + tier tokens + animations
 │   ├── layout.tsx                # Root layout (SessionProvider + ActiveChildProvider)
 │   ├── auth/
-│   │   ├── login/page.tsx        # Login page (email/password → signIn)
-│   │   └── signup/page.tsx       # Signup page (create account → auto-login)
+│   │   ├── login/page.tsx        # Login page (email/password + Google OAuth → signIn)
+│   │   └── signup/page.tsx       # Signup page (create account + Google OAuth → auto-login)
 │   ├── dashboard/
 │   │   ├── page.tsx              # Parent dashboard (list children with streak/badge stats)
 │   │   └── children/
@@ -337,7 +337,7 @@ These two files MUST stay in sync or phase transitions will silently break.
 
 ```
 User
-├── id (uuid), email (unique), passwordHash, name
+├── id (uuid), email (unique), passwordHash? (null for OAuth users), name
 ├── role: PARENT | ADMIN
 ├── → ChildProfile[] (parent's children)
 
@@ -425,7 +425,7 @@ Achievement
 
 ### Auth Routes (unprotected)
 - `POST /api/auth/signup` — Create user account (name, email, password)
-- `GET/POST /api/auth/[...nextauth]` — Auth.js handlers (login, csrf, callback)
+- `GET/POST /api/auth/[...nextauth]` — Auth.js handlers (login, csrf, callback, Google OAuth callback)
 
 ### POST /api/lessons/start
 ```typescript
@@ -535,6 +535,7 @@ Before considering any task complete, verify ALL of these:
 [ ] Unauthenticated access redirects to /auth/login
 [ ] Signup creates account → auto-login → redirect to /dashboard
 [ ] Login works → redirect to /dashboard
+[ ] Google OAuth sign-in works → redirect to /dashboard (creates user if new)
 [ ] Parent dashboard lists children with stats
 [ ] Add child form creates child with auto-computed tier
 [ ] Selecting a child navigates to / with lesson cards
@@ -568,6 +569,7 @@ Before considering any task complete, verify ALL of these:
 - [x] Phase 4: Skill progress & streak tracking — SkillProgress + Streak models, 70/30 rolling average, skill radar chart (Recharts), streak display with weekly progress, submit hook integration
 - [x] Phase 5: Achievement & motivation system — 24 badges across 5 categories, CelebrationOverlay with confetti, badge collection page, auto-unlock on submit
 - [x] Phase 6: Parent dashboard & curriculum adaptation — enhanced dashboard with streak/badge stats, progress report with charts (radar, bar, heatmap), CSV export, auto-adaptation on score patterns, manual curriculum revision
+- [x] Google OAuth — "Sign in with Google" on login/signup pages, passwordHash optional for OAuth users, find-or-create user on Google sign-in
 
 ### Remaining
 - [ ] Writing editor with auto-save and draft persistence
@@ -603,3 +605,4 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Phase 4: Skill Progress & Streak Tracking — SkillProgress + Streak models, skill map with 4 categories × 5 sub-skills, rolling average progress tracker, consecutive-day streak tracker, Recharts radar chart, streak display with weekly dots, submit hook for auto-updating | prisma/schema.prisma, src/lib/skill-map.ts, src/lib/progress-tracker.ts, src/lib/streak-tracker.ts, src/app/api/children/[id]/skills/*, src/app/api/children/[id]/streak/*, src/app/api/lessons/submit/route.ts, src/components/SkillRadarChart.tsx, src/components/StreakDisplay.tsx, src/app/page.tsx |
 | 2026-02-11 | Phase 5: Achievement & Motivation System — Achievement model, 24 badges across 5 categories, badge checker with auto-unlock on submit, CelebrationOverlay with canvas-confetti, badge collection page, FeedbackView integration, recent badges on dashboard | prisma/schema.prisma, src/lib/badges.ts, src/lib/badge-checker.ts, src/app/api/children/[id]/badges/*, src/app/api/lessons/submit/route.ts, src/components/CelebrationOverlay.tsx, src/components/FeedbackView.tsx, src/app/lesson/[id]/page.tsx, src/app/badges/[childId]/page.tsx, src/app/page.tsx, src/lib/api.ts |
 | 2026-02-11 | Phase 6: Parent Dashboard & Curriculum Adaptation — Enhanced parent dashboard with streak/badge stats per child, progress report page with Recharts charts (bar chart, activity heatmap), CSV export, auto-curriculum adaptation (struggling/excelling/type weakness triggers), manual curriculum revision UI, submit hook for auto-adaptation | src/app/dashboard/page.tsx, src/app/dashboard/children/[id]/report/page.tsx, src/app/api/children/[id]/report/*, src/components/charts/*, src/lib/curriculum-adapter.ts, src/app/api/lessons/submit/route.ts, src/app/curriculum/[childId]/revise/page.tsx |
+| 2026-02-16 | Google OAuth — Added Google provider to Auth.js, passwordHash optional for OAuth-only users, Google sign-in buttons on login/signup pages, signIn callback with find-or-create user | prisma/schema.prisma, src/lib/auth.ts, src/app/auth/login/page.tsx, src/app/auth/signup/page.tsx |

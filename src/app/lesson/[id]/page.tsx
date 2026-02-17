@@ -165,7 +165,7 @@ export default function LessonPage() {
   );
 
   const handleNextLesson = () => {
-    router.push(`/?completed=${lessonId}`);
+    router.push(`/home?completed=${lessonId}`);
   };
 
   const handleRetake = useCallback(async () => {
@@ -213,7 +213,7 @@ export default function LessonPage() {
           <p className="mt-4 text-active-primary font-semibold">{error}</p>
           <div className="mt-4 flex gap-3 justify-center">
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
               className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-primary hover:bg-active-primary/5 transition-colors"
             >
               Go Home
@@ -242,7 +242,7 @@ export default function LessonPage() {
             {/* Top row: back button + title */}
             <div className="flex items-center gap-3 mb-2.5">
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/home")}
                 aria-label="Go back"
                 className="w-9 h-9 rounded-full bg-active-bg flex items-center justify-center flex-shrink-0 hover:bg-[#f0ebe3] transition-colors"
               >

@@ -1,608 +1,955 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CoachAvatar, SectionLabel } from "@/components/shared";
-import {
-  getProgress,
-  type StudentProgressResponse,
-} from "@/lib/api";
-import { TierProvider, useTier } from "@/contexts/TierContext";
-import { useActiveChild } from "@/contexts/ActiveChildContext";
-import type { Tier } from "@/types";
+import { useSession } from "next-auth/react";
+import styles from "./landing.module.css";
 
-interface SkillCategory {
-  name: string;
-  displayName: string;
-  avgScore: number;
-  skills: { name: string; displayName: string; score: number; level: string; totalAttempts: number }[];
-}
+export default function LandingPage() {
+  const { data: session } = useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navScrolled, setNavScrolled] = useState(false);
+  const navbarRef = useRef<HTMLElement>(null);
+  const typingTextRef = useRef<HTMLDivElement>(null);
+  const confettiContainerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const engagementRef = useRef<HTMLElement>(null);
+  const scoreBarsRef = useRef<HTMLDivElement>(null);
 
-interface StreakData {
-  currentStreak: number;
-  longestStreak: number;
-  lastActiveDate: string | null;
-  weeklyGoal: number;
-  weeklyCompleted: number;
-}
+  const storyText =
+    "Once upon a time, there was a brave little fox who lived at the top of the tallest mountain. Every morning, she would look down at the valley and wonder what adventures waited below...";
 
-function ProgressBar({ value, color, height = "h-3" }: { value: number; color: string; height?: string }) {
-  return (
-    <div className={`w-full ${height} bg-gray-100 rounded-full overflow-hidden`}>
-      <div
-        className={`h-full ${color} rounded-full transition-all duration-700 ease-out`}
-        style={{ width: `${value}%` }}
-      />
-    </div>
-  );
-}
+  const typeWriter = useCallback(() => {
+    const container = typingTextRef.current;
+    if (!container) return;
+    container.innerHTML = "";
+    const words = storyText.split(" ");
+    let html = "";
+    words.forEach((word, i) => {
+      const delay = i * 0.12;
+      html += `<span class="${styles.word}" style="animation-delay: ${delay}s">${word} </span>`;
+    });
+    html += `<span class="${styles.notebookCursor}"></span>`;
+    container.innerHTML = html;
+  }, []);
 
-const WRITING_TYPES = [
-  { key: "narrative", label: "Narrative", icon: "\uD83D\uDCD6" },
-  { key: "persuasive", label: "Persuasive", icon: "\uD83D\uDCE2" },
-  { key: "expository", label: "Expository", icon: "\uD83D\uDCDD" },
-  { key: "descriptive", label: "Descriptive", icon: "\uD83C\uDFA8" },
-] as const;
+  const createConfetti = useCallback(() => {
+    const container = confettiContainerRef.current;
+    if (!container) return;
+    container.innerHTML = "";
+    const confettiColors = [
+      "#FF6B6B",
+      "#6C5CE7",
+      "#4ECDC4",
+      "#FFE66D",
+      "#FF8A8A",
+    ];
+    for (let i = 0; i < 20; i++) {
+      const dot = document.createElement("div");
+      dot.className = styles.confettiDot;
+      dot.style.left = Math.random() * 100 + "%";
+      dot.style.top = Math.random() * 40 + "%";
+      dot.style.background =
+        confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      dot.style.animationDelay = Math.random() * 2 + "s";
+      dot.style.animationDuration = 1.5 + Math.random() + "s";
+      const size = 4 + Math.random() * 6 + "px";
+      dot.style.width = size;
+      dot.style.height = size;
+      container.appendChild(dot);
+    }
+  }, []);
 
-const TIER_BADGES: Record<number, { label: string; emoji: string }> = {
-  1: { label: "Tier 1 Writer", emoji: "\uD83E\uDD89" },
-  2: { label: "Tier 2 Writer", emoji: "\uD83E\uDD8A" },
-  3: { label: "Tier 3 Writer", emoji: "\uD83D\uDC3A" },
-};
+  // Navbar scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setNavScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-const TYPE_ICONS: Record<string, string> = {
-  narrative: "\uD83D\uDCD6",
-  persuasive: "\uD83D\uDCE2",
-  expository: "\uD83D\uDCDD",
-  descriptive: "\uD83C\uDFA8",
-};
+  // Typewriter effect — observe hero section
+  useEffect(() => {
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setTimeout(typeWriter, 600);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(heroEl);
+    return () => observer.disconnect();
+  }, [typeWriter]);
 
-interface RecentBadge {
-  id: string;
-  name: string;
-  emoji: string;
-  description: string;
-  category: string;
-  unlockedAt: string;
-}
+  // Scroll animations
+  useEffect(() => {
+    const elements = document.querySelectorAll(`.${styles.animateOnScroll}`);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(styles.visible);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
-interface DashboardContentProps {
-  data: StudentProgressResponse;
-  childName: string;
-  childTier: number;
-  activeChild: { id: string; name: string; age: number; tier: 1 | 2 | 3; avatarEmoji: string };
-  hasPlacement: boolean | null;
-  curriculum: any;
-  curriculumLoading: boolean;
-  skills: SkillCategory[] | null;
-  streakData: StreakData | null;
-  recentBadges: RecentBadge[] | null;
-}
+  // Confetti dots — observe engagement section
+  useEffect(() => {
+    const engagementEl = engagementRef.current;
+    if (!engagementEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            createConfetti();
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(engagementEl);
+    return () => observer.disconnect();
+  }, [createConfetti]);
 
-function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData, recentBadges }: DashboardContentProps) {
-  const { coachName } = useTier();
-  const { clearActiveChild } = useActiveChild();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [showCelebration, setShowCelebration] = useState(false);
+  // Score bar animation
+  useEffect(() => {
+    const scoreBarsEl = scoreBarsRef.current;
+    if (!scoreBarsEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const fills = entry.target.querySelectorAll(
+              `.${styles.scoreBarFill}`
+            );
+            fills.forEach((fill) => {
+              const el = fill as HTMLElement;
+              const targetWidth = el.style.width;
+              el.style.width = "0%";
+              setTimeout(() => {
+                el.style.width = targetWidth;
+              }, 200);
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(scoreBarsEl);
+    return () => observer.disconnect();
+  }, []);
 
-  const { completedLessons, currentLesson, nextLesson, availableLessons, assessments, typeStats, stats } = data;
-
-  const progressPercent =
-    stats.totalAvailable > 0
-      ? Math.round((stats.totalCompleted / stats.totalAvailable) * 100)
-      : 0;
-
-  const tierBadge = TIER_BADGES[childTier] || TIER_BADGES[1];
-
-  const filteredLessons =
-    activeTab === "all"
-      ? availableLessons
-      : availableLessons.filter((l) => l.type === activeTab);
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
+  // Smooth scroll for anchor links
+  const handleAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    if (targetId === "#") return;
+    e.preventDefault();
+    const target = document.querySelector(targetId);
+    if (target && navbarRef.current) {
+      const navHeight = navbarRef.current.offsetHeight;
+      const targetPosition =
+        target.getBoundingClientRect().top + window.scrollY - navHeight - 20;
+      window.scrollTo({ top: targetPosition, behavior: "smooth" });
+    }
+    setMobileMenuOpen(false);
   };
 
-  const weeklyGoal = streakData?.weeklyGoal ?? 3;
-  const weeklyCompleted = streakData?.weeklyCompleted ?? 0;
-
-  // Build skill category scores for bar display
-  const SKILL_CATEGORIES = ["narrative", "persuasive", "expository", "descriptive"] as const;
-  const skillScores = SKILL_CATEGORIES.map((cat) => {
-    const found = skills?.find((s) => s.name === cat);
-    return { name: cat, displayName: found?.displayName ?? (cat.charAt(0).toUpperCase() + cat.slice(1)), avgScore: found?.avgScore ?? 0 };
-  });
-
-  // Celebration banner — when returning from a completed lesson
-  const completedLessonId = searchParams.get("completed");
-  const completedLessonTitle = completedLessonId
-    ? completedLessons.find((l) => l.lessonId === completedLessonId)?.title ?? null
-    : null;
-
-  useEffect(() => {
-    if (completedLessonTitle) {
-      setShowCelebration(true);
-      const timer = setTimeout(() => setShowCelebration(false), 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [completedLessonTitle]);
-
-  // Primary CTA logic: in-progress > nextLesson > all done
-  const hasCurriculum = !!curriculum;
-  const primaryAction = currentLesson
-    ? { type: "continue" as const, lessonId: currentLesson.lessonId, title: currentLesson.title }
-    : nextLesson
-      ? { type: "start" as const, lessonId: nextLesson.lessonId, title: nextLesson.title }
-      : null;
-
-  // Build completed set for weekly lesson states
-  const completedIds = new Set(completedLessons.map((l) => l.lessonId));
-  const needsImprovementIds = new Set(completedLessons.filter((l) => l.needsImprovement).map((l) => l.lessonId));
-
   return (
-    <div className="min-h-screen bg-active-bg">
-      {/* Header — greeting merged into nav bar */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200/60">
-        <div className="max-w-3xl mx-auto px-4 sm:px-5 h-16 flex items-center justify-between">
-          <button
-            onClick={() => { clearActiveChild(); router.push("/dashboard"); }}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
-            <CoachAvatar size="sm" />
-            <div className="text-left">
-              <h1 className="text-base font-extrabold text-active-text leading-tight">
-                {getGreeting()}, {childName}!
-              </h1>
-              <p className="text-xs text-active-text/40 font-semibold">
-                {tierBadge.emoji} {tierBadge.label}
-              </p>
-            </div>
-          </button>
-          <Link
-            href={`/portfolio/${activeChild?.id}`}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold text-active-primary hover:bg-active-primary/10 transition-colors"
-          >
-            My Writing
+    <div className={styles.landing}>
+      {/* ===== NAVIGATION ===== */}
+      <nav
+        ref={navbarRef}
+        className={`${styles.navbar}${navScrolled ? ` ${styles.scrolled}` : ""}`}
+      >
+        <div className={styles.navbarInner}>
+          <Link href="/" className={styles.logo}>
+            <span className={styles.logoIcon}>&#9999;&#65039;</span>
+            WriteWise Kids
           </Link>
-        </div>
-      </header>
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-5 py-6 space-y-5">
-        {/* Placement / Curriculum Banners */}
-        {hasPlacement === false && (
-          <section className="animate-fade-in">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-2 border-active-accent relative overflow-hidden">
-              <div className="flex items-center gap-4">
-                <span className="text-3xl flex-shrink-0">{"\uD83D\uDCDD"}</span>
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-active-text">Ready to Get Started?</h3>
-                  <p className="text-sm text-active-text/50 mt-0.5">Take a quick writing assessment so we can create the perfect learning plan.</p>
-                </div>
-                <Link href={`/placement/${activeChild.id}`} className="px-5 py-2.5 bg-active-primary text-white rounded-xl text-sm font-bold hover:bg-active-primary/90 transition-colors shadow-sm whitespace-nowrap">
-                  Start Assessment
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {hasPlacement && !curriculum && !curriculumLoading && (
-          <section className="animate-fade-in">
-            <div className="bg-white rounded-2xl p-5 shadow-sm border-2 border-active-secondary relative overflow-hidden">
-              <div className="flex items-center gap-4">
-                <span className="text-3xl flex-shrink-0">{"\uD83D\uDCDA"}</span>
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-active-text">Assessment Complete!</h3>
-                  <p className="text-sm text-active-text/50 mt-0.5">Now let{"'"}s create a personalized learning plan.</p>
-                </div>
-                <Link href={`/curriculum/${activeChild.id}/setup`} className="px-5 py-2.5 bg-active-secondary text-white rounded-xl text-sm font-bold hover:bg-active-secondary/90 transition-colors shadow-sm whitespace-nowrap">
-                  Set Up Curriculum
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Celebration Banner — after completing a lesson */}
-        {showCelebration && completedLessonTitle && (
-          <section className="animate-fade-in">
-            <div className="bg-gradient-to-r from-active-accent/20 to-active-primary/10 rounded-2xl p-5 border border-active-accent/30 relative">
-              <button
-                onClick={() => setShowCelebration(false)}
-                className="absolute top-3 right-3 text-active-text/30 hover:text-active-text/60 transition-colors"
-                aria-label="Dismiss"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-              <div className="flex items-center gap-4">
-                <span className="text-4xl">{"\uD83C\uDF89"}</span>
-                <div>
-                  <h3 className="text-base font-extrabold text-active-text">
-                    Great job finishing {completedLessonTitle}!
-                  </h3>
-                  <p className="text-sm text-active-text/50 mt-0.5">You{"'"}re doing amazing. Keep it up!</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Primary CTA Card — ALWAYS visible (3 states) */}
-        <section className="animate-fade-in stagger-1">
-          {primaryAction ? (
-            <Link href={`/lesson/${primaryAction.lessonId}`}>
-              <div className="bg-white rounded-2xl p-5 border-2 border-active-primary/20 hover:border-active-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-active-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    {primaryAction.type === "continue" ? (
-                      <span className="text-2xl">{"\u270D\uFE0F"}</span>
-                    ) : (
-                      <span className="text-2xl">{"\uD83D\uDE80"}</span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-wider text-active-primary/70 mb-0.5">
-                      {primaryAction.type === "continue" ? "Continue lesson" : "Up Next"}
-                    </p>
-                    <h2 className="text-lg font-extrabold text-active-text truncate">
-                      {primaryAction.title}
-                    </h2>
-                  </div>
-                  <div className="flex-shrink-0 bg-active-primary text-white rounded-xl px-5 py-2.5 text-sm font-bold group-hover:shadow-lg transition-shadow">
-                    {primaryAction.type === "continue" ? "Continue" : "Let\u2019s Go"} &rarr;
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ) : hasCurriculum ? (
-            <div className="bg-white rounded-2xl p-5 border-2 border-active-secondary/20 text-center">
-              <span className="text-4xl block mb-2">{"\uD83C\uDF1F"}</span>
-              <h2 className="text-lg font-extrabold text-active-text">You finished all your lessons!</h2>
-              <p className="text-sm text-active-text/50 mt-1">Amazing work! Check back soon for new lessons.</p>
-            </div>
-          ) : null}
-        </section>
-
-        {/* This Week's Lessons — with done/next/upcoming states */}
-        {curriculum?.weeks && (
-          <section className="animate-fade-in stagger-2">
-            <div className="flex items-center justify-between mb-3">
-              <SectionLabel>This Week{"'"}s Lessons</SectionLabel>
-              <Link href={`/curriculum/${activeChild.id}`} className="text-xs font-bold text-active-primary hover:underline">
-                View Curriculum &rarr;
-              </Link>
-            </div>
-            {(() => {
-              const currentWeek = curriculum.weeks.find((w: any) => w.status !== "completed");
-              if (!currentWeek) return <p className="text-sm text-active-text/50">All weeks completed!</p>;
-              const weekLessons = currentWeek.lessons ?? [];
-              const weekDone = weekLessons.filter((l: any) => completedIds.has(l.id)).length;
-              return (
-                <div>
-                  <p className="text-sm text-active-text/50 mb-3">
-                    Week {currentWeek.weekNumber}: {currentWeek.theme} &middot; {weekDone} of {weekLessons.length} done
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {weekLessons.map((lesson: any) => {
-                      const isDone = completedIds.has(lesson.id);
-                      const needsWork = needsImprovementIds.has(lesson.id);
-                      const isNext = !isDone && lesson.id === nextLesson?.lessonId;
-                      return (
-                        <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                          <div className={`rounded-xl p-4 border cursor-pointer transition-all ${
-                            needsWork
-                              ? "bg-amber-50 border-amber-200"
-                              : isDone
-                              ? "bg-active-secondary/5 border-active-secondary/20"
-                              : isNext
-                                ? "bg-white border-2 border-active-primary/40 shadow-sm"
-                                : "bg-white border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm"
-                          }`}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-lg">{TYPE_ICONS[lesson.type] || "\uD83D\uDCC4"}</span>
-                              {needsWork && <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Needs Revision</span>}
-                              {isDone && !needsWork && <span className="text-xs font-bold text-active-secondary bg-active-secondary/10 px-2 py-0.5 rounded-full">Done!</span>}
-                              {isNext && <span className="text-xs font-bold text-active-primary bg-active-primary/10 px-2 py-0.5 rounded-full">Up Next</span>}
-                            </div>
-                            <h5 className={`text-sm font-bold leading-snug ${isDone && !needsWork ? "text-active-text/50" : "text-active-text"}`}>{lesson.title}</h5>
-                            <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
-          </section>
-        )}
-
-        {/* Stats Row — 3 glanceable tiles (moved below lessons) */}
-        <section className="animate-fade-in stagger-2">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\uD83D\uDD25"}</div>
-              <p className="text-2xl font-extrabold text-active-text">{streakData?.currentStreak ?? 0}</p>
-              <p className="text-xs font-semibold text-active-text/40">Day streak</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\u2705"}</div>
-              <p className="text-2xl font-extrabold text-active-text">
-                {weeklyCompleted} of {weeklyGoal}
-              </p>
-              <p className="text-xs font-semibold text-active-text/40">This week</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
-              <div className="text-2xl mb-1">{"\uD83D\uDCDA"}</div>
-              <p className="text-2xl font-extrabold text-active-text">{stats.totalCompleted}</p>
-              <p className="text-xs font-semibold text-active-text/40">Lessons done</p>
-            </div>
-          </div>
-        </section>
-
-        {/* My Progress — combined skills + badges card */}
-        <section className="animate-fade-in stagger-3">
-          <SectionLabel>My Progress</SectionLabel>
-          <div className="bg-white rounded-2xl border border-gray-200/60 overflow-hidden">
-            <div className={`grid grid-cols-1 ${recentBadges && recentBadges.length > 0 ? "md:grid-cols-2 md:divide-x md:divide-gray-100" : ""}`}>
-              {/* Skills side — horizontal bars */}
-              <div className="p-5">
-                <h4 className="text-sm font-bold text-active-text/70 mb-4">Writing Skills</h4>
-                <div className="space-y-3">
-                  {skillScores.map((cat) => (
-                    <div key={cat.name}>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-xs font-semibold text-active-text/60">{cat.displayName}</span>
-                        <span className={`text-xs font-bold ${cat.avgScore > 0 ? "text-active-secondary" : "text-active-text/30"}`}>
-                          {cat.avgScore > 0 ? cat.avgScore.toFixed(1) : "\u2014"}
-                        </span>
-                      </div>
-                      <ProgressBar
-                        value={cat.avgScore > 0 ? (cat.avgScore / 5) * 100 : 0}
-                        color={cat.avgScore > 0 ? "bg-active-secondary" : "bg-gray-200"}
-                        height="h-2"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {/* Badges side */}
-              {recentBadges && recentBadges.length > 0 && (
-                <div className="p-5 border-t border-gray-100 md:border-t-0">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-bold text-active-text/70">Badges</h4>
-                    <Link
-                      href={`/badges/${activeChild.id}`}
-                      className="text-xs font-bold text-active-primary hover:underline"
-                    >
-                      All &rarr;
-                    </Link>
-                  </div>
-                  <div className="space-y-3">
-                    {recentBadges.slice(0, 4).map((badge) => (
-                      <div key={badge.id} className="flex items-center gap-3">
-                        <span className="text-xl">{badge.emoji}</span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-active-text">{badge.name}</p>
-                          <p className="text-xs text-active-text/40">{badge.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Completed Lessons — divider list */}
-        {completedLessons.length > 0 && (
-          <section className="animate-fade-in stagger-3">
-            <SectionLabel>Completed</SectionLabel>
-            <div className="bg-white rounded-2xl border border-gray-200/60 divide-y divide-gray-50">
-              {completedLessons.map((lesson) => {
-                const assessment = assessments.find(
-                  (a) => a.lessonId === lesson.lessonId
-                );
-                return (
-                  <Link key={lesson.lessonId} href={`/lesson/${lesson.lessonId}`}>
-                    <div className="flex items-center gap-3 px-5 py-3.5 hover:bg-active-bg/50 transition-colors cursor-pointer">
-                      <span className="text-base">{lesson.needsImprovement ? "\u26A0\uFE0F" : "\u2705"}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-active-text">
-                          {lesson.title}
-                        </p>
-                        <p className="text-xs text-active-text/40">
-                          {lesson.needsImprovement
-                            ? "Needs Revision"
-                            : lesson.completedAt
-                              ? new Date(lesson.completedAt).toLocaleDateString()
-                              : "Completed"}
-                        </p>
-                      </div>
-                      {lesson.needsImprovement ? (
-                        <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                          Needs Revision
-                        </span>
-                      ) : assessment ? (
-                        <span className="text-xs font-bold text-active-accent">
-                          {"\u2B50"} {assessment.overallScore}
-                        </span>
-                      ) : null}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Explore Lessons — only show when no active curriculum */}
-        {!hasCurriculum && (
-          <section className="animate-fade-in stagger-4">
-            <SectionLabel>Explore Lessons</SectionLabel>
-
-            <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
-              <button
-                onClick={() => setActiveTab("all")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                  activeTab === "all"
-                    ? "bg-active-primary text-white shadow-sm"
-                    : "bg-white text-active-text/50 border border-gray-200/60 hover:bg-active-primary/5"
-                }`}
-              >
-                All
-              </button>
-              {WRITING_TYPES.map(({ key, label, icon }) => (
-                <button
-                  key={key}
-                  onClick={() => setActiveTab(key)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
-                    activeTab === key
-                      ? "bg-active-primary text-white shadow-sm"
-                      : "bg-white text-active-text/50 border border-gray-200/60 hover:bg-active-primary/5"
-                  }`}
-                >
-                  {icon} {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredLessons.slice(0, 9).map((lesson) => (
-                <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                  <div className="bg-white rounded-xl p-4 border border-gray-200/60 hover:border-active-primary/30 hover:shadow-sm cursor-pointer transition-all">
-                    <h5 className="text-sm font-bold text-active-text">
-                      {lesson.title}
-                    </h5>
-                    <p className="text-xs text-active-text/40 mt-0.5">{lesson.unit}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            {filteredLessons.length === 0 && (
-              <p className="text-center text-active-text/40 py-6 text-sm">
-                No lessons available in this category yet.
-              </p>
-            )}
-          </section>
-        )}
-      </main>
-    </div>
-  );
-}
-
-export default function Dashboard() {
-  const { activeChild } = useActiveChild();
-  const router = useRouter();
-  const [data, setData] = useState<StudentProgressResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [curriculum, setCurriculum] = useState<any>(null);
-  const [curriculumLoading, setCurriculumLoading] = useState(true);
-  const [hasPlacement, setHasPlacement] = useState<boolean | null>(null);
-  const [skills, setSkills] = useState<SkillCategory[] | null>(null);
-  const [streakData, setStreakData] = useState<StreakData | null>(null);
-  const [recentBadges, setRecentBadges] = useState<RecentBadge[] | null>(null);
-
-  useEffect(() => {
-    if (!activeChild) {
-      router.push("/dashboard");
-      return;
-    }
-    getProgress(activeChild.id)
-      .then(setData)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [activeChild, router]);
-
-  useEffect(() => {
-    if (!activeChild) return;
-    fetch(`/api/curriculum/${activeChild.id}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => setCurriculum(data))
-      .catch(() => null)
-      .finally(() => setCurriculumLoading(false));
-  }, [activeChild]);
-
-  useEffect(() => {
-    if (!activeChild) return;
-    fetch(`/api/placement/${activeChild.id}`)
-      .then(res => setHasPlacement(res.ok))
-      .catch(() => setHasPlacement(false));
-  }, [activeChild]);
-
-  useEffect(() => {
-    if (!activeChild) return;
-    fetch(`/api/children/${activeChild.id}/skills`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data?.categories) setSkills(data.categories); })
-      .catch(() => null);
-  }, [activeChild]);
-
-  useEffect(() => {
-    if (!activeChild) return;
-    fetch(`/api/children/${activeChild.id}/streak`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data) setStreakData(data); })
-      .catch(() => null);
-  }, [activeChild]);
-
-  useEffect(() => {
-    if (!activeChild) return;
-    fetch(`/api/children/${activeChild.id}/badges`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => { if (data?.badges) setRecentBadges(data.badges); })
-      .catch(() => null);
-  }, [activeChild]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-active-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <CoachAvatar size="lg" animate />
-          </div>
-          <p className="mt-4 text-active-text/60 font-semibold">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="min-h-screen bg-active-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <CoachAvatar size="lg" />
-          </div>
-          <p className="mt-4 text-active-primary font-semibold">
-            {error || "Something went wrong"}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-3 px-5 py-2.5 bg-active-primary text-white rounded-xl text-sm font-bold hover:bg-active-primary/90 transition-colors shadow-sm"
+          <ul
+            className={`${styles.navLinks}${mobileMenuOpen ? ` ${styles.navLinksOpen}` : ""}`}
           >
-            Try Again
+            <li>
+              <a
+                href="#how-it-works"
+                onClick={(e) => handleAnchorClick(e, "#how-it-works")}
+              >
+                How It Works
+              </a>
+            </li>
+            <li>
+              <a
+                href="#outcomes"
+                onClick={(e) => handleAnchorClick(e, "#outcomes")}
+              >
+                What They&apos;ll Learn
+              </a>
+            </li>
+            <li>
+              <a
+                href="#parents"
+                onClick={(e) => handleAnchorClick(e, "#parents")}
+              >
+                For Parents
+              </a>
+            </li>
+            <li>
+              <a
+                href="#pricing"
+                onClick={(e) => handleAnchorClick(e, "#pricing")}
+              >
+                Pricing
+              </a>
+            </li>
+            <li>
+              {session ? (
+                <Link href="/dashboard" className={styles.navCta}>
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <Link href="/auth/signup" className={styles.navCta}>
+                  Free Assessment
+                </Link>
+              )}
+            </li>
+          </ul>
+          <button
+            className={styles.mobileMenuBtn}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
         </div>
-      </div>
-    );
-  }
+      </nav>
 
-  if (!activeChild) return null;
+      {/* ===== HERO ===== */}
+      <section ref={heroRef} className={styles.hero}>
+        <div className={styles.heroInner}>
+          <div className={styles.heroContent}>
+            <h1>
+              Every child has a story worth telling.{" "}
+              <span className={styles.highlight}>We help them write it.</span>
+            </h1>
+            <p className={styles.heroSub}>
+              An AI writing coach that teaches, encourages, and adapts — so your
+              child discovers the joy of writing.
+            </p>
+            <div className={styles.heroActions}>
+              <Link href="/auth/signup" className={styles.btnPrimary}>
+                Discover your child&apos;s writing level
+              </Link>
+              <a
+                href="#how-it-works"
+                className={styles.btnSecondaryLink}
+                onClick={(e) => handleAnchorClick(e, "#how-it-works")}
+              >
+                See how it works <span>&#8595;</span>
+              </a>
+            </div>
+          </div>
+          <div className={styles.heroVisual}>
+            <div className={styles.notebookCard}>
+              <div className={styles.notebookHeader}>
+                <span className={styles.notebookDot}></span>
+                <span className={styles.notebookDot}></span>
+                <span className={styles.notebookDot}></span>
+                <span className={styles.notebookTitle}>
+                  Maya&apos;s Story — Draft 1
+                </span>
+              </div>
+              <div className={styles.notebookBody}>
+                <div
+                  ref={typingTextRef}
+                  className={styles.notebookText}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  return (
-    <TierProvider tier={activeChild.tier as Tier}>
-      <Suspense>
-        <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} />
-      </Suspense>
-    </TierProvider>
+      {/* ===== OUTCOME SHOWCASE ===== */}
+      <section className={styles.outcomes} id="outcomes">
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>Outcomes by Age</span>
+            <h2 className={styles.sectionTitle}>
+              What Your Child Will Achieve
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Real writing skills that grow with them, from first stories to
+              analytical essays.
+            </p>
+          </div>
+          <div className={styles.outcomeGrid}>
+            <div
+              className={`${styles.outcomeCard} ${styles.tier1} ${styles.animateOnScroll} ${styles.delay1}`}
+            >
+              <span className={styles.outcomeBadge}>Ages 7-9</span>
+              <span className={styles.outcomeMascot}>&#129417;</span>
+              <h3 className={styles.outcomeTitle}>
+                Write complete stories with vivid characters
+              </h3>
+              <blockquote className={styles.outcomeQuote}>
+                &ldquo;The tiny dragon peeked out from behind the cloud. Her
+                wings were still too small to fly, but her heart was big enough
+                to try.&rdquo;
+                <p className={styles.outcomeAttribution}>
+                  — Tier 1 student sample
+                </p>
+              </blockquote>
+            </div>
+            <div
+              className={`${styles.outcomeCard} ${styles.tier2} ${styles.animateOnScroll} ${styles.delay2}`}
+            >
+              <span className={styles.outcomeBadge}>Ages 10-12</span>
+              <span className={styles.outcomeMascot}>&#129418;</span>
+              <h3 className={styles.outcomeTitle}>
+                Build persuasive arguments with evidence and voice
+              </h3>
+              <blockquote className={styles.outcomeQuote}>
+                &ldquo;Schools should have longer recess because studies show
+                that physical activity helps students concentrate better in
+                class.&rdquo;
+                <p className={styles.outcomeAttribution}>
+                  — Tier 2 student sample
+                </p>
+              </blockquote>
+            </div>
+            <div
+              className={`${styles.outcomeCard} ${styles.tier3} ${styles.animateOnScroll} ${styles.delay3}`}
+            >
+              <span className={styles.outcomeBadge}>Ages 13-15</span>
+              <span className={styles.outcomeMascot}>&#128058;</span>
+              <h3 className={styles.outcomeTitle}>
+                Craft analytical essays with a clear thesis
+              </h3>
+              <blockquote className={styles.outcomeQuote}>
+                &ldquo;In <em>The Giver</em>, Lowry uses the motif of color to
+                represent the community&apos;s suppression of individual
+                experience.&rdquo;
+                <p className={styles.outcomeAttribution}>
+                  — Tier 3 student sample
+                </p>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HOW IT WORKS ===== */}
+      <section className={styles.howItWorks} id="how-it-works">
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>The Lesson Flow</span>
+            <h2 className={styles.sectionTitle}>
+              How a single lesson transforms their writing
+            </h2>
+          </div>
+          <div className={`${styles.timeline} ${styles.animateOnScroll}`}>
+            <div className={styles.timelineStep}>
+              <div className={styles.stepCircle}>&#128214;</div>
+              <h4 className={styles.stepTitle}>Learn</h4>
+              <p className={styles.stepDesc}>
+                The AI coach teaches the concept with fun, relatable examples
+              </p>
+            </div>
+            <div className={styles.timelineStep}>
+              <div className={styles.stepCircle}>&#129309;</div>
+              <h4 className={styles.stepTitle}>Practice Together</h4>
+              <p className={styles.stepDesc}>
+                Guided questions help them apply what they learned — no answers
+                given, just smart hints
+              </p>
+            </div>
+            <div className={styles.timelineStep}>
+              <div className={styles.stepCircle}>&#9997;&#65039;</div>
+              <h4 className={styles.stepTitle}>Write</h4>
+              <p className={styles.stepDesc}>
+                Independent writing time. The coach steps back. This is their
+                moment.
+              </p>
+            </div>
+            <div className={styles.timelineStep}>
+              <div className={styles.stepCircle}>&#127775;</div>
+              <h4 className={styles.stepTitle}>Grow</h4>
+              <p className={styles.stepDesc}>
+                Personalized feedback that celebrates strengths and highlights
+                one area to improve
+              </p>
+            </div>
+          </div>
+          <div
+            className={`${styles.lessonMockup} ${styles.animateOnScroll}`}
+          >
+            <div className={styles.lessonMockupHeader}>
+              <span className={styles.lessonMockupTitle}>
+                Story Openings — Lesson 3
+              </span>
+              <div className={styles.lessonMockupPhase}>
+                <span
+                  className={`${styles.phaseDot} ${styles.phaseDotCompleted}`}
+                ></span>
+                <span
+                  className={`${styles.phaseDot} ${styles.phaseDotActive}`}
+                ></span>
+                <span className={styles.phaseDot}></span>
+              </div>
+            </div>
+            <div className={styles.lessonMockupBody}>
+              <div className={`${styles.chatMsg} ${styles.chatMsgCoach}`}>
+                <div className={styles.chatAvatar}>&#129417;</div>
+                <div className={styles.chatBubble}>
+                  Great job! A story opening should grab the reader&apos;s
+                  attention. Let&apos;s look at three ways to do that...
+                </div>
+              </div>
+              <div className={`${styles.chatMsg} ${styles.chatMsgStudent}`}>
+                <div className={styles.chatAvatar}>&#128103;</div>
+                <div className={styles.chatBubble}>
+                  Can I start with a question?
+                </div>
+              </div>
+              <div className={`${styles.chatMsg} ${styles.chatMsgCoach}`}>
+                <div className={styles.chatAvatar}>&#129417;</div>
+                <div className={styles.chatBubble}>
+                  Absolutely! Starting with a question is a fantastic hook. What
+                  question would your character ask?
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== ENGAGEMENT ===== */}
+      <section ref={engagementRef} className={styles.engagement}>
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>Motivation Built In</span>
+            <h2 className={styles.sectionTitle}>
+              They&apos;ll ask to write. Really.
+            </h2>
+          </div>
+          <div className={styles.engagementGrid}>
+            <div
+              className={`${styles.engagementCard} ${styles.animateOnScroll} ${styles.delay1}`}
+            >
+              <span className={styles.engagementIcon}>&#128293;</span>
+              <h3 className={styles.engagementTitle}>Writing Streaks</h3>
+              <div className={styles.streakDisplay}>
+                <div className={styles.streakCounter}>7</div>
+                <div className={styles.streakLabel}>day streak!</div>
+                <div className={styles.streakDots}>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                  <div
+                    className={`${styles.streakDot} ${styles.streakDotFilled}`}
+                  >
+                    &#10003;
+                  </div>
+                </div>
+                <div className={styles.streakDayLabels}>
+                  <span className={styles.streakDayLabel}>M</span>
+                  <span className={styles.streakDayLabel}>T</span>
+                  <span className={styles.streakDayLabel}>W</span>
+                  <span className={styles.streakDayLabel}>T</span>
+                  <span className={styles.streakDayLabel}>F</span>
+                  <span className={styles.streakDayLabel}>S</span>
+                  <span className={styles.streakDayLabel}>S</span>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`${styles.engagementCard} ${styles.animateOnScroll} ${styles.delay2}`}
+            >
+              <span className={styles.engagementIcon}>&#127941;</span>
+              <h3 className={styles.engagementTitle}>Badge Collection</h3>
+              <div className={styles.badgeCollection}>
+                <div className={styles.badgeRow}>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#127942;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#128221;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#11088;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#127919;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#128218;
+                  </div>
+                </div>
+                <div className={styles.badgeRow}>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#127775;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleEarned}`}
+                  >
+                    &#10024;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleLocked}`}
+                  >
+                    &#128302;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleLocked}`}
+                  >
+                    &#128142;
+                  </div>
+                  <div
+                    className={`${styles.badgeCircle} ${styles.badgeCircleLocked}`}
+                  >
+                    &#128081;
+                  </div>
+                </div>
+                <span className={styles.badgeCount}>12 of 24 earned</span>
+              </div>
+            </div>
+            <div
+              className={`${styles.engagementCard} ${styles.animateOnScroll} ${styles.delay3}`}
+            >
+              <span className={styles.engagementIcon}>&#127881;</span>
+              <h3 className={styles.engagementTitle}>Celebrations</h3>
+              <div className={styles.celebrationDisplay}>
+                <div
+                  ref={confettiContainerRef}
+                  className={styles.confettiDots}
+                ></div>
+                <div className={styles.celebrationBadge}>
+                  &#127775; New badge unlocked!
+                  <br />
+                  Story Starter
+                </div>
+              </div>
+            </div>
+          </div>
+          <p
+            className={`${styles.engagementTagline} ${styles.animateOnScroll}`}
+          >
+            Badges, streaks, and celebrations keep them motivated lesson after
+            lesson.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== PARENT INSIGHT ===== */}
+      <section className={styles.parentInsight} id="parents">
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>For Parents</span>
+            <h2 className={styles.sectionTitle}>
+              See exactly where they&apos;re growing
+            </h2>
+          </div>
+          <div className={styles.insightGrid}>
+            <div
+              className={`${styles.insightText} ${styles.animateOnScroll}`}
+            >
+              <h3>
+                Deep insight into every dimension of their writing
+              </h3>
+              <ul className={styles.insightList}>
+                <li>
+                  <span className={styles.insightCheck}>&#10003;</span>
+                  Track skills across narrative, persuasive, expository, and
+                  descriptive writing
+                </li>
+                <li>
+                  <span className={styles.insightCheck}>&#10003;</span>
+                  Watch their progress over weeks and months
+                </li>
+                <li>
+                  <span className={styles.insightCheck}>&#10003;</span>
+                  Read every piece they write with AI-annotated feedback
+                </li>
+                <li>
+                  <span className={styles.insightCheck}>&#10003;</span>
+                  Adjust their curriculum to focus on what matters most
+                </li>
+              </ul>
+            </div>
+            <div
+              className={`${styles.insightDashboard} ${styles.animateOnScroll} ${styles.delay2}`}
+            >
+              <div className={styles.insightDashboardLabel}>
+                Progress Overview
+              </div>
+
+              {/* Radar Chart */}
+              <div className={styles.radarChart}>
+                <svg
+                  viewBox="0 0 220 220"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Grid rings */}
+                  <polygon
+                    points="110,30 190,110 110,190 30,110"
+                    fill="none"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  <polygon
+                    points="110,50 170,110 110,170 50,110"
+                    fill="none"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  <polygon
+                    points="110,70 150,110 110,150 70,110"
+                    fill="none"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  <polygon
+                    points="110,90 130,110 110,130 90,110"
+                    fill="none"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  {/* Axes */}
+                  <line
+                    x1="110"
+                    y1="30"
+                    x2="110"
+                    y2="190"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1="30"
+                    y1="110"
+                    x2="190"
+                    y2="110"
+                    stroke="#e8e8e8"
+                    strokeWidth="1"
+                  />
+                  {/* Data polygon */}
+                  <polygon
+                    points="110,42 175,110 110,155 55,110"
+                    fill="rgba(108, 92, 231, 0.15)"
+                    stroke="var(--purple)"
+                    strokeWidth="2.5"
+                  />
+                  {/* Data dots */}
+                  <circle cx="110" cy="42" r="4" fill="var(--purple)" />
+                  <circle cx="175" cy="110" r="4" fill="var(--purple)" />
+                  <circle cx="110" cy="155" r="4" fill="var(--purple)" />
+                  <circle cx="55" cy="110" r="4" fill="var(--purple)" />
+                  {/* Labels */}
+                  <text
+                    x="110"
+                    y="20"
+                    textAnchor="middle"
+                    fontSize="11"
+                    fontFamily="Nunito, sans-serif"
+                    fontWeight="700"
+                    fill="#636e72"
+                  >
+                    Narrative
+                  </text>
+                  <text
+                    x="200"
+                    y="114"
+                    textAnchor="start"
+                    fontSize="11"
+                    fontFamily="Nunito, sans-serif"
+                    fontWeight="700"
+                    fill="#636e72"
+                  >
+                    Persuasive
+                  </text>
+                  <text
+                    x="110"
+                    y="210"
+                    textAnchor="middle"
+                    fontSize="11"
+                    fontFamily="Nunito, sans-serif"
+                    fontWeight="700"
+                    fill="#636e72"
+                  >
+                    Descriptive
+                  </text>
+                  <text
+                    x="20"
+                    y="114"
+                    textAnchor="end"
+                    fontSize="11"
+                    fontFamily="Nunito, sans-serif"
+                    fontWeight="700"
+                    fill="#636e72"
+                  >
+                    Expository
+                  </text>
+                </svg>
+              </div>
+
+              {/* Score bars */}
+              <div ref={scoreBarsRef} className={styles.scoreBars}>
+                <div className={styles.scoreBarsTitle}>Recent Scores</div>
+                <div className={styles.scoreBarRow}>
+                  <span className={styles.scoreBarLabel}>Narrative</span>
+                  <div className={styles.scoreBarTrack}>
+                    <div
+                      className={styles.scoreBarFill}
+                      style={{
+                        width: "85%",
+                        background: "var(--coral)",
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.scoreBarValue}>4.2</span>
+                </div>
+                <div className={styles.scoreBarRow}>
+                  <span className={styles.scoreBarLabel}>Persuasive</span>
+                  <div className={styles.scoreBarTrack}>
+                    <div
+                      className={styles.scoreBarFill}
+                      style={{
+                        width: "72%",
+                        background: "var(--purple)",
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.scoreBarValue}>3.6</span>
+                </div>
+                <div className={styles.scoreBarRow}>
+                  <span className={styles.scoreBarLabel}>Expository</span>
+                  <div className={styles.scoreBarTrack}>
+                    <div
+                      className={styles.scoreBarFill}
+                      style={{
+                        width: "60%",
+                        background: "var(--teal)",
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.scoreBarValue}>3.0</span>
+                </div>
+                <div className={styles.scoreBarRow}>
+                  <span className={styles.scoreBarLabel}>Descriptive</span>
+                  <div className={styles.scoreBarTrack}>
+                    <div
+                      className={styles.scoreBarFill}
+                      style={{
+                        width: "78%",
+                        background: "var(--yellow)",
+                        filter: "brightness(0.85)",
+                      }}
+                    ></div>
+                  </div>
+                  <span className={styles.scoreBarValue}>3.9</span>
+                </div>
+              </div>
+
+              {/* Weekly activity */}
+              <div className={styles.weeklyActivity}>
+                <div className={styles.weeklyActivityTitle}>This Week</div>
+                <div className={styles.weeklySquares}>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareActive3}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareActive2}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareActive3}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareInactive}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareActive1}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareActive3}`}
+                  ></div>
+                  <div
+                    className={`${styles.weeklySquare} ${styles.weeklySquareInactive}`}
+                  ></div>
+                </div>
+                <div className={styles.weeklyLabels}>
+                  <span className={styles.weeklyLabel}>M</span>
+                  <span className={styles.weeklyLabel}>T</span>
+                  <span className={styles.weeklyLabel}>W</span>
+                  <span className={styles.weeklyLabel}>T</span>
+                  <span className={styles.weeklyLabel}>F</span>
+                  <span className={styles.weeklyLabel}>S</span>
+                  <span className={styles.weeklyLabel}>S</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== THE METHOD ===== */}
+      <section className={styles.method} id="pricing">
+        <div className={styles.container}>
+          <div className={`${styles.methodText} ${styles.animateOnScroll}`}>
+            <p>
+              Built on the &ldquo;I Do, We Do, You Do&rdquo; framework — a
+              proven teaching method used by educators worldwide.
+            </p>
+            <p>
+              Our AI coach adapts it to your child&apos;s exact level, pace, and
+              interests.
+            </p>
+          </div>
+          <div
+            className={`${styles.methodVisual} ${styles.animateOnScroll}`}
+          >
+            <div className={`${styles.methodCircle} ${styles.iDo}`}>
+              I Do
+              <span className={styles.methodCircleSub}>Coach teaches</span>
+            </div>
+            <span className={styles.methodArrow}>{"\u2192"}</span>
+            <div className={`${styles.methodCircle} ${styles.weDo}`}>
+              We Do
+              <span className={styles.methodCircleSub}>
+                Practice together
+              </span>
+            </div>
+            <span className={styles.methodArrow}>{"\u2192"}</span>
+            <div className={`${styles.methodCircle} ${styles.youDo}`}>
+              You Do
+              <span className={styles.methodCircleSub}>
+                Write independently
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FINAL CTA ===== */}
+      <section className={styles.finalCta} id="cta">
+        <div className={styles.container}>
+          <h2 className={styles.animateOnScroll}>
+            Every great writer started somewhere
+          </h2>
+          <p
+            className={`${styles.finalCtaSub} ${styles.animateOnScroll} ${styles.delay1}`}
+          >
+            A free 5-minute placement assessment shows you exactly where your
+            child is — and where they can go.
+          </p>
+          <div
+            className={`${styles.animateOnScroll} ${styles.delay2}`}
+          >
+            <Link
+              href="/auth/signup"
+              className={styles.btnPrimary}
+              style={{ fontSize: "19px", padding: "18px 40px" }}
+            >
+              Start the Free Assessment {"\u2192"}
+            </Link>
+          </div>
+          <p
+            className={`${styles.finalCtaNote} ${styles.animateOnScroll} ${styles.delay3}`}
+          >
+            No credit card required. Takes 5 minutes.
+          </p>
+        </div>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <footer className={styles.footer}>
+        <div className={styles.footerInner}>
+          <div className={styles.footerLogo}>
+            <span>&#9999;&#65039;</span> WriteWise Kids
+          </div>
+          <ul className={styles.footerLinks}>
+            <li>
+              <a href="#">About</a>
+            </li>
+            <li>
+              <a href="#">Privacy</a>
+            </li>
+            <li>
+              <a href="#">Terms</a>
+            </li>
+            <li>
+              <a href="#">Contact</a>
+            </li>
+          </ul>
+          <p className={styles.footerCopy}>
+            &copy; 2026 WriteWise Kids. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
   );
 }

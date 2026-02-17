@@ -235,7 +235,7 @@ export default function PortfolioPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/home")}
               className="p-2 rounded-xl hover:bg-[#FF6B6B]/10 transition-colors"
               aria-label="Back to dashboard"
             >
@@ -330,7 +330,7 @@ export default function PortfolioPage() {
               Complete some lessons to see your writing here!
             </p>
             <Link
-              href="/"
+              href="/home"
               className="inline-block mt-4 px-5 py-2.5 bg-[#FF6B6B] text-white rounded-xl text-sm font-bold hover:bg-[#FF6B6B]/90 transition-colors shadow-sm"
             >
               Go to Lessons

@@ -1,0 +1,2466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteWise Kids — AI-Powered Creative Writing Coach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --purple: #6C5CE7;
+  --purple-light: #a29bfe;
+  --purple-dark: #5a4bd1;
+  --coral: #FF6B6B;
+  --coral-light: #ff8787;
+  --teal: #4ECDC4;
+  --mint: #00B894;
+  --gold: #FDCB6E;
+  --bg: #F8F9FD;
+  --dark: #2D3436;
+  --dark-light: #636e72;
+  --warm-bg: #FFF9F0;
+  --cool-bg: #F0F2FF;
+  --white: #FFFFFF;
+  --shadow-sm: 0 2px 8px rgba(45, 52, 54, 0.06);
+  --shadow-md: 0 4px 20px rgba(45, 52, 54, 0.08);
+  --shadow-lg: 0 8px 40px rgba(45, 52, 54, 0.12);
+  --shadow-xl: 0 16px 60px rgba(45, 52, 54, 0.15);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--dark);
+  background: var(--bg);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Nunito', sans-serif;
+  line-height: 1.2;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-in-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.fade-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(248, 249, 253, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(108, 92, 231, 0.08);
+  padding: 0 24px;
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 2px 20px rgba(108, 92, 231, 0.1);
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--purple);
+}
+
+.logo-icon {
+  font-size: 24px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--dark-light);
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--purple);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: var(--purple);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.nav-cta {
+  background: var(--purple);
+  color: var(--white) !important;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.3);
+}
+
+.nav-cta:hover {
+  background: var(--purple-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(108, 92, 231, 0.4);
+}
+
+.nav-cta::after {
+  display: none !important;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.mobile-menu-btn span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--dark);
+  margin: 6px 0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero {
+  padding: 80px 0 100px;
+  position: relative;
+  overflow: hidden;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 107, 107, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+}
+
+/* Curved divider between hero halves */
+.hero-split::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  bottom: -40px;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--purple-light), var(--teal), transparent);
+  transform: translateX(-50%);
+  opacity: 0.3;
+}
+
+.hero-label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 24px;
+}
+
+.hero-left .hero-label {
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--coral);
+}
+
+.hero-right .hero-label {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--purple);
+}
+
+/* Chat mockup on left */
+.chat-mockup {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  max-width: 440px;
+  border: 1px solid rgba(255, 107, 107, 0.1);
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.chat-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+}
+
+.chat-header-text h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.chat-header-text span {
+  font-size: 12px;
+  color: var(--mint);
+  font-weight: 500;
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-bubble {
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 85%;
+  animation: bubbleFadeIn 0.5s ease forwards;
+}
+
+@keyframes bubbleFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-bubble.coach {
+  background: linear-gradient(135deg, #f8f6ff, #ede9ff);
+  border: 1px solid rgba(108, 92, 231, 0.1);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  color: var(--dark);
+}
+
+.chat-bubble.student {
+  background: var(--purple);
+  color: var(--white);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble .highlight {
+  background: rgba(253, 203, 110, 0.4);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* Dashboard mockup on right */
+.dashboard-mockup {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  max-width: 440px;
+  margin-left: auto;
+  border: 1px solid rgba(108, 92, 231, 0.1);
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dash-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dash-header span {
+  font-size: 12px;
+  color: var(--dark-light);
+  background: var(--bg);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dash-stat {
+  text-align: center;
+  padding: 14px 8px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+}
+
+.dash-stat .stat-value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+.dash-stat .stat-label {
+  font-size: 11px;
+  color: var(--dark-light);
+  margin-top: 2px;
+}
+
+.dash-radar {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.dash-radar svg {
+  width: 180px;
+  height: 180px;
+}
+
+.dash-activity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f0fff4, #e8f8f0);
+  border-radius: var(--radius-md);
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--dark);
+}
+
+.dash-activity .activity-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--mint);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Hero center text (overlapping) */
+.hero-center {
+  text-align: center;
+  padding: 60px 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-center h1 {
+  font-size: 50px;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.15;
+  max-width: 800px;
+  margin: 0 auto 8px;
+}
+
+.hero-center h1 .text-gradient {
+  background: linear-gradient(135deg, var(--purple), var(--coral));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-center p {
+  font-size: 18px;
+  color: var(--dark-light);
+  margin-bottom: 36px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--purple);
+  color: var(--white);
+  padding: 16px 36px;
+  border-radius: var(--radius-full);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.35);
+}
+
+.btn-primary:hover {
+  background: var(--purple-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(108, 92, 231, 0.45);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dark-light);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  padding: 12px 8px;
+}
+
+.btn-secondary:hover {
+  color: var(--purple);
+}
+
+/* ============================================
+   DUAL TRACK SECTION
+   ============================================ */
+.dual-track {
+  padding: 100px 0;
+}
+
+.dual-track-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.dual-track-header h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.dual-track-header p {
+  font-size: 18px;
+  color: var(--dark-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.dual-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical divider between columns */
+.dual-columns::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(108, 92, 231, 0.15) 5%,
+    rgba(108, 92, 231, 0.15) 95%,
+    transparent 100%
+  );
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* Connector dots on the divider */
+.connector-dot {
+  position: absolute;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--white);
+  border: 2px solid var(--purple-light);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.connector-dot:nth-child(1) { top: 200px; }
+.connector-dot:nth-child(2) { top: 520px; }
+.connector-dot:nth-child(3) { top: 840px; }
+.connector-dot:nth-child(4) { top: 1160px; }
+.connector-dot:nth-child(5) { top: 1480px; }
+
+.dual-col-left {
+  padding-right: 40px;
+}
+
+.dual-col-right {
+  padding-left: 40px;
+}
+
+.column-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  margin-bottom: 32px;
+}
+
+.dual-col-left .column-label {
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--coral);
+}
+
+.dual-col-right .column-label {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--purple);
+}
+
+/* Dual track cards */
+.track-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  margin-bottom: 32px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.dual-col-left .track-card {
+  background: var(--warm-bg);
+  border-color: rgba(255, 107, 107, 0.08);
+}
+
+.dual-col-right .track-card {
+  background: var(--cool-bg);
+  border-color: rgba(108, 92, 231, 0.08);
+}
+
+.track-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.track-card h3 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--dark);
+}
+
+.track-card > p {
+  font-size: 15px;
+  color: var(--dark-light);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* === Card A: Meet their writing coach (Mascots) === */
+.mascot-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mascot-tab {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #eee;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark-light);
+}
+
+.mascot-tab:hover {
+  border-color: var(--purple-light);
+}
+
+.mascot-tab.active {
+  border-color: var(--purple);
+  background: rgba(108, 92, 231, 0.05);
+  color: var(--purple);
+}
+
+.mascot-tab .mascot-emoji {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.mascot-detail {
+  display: none;
+  padding: 20px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid #f0f0f0;
+}
+
+.mascot-detail.active {
+  display: block;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mascot-detail h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mascot-detail .age-range {
+  font-size: 12px;
+  background: var(--purple);
+  color: var(--white);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.mascot-detail p {
+  font-size: 14px;
+  color: var(--dark-light);
+  line-height: 1.6;
+}
+
+.mascot-detail .sample-msg {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f6ff, #ede9ff);
+  border-radius: 12px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--dark);
+  border-left: 3px solid var(--purple-light);
+}
+
+/* === Card B: Tier examples === */
+.tier-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.tier-tab {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: var(--white);
+  color: var(--dark-light);
+  border: 1px solid #eee;
+}
+
+.tier-tab.active {
+  color: var(--white);
+}
+
+.tier-tab[data-tier="1"].active {
+  background: var(--coral);
+  border-color: var(--coral);
+}
+
+.tier-tab[data-tier="2"].active {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+
+.tier-tab[data-tier="3"].active {
+  background: var(--dark);
+  border-color: var(--dark);
+}
+
+.tier-content {
+  display: none;
+  padding: 20px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid #f0f0f0;
+}
+
+.tier-content.active {
+  display: block;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.tier-content .tier-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.tier-content[data-tier="1"] .tier-label { color: var(--coral); }
+.tier-content[data-tier="2"] .tier-label { color: var(--purple); }
+.tier-content[data-tier="3"] .tier-label { color: var(--dark); }
+
+.tier-content .tier-example {
+  font-size: 15px;
+  color: var(--dark);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.concept-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple);
+  background: rgba(108, 92, 231, 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+/* === Card C: Guided practice mockup === */
+.hint-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #f0f0f0;
+}
+
+.hint-badge {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.hint-badge.light {
+  background: rgba(0, 184, 148, 0.1);
+  color: var(--mint);
+}
+
+.hint-badge.medium {
+  background: rgba(253, 203, 110, 0.2);
+  color: #e67e22;
+}
+
+.hint-badge.direct {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--purple);
+}
+
+.hint-text {
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.5;
+}
+
+/* === Card D: Writing mockup === */
+.writing-mockup {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.writing-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 12px;
+  color: var(--dark-light);
+}
+
+.word-count {
+  background: var(--bg);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.writing-area {
+  padding: 16px;
+  font-family: 'Literata', 'Georgia', serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--dark);
+  min-height: 80px;
+}
+
+.writing-area .quoted {
+  background: rgba(253, 203, 110, 0.3);
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.feedback-mini {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #f0f0f0;
+}
+
+.feedback-mini .feedback-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mint);
+  margin-bottom: 8px;
+}
+
+.feedback-mini p {
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+.feedback-mini .quoted-text {
+  background: rgba(253, 203, 110, 0.25);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* === Card E: Streaks & badges === */
+.motivation-row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.streak-mini {
+  flex: 1;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+}
+
+.streak-flame {
+  font-size: 40px;
+  animation: flicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes flicker {
+  0% { transform: scale(1) rotate(-2deg); }
+  50% { transform: scale(1.05) rotate(2deg); }
+  100% { transform: scale(1) rotate(-1deg); }
+}
+
+.streak-count {
+  font-family: 'Nunito', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--coral);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 12px;
+  color: var(--dark-light);
+  margin-top: 2px;
+}
+
+.streak-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.streak-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.streak-dot.filled {
+  background: var(--coral);
+}
+
+.badge-mini {
+  flex: 1.2;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid #f0f0f0;
+}
+
+.badge-grid-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.badge-item {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: linear-gradient(135deg, #f8f6ff, #ede9ff);
+  border: 2px solid rgba(108, 92, 231, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.badge-item:hover {
+  transform: scale(1.15);
+}
+
+.badge-mini-label {
+  font-size: 12px;
+  color: var(--dark-light);
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* === Right Column Cards === */
+
+/* Placement result card */
+.placement-card-inner {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid #e8e8f0;
+}
+
+.placement-tier {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.placement-tier-badge {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--purple);
+  background: rgba(108, 92, 231, 0.08);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+}
+
+.placement-tier-name {
+  font-size: 13px;
+  color: var(--dark-light);
+  font-weight: 500;
+}
+
+.placement-analysis {
+  font-size: 14px;
+  color: var(--dark);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--purple-light);
+}
+
+.confidence-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.confidence-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark-light);
+  white-space: nowrap;
+}
+
+.confidence-bar {
+  flex: 1;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--teal));
+  border-radius: 4px;
+  width: 0;
+  transition: width 1.5s ease;
+}
+
+.confidence-value {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+/* SVG Radar chart */
+.radar-chart-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.radar-chart-wrap svg {
+  width: 240px;
+  height: 240px;
+}
+
+.radar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+.radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--dark-light);
+}
+
+.radar-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.radar-legend-dot.month1 {
+  background: rgba(108, 92, 231, 0.25);
+}
+
+.radar-legend-dot.month3 {
+  background: var(--purple);
+}
+
+/* Portfolio mockup */
+.portfolio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portfolio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #e8e8f0;
+  transition: all 0.2s ease;
+}
+
+.portfolio-row:hover {
+  border-color: var(--purple-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.portfolio-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.portfolio-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.portfolio-type {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.portfolio-type.narrative {
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--coral);
+}
+
+.portfolio-type.persuasive {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--purple);
+}
+
+.portfolio-type.descriptive {
+  background: rgba(78, 205, 196, 0.1);
+  color: var(--teal);
+}
+
+.portfolio-score {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+.portfolio-date {
+  font-size: 12px;
+  color: var(--dark-light);
+}
+
+/* Curriculum mockup */
+.curriculum-weeks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.curriculum-week {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid #e8e8f0;
+}
+
+.week-num {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--purple);
+  background: rgba(108, 92, 231, 0.08);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.week-info {
+  flex: 1;
+}
+
+.week-theme {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.week-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.week-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.week-dot.done { background: var(--mint); }
+.week-dot.active { background: var(--purple); }
+.week-dot.pending { background: #ddd; }
+
+/* Notification card */
+.notification-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  border: 1px solid #e8e8f0;
+  margin-bottom: 16px;
+}
+
+.notification-card .notif-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.notif-icon {
+  font-size: 22px;
+}
+
+.notif-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.notif-time {
+  font-size: 12px;
+  color: var(--dark-light);
+  margin-left: auto;
+}
+
+.progress-summary {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.04), rgba(0, 184, 148, 0.04));
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+.progress-summary .level-up {
+  color: var(--mint);
+  font-weight: 700;
+}
+
+/* ============================================
+   CONVERGENCE SECTION
+   ============================================ */
+.convergence {
+  padding: 100px 0;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--white) 100%);
+  position: relative;
+}
+
+.convergence::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(108, 92, 231, 0.15), transparent);
+  transform: translateX(-50%);
+}
+
+.convergence-quote {
+  font-family: 'Nunito', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--dark);
+  max-width: 700px;
+  margin: 0 auto 40px;
+  line-height: 1.3;
+}
+
+.convergence-quote .emphasis {
+  color: var(--purple);
+}
+
+/* ============================================
+   HOW IT WORKS
+   ============================================ */
+.how-it-works {
+  padding: 100px 0;
+  background: var(--white);
+}
+
+.how-it-works-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.how-it-works-header h2 {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.how-it-works-header p {
+  font-size: 18px;
+  color: var(--dark-light);
+}
+
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.step-card {
+  text-align: center;
+  padding: 40px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--bg);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.step-number {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--white);
+  margin: 0 auto 20px;
+}
+
+.step-card:nth-child(1) .step-number { background: var(--coral); }
+.step-card:nth-child(2) .step-number { background: var(--purple); }
+.step-card:nth-child(3) .step-number { background: var(--mint); }
+
+.step-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 10px;
+}
+
+.step-card p {
+  font-size: 15px;
+  color: var(--dark-light);
+  line-height: 1.6;
+}
+
+/* Arrow between steps */
+.step-arrow {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .steps-row {
+    position: relative;
+  }
+}
+
+/* ============================================
+   FINAL CTA
+   ============================================ */
+.final-cta {
+  padding: 100px 0;
+  background: linear-gradient(135deg, var(--purple), #8b7cf7);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.final-cta::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.final-cta-content {
+  position: relative;
+  z-index: 1;
+}
+
+.final-cta h2 {
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--white);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.final-cta p {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 36px;
+}
+
+.btn-white {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  color: var(--purple);
+  padding: 18px 44px;
+  border-radius: var(--radius-full);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.btn-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.no-cc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 16px;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer {
+  padding: 48px 0;
+  background: var(--dark);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-logo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--white);
+}
+
+.footer-copy {
+  font-size: 13px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .hero h1 {
+    font-size: 42px;
+  }
+
+  .hero-split {
+    gap: 40px;
+  }
+
+  .dual-col-left { padding-right: 24px; }
+  .dual-col-right { padding-left: 24px; }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .hero {
+    padding: 60px 0 80px;
+    min-height: auto;
+  }
+
+  .hero-split {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .hero-split::before {
+    display: none;
+  }
+
+  .hero-left, .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .chat-mockup, .dashboard-mockup {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .hero-center h1 {
+    font-size: 34px;
+  }
+
+  .hero-center p {
+    font-size: 16px;
+  }
+
+  .dual-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .dual-columns::before {
+    display: none;
+  }
+
+  .connector-dot {
+    display: none;
+  }
+
+  .dual-col-left, .dual-col-right {
+    padding: 0;
+  }
+
+  .dual-col-right {
+    margin-top: 20px;
+  }
+
+  .steps-row {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    gap: 20px;
+  }
+
+  .motivation-row {
+    flex-direction: column;
+  }
+
+  .final-cta h2 {
+    font-size: 30px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dual-track-header h2,
+  .how-it-works-header h2 {
+    font-size: 28px;
+  }
+
+  .convergence-quote {
+    font-size: 24px;
+  }
+
+  .portfolio-meta {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .radar-chart-wrap svg {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero-center h1 {
+    font-size: 28px;
+  }
+
+  .mascot-tabs {
+    flex-direction: column;
+  }
+
+  .tier-tabs {
+    flex-wrap: wrap;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     NAVIGATION
+     ============================================ -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="#" class="logo">
+      <span class="logo-icon">&#10024;</span>
+      WriteWise Kids
+    </a>
+    <ul class="nav-links">
+      <li><a href="#dual-track">The Journey</a></li>
+      <li><a href="#for-kids">For Kids</a></li>
+      <li><a href="#for-parents">For Parents</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#cta" class="nav-cta">Free Assessment</a></li>
+    </ul>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<section class="hero" id="hero">
+  <div class="container hero-content">
+    <div class="hero-split">
+      <!-- LEFT: Kid's experience -->
+      <div class="hero-left fade-in-left">
+        <span class="hero-label">For your child</span>
+        <div class="chat-mockup">
+          <div class="chat-header">
+            <div class="chat-avatar">&#129418;</div>
+            <div class="chat-header-text">
+              <h4>Felix the Fox</h4>
+              <span>&#9679; Online</span>
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="chat-bubble student">The ocean was really angry that day, like a monster waking up.</div>
+            <div class="chat-bubble coach">You just used a <span class="highlight">metaphor</span>! That's a powerful writing technique. Comparing the ocean to a waking monster creates such a vivid image. Can you add one more to your next paragraph?</div>
+            <div class="chat-bubble student">Maybe I could say the waves had claws? &#129300;</div>
+            <div class="chat-bubble coach">Brilliant! <span class="highlight">"Waves with claws"</span> is so original. You're developing a real voice as a writer. Let's keep going!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Parent's view -->
+      <div class="hero-right fade-in-right">
+        <span class="hero-label">For you</span>
+        <div class="dashboard-mockup">
+          <div class="dash-header">
+            <h4>Maya's Progress</h4>
+            <span>This week</span>
+          </div>
+          <div class="dash-stats">
+            <div class="dash-stat">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Lessons</div>
+            </div>
+            <div class="dash-stat">
+              <div class="stat-value">4.1</div>
+              <div class="stat-label">Avg Score</div>
+            </div>
+            <div class="dash-stat">
+              <div class="stat-value">&#128293;7</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+          </div>
+          <div class="dash-radar">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- Grid -->
+              <polygon points="100,20 170,65 170,135 100,180 30,135 30,65" fill="none" stroke="#eee" stroke-width="1"/>
+              <polygon points="100,40 155,72.5 155,127.5 100,160 45,127.5 45,72.5" fill="none" stroke="#eee" stroke-width="1"/>
+              <polygon points="100,60 140,80 140,120 100,140 60,120 60,80" fill="none" stroke="#eee" stroke-width="1"/>
+              <polygon points="100,80 125,87.5 125,112.5 100,120 75,112.5 75,87.5" fill="none" stroke="#eee" stroke-width="1"/>
+              <!-- Axes -->
+              <line x1="100" y1="20" x2="100" y2="180" stroke="#eee" stroke-width="1"/>
+              <line x1="30" y1="65" x2="170" y2="135" stroke="#eee" stroke-width="1"/>
+              <line x1="170" y1="65" x2="30" y2="135" stroke="#eee" stroke-width="1"/>
+              <!-- Month 1 -->
+              <polygon points="100,65 130,82 125,120 100,135 72,115 75,80" fill="rgba(108,92,231,0.1)" stroke="rgba(108,92,231,0.25)" stroke-width="1.5"/>
+              <!-- Month 3 -->
+              <polygon points="100,35 160,70 150,130 100,155 55,125 48,68" fill="rgba(108,92,231,0.15)" stroke="var(--purple)" stroke-width="2"/>
+              <!-- Labels -->
+              <text x="100" y="14" text-anchor="middle" font-size="11" font-family="DM Sans" fill="#636e72" font-weight="600">Narrative</text>
+              <text x="180" y="68" text-anchor="start" font-size="11" font-family="DM Sans" fill="#636e72" font-weight="600">Persuasive</text>
+              <text x="180" y="140" text-anchor="start" font-size="11" font-family="DM Sans" fill="#636e72" font-weight="600">Expository</text>
+              <text x="100" y="196" text-anchor="middle" font-size="11" font-family="DM Sans" fill="#636e72" font-weight="600">Descriptive</text>
+              <!-- Dots Month 3 -->
+              <circle cx="100" cy="35" r="4" fill="var(--purple)"/>
+              <circle cx="160" cy="70" r="4" fill="var(--purple)"/>
+              <circle cx="150" cy="130" r="4" fill="var(--purple)"/>
+              <circle cx="100" cy="155" r="4" fill="var(--purple)"/>
+              <circle cx="55" cy="125" r="4" fill="var(--purple)"/>
+              <circle cx="48" cy="68" r="4" fill="var(--purple)"/>
+            </svg>
+          </div>
+          <div class="dash-activity">
+            <span class="activity-dot"></span>
+            Maya completed "The Lost Lighthouse" (Narrative) &mdash; scored 4.2/5
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center headline -->
+    <div class="hero-center fade-in">
+      <h1>They learn to write with <span class="text-gradient">confidence</span>.<br>You see every breakthrough.</h1>
+      <p>An AI writing coach that meets your child where they are, celebrates every step, and gives you a front-row seat to their growth.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Begin the journey &mdash; free placement</button>
+        <button class="btn-secondary" onclick="document.getElementById('dual-track').scrollIntoView({behavior:'smooth'})">See how it works &#8595;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     DUAL TRACK SECTION
+     ============================================ -->
+<section class="dual-track" id="dual-track">
+  <div class="container">
+    <div class="dual-track-header fade-in">
+      <h2>Two journeys. One platform.</h2>
+      <p>Your child discovers the joy of writing. You watch their skills blossom in real time.</p>
+    </div>
+
+    <div class="dual-columns">
+      <!-- Connector dots -->
+      <div class="connector-dot"></div>
+      <div class="connector-dot"></div>
+      <div class="connector-dot"></div>
+      <div class="connector-dot"></div>
+      <div class="connector-dot"></div>
+
+      <!-- ======== LEFT COLUMN: Kid's Experience ======== -->
+      <div class="dual-col-left" id="for-kids">
+        <div class="column-label">&#127912; For your child</div>
+
+        <!-- Card A: Mascots -->
+        <div class="track-card fade-in-left">
+          <h3>Meet their writing coach</h3>
+          <p>A friendly AI coach that speaks their language, matches their level, and never loses patience.</p>
+          <div class="mascot-tabs">
+            <button class="mascot-tab active" data-mascot="ollie" onclick="switchMascot('ollie')">
+              <span class="mascot-emoji">&#129417;</span>
+              Ages 7&ndash;9
+            </button>
+            <button class="mascot-tab" data-mascot="felix" onclick="switchMascot('felix')">
+              <span class="mascot-emoji">&#129418;</span>
+              Ages 10&ndash;12
+            </button>
+            <button class="mascot-tab" data-mascot="sage" onclick="switchMascot('sage')">
+              <span class="mascot-emoji">&#128058;</span>
+              Ages 13&ndash;15
+            </button>
+          </div>
+          <div class="mascot-detail active" id="mascot-ollie">
+            <h4>&#129417; Ollie the Owl <span class="age-range">Tier 1</span></h4>
+            <p>Warm, playful, and encouraging. Ollie uses simple language, lots of examples, and celebrates every small win with enthusiasm.</p>
+            <div class="sample-msg">"Wow, you gave your character a pet dragon! That's such a creative idea! What do you think the dragon's name could be?"</div>
+          </div>
+          <div class="mascot-detail" id="mascot-felix">
+            <h4>&#129418; Felix the Fox <span class="age-range">Tier 2</span></h4>
+            <p>Cool, curious, and supportive. Felix treats students as developing writers, introduces real techniques, and asks thoughtful questions.</p>
+            <div class="sample-msg">"Nice use of dialogue to reveal character! Have you considered how varying sentence length could build tension in this scene?"</div>
+          </div>
+          <div class="mascot-detail" id="mascot-sage">
+            <h4>&#128058; Sage the Wolf <span class="age-range">Tier 3</span></h4>
+            <p>Thoughtful, direct, and intellectually engaging. Sage discusses craft at a deeper level and encourages analytical thinking about writing choices.</p>
+            <div class="sample-msg">"Your thesis is clear, but consider how introducing a counter-argument in paragraph two could strengthen your position through concession."</div>
+          </div>
+        </div>
+
+        <!-- Card B: Tier examples -->
+        <div class="track-card fade-in-left">
+          <h3>Complex made simple</h3>
+          <p>The same concept, adapted to exactly the right level. No talking down, no talking over.</p>
+          <div class="concept-label">&#128218; Concept: Story Structure</div>
+          <div class="tier-tabs">
+            <button class="tier-tab active" data-tier="1" onclick="switchTier(1)">Ages 7&ndash;9</button>
+            <button class="tier-tab" data-tier="2" onclick="switchTier(2)">Ages 10&ndash;12</button>
+            <button class="tier-tab" data-tier="3" onclick="switchTier(3)">Ages 13&ndash;15</button>
+          </div>
+          <div class="tier-content active" data-tier="1">
+            <div class="tier-label">Tier 1 &mdash; Foundational</div>
+            <p class="tier-example">"Every story needs a beginning, middle, and end &mdash; just like a sandwich! The bread is your beginning and end, and all the yummy stuff in the middle is where the adventure happens! &#129386;"</p>
+          </div>
+          <div class="tier-content" data-tier="2">
+            <div class="tier-label">Tier 2 &mdash; Developing</div>
+            <p class="tier-example">"Let's map your narrative arc: exposition sets the scene, rising action builds tension, the climax is your story's turning point, and the resolution ties it all together. Where is your story's climax right now?"</p>
+          </div>
+          <div class="tier-content" data-tier="3">
+            <div class="tier-label">Tier 3 &mdash; Advanced</div>
+            <p class="tier-example">"Consider how non-linear narrative structure creates tension in your opening. By beginning in medias res, you force the reader to piece together context &mdash; a technique Toni Morrison uses to powerful effect."</p>
+          </div>
+        </div>
+
+        <!-- Card C: Guided practice -->
+        <div class="track-card fade-in-left">
+          <h3>Practice that feels like play</h3>
+          <p>Smart hints guide them forward without giving away the answer. Three levels of support, always just enough.</p>
+          <div class="hint-flow">
+            <div class="hint-step">
+              <span class="hint-badge light">Light</span>
+              <span class="hint-text">"What might your character be feeling when they see the door? Think about a time you felt surprised."</span>
+            </div>
+            <div class="hint-step">
+              <span class="hint-badge medium">Medium</span>
+              <span class="hint-text">"Try using a feeling word like 'nervous' or 'curious.' Where in their body might they feel it?"</span>
+            </div>
+            <div class="hint-step">
+              <span class="hint-badge direct">Direct</span>
+              <span class="hint-text">"How about starting with: 'Her heart raced as...' and then describing what she did next?"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card D: Assessment writing -->
+        <div class="track-card fade-in-left">
+          <h3>Write something they're proud of</h3>
+          <p>Feedback that celebrates their voice and highlights exactly where to grow.</p>
+          <div class="writing-mockup">
+            <div class="writing-toolbar">
+              <span>&#128221; Independent Writing</span>
+              <span class="word-count">142 words</span>
+            </div>
+            <div class="writing-area">The lighthouse stood alone on the cliff, its light <span class="quoted">cutting through the fog like a golden sword</span>. Nobody had visited in years, but tonight was different. Tonight, the door was open.</div>
+          </div>
+          <div class="feedback-mini">
+            <div class="feedback-label">&#9989; Strength</div>
+            <p>Your simile <span class="quoted-text">"cutting through the fog like a golden sword"</span> creates a powerful visual image. The short final sentence builds real suspense. Strong opening!</p>
+          </div>
+        </div>
+
+        <!-- Card E: Motivation -->
+        <div class="track-card fade-in-left">
+          <h3>Keep going because they want to</h3>
+          <p>Streaks, badges, and celebrations make every session feel like an achievement.</p>
+          <div class="motivation-row">
+            <div class="streak-mini">
+              <div class="streak-flame">&#128293;</div>
+              <div class="streak-count">7</div>
+              <div class="streak-label">day streak</div>
+              <div class="streak-dots">
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+                <div class="streak-dot filled"></div>
+              </div>
+            </div>
+            <div class="badge-mini">
+              <div class="badge-grid-mini">
+                <div class="badge-item">&#127942;</div>
+                <div class="badge-item">&#11088;</div>
+                <div class="badge-item">&#128221;</div>
+                <div class="badge-item">&#127919;</div>
+                <div class="badge-item">&#128218;</div>
+                <div class="badge-item">&#127775;</div>
+              </div>
+              <div class="badge-mini-label">6 of 24 badges earned</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== RIGHT COLUMN: Parent's View ======== -->
+      <div class="dual-col-right" id="for-parents">
+        <div class="column-label">&#128202; For you</div>
+
+        <!-- Card A: Placement -->
+        <div class="track-card fade-in-right">
+          <h3>Know their starting point</h3>
+          <p>A 5-minute assessment pinpoints their level. AI analysis you can review and override.</p>
+          <div class="placement-card-inner">
+            <div class="placement-tier">
+              <span class="placement-tier-badge">Tier 2 &mdash; Developing Writer</span>
+              <span class="placement-tier-name">Recommended</span>
+            </div>
+            <div class="placement-analysis">"Strong narrative instincts with vivid imagery. Needs support with paragraph structure, transitions between ideas, and organizing persuasive arguments."</div>
+            <div class="confidence-bar-wrap">
+              <span class="confidence-label">Confidence</span>
+              <div class="confidence-bar">
+                <div class="confidence-fill" id="confidenceFill" style="width: 0"></div>
+              </div>
+              <span class="confidence-value">87%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card B: Skills radar -->
+        <div class="track-card fade-in-right">
+          <h3>See skills develop in real-time</h3>
+          <p>Watch every dimension of their writing improve, week by week.</p>
+          <div class="radar-chart-wrap">
+            <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background grid rings -->
+              <polygon points="130,30 213,78 213,182 130,230 47,182 47,78" fill="none" stroke="#e8e8f0" stroke-width="1"/>
+              <polygon points="130,55 193,90.5 193,169.5 130,205 67,169.5 67,90.5" fill="none" stroke="#e8e8f0" stroke-width="1"/>
+              <polygon points="130,80 173,103 173,157 130,180 87,157 87,103" fill="none" stroke="#e8e8f0" stroke-width="1"/>
+              <polygon points="130,105 153,115.5 153,144.5 130,155 107,144.5 107,115.5" fill="none" stroke="#e8e8f0" stroke-width="1"/>
+              <!-- Axes -->
+              <line x1="130" y1="30" x2="130" y2="230" stroke="#e8e8f0" stroke-width="1"/>
+              <line x1="47" y1="78" x2="213" y2="182" stroke="#e8e8f0" stroke-width="1"/>
+              <line x1="213" y1="78" x2="47" y2="182" stroke="#e8e8f0" stroke-width="1"/>
+              <!-- Month 1 polygon -->
+              <polygon points="130,85 165,100 160,155 130,170 95,150 100,98" fill="rgba(108,92,231,0.08)" stroke="rgba(108,92,231,0.2)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <!-- Month 3 polygon -->
+              <polygon points="130,42 205,82 190,175 130,215 60,165 55,76" fill="rgba(108,92,231,0.12)" stroke="var(--purple)" stroke-width="2.5"/>
+              <!-- Month 3 dots -->
+              <circle cx="130" cy="42" r="5" fill="var(--purple)"/>
+              <circle cx="205" cy="82" r="5" fill="var(--purple)"/>
+              <circle cx="190" cy="175" r="5" fill="var(--purple)"/>
+              <circle cx="130" cy="215" r="5" fill="var(--purple)"/>
+              <circle cx="60" cy="165" r="5" fill="var(--purple)"/>
+              <circle cx="55" cy="76" r="5" fill="var(--purple)"/>
+              <!-- Labels -->
+              <text x="130" y="22" text-anchor="middle" font-size="12" font-family="DM Sans" fill="#636e72" font-weight="600">Narrative</text>
+              <text x="224" y="78" text-anchor="start" font-size="12" font-family="DM Sans" fill="#636e72" font-weight="600">Persuasive</text>
+              <text x="224" y="186" text-anchor="start" font-size="12" font-family="DM Sans" fill="#636e72" font-weight="600">Expository</text>
+              <text x="130" y="250" text-anchor="middle" font-size="12" font-family="DM Sans" fill="#636e72" font-weight="600">Descriptive</text>
+            </svg>
+          </div>
+          <div class="radar-legend">
+            <div class="radar-legend-item">
+              <span class="radar-legend-dot month1"></span>
+              Month 1
+            </div>
+            <div class="radar-legend-item">
+              <span class="radar-legend-dot month3"></span>
+              Month 3
+            </div>
+          </div>
+        </div>
+
+        <!-- Card C: Portfolio -->
+        <div class="track-card fade-in-right">
+          <h3>Read every piece they write</h3>
+          <p>A complete portfolio with scores, feedback, and the ability to export everything.</p>
+          <div class="portfolio-list">
+            <div class="portfolio-row">
+              <span class="portfolio-title">The Lost Lighthouse</span>
+              <div class="portfolio-meta">
+                <span class="portfolio-type narrative">Narrative</span>
+                <span class="portfolio-score">4.2/5</span>
+                <span class="portfolio-date">Feb 14</span>
+              </div>
+            </div>
+            <div class="portfolio-row">
+              <span class="portfolio-title">Why Recess Matters</span>
+              <div class="portfolio-meta">
+                <span class="portfolio-type persuasive">Persuasive</span>
+                <span class="portfolio-score">3.8/5</span>
+                <span class="portfolio-date">Feb 12</span>
+              </div>
+            </div>
+            <div class="portfolio-row">
+              <span class="portfolio-title">A Morning in the Forest</span>
+              <div class="portfolio-meta">
+                <span class="portfolio-type descriptive">Descriptive</span>
+                <span class="portfolio-score">4.5/5</span>
+                <span class="portfolio-date">Feb 10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card D: Curriculum -->
+        <div class="track-card fade-in-right">
+          <h3>Guide their curriculum</h3>
+          <p>Adjust focus areas, pace, and topics anytime. The plan adapts automatically to their progress.</p>
+          <div class="curriculum-weeks">
+            <div class="curriculum-week">
+              <span class="week-num">Week 1</span>
+              <div class="week-info">
+                <div class="week-theme">Story Beginnings</div>
+                <div class="week-dots">
+                  <div class="week-dot done"></div>
+                  <div class="week-dot done"></div>
+                  <div class="week-dot done"></div>
+                </div>
+              </div>
+            </div>
+            <div class="curriculum-week">
+              <span class="week-num">Week 2</span>
+              <div class="week-info">
+                <div class="week-theme">Character Development</div>
+                <div class="week-dots">
+                  <div class="week-dot done"></div>
+                  <div class="week-dot active"></div>
+                  <div class="week-dot pending"></div>
+                </div>
+              </div>
+            </div>
+            <div class="curriculum-week">
+              <span class="week-num">Week 3</span>
+              <div class="week-info">
+                <div class="week-theme">Building Tension</div>
+                <div class="week-dots">
+                  <div class="week-dot pending"></div>
+                  <div class="week-dot pending"></div>
+                  <div class="week-dot pending"></div>
+                </div>
+              </div>
+            </div>
+            <div class="curriculum-week">
+              <span class="week-num">Week 4</span>
+              <div class="week-info">
+                <div class="week-theme">Satisfying Endings</div>
+                <div class="week-dots">
+                  <div class="week-dot pending"></div>
+                  <div class="week-dot pending"></div>
+                  <div class="week-dot pending"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card E: Celebrate -->
+        <div class="track-card fade-in-right">
+          <h3>Celebrate with them</h3>
+          <p>Get notified when they hit milestones. See their week at a glance.</p>
+          <div class="notification-card">
+            <div class="notif-header">
+              <span class="notif-icon">&#127881;</span>
+              <span class="notif-text">Maya just earned the "Story Starter" badge!</span>
+              <span class="notif-time">2h ago</span>
+            </div>
+          </div>
+          <div class="notification-card">
+            <div class="notif-header">
+              <span class="notif-icon">&#128640;</span>
+              <span class="notif-text">New personal best: 4.5/5 on Descriptive Writing</span>
+              <span class="notif-time">Yesterday</span>
+            </div>
+          </div>
+          <div class="progress-summary">
+            <strong>This week:</strong> 3 lessons completed &middot; 7-day streak &middot; Narrative skills: <span class="level-up">Developing &#8594; Proficient</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     CONVERGENCE
+     ============================================ -->
+<section class="convergence fade-in">
+  <div class="container">
+    <p class="convergence-quote">The best part? They'll come to you <span class="emphasis">excited to share</span> what they wrote.</p>
+    <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Start with a free placement assessment</button>
+  </div>
+</section>
+
+<!-- ============================================
+     HOW IT WORKS
+     ============================================ -->
+<section class="how-it-works" id="how-it-works">
+  <div class="container">
+    <div class="how-it-works-header fade-in">
+      <h2>How it works</h2>
+      <p>From first assessment to confident writer &mdash; in three simple steps.</p>
+    </div>
+    <div class="steps-row">
+      <div class="step-card fade-in">
+        <div class="step-number">1</div>
+        <h3>Take the free placement</h3>
+        <p>5 minutes. 3 writing prompts. AI analyzes their current level and recommends the perfect starting point.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-number">2</div>
+        <h3>Get a personalized curriculum</h3>
+        <p>Weekly lessons matched to their tier, pace, and interests. Automatically adapts as they grow.</p>
+      </div>
+      <div class="step-card fade-in">
+        <div class="step-number">3</div>
+        <h3>Watch them grow</h3>
+        <p>Track every skill, read every piece, celebrate every milestone. Their progress, beautifully visualized.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FINAL CTA
+     ============================================ -->
+<section class="final-cta" id="cta">
+  <div class="container final-cta-content fade-in">
+    <h2>Two journeys. One goal.<br>A confident young writer.</h2>
+    <p>Join families who are watching their children discover the power of their own words.</p>
+    <button class="btn-white">Start your free assessment</button>
+    <div class="no-cc">No credit card required</div>
+  </div>
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-logo">
+      <span>&#10024;</span> WriteWise Kids
+    </div>
+    <ul class="footer-links">
+      <li><a href="#">About</a></li>
+      <li><a href="#">How It Works</a></li>
+      <li><a href="#">Pricing</a></li>
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+    <div class="footer-copy">&copy; 2026 WriteWise Kids. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+// ---- Intersection Observer for fade-in animations ----
+document.addEventListener('DOMContentLoaded', function() {
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ---- Animate confidence bar on scroll ----
+  const confidenceObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        document.getElementById('confidenceFill').style.width = '87%';
+        confidenceObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  var confidenceEl = document.getElementById('confidenceFill');
+  if (confidenceEl) {
+    confidenceObserver.observe(confidenceEl.closest('.track-card'));
+  }
+});
+
+// ---- Navbar scroll effect ----
+window.addEventListener('scroll', function() {
+  var navbar = document.getElementById('navbar');
+  if (window.scrollY > 20) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
+
+// ---- Mascot switcher ----
+function switchMascot(mascotId) {
+  // Update tabs
+  document.querySelectorAll('.mascot-tab').forEach(function(tab) {
+    tab.classList.remove('active');
+  });
+  document.querySelector('.mascot-tab[data-mascot="' + mascotId + '"]').classList.add('active');
+
+  // Update detail
+  document.querySelectorAll('.mascot-detail').forEach(function(detail) {
+    detail.classList.remove('active');
+  });
+  document.getElementById('mascot-' + mascotId).classList.add('active');
+}
+
+// ---- Tier switcher ----
+function switchTier(tier) {
+  // Update tabs
+  document.querySelectorAll('.tier-tab').forEach(function(tab) {
+    tab.classList.remove('active');
+  });
+  document.querySelector('.tier-tab[data-tier="' + tier + '"]').classList.add('active');
+
+  // Update content
+  document.querySelectorAll('.tier-content').forEach(function(content) {
+    content.classList.remove('active');
+  });
+  document.querySelector('.tier-content[data-tier="' + tier + '"]').classList.add('active');
+}
+
+// ---- Mobile menu toggle ----
+document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+  var navLinks = document.querySelector('.nav-links');
+  if (navLinks.style.display === 'flex') {
+    navLinks.style.display = 'none';
+  } else {
+    navLinks.style.display = 'flex';
+    navLinks.style.flexDirection = 'column';
+    navLinks.style.position = 'absolute';
+    navLinks.style.top = '72px';
+    navLinks.style.left = '0';
+    navLinks.style.right = '0';
+    navLinks.style.background = 'var(--white)';
+    navLinks.style.padding = '24px';
+    navLinks.style.gap = '16px';
+    navLinks.style.boxShadow = 'var(--shadow-lg)';
+    navLinks.style.borderRadius = '0 0 16px 16px';
+    navLinks.style.zIndex = '100';
+  }
+});
+
+// ---- Smooth scroll for anchor links ----
+document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    var target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      // Close mobile menu if open
+      var navLinks = document.querySelector('.nav-links');
+      if (window.innerWidth <= 768) {
+        navLinks.style.display = 'none';
+      }
+    }
+  });
+});
+
+// ---- Stagger fade-in for cards in dual track ----
+document.addEventListener('DOMContentLoaded', function() {
+  var trackCards = document.querySelectorAll('.track-card');
+  var cardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry, index) {
+      if (entry.isIntersecting) {
+        // Add a slight delay based on position
+        setTimeout(function() {
+          entry.target.classList.add('visible');
+        }, 100);
+        cardObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  trackCards.forEach(function(card) {
+    cardObserver.observe(card);
+  });
+});
+</script>
+
+</body>
+</html>

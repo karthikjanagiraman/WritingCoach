@@ -106,7 +106,7 @@ export default function ParentDashboard() {
       tier: child.tier as 1 | 2 | 3,
       avatarEmoji: child.avatarEmoji,
     });
-    router.push("/");
+    router.push("/home");
   }
 
   if (loading) {

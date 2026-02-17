@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WriteWise Kids — Every child has a story worth telling</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400;1,9..40,500&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --coral: #FF6B6B;
+      --coral-dark: #e85d5d;
+      --coral-light: #ff8a8a;
+      --purple: #6C5CE7;
+      --purple-dark: #5a4bd1;
+      --purple-light: #8577ed;
+      --charcoal: #2D3436;
+      --teal: #4ECDC4;
+      --yellow: #FFE66D;
+      --cream: #FFF9F0;
+      --warm-alt: #FFF5E6;
+      --white: #FFFFFF;
+      --gray-100: #F7F7F7;
+      --gray-200: #E8E8E8;
+      --gray-300: #D1D1D1;
+      --gray-400: #A0A0A0;
+      --gray-500: #6B7280;
+      --text: #2D3436;
+      --text-light: #636e72;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.10);
+      --shadow-xl: 0 20px 50px rgba(0,0,0,0.12);
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--cream);
+      line-height: 1.6;
+      font-size: 17px;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Nunito', sans-serif;
+      line-height: 1.2;
+      color: var(--charcoal);
+    }
+
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; font-family: inherit; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(60px) rotate(360deg); opacity: 0; }
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes wordReveal {
+      from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .animate-on-scroll.visible.delay-1 { transition-delay: 0.1s; }
+    .animate-on-scroll.visible.delay-2 { transition-delay: 0.2s; }
+    .animate-on-scroll.visible.delay-3 { transition-delay: 0.3s; }
+    .animate-on-scroll.visible.delay-4 { transition-delay: 0.4s; }
+
+    /* ===== NAVIGATION ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 249, 240, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(45, 52, 54, 0.06);
+      padding: 0 24px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+    }
+
+    .navbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--charcoal);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--coral), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-light);
+      transition: color 0.2s ease;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--coral);
+      border-radius: 1px;
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover { color: var(--charcoal); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      background: var(--coral);
+      color: var(--white) !important;
+      padding: 10px 24px;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px rgba(255, 107, 107, 0.25);
+    }
+
+    .nav-cta:hover {
+      background: var(--coral-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.35);
+    }
+
+    .nav-cta::after { display: none !important; }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--charcoal);
+      margin: 5px 0;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 100px 24px 80px;
+      background: linear-gradient(180deg, var(--cream) 0%, #FFF5E8 50%, var(--cream) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 107, 107, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(108, 92, 231, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .hero-content {
+      animation: slideInLeft 0.8s ease forwards;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.12;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--coral), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 19px;
+      color: var(--text-light);
+      margin-bottom: 40px;
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--coral);
+      color: var(--white);
+      padding: 16px 32px;
+      border-radius: var(--radius-full);
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--coral-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-secondary-link {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary-link:hover { color: var(--coral); }
+
+    .hero-visual {
+      animation: slideInRight 0.8s ease 0.2s forwards;
+      opacity: 0;
+    }
+
+    .notebook-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      transform: rotate(1.5deg);
+      transition: transform 0.4s ease;
+    }
+
+    .notebook-card:hover {
+      transform: rotate(0deg) scale(1.02);
+    }
+
+    .notebook-header {
+      background: linear-gradient(135deg, var(--coral), var(--coral-light));
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notebook-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .notebook-dot:first-child { background: rgba(255, 255, 255, 0.9); }
+
+    .notebook-title {
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+
+    .notebook-body {
+      padding: 32px 28px;
+      background: var(--white);
+      background-image:
+        repeating-linear-gradient(
+          transparent,
+          transparent 31px,
+          #e8e4df 31px,
+          #e8e4df 32px
+        );
+      min-height: 260px;
+      position: relative;
+    }
+
+    .notebook-body::before {
+      content: '';
+      position: absolute;
+      left: 56px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 107, 107, 0.2);
+    }
+
+    .notebook-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      line-height: 32px;
+      color: var(--charcoal);
+      padding-left: 40px;
+    }
+
+    .notebook-text .word {
+      display: inline;
+      opacity: 0;
+      animation: wordReveal 0.4s ease forwards;
+    }
+
+    .notebook-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 20px;
+      background: var(--coral);
+      margin-left: 2px;
+      animation: blink 0.8s ease infinite;
+      vertical-align: text-bottom;
+    }
+
+    /* ===== OUTCOME SHOWCASE ===== */
+    .outcomes {
+      padding: 100px 24px;
+      background: var(--cream);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--coral);
+      background: rgba(255, 107, 107, 0.08);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--charcoal);
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .outcome-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .outcome-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .outcome-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .outcome-card.tier1::before { background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+    .outcome-card.tier2::before { background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
+    .outcome-card.tier3::before { background: linear-gradient(90deg, var(--charcoal), #636e72); }
+
+    .outcome-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .outcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      margin-bottom: 20px;
+    }
+
+    .tier1 .outcome-badge {
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--coral-dark);
+    }
+
+    .tier2 .outcome-badge {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--purple-dark);
+    }
+
+    .tier3 .outcome-badge {
+      background: rgba(45, 52, 54, 0.08);
+      color: var(--charcoal);
+    }
+
+    .outcome-mascot {
+      font-size: 40px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .outcome-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .outcome-quote {
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-light);
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .outcome-quote::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 2px;
+      bottom: 2px;
+      width: 3px;
+      border-radius: 2px;
+    }
+
+    .tier1 .outcome-quote::before { background: var(--coral); }
+    .tier2 .outcome-quote::before { background: var(--purple); }
+    .tier3 .outcome-quote::before { background: var(--charcoal); }
+
+    .outcome-attribution {
+      margin-top: 12px;
+      font-style: normal;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-400);
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-it-works {
+      padding: 100px 24px;
+      background: var(--white);
+    }
+
+    .timeline {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto 72px;
+      padding: 0 20px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 80px;
+      right: 80px;
+      height: 2px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--gray-200) 0,
+        var(--gray-200) 8px,
+        transparent 8px,
+        transparent 16px
+      );
+    }
+
+    .timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .step-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .step-circle::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    .timeline-step:hover .step-circle {
+      transform: scale(1.1);
+    }
+
+    .timeline-step:nth-child(1) .step-circle { background: rgba(255, 107, 107, 0.12); }
+    .timeline-step:nth-child(2) .step-circle { background: rgba(108, 92, 231, 0.12); }
+    .timeline-step:nth-child(3) .step-circle { background: rgba(78, 205, 196, 0.12); }
+    .timeline-step:nth-child(4) .step-circle { background: rgba(255, 230, 109, 0.2); }
+
+    .timeline-step:nth-child(1):hover .step-circle::after { border-color: var(--coral); }
+    .timeline-step:nth-child(2):hover .step-circle::after { border-color: var(--purple); }
+    .timeline-step:nth-child(3):hover .step-circle::after { border-color: var(--teal); }
+    .timeline-step:nth-child(4):hover .step-circle::after { border-color: var(--yellow); }
+
+    .step-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--charcoal);
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: var(--text-light);
+      max-width: 180px;
+      line-height: 1.5;
+    }
+
+    /* Lesson mockup */
+    .lesson-mockup {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--cream);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .lesson-mockup-header {
+      background: var(--white);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lesson-mockup-title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--charcoal);
+    }
+
+    .lesson-mockup-phase {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .phase-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gray-300);
+    }
+
+    .phase-dot.active { background: var(--coral); }
+    .phase-dot.completed { background: var(--teal); }
+
+    .lesson-mockup-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chat-msg {
+      display: flex;
+      gap: 12px;
+      max-width: 92%;
+    }
+
+    .chat-msg.coach { align-self: flex-start; }
+    .chat-msg.student { align-self: flex-end; flex-direction: row-reverse; }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .chat-msg.coach .chat-avatar {
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    .chat-msg.student .chat-avatar {
+      background: rgba(108, 92, 231, 0.1);
+    }
+
+    .chat-bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .chat-msg.coach .chat-bubble {
+      background: var(--white);
+      border-bottom-left-radius: 6px;
+      box-shadow: var(--shadow-sm);
+      color: var(--charcoal);
+    }
+
+    .chat-msg.student .chat-bubble {
+      background: var(--purple);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+
+    /* ===== ENGAGEMENT ===== */
+    .engagement {
+      padding: 100px 24px;
+      background: var(--warm-alt);
+      position: relative;
+    }
+
+    .engagement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto 48px;
+    }
+
+    .engagement-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .engagement-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .engagement-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .engagement-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    /* Streak card */
+    .streak-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .streak-counter {
+      font-family: 'Nunito', sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--coral);
+      line-height: 1;
+    }
+
+    .streak-label {
+      font-size: 14px;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .streak-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .streak-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .streak-dot.filled {
+      background: var(--coral);
+      color: white;
+    }
+
+    .streak-dot.empty {
+      background: var(--gray-200);
+      color: var(--gray-400);
+    }
+
+    .streak-day-labels {
+      display: flex;
+      gap: 8px;
+    }
+
+    .streak-day-label {
+      width: 28px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--gray-400);
+      font-weight: 600;
+    }
+
+    /* Badge card */
+    .badge-collection {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .badge-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: transform 0.2s ease;
+    }
+
+    .badge-circle:hover { transform: scale(1.15); }
+    .badge-circle.earned { background: rgba(255, 230, 109, 0.3); }
+
+    .badge-circle.locked {
+      background: var(--gray-200);
+      filter: grayscale(1);
+      opacity: 0.5;
+    }
+
+    .badge-count {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    /* Celebration card */
+    .celebration-display {
+      position: relative;
+    }
+
+    .celebration-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(255, 230, 109, 0.2), rgba(255, 107, 107, 0.1));
+      padding: 14px 24px;
+      border-radius: var(--radius-lg);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--charcoal);
+      animation: pulse 2s ease infinite;
+      border: 2px solid rgba(255, 230, 109, 0.4);
+    }
+
+    .confetti-dots {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: confettiFall 2s ease infinite;
+    }
+
+    .engagement-tagline {
+      text-align: center;
+      font-size: 18px;
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ===== PARENT INSIGHT ===== */
+    .parent-insight {
+      padding: 100px 24px;
+      background: var(--white);
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .insight-text h3 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    .insight-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .insight-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .insight-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(78, 205, 196, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .insight-dashboard {
+      background: var(--cream);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .insight-dashboard-label {
+      font-family: 'Nunito', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-400);
+      margin-bottom: 24px;
+    }
+
+    /* Radar chart */
+    .radar-chart {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+
+    .radar-chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Score bars */
+    .score-bars {
+      margin-bottom: 24px;
+    }
+
+    .score-bars-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .score-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .score-bar-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-light);
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .score-bar-track {
+      flex: 1;
+      height: 12px;
+      background: var(--gray-200);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 1s ease;
+    }
+
+    .score-bar-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--charcoal);
+      width: 28px;
+      text-align: right;
+    }
+
+    /* Weekly activity */
+    .weekly-activity {
+      margin-top: 4px;
+    }
+
+    .weekly-activity-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .weekly-squares {
+      display: flex;
+      gap: 6px;
+    }
+
+    .weekly-square {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      transition: transform 0.2s ease;
+    }
+
+    .weekly-square:hover { transform: scale(1.15); }
+
+    .weekly-square.active-1 { background: rgba(78, 205, 196, 0.25); }
+    .weekly-square.active-2 { background: rgba(78, 205, 196, 0.5); }
+    .weekly-square.active-3 { background: var(--teal); }
+    .weekly-square.inactive { background: var(--gray-200); }
+
+    .weekly-labels {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .weekly-label {
+      width: 28px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--gray-400);
+      font-weight: 600;
+    }
+
+    /* ===== THE METHOD ===== */
+    .method {
+      padding: 80px 24px;
+      background: var(--cream);
+      text-align: center;
+    }
+
+    .method-text {
+      max-width: 650px;
+      margin: 0 auto 48px;
+    }
+
+    .method-text p {
+      font-size: 18px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
+    .method-text p:first-child {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .method-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .method-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .method-circle:hover { transform: scale(1.08); }
+
+    .method-circle.i-do {
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--coral);
+      border: 2px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .method-circle.we-do {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--purple);
+      border: 2px solid rgba(108, 92, 231, 0.2);
+    }
+
+    .method-circle.you-do {
+      background: rgba(78, 205, 196, 0.1);
+      color: var(--teal);
+      border: 2px solid rgba(78, 205, 196, 0.2);
+    }
+
+    .method-circle-sub {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.7;
+    }
+
+    .method-arrow {
+      font-size: 24px;
+      color: var(--gray-300);
+    }
+
+    /* ===== FINAL CTA ===== */
+    .final-cta {
+      padding: 120px 24px;
+      background: linear-gradient(135deg, #FFF5E8 0%, #FFF0F0 40%, #F5F0FF 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+    }
+
+    .final-cta h2 {
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      color: var(--charcoal);
+    }
+
+    .final-cta-sub {
+      font-size: 19px;
+      color: var(--text-light);
+      margin-bottom: 40px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .final-cta .btn-primary {
+      font-size: 19px;
+      padding: 18px 40px;
+    }
+
+    .final-cta-note {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--gray-400);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 48px 24px;
+      background: var(--charcoal);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover { color: rgba(255, 255, 255, 0.9); }
+
+    .footer-copy {
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      margin-top: 16px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        text-align: center;
+      }
+
+      .hero h1 { font-size: 40px; }
+      .hero-sub { margin: 0 auto 32px; }
+      .hero-actions { justify-content: center; }
+
+      .hero-visual {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      .outcome-grid {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+      }
+
+      .timeline {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .timeline::before {
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        height: calc(100% - 64px);
+        right: auto;
+        background: repeating-linear-gradient(
+          180deg,
+          var(--gray-200) 0,
+          var(--gray-200) 8px,
+          transparent 8px,
+          transparent 16px
+        );
+      }
+
+      .engagement-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+      }
+
+      .insight-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .section-title { font-size: 30px; }
+      .final-cta h2 { font-size: 32px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: var(--cream);
+        padding: 24px;
+        gap: 20px;
+        border-bottom: 1px solid var(--gray-200);
+        box-shadow: var(--shadow-md);
+      }
+
+      .hero { padding: 60px 24px 48px; }
+      .hero h1 { font-size: 34px; }
+      .hero-sub { font-size: 17px; }
+
+      .outcomes,
+      .how-it-works,
+      .engagement,
+      .parent-insight { padding: 64px 24px; }
+
+      .final-cta { padding: 80px 24px; }
+
+      .method-circle {
+        width: 110px;
+        height: 110px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon">✏️</span>
+        WriteWise Kids
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#outcomes">What They'll Learn</a></li>
+        <li><a href="#parents">For Parents</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#cta" class="nav-cta">Free Assessment</a></li>
+      </ul>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1>Every child has a story worth telling. <span class="highlight">We help them write it.</span></h1>
+        <p class="hero-sub">An AI writing coach that teaches, encourages, and adapts — so your child discovers the joy of writing.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn-primary">Discover your child's writing level</a>
+          <a href="#how-it-works" class="btn-secondary-link">See how it works <span>&#8595;</span></a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="notebook-card">
+          <div class="notebook-header">
+            <span class="notebook-dot"></span>
+            <span class="notebook-dot"></span>
+            <span class="notebook-dot"></span>
+            <span class="notebook-title">Maya's Story — Draft 1</span>
+          </div>
+          <div class="notebook-body">
+            <div class="notebook-text" id="typingText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== OUTCOME SHOWCASE ===== -->
+  <section class="outcomes" id="outcomes">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-label">Outcomes by Age</span>
+        <h2 class="section-title">What Your Child Will Achieve</h2>
+        <p class="section-subtitle">Real writing skills that grow with them, from first stories to analytical essays.</p>
+      </div>
+      <div class="outcome-grid">
+        <div class="outcome-card tier1 animate-on-scroll delay-1">
+          <span class="outcome-badge">Ages 7-9</span>
+          <span class="outcome-mascot">🦉</span>
+          <h3 class="outcome-title">Write complete stories with vivid characters</h3>
+          <blockquote class="outcome-quote">
+            "The tiny dragon peeked out from behind the cloud. Her wings were still too small to fly, but her heart was big enough to try."
+            <p class="outcome-attribution">— Tier 1 student sample</p>
+          </blockquote>
+        </div>
+        <div class="outcome-card tier2 animate-on-scroll delay-2">
+          <span class="outcome-badge">Ages 10-12</span>
+          <span class="outcome-mascot">🦊</span>
+          <h3 class="outcome-title">Build persuasive arguments with evidence and voice</h3>
+          <blockquote class="outcome-quote">
+            "Schools should have longer recess because studies show that physical activity helps students concentrate better in class."
+            <p class="outcome-attribution">— Tier 2 student sample</p>
+          </blockquote>
+        </div>
+        <div class="outcome-card tier3 animate-on-scroll delay-3">
+          <span class="outcome-badge">Ages 13-15</span>
+          <span class="outcome-mascot">🐺</span>
+          <h3 class="outcome-title">Craft analytical essays with a clear thesis</h3>
+          <blockquote class="outcome-quote">
+            "In <em>The Giver</em>, Lowry uses the motif of color to represent the community's suppression of individual experience."
+            <p class="outcome-attribution">— Tier 3 student sample</p>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-label">The Lesson Flow</span>
+        <h2 class="section-title">How a single lesson transforms their writing</h2>
+      </div>
+      <div class="timeline animate-on-scroll">
+        <div class="timeline-step">
+          <div class="step-circle">📖</div>
+          <h4 class="step-title">Learn</h4>
+          <p class="step-desc">The AI coach teaches the concept with fun, relatable examples</p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-circle">🤝</div>
+          <h4 class="step-title">Practice Together</h4>
+          <p class="step-desc">Guided questions help them apply what they learned — no answers given, just smart hints</p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-circle">✍️</div>
+          <h4 class="step-title">Write</h4>
+          <p class="step-desc">Independent writing time. The coach steps back. This is their moment.</p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-circle">🌟</div>
+          <h4 class="step-title">Grow</h4>
+          <p class="step-desc">Personalized feedback that celebrates strengths and highlights one area to improve</p>
+        </div>
+      </div>
+      <div class="lesson-mockup animate-on-scroll">
+        <div class="lesson-mockup-header">
+          <span class="lesson-mockup-title">Story Openings — Lesson 3</span>
+          <div class="lesson-mockup-phase">
+            <span class="phase-dot completed"></span>
+            <span class="phase-dot active"></span>
+            <span class="phase-dot"></span>
+          </div>
+        </div>
+        <div class="lesson-mockup-body">
+          <div class="chat-msg coach">
+            <div class="chat-avatar">🦉</div>
+            <div class="chat-bubble">Great job! A story opening should grab the reader's attention. Let's look at three ways to do that...</div>
+          </div>
+          <div class="chat-msg student">
+            <div class="chat-avatar">👧</div>
+            <div class="chat-bubble">Can I start with a question?</div>
+          </div>
+          <div class="chat-msg coach">
+            <div class="chat-avatar">🦉</div>
+            <div class="chat-bubble">Absolutely! Starting with a question is a fantastic hook. What question would your character ask?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ENGAGEMENT ===== -->
+  <section class="engagement">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-label">Motivation Built In</span>
+        <h2 class="section-title">They'll ask to write. Really.</h2>
+      </div>
+      <div class="engagement-grid">
+        <div class="engagement-card animate-on-scroll delay-1">
+          <span class="engagement-icon">🔥</span>
+          <h3 class="engagement-title">Writing Streaks</h3>
+          <div class="streak-display">
+            <div class="streak-counter">7</div>
+            <div class="streak-label">day streak!</div>
+            <div class="streak-dots">
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+              <div class="streak-dot filled">&#10003;</div>
+            </div>
+            <div class="streak-day-labels">
+              <span class="streak-day-label">M</span>
+              <span class="streak-day-label">T</span>
+              <span class="streak-day-label">W</span>
+              <span class="streak-day-label">T</span>
+              <span class="streak-day-label">F</span>
+              <span class="streak-day-label">S</span>
+              <span class="streak-day-label">S</span>
+            </div>
+          </div>
+        </div>
+        <div class="engagement-card animate-on-scroll delay-2">
+          <span class="engagement-icon">🏅</span>
+          <h3 class="engagement-title">Badge Collection</h3>
+          <div class="badge-collection">
+            <div class="badge-row">
+              <div class="badge-circle earned">🏆</div>
+              <div class="badge-circle earned">📝</div>
+              <div class="badge-circle earned">⭐</div>
+              <div class="badge-circle earned">🎯</div>
+              <div class="badge-circle earned">📚</div>
+            </div>
+            <div class="badge-row">
+              <div class="badge-circle earned">🌟</div>
+              <div class="badge-circle earned">✨</div>
+              <div class="badge-circle locked">🔮</div>
+              <div class="badge-circle locked">💎</div>
+              <div class="badge-circle locked">👑</div>
+            </div>
+            <span class="badge-count">12 of 24 earned</span>
+          </div>
+        </div>
+        <div class="engagement-card animate-on-scroll delay-3">
+          <span class="engagement-icon">🎉</span>
+          <h3 class="engagement-title">Celebrations</h3>
+          <div class="celebration-display">
+            <div class="confetti-dots" id="confettiContainer"></div>
+            <div class="celebration-badge">
+              🌟 New badge unlocked!<br>Story Starter
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="engagement-tagline animate-on-scroll">Badges, streaks, and celebrations keep them motivated lesson after lesson.</p>
+    </div>
+  </section>
+
+  <!-- ===== PARENT INSIGHT ===== -->
+  <section class="parent-insight" id="parents">
+    <div class="container">
+      <div class="section-header animate-on-scroll">
+        <span class="section-label">For Parents</span>
+        <h2 class="section-title">See exactly where they're growing</h2>
+      </div>
+      <div class="insight-grid">
+        <div class="insight-text animate-on-scroll">
+          <h3>Deep insight into every dimension of their writing</h3>
+          <ul class="insight-list">
+            <li>
+              <span class="insight-check">&#10003;</span>
+              Track skills across narrative, persuasive, expository, and descriptive writing
+            </li>
+            <li>
+              <span class="insight-check">&#10003;</span>
+              Watch their progress over weeks and months
+            </li>
+            <li>
+              <span class="insight-check">&#10003;</span>
+              Read every piece they write with AI-annotated feedback
+            </li>
+            <li>
+              <span class="insight-check">&#10003;</span>
+              Adjust their curriculum to focus on what matters most
+            </li>
+          </ul>
+        </div>
+        <div class="insight-dashboard animate-on-scroll delay-2">
+          <div class="insight-dashboard-label">Progress Overview</div>
+
+          <!-- Radar Chart -->
+          <div class="radar-chart">
+            <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- Grid rings -->
+              <polygon points="110,30 190,110 110,190 30,110" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+              <polygon points="110,50 170,110 110,170 50,110" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+              <polygon points="110,70 150,110 110,150 70,110" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+              <polygon points="110,90 130,110 110,130 90,110" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+              <!-- Axes -->
+              <line x1="110" y1="30" x2="110" y2="190" stroke="#e8e8e8" stroke-width="1"/>
+              <line x1="30" y1="110" x2="190" y2="110" stroke="#e8e8e8" stroke-width="1"/>
+              <!-- Data polygon -->
+              <polygon points="110,42 175,110 110,155 55,110" fill="rgba(108, 92, 231, 0.15)" stroke="var(--purple)" stroke-width="2.5"/>
+              <!-- Data dots -->
+              <circle cx="110" cy="42" r="4" fill="var(--purple)"/>
+              <circle cx="175" cy="110" r="4" fill="var(--purple)"/>
+              <circle cx="110" cy="155" r="4" fill="var(--purple)"/>
+              <circle cx="55" cy="110" r="4" fill="var(--purple)"/>
+              <!-- Labels -->
+              <text x="110" y="20" text-anchor="middle" font-size="11" font-family="Nunito, sans-serif" font-weight="700" fill="#636e72">Narrative</text>
+              <text x="200" y="114" text-anchor="start" font-size="11" font-family="Nunito, sans-serif" font-weight="700" fill="#636e72">Persuasive</text>
+              <text x="110" y="210" text-anchor="middle" font-size="11" font-family="Nunito, sans-serif" font-weight="700" fill="#636e72">Descriptive</text>
+              <text x="20" y="114" text-anchor="end" font-size="11" font-family="Nunito, sans-serif" font-weight="700" fill="#636e72">Expository</text>
+            </svg>
+          </div>
+
+          <!-- Score bars -->
+          <div class="score-bars">
+            <div class="score-bars-title">Recent Scores</div>
+            <div class="score-bar-row">
+              <span class="score-bar-label">Narrative</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="width: 85%; background: var(--coral);"></div>
+              </div>
+              <span class="score-bar-value">4.2</span>
+            </div>
+            <div class="score-bar-row">
+              <span class="score-bar-label">Persuasive</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="width: 72%; background: var(--purple);"></div>
+              </div>
+              <span class="score-bar-value">3.6</span>
+            </div>
+            <div class="score-bar-row">
+              <span class="score-bar-label">Expository</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="width: 60%; background: var(--teal);"></div>
+              </div>
+              <span class="score-bar-value">3.0</span>
+            </div>
+            <div class="score-bar-row">
+              <span class="score-bar-label">Descriptive</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" style="width: 78%; background: var(--yellow); filter: brightness(0.85);"></div>
+              </div>
+              <span class="score-bar-value">3.9</span>
+            </div>
+          </div>
+
+          <!-- Weekly activity -->
+          <div class="weekly-activity">
+            <div class="weekly-activity-title">This Week</div>
+            <div class="weekly-squares">
+              <div class="weekly-square active-3"></div>
+              <div class="weekly-square active-2"></div>
+              <div class="weekly-square active-3"></div>
+              <div class="weekly-square inactive"></div>
+              <div class="weekly-square active-1"></div>
+              <div class="weekly-square active-3"></div>
+              <div class="weekly-square inactive"></div>
+            </div>
+            <div class="weekly-labels">
+              <span class="weekly-label">M</span>
+              <span class="weekly-label">T</span>
+              <span class="weekly-label">W</span>
+              <span class="weekly-label">T</span>
+              <span class="weekly-label">F</span>
+              <span class="weekly-label">S</span>
+              <span class="weekly-label">S</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== THE METHOD ===== -->
+  <section class="method" id="pricing">
+    <div class="container">
+      <div class="method-text animate-on-scroll">
+        <p>Built on the "I Do, We Do, You Do" framework — a proven teaching method used by educators worldwide.</p>
+        <p>Our AI coach adapts it to your child's exact level, pace, and interests.</p>
+      </div>
+      <div class="method-visual animate-on-scroll">
+        <div class="method-circle i-do">
+          I Do
+          <span class="method-circle-sub">Coach teaches</span>
+        </div>
+        <span class="method-arrow">&rarr;</span>
+        <div class="method-circle we-do">
+          We Do
+          <span class="method-circle-sub">Practice together</span>
+        </div>
+        <span class="method-arrow">&rarr;</span>
+        <div class="method-circle you-do">
+          You Do
+          <span class="method-circle-sub">Write independently</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINAL CTA ===== -->
+  <section class="final-cta" id="cta">
+    <div class="container">
+      <h2 class="animate-on-scroll">Every great writer started somewhere</h2>
+      <p class="final-cta-sub animate-on-scroll delay-1">A free 5-minute placement assessment shows you exactly where your child is — and where they can go.</p>
+      <div class="animate-on-scroll delay-2">
+        <a href="#" class="btn-primary" style="font-size: 19px; padding: 18px 40px;">Start the Free Assessment &rarr;</a>
+      </div>
+      <p class="final-cta-note animate-on-scroll delay-3">No credit card required. Takes 5 minutes.</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span>✏️</span> WriteWise Kids
+      </div>
+      <ul class="footer-links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <p class="footer-copy">&copy; 2026 WriteWise Kids. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // ===== NAVBAR SCROLL =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // ===== MOBILE MENU =====
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    // Close mobile menu on link click
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
+
+    // ===== TYPEWRITER EFFECT =====
+    const storyText = "Once upon a time, there was a brave little fox who lived at the top of the tallest mountain. Every morning, she would look down at the valley and wonder what adventures waited below...";
+    const typingContainer = document.getElementById('typingText');
+
+    function typeWriter() {
+      typingContainer.innerHTML = '';
+      const words = storyText.split(' ');
+      let html = '';
+
+      words.forEach((word, i) => {
+        const delay = i * 0.12;
+        html += `<span class="word" style="animation-delay: ${delay}s">${word} </span>`;
+      });
+
+      html += '<span class="notebook-cursor"></span>';
+      typingContainer.innerHTML = html;
+    }
+
+    // Start typewriter when hero is visible
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(typeWriter, 600);
+          heroObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    heroObserver.observe(document.querySelector('.hero'));
+
+    // ===== SCROLL ANIMATIONS =====
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+
+    const scrollObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          scrollObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    animatedElements.forEach(el => scrollObserver.observe(el));
+
+    // ===== CONFETTI DOTS =====
+    const confettiContainer = document.getElementById('confettiContainer');
+    const confettiColors = ['#FF6B6B', '#6C5CE7', '#4ECDC4', '#FFE66D', '#FF8A8A'];
+
+    function createConfetti() {
+      confettiContainer.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'confetti-dot';
+        dot.style.left = Math.random() * 100 + '%';
+        dot.style.top = Math.random() * 40 + '%';
+        dot.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        dot.style.animationDelay = Math.random() * 2 + 's';
+        dot.style.animationDuration = (1.5 + Math.random()) + 's';
+        dot.style.width = (4 + Math.random() * 6) + 'px';
+        dot.style.height = dot.style.width;
+        confettiContainer.appendChild(dot);
+      }
+    }
+
+    // Create confetti when engagement section is visible
+    const engagementObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          createConfetti();
+          engagementObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    engagementObserver.observe(document.querySelector('.engagement'));
+
+    // ===== SCORE BAR ANIMATION =====
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const fills = entry.target.querySelectorAll('.score-bar-fill');
+          fills.forEach(fill => {
+            const targetWidth = fill.style.width;
+            fill.style.width = '0%';
+            setTimeout(() => {
+              fill.style.width = targetWidth;
+            }, 200);
+          });
+          barObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const scoreBars = document.querySelector('.score-bars');
+    if (scoreBars) barObserver.observe(scoreBars);
+
+    // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        e.preventDefault();
+        const target = document.querySelector(targetId);
+        if (target) {
+          const navHeight = navbar.offsetHeight;
+          const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight - 20;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
