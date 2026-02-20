@@ -21,6 +21,7 @@ const lessons: Lesson[] = [
     unit: "Story Beginnings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Identify that stories have a beginning, middle, and end",
       "Recognize what makes a story interesting to read",
@@ -32,6 +33,7 @@ const lessons: Lesson[] = [
     unit: "Story Beginnings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Introduce a main character with a name",
       "Tell one interesting thing about the character",
@@ -43,6 +45,7 @@ const lessons: Lesson[] = [
     unit: "Story Beginnings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Describe the setting using at least one detail",
       "Help the reader picture where the story takes place",
@@ -54,6 +57,7 @@ const lessons: Lesson[] = [
     unit: "Story Beginnings",
     type: "narrative",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Write an opening sentence that makes readers curious",
       "Understand what a 'hook' is in writing",
@@ -65,6 +69,7 @@ const lessons: Lesson[] = [
     unit: "Story Beginnings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete story beginning with a character, setting, and hook",
       "Combine the skills from previous lessons into one piece",
@@ -79,6 +84,7 @@ const lessons: Lesson[] = [
     unit: "Story Middles",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write events in the order they happen",
       "Use time-order words (first, then, next)",
@@ -90,6 +96,7 @@ const lessons: Lesson[] = [
     unit: "Story Middles",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Create a problem or challenge for the character",
       "Make the problem interesting for readers",
@@ -101,6 +108,7 @@ const lessons: Lesson[] = [
     unit: "Story Middles",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Show character feelings through actions or words",
       "Use feeling words in writing",
@@ -112,6 +120,7 @@ const lessons: Lesson[] = [
     unit: "Story Middles",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write multiple events that connect to each other",
       "Keep the story moving forward",
@@ -123,6 +132,7 @@ const lessons: Lesson[] = [
     unit: "Story Middles",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a story middle with ordered events and a problem",
       "Combine sequencing, problem creation, and character feelings",
@@ -137,6 +147,7 @@ const lessons: Lesson[] = [
     unit: "Story Endings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write an ending that solves the character's problem",
       "Make the solution make sense for the story",
@@ -148,6 +159,7 @@ const lessons: Lesson[] = [
     unit: "Story Endings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write an ending that feels complete",
       "Show how the character feels at the end",
@@ -159,6 +171,7 @@ const lessons: Lesson[] = [
     unit: "Story Endings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Explore different types of endings",
       "Write an ending that surprises the reader",
@@ -170,6 +183,7 @@ const lessons: Lesson[] = [
     unit: "Story Endings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write different endings for the same story",
       "Choose the best ending and explain why",
@@ -181,6 +195,7 @@ const lessons: Lesson[] = [
     unit: "Story Endings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a satisfying story ending with a resolution",
       "Show the character's reaction to the resolution",
@@ -195,6 +210,7 @@ const lessons: Lesson[] = [
     unit: "Sensory Details",
     type: "narrative",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Identify the five senses",
       "Find sensory details in example writing",
@@ -206,6 +222,7 @@ const lessons: Lesson[] = [
     unit: "Sensory Details",
     type: "narrative",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Replace vague words with specific sensory words",
       "Use at least two different senses in writing",
@@ -217,6 +234,7 @@ const lessons: Lesson[] = [
     unit: "Sensory Details",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a short description using three or more senses",
       "Choose details that matter to the story",
@@ -228,6 +246,7 @@ const lessons: Lesson[] = [
     unit: "Sensory Details",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Add sensory details to an existing story passage",
       "Understand how details make stories better",
@@ -239,6 +258,7 @@ const lessons: Lesson[] = [
     unit: "Sensory Details",
     type: "narrative",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Write a vivid description using multiple senses",
       "Use specific, interesting word choices",
@@ -253,6 +273,7 @@ const lessons: Lesson[] = [
     unit: "Characters with Feelings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Identify emotions in story excerpts",
       "Name different feelings characters can have",
@@ -264,6 +285,7 @@ const lessons: Lesson[] = [
     unit: "Characters with Feelings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Show character emotions through behavior instead of telling",
       "Transform 'telling' sentences into 'showing' sentences",
@@ -275,6 +297,7 @@ const lessons: Lesson[] = [
     unit: "Characters with Feelings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write dialogue that shows how a character feels",
       "Use words and tone to express emotion",
@@ -286,6 +309,7 @@ const lessons: Lesson[] = [
     unit: "Characters with Feelings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Track how a character's emotions change in a story",
       "Show a character going from one feeling to another",
@@ -297,6 +321,7 @@ const lessons: Lesson[] = [
     unit: "Characters with Feelings",
     type: "narrative",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a scene where a character feels and reacts to events",
       "Demonstrate showing emotions through actions, words, and thoughts",
@@ -315,6 +340,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify the parts of a story mountain: exposition, rising action, climax, falling action, resolution",
       "Map an existing story onto the story mountain",
@@ -326,6 +352,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write exposition that hooks readers and provides necessary background",
       "Introduce characters, setting, and initial situation effectively",
@@ -337,6 +364,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Add complications that increase the stakes for the character",
       "Build tension progressively through a sequence of events",
@@ -348,6 +376,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify what makes an effective climax in a story",
       "Write a climax that feels like the most exciting or important moment",
@@ -359,6 +388,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write falling action that winds down the tension naturally",
       "Bring stories to satisfying conclusions that resolve the conflict",
@@ -370,6 +400,7 @@ const lessons: Lesson[] = [
     unit: "Story Structure",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete story following the story mountain structure",
       "Include rising tension that builds to a clear climax",
@@ -384,6 +415,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify first person, third person limited, and third person omniscient POV",
       "Recognize POV in excerpts from published stories",
@@ -395,6 +427,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a scene in first person point of view",
       "Use first person to reveal character thoughts and feelings directly",
@@ -406,6 +439,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Rewrite a scene in third person limited point of view",
       "Show one character's thoughts while keeping others' hidden",
@@ -417,6 +451,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Explore telling a story while knowing all characters' thoughts",
       "Practice revealing multiple perspectives in a scene",
@@ -428,6 +463,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify and fix unintentional POV shifts in writing",
       "Write consistently in first person point of view",
@@ -439,6 +475,7 @@ const lessons: Lesson[] = [
     unit: "Point of View",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Select and justify the best POV for an original story",
       "Understand how POV choice affects reader experience",
@@ -453,6 +490,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Format dialogue correctly with quotation marks and commas",
       "Identify and correct punctuation errors in dialogue",
@@ -464,6 +502,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Expand dialogue tag vocabulary beyond 'said'",
       "Choose dialogue tags that match the character's emotion",
@@ -475,6 +514,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Use action beats instead of dialogue tags",
       "Show who is speaking through context and actions",
@@ -486,6 +526,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Create distinct character voices through word choice and speech patterns",
       "Make characters recognizable by how they speak",
@@ -497,6 +538,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Analyze how dialogue serves a purpose in mentor texts",
       "Write dialogue that reveals character or moves the plot forward",
@@ -508,6 +550,7 @@ const lessons: Lesson[] = [
     unit: "Dialogue",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Write a scene using correctly punctuated dialogue",
       "Give characters distinct voices",
@@ -522,6 +565,7 @@ const lessons: Lesson[] = [
     unit: "Show Don't Tell",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Replace emotion words with physical descriptions and body language",
       "Show how characters feel through what they do",
@@ -533,6 +577,7 @@ const lessons: Lesson[] = [
     unit: "Show Don't Tell",
     type: "narrative",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Create original similes to describe feelings and settings",
       "Use comparisons to paint vivid pictures for the reader",
@@ -544,6 +589,7 @@ const lessons: Lesson[] = [
     unit: "Show Don't Tell",
     type: "narrative",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Use metaphors to deepen description and meaning",
       "Understand the difference between simile and metaphor",
@@ -555,6 +601,7 @@ const lessons: Lesson[] = [
     unit: "Show Don't Tell",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify moments where telling is more appropriate than showing",
       "Balance showing with necessary telling for pacing",
@@ -566,6 +613,7 @@ const lessons: Lesson[] = [
     unit: "Show Don't Tell",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Show emotions through physical actions rather than naming them",
       "Use figurative language to create vivid scenes",
@@ -580,6 +628,7 @@ const lessons: Lesson[] = [
     unit: "Suspense and Pacing",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Analyze pacing differences in action versus reflective scenes",
       "Identify how authors control the speed of their stories",
@@ -591,6 +640,7 @@ const lessons: Lesson[] = [
     unit: "Suspense and Pacing",
     type: "narrative",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Rewrite scenes using varied sentence length to change pacing",
       "Use short sentences for tension and longer sentences for calm",
@@ -602,6 +652,7 @@ const lessons: Lesson[] = [
     unit: "Suspense and Pacing",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify foreshadowing in mentor texts",
       "Create subtle hints that build anticipation for the reader",
@@ -613,6 +664,7 @@ const lessons: Lesson[] = [
     unit: "Suspense and Pacing",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write chapter or scene endings that compel the reader to keep reading",
       "Use unanswered questions and unresolved tension effectively",
@@ -624,6 +676,7 @@ const lessons: Lesson[] = [
     unit: "Suspense and Pacing",
     type: "narrative",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a scene that builds and releases tension effectively",
       "Apply pacing, foreshadowing, and cliffhanger techniques",
@@ -642,6 +695,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze non-linear narrative structures (flashback, frame story, parallel timelines)",
       "Identify how structure serves meaning in published stories",
@@ -653,6 +707,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write purposeful flashbacks that reveal character or advance plot",
       "Transition smoothly between past and present timelines",
@@ -664,6 +719,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create anticipation through glimpses of future events",
       "Use foreshadowing to build thematic resonance",
@@ -675,6 +731,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Plan and execute dual narratives that intersect meaningfully",
       "Maintain clarity when alternating between storylines",
@@ -686,6 +743,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a story-within-a-story using frame narrative technique",
       "Use the frame to add layers of meaning to the inner story",
@@ -697,6 +755,7 @@ const lessons: Lesson[] = [
     unit: "Complex Narrative Structures",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a story using a non-linear structure that serves the story's meaning",
       "Maintain reader clarity while experimenting with timeline",
@@ -711,6 +770,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "try_first",
     learningObjectives: [
       "Identify voice characteristics in different authors' work",
       "Understand how diction, syntax, and tone create voice",
@@ -722,6 +782,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "try_first",
     learningObjectives: [
       "Write the same scene in different voices to explore range",
       "Begin to identify personal writing tendencies and preferences",
@@ -733,6 +794,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze the style of a favorite author in detail",
       "Identify specific techniques that create the author's signature voice",
@@ -744,6 +806,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a passage in a mentor author's style",
       "Understand how imitation builds craft awareness",
@@ -755,6 +818,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Shift style for different audiences and purposes",
       "Adapt voice while maintaining authenticity",
@@ -766,6 +830,7 @@ const lessons: Lesson[] = [
     unit: "Voice and Style",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write with a distinctive authorial voice",
       "Make deliberate stylistic choices that enhance meaning",
@@ -780,6 +845,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Create detailed character profiles with psychological depth",
       "Understand how backstory shapes character behavior",
@@ -791,6 +857,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Define character wants versus needs",
       "Create tension between what a character pursues and what they truly need",
@@ -802,6 +869,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Design a compelling character arc from flaw to growth",
       "Show how challenges force characters to change",
@@ -813,6 +881,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a character's inner thoughts in a way that reveals depth",
       "Balance internal monologue with action and dialogue",
@@ -824,6 +893,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Demonstrate character growth through contrasting scenes",
       "Show change through actions and decisions, not just statements",
@@ -835,6 +905,7 @@ const lessons: Lesson[] = [
     unit: "Character Development",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a character-driven story with a full character arc",
       "Integrate psychology, motivation, and growth into narrative",
@@ -849,6 +920,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Distinguish between a story's topic and its deeper theme",
       "Identify themes in mentor texts and explain how they emerge",
@@ -860,6 +932,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Show theme through character choices and consequences",
       "Let characters embody thematic ideas through action",
@@ -871,6 +944,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Use symbols and motifs to reinforce theme",
       "Develop recurring imagery that deepens meaning",
@@ -882,6 +956,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Recognize when thematic messaging becomes heavy-handed",
       "Edit for subtlety so theme emerges naturally from story",
@@ -893,6 +968,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Layer multiple themes within one narrative",
       "Balance primary and secondary themes without confusion",
@@ -904,6 +980,7 @@ const lessons: Lesson[] = [
     unit: "Theme and Meaning",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Weave a meaningful theme throughout a narrative",
       "Develop thematic complexity without being heavy-handed",
@@ -918,6 +995,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze award-winning short stories to identify craft elements",
       "Understand the conventions that distinguish short stories from novels",
@@ -929,6 +1007,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create a focused, unified impact in a short story",
       "Ensure every element serves the story's central effect",
@@ -940,6 +1019,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Craft powerful first sentences that hook and set tone",
       "Analyze how published authors open their stories",
@@ -951,6 +1031,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write endings that leave a lasting impression on the reader",
       "Explore different ending strategies: resolution, ambiguity, surprise",
@@ -962,6 +1043,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Apply a multi-draft revision process to improve writing",
       "Give and receive constructive feedback in a workshop setting",
@@ -973,6 +1055,7 @@ const lessons: Lesson[] = [
     unit: "Revision and Polish",
     type: "narrative",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Write and revise a complete, polished short story",
       "Demonstrate mastery of narrative craft elements",
@@ -995,6 +1078,7 @@ const lessons: Lesson[] = [
     unit: "What is an Opinion?",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Sort statements into facts and opinions",
       "Understand the difference between facts and opinions",
@@ -1006,6 +1090,7 @@ const lessons: Lesson[] = [
     unit: "What is an Opinion?",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write clear opinion sentences using 'I think' or 'I believe'",
       "State an opinion about a familiar topic",
@@ -1017,6 +1102,7 @@ const lessons: Lesson[] = [
     unit: "What is an Opinion?",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Compare different opinions on the same topic",
       "Understand that people can have different opinions",
@@ -1028,6 +1114,7 @@ const lessons: Lesson[] = [
     unit: "What is an Opinion?",
     type: "persuasive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Upgrade weak opinions with stronger, more convincing language",
       "Use opinion words like 'best,' 'should,' and 'important'",
@@ -1039,6 +1126,7 @@ const lessons: Lesson[] = [
     unit: "What is an Opinion?",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a paragraph stating and explaining an opinion",
       "Include a clear opinion statement and supporting details",
@@ -1053,6 +1141,7 @@ const lessons: Lesson[] = [
     unit: "Reasons Support Opinions",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Match opinions to supporting reasons",
       "Understand that reasons make opinions stronger",
@@ -1064,6 +1153,7 @@ const lessons: Lesson[] = [
     unit: "Reasons Support Opinions",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Use the word 'because' to connect opinions and reasons",
       "Complete opinion + because sentences",
@@ -1075,6 +1165,7 @@ const lessons: Lesson[] = [
     unit: "Reasons Support Opinions",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Brainstorm multiple reasons for one opinion",
       "Choose reasons that support the opinion well",
@@ -1086,6 +1177,7 @@ const lessons: Lesson[] = [
     unit: "Reasons Support Opinions",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Rank and order reasons by strength",
       "Put the most convincing reason first",
@@ -1097,6 +1189,7 @@ const lessons: Lesson[] = [
     unit: "Reasons Support Opinions",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a paragraph with an opinion and two to three reasons",
       "Use 'because' and other connecting words to link ideas",
@@ -1111,6 +1204,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Letters",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Identify the parts of a friendly letter (greeting, body, closing)",
       "Label letter components correctly",
@@ -1122,6 +1216,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Letters",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Identify the audience for a persuasive letter",
       "Understand how audience affects word choice",
@@ -1133,6 +1228,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Letters",
     type: "persuasive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Practice persuasive phrases that are polite but convincing",
       "Use words like 'please consider' and 'I really hope'",
@@ -1144,6 +1240,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Letters",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Use a graphic organizer to plan a persuasive letter",
       "Organize opinion, reasons, and closing request",
@@ -1155,6 +1252,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Letters",
     type: "persuasive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a persuasive letter to a parent or teacher about something you want",
       "Include letter format, opinion, reasons, and a polite request",
@@ -1173,6 +1271,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify and evaluate thesis statements in example essays",
       "Understand that a thesis is the main argument of an essay",
@@ -1185,6 +1284,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write clear, arguable thesis statements for various topics",
       "Avoid thesis statements that are too broad or too narrow",
@@ -1197,6 +1297,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Create topic sentences that support the thesis",
       "Understand how topic sentences organize body paragraphs",
@@ -1209,6 +1310,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Write engaging introductory paragraphs for persuasive essays",
       "Use hooks such as questions, statistics, or anecdotes",
@@ -1221,6 +1323,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write conclusions that call the reader to action",
       "Summarize key points without simply repeating them",
@@ -1233,6 +1336,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Essay Structure",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Outline a complete persuasive essay with thesis, body, and conclusion",
       "Demonstrate understanding of persuasive essay structure",
@@ -1248,6 +1352,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Categorize different types of evidence (facts, statistics, examples, expert opinions)",
       "Understand when to use each type of evidence",
@@ -1260,6 +1365,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Find relevant facts to support given opinions",
       "Integrate factual evidence into persuasive paragraphs",
@@ -1272,6 +1378,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Create specific examples to illustrate and support claims",
       "Choose examples that resonate with the intended audience",
@@ -1284,6 +1391,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a short anecdote that supports an argument",
       "Understand how personal stories make arguments relatable",
@@ -1296,6 +1404,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Evaluate and rank evidence quality",
       "Identify evidence that is relevant, reliable, and sufficient",
@@ -1308,6 +1417,7 @@ const lessons: Lesson[] = [
     unit: "Evidence and Examples",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Gather and organize evidence for a personal essay topic",
       "Select the strongest evidence to support a thesis",
@@ -1323,6 +1433,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Brainstorm opposing viewpoints for a given argument",
       "Understand that strong arguments consider other perspectives",
@@ -1335,6 +1446,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Analyze essays with and without counterarguments",
       "Understand how addressing opposition strengthens your position",
@@ -1347,6 +1459,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Use phrases for introducing counterarguments ('Some people believe...', 'Critics argue...')",
       "Present opposing views fairly before responding to them",
@@ -1359,6 +1472,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Learn techniques for respectful disagreement and rebuttal",
       "Use evidence to counter opposing arguments",
@@ -1371,6 +1485,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Recognize when the opposition has a valid point",
       "Practice partial agreement while maintaining your position",
@@ -1383,6 +1498,7 @@ const lessons: Lesson[] = [
     unit: "Counterarguments",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a paragraph that addresses and refutes an opposing view",
       "Demonstrate ability to acknowledge, concede, and counter",
@@ -1398,6 +1514,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Analyze how credibility (ethos) strengthens arguments",
       "Identify ethos appeals in published writing and advertisements",
@@ -1410,6 +1527,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Identify emotional appeals in persuasive writing",
       "Understand when emotional appeals are appropriate and effective",
@@ -1422,6 +1540,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Evaluate logical reasoning in arguments",
       "Identify logical fallacies and weak reasoning",
@@ -1434,6 +1553,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Analyze real advertisements for persuasive techniques",
       "Identify which appeals (ethos, pathos, logos) are being used",
@@ -1446,6 +1566,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Match persuasive techniques to audience and purpose",
       "Understand that different audiences respond to different appeals",
@@ -1458,6 +1579,7 @@ const lessons: Lesson[] = [
     unit: "Persuasive Techniques",
     type: "persuasive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a persuasive essay using ethos, pathos, and logos",
       "Demonstrate strategic use of all three persuasive appeals",
@@ -1477,6 +1599,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Distinguish well-supported arguments from unsupported opinions",
       "Understand the standards of academic argumentation",
@@ -1489,6 +1612,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Craft nuanced thesis statements that acknowledge complexity",
       "Move beyond simple 'pro/con' positions to layered arguments",
@@ -1501,6 +1625,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Embed quotes and data smoothly into argument paragraphs",
       "Introduce, cite, and explain evidence effectively",
@@ -1513,6 +1638,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Address gray areas and nuance in arguments",
       "Qualify claims appropriately without weakening them",
@@ -1525,6 +1651,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Organize arguments for maximum impact and logical flow",
       "Use transitions that show logical relationships between ideas",
@@ -1537,6 +1664,7 @@ const lessons: Lesson[] = [
     unit: "Argumentative Essays",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete argumentative essay with nuanced thesis and integrated evidence",
       "Demonstrate mastery of argumentation techniques",
@@ -1552,6 +1680,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze audience, purpose, and context of persuasive texts",
       "Understand how the rhetorical situation shapes communication",
@@ -1564,6 +1693,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "try_first",
     learningObjectives: [
       "Evaluate the effectiveness of rhetorical appeals in published texts",
       "Analyze how authors balance ethos, pathos, and logos",
@@ -1576,6 +1706,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Identify rhetorical devices such as anaphora, antithesis, and parallelism",
       "Analyze how devices enhance persuasive impact",
@@ -1588,6 +1719,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Evaluate the strengths and weaknesses of published arguments",
       "Identify logical fallacies and unsupported claims",
@@ -1600,6 +1732,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Structure a rhetorical analysis essay effectively",
       "Move beyond summary to genuine analysis of rhetorical choices",
@@ -1612,6 +1745,7 @@ const lessons: Lesson[] = [
     unit: "Rhetorical Analysis",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete rhetorical analysis of a persuasive text",
       "Demonstrate ability to analyze rather than summarize",
@@ -1627,6 +1761,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Develop focused research questions and research plans",
       "Identify appropriate sources for different types of arguments",
@@ -1639,6 +1774,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Apply rigorous credibility criteria to sources",
       "Evaluate bias, expertise, and reliability of sources",
@@ -1651,6 +1787,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Combine information from multiple sources meaningfully",
       "Identify patterns and connections across sources",
@@ -1663,6 +1800,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Navigate conflicting sources and contradictory evidence",
       "Address contradictions honestly rather than ignoring them",
@@ -1675,6 +1813,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Use proper citation format consistently",
       "Understand academic integrity and the importance of attribution",
@@ -1687,6 +1826,7 @@ const lessons: Lesson[] = [
     unit: "Research-Based Arguments",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a research-supported argumentative essay",
       "Integrate and synthesize multiple sources effectively",
@@ -1702,6 +1842,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze the structure and purpose of published opinion pieces",
       "Write an op-ed on a topic you care about",
@@ -1714,6 +1855,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a persuasive speech with rhetorical techniques",
       "Understand how oral persuasion differs from written",
@@ -1726,6 +1868,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Craft persuasive messages for social media platforms",
       "Adapt arguments for short-form digital communication",
@@ -1738,6 +1881,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write effective advocacy letters to government officials",
       "Use formal tone and structure appropriate for civic engagement",
@@ -1750,6 +1894,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a formal proposal to solve a real-world problem",
       "Structure proposals with problem statement, solution, and justification",
@@ -1762,6 +1907,7 @@ const lessons: Lesson[] = [
     unit: "Persuasion in the Real World",
     type: "persuasive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create a persuasive piece for an authentic real-world audience",
       "Demonstrate ability to adapt persuasive skills to practical contexts",
@@ -1785,6 +1931,7 @@ const lessons: Lesson[] = [
     unit: "All About Topics",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Brainstorm topics you know well",
       "Choose a topic you can write a lot about",
@@ -1796,6 +1943,7 @@ const lessons: Lesson[] = [
     unit: "All About Topics",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "List five or more facts about a chosen topic",
       "Understand the difference between facts and opinions in informational writing",
@@ -1807,6 +1955,7 @@ const lessons: Lesson[] = [
     unit: "All About Topics",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Sort facts into categories or groups",
       "Organize information so it makes sense to a reader",
@@ -1818,6 +1967,7 @@ const lessons: Lesson[] = [
     unit: "All About Topics",
     type: "expository",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Write a sentence that introduces a category of facts",
       "Understand what a topic sentence does in a paragraph",
@@ -1829,6 +1979,7 @@ const lessons: Lesson[] = [
     unit: "All About Topics",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write three to four paragraphs about a topic you know well",
       "Include topic sentences, facts, and organized categories",
@@ -1843,6 +1994,7 @@ const lessons: Lesson[] = [
     unit: "How-To Writing",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Follow and evaluate sample instructions",
       "Understand the purpose of how-to writing",
@@ -1854,6 +2006,7 @@ const lessons: Lesson[] = [
     unit: "How-To Writing",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Sequence scrambled instructions into the correct order",
       "Understand that order matters in procedural writing",
@@ -1865,6 +2018,7 @@ const lessons: Lesson[] = [
     unit: "How-To Writing",
     type: "expository",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Use transition words like first, next, then, and finally",
       "Add transitions to a step-by-step guide",
@@ -1876,6 +2030,7 @@ const lessons: Lesson[] = [
     unit: "How-To Writing",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Identify missing steps in a set of instructions",
       "Include all necessary steps so a reader can follow along",
@@ -1887,6 +2042,7 @@ const lessons: Lesson[] = [
     unit: "How-To Writing",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write complete instructions for something you know how to do",
       "Include clear steps, transitions, and all necessary details",
@@ -1901,6 +2057,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Intro",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Sort items by similarities and differences",
       "Identify what two things have in common and how they differ",
@@ -1912,6 +2069,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Intro",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Complete Venn diagrams for given topics",
       "Use a Venn diagram to organize thinking about similarities and differences",
@@ -1923,6 +2081,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Intro",
     type: "expository",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Practice using words like 'both,' 'but,' 'however,' and 'alike'",
       "Write sentences that compare and contrast using signal words",
@@ -1934,6 +2093,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Intro",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Transform a Venn diagram into written sentences",
       "Write clear sentences that explain similarities and differences",
@@ -1945,6 +2105,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Intro",
     type: "expository",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a paragraph comparing two things you know well",
       "Use comparison words and organized thinking from previous lessons",
@@ -1963,6 +2124,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Evaluate source credibility using basic criteria",
       "Distinguish between reliable and unreliable sources of information",
@@ -1975,6 +2137,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Navigate research tools to find relevant information",
       "Use keywords and search strategies effectively",
@@ -1987,6 +2150,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Practice paraphrasing and summarizing source material",
       "Take notes without copying word-for-word from sources",
@@ -1999,6 +2163,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Rewrite passages in your own words while preserving meaning",
       "Understand what plagiarism is and why it matters",
@@ -2011,6 +2176,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Create basic source citations for different types of sources",
       "Understand the purpose of citations in academic writing",
@@ -2023,6 +2189,7 @@ const lessons: Lesson[] = [
     unit: "Research Basics",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Compile organized research notes for an assigned topic",
       "Demonstrate paraphrasing, note-taking, and citation skills",
@@ -2038,6 +2205,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Analyze the structure of informational mentor texts",
       "Identify introduction, body, and conclusion in informational writing",
@@ -2050,6 +2218,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Write headings and subheadings that guide readers through content",
       "Organize information logically under clear headings",
@@ -2062,6 +2231,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write engaging introductions for informational essays",
       "Provide context and background that prepares the reader",
@@ -2074,6 +2244,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Develop body paragraphs with facts, examples, and details",
       "Use topic sentences to organize each paragraph",
@@ -2086,6 +2257,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write conclusions that synthesize information without repeating",
       "Leave readers with a final thought or insight",
@@ -2098,6 +2270,7 @@ const lessons: Lesson[] = [
     unit: "Informational Essay",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete informational essay on a researched topic",
       "Demonstrate clear structure, evidence, and synthesis",
@@ -2113,6 +2286,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Essays",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Compare block and point-by-point organizational structures",
       "Identify the advantages of each organizational approach",
@@ -2125,6 +2299,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Essays",
     type: "expository",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Practice transition phrases for comparing (similarly, likewise, also)",
       "Practice transition phrases for contrasting (however, on the other hand, whereas)",
@@ -2137,6 +2312,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Essays",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Choose comparison criteria that lead to interesting insights",
       "Avoid superficial comparisons by going deeper into analysis",
@@ -2149,6 +2325,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Essays",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Draw meaningful insights and conclusions from comparisons",
       "Answer 'so what?' to give the comparison purpose",
@@ -2161,6 +2338,7 @@ const lessons: Lesson[] = [
     unit: "Compare and Contrast Essays",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete compare and contrast essay",
       "Use appropriate organizational structure and transitions",
@@ -2176,6 +2354,7 @@ const lessons: Lesson[] = [
     unit: "Cause and Effect Writing",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Identify cause-and-effect relationships in texts",
       "Distinguish between causes and effects in real-world scenarios",
@@ -2188,6 +2367,7 @@ const lessons: Lesson[] = [
     unit: "Cause and Effect Writing",
     type: "expository",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Practice using signal words: because, therefore, consequently, as a result",
       "Write sentences that clearly show cause-and-effect relationships",
@@ -2200,6 +2380,7 @@ const lessons: Lesson[] = [
     unit: "Cause and Effect Writing",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write about situations where multiple causes lead to a single effect",
       "Organize multiple causes in a logical order",
@@ -2212,6 +2393,7 @@ const lessons: Lesson[] = [
     unit: "Cause and Effect Writing",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Trace effects that become causes of further effects",
       "Write about chain reactions and cascading consequences",
@@ -2224,6 +2406,7 @@ const lessons: Lesson[] = [
     unit: "Cause and Effect Writing",
     type: "expository",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete cause-and-effect essay with clear relationships",
       "Use signal words and logical organization throughout",
@@ -2243,6 +2426,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Distinguish literary analysis from summary and personal response",
       "Understand the purpose and conventions of analytical writing",
@@ -2255,6 +2439,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create debatable analytical claims about literature",
       "Write thesis statements that offer original interpretations",
@@ -2267,6 +2452,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Select and embed quotes effectively to support analysis",
       "Introduce quotations with context and follow with explanation",
@@ -2279,6 +2465,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Explain the significance of evidence rather than just presenting it",
       "Move from 'what happens' to 'what it means and why it matters'",
@@ -2291,6 +2478,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Apply feminist, historical, and psychological lenses to literature",
       "Understand how different critical perspectives reveal different meanings",
@@ -2303,6 +2491,7 @@ const lessons: Lesson[] = [
     unit: "Literary Analysis Essay",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete literary analysis essay with original interpretation",
       "Support analysis with well-chosen textual evidence",
@@ -2318,6 +2507,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze the structure and conventions of model research papers",
       "Understand the components of academic research writing",
@@ -2330,6 +2520,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Plan an extended research project with clear stages",
       "Develop research questions that guide investigation",
@@ -2342,6 +2533,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create detailed outlines for complex, multi-section papers",
       "Group and sequence information for maximum clarity",
@@ -2354,6 +2546,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Develop a scholarly tone appropriate for academic writing",
       "Maintain objectivity while presenting research findings",
@@ -2366,6 +2559,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Apply a multi-draft revision process to a research paper",
       "Edit for clarity, coherence, and academic conventions",
@@ -2378,6 +2572,7 @@ const lessons: Lesson[] = [
     unit: "Research Paper",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete extended research paper",
       "Demonstrate mastery of research, organization, and academic writing",
@@ -2393,6 +2588,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Analyze effective explanations to identify what makes them clear",
       "Break down complex topics into understandable components",
@@ -2405,6 +2601,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Create illuminating comparisons and analogies for complex topics",
       "Use the familiar to explain the unfamiliar",
@@ -2417,6 +2614,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Address reader confusion proactively in explanatory writing",
       "Identify where readers are likely to get lost or have questions",
@@ -2429,6 +2627,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Integrate diagrams, charts, and visual aids into explanatory writing",
       "Describe visual information clearly in text",
@@ -2441,6 +2640,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Explain complex processes clearly and completely",
       "Use sequential and causal language to show how things work",
@@ -2453,6 +2653,7 @@ const lessons: Lesson[] = [
     unit: "Explanatory Writing",
     type: "expository",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a polished explanatory piece that makes a complex topic accessible",
       "Demonstrate use of analogies, structure, and audience awareness",
@@ -2476,6 +2677,7 @@ const lessons: Lesson[] = [
     unit: "Using Your Senses",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Match descriptions to the correct sense (sight, sound, touch, taste, smell)",
       "Understand that good descriptions use sensory details",
@@ -2487,6 +2689,7 @@ const lessons: Lesson[] = [
     unit: "Using Your Senses",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Describe a picture or scene using only sight words",
       "Use specific visual details instead of vague words",
@@ -2498,6 +2701,7 @@ const lessons: Lesson[] = [
     unit: "Using Your Senses",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Describe a place using sounds",
       "Use words that help readers hear what you describe",
@@ -2509,6 +2713,7 @@ const lessons: Lesson[] = [
     unit: "Using Your Senses",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Add touch, taste, and smell details to descriptions",
       "Use all five senses to make descriptions vivid",
@@ -2520,6 +2725,7 @@ const lessons: Lesson[] = [
     unit: "Using Your Senses",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Describe a favorite place using three or more senses",
       "Write a vivid description that helps readers experience the place",
@@ -2534,6 +2740,7 @@ const lessons: Lesson[] = [
     unit: "Describing People",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Describe a person's physical appearance with specific details",
       "Use descriptive words beyond basic colors and sizes",
@@ -2545,6 +2752,7 @@ const lessons: Lesson[] = [
     unit: "Describing People",
     type: "descriptive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Describe personality through examples and actions",
       "Show what a person is like instead of just telling",
@@ -2556,6 +2764,7 @@ const lessons: Lesson[] = [
     unit: "Describing People",
     type: "descriptive",
     tier: 1,
+    template: "try_first",
     learningObjectives: [
       "Find unique details that make a person stand out",
       "Choose the most memorable and specific details to include",
@@ -2567,6 +2776,7 @@ const lessons: Lesson[] = [
     unit: "Describing People",
     type: "descriptive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Replace vague words like 'nice' and 'good' with specific ones",
       "Build vocabulary for describing people precisely",
@@ -2578,6 +2788,7 @@ const lessons: Lesson[] = [
     unit: "Describing People",
     type: "descriptive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete description of someone you know",
       "Include appearance, personality, and unique details",
@@ -2592,6 +2803,7 @@ const lessons: Lesson[] = [
     unit: "Describing Places",
     type: "descriptive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Practice spatial vocabulary (beside, above, behind, between)",
       "Use location words to organize descriptions",
@@ -2603,6 +2815,7 @@ const lessons: Lesson[] = [
     unit: "Describing Places",
     type: "descriptive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Describe a room by moving in a logical order",
       "Guide the reader through a place as if giving a tour",
@@ -2614,6 +2827,7 @@ const lessons: Lesson[] = [
     unit: "Describing Places",
     type: "descriptive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Describe an outdoor scene with depth (near to far)",
       "Use spatial organization to create a sense of space",
@@ -2625,6 +2839,7 @@ const lessons: Lesson[] = [
     unit: "Describing Places",
     type: "descriptive",
     tier: 1,
+    template: "workshop",
     learningObjectives: [
       "Add mood and feeling to a place description",
       "Choose details that create a specific atmosphere",
@@ -2636,6 +2851,7 @@ const lessons: Lesson[] = [
     unit: "Describing Places",
     type: "descriptive",
     tier: 1,
+    template: "study_apply",
     learningObjectives: [
       "Describe a place that matters to you using spatial organization",
       "Include sensory details and mood in the description",
@@ -2654,6 +2870,7 @@ const lessons: Lesson[] = [
     unit: "Figurative Language Toolbox",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Create original similes that go beyond cliches",
       "Understand how similes make descriptions more vivid",
@@ -2666,6 +2883,7 @@ const lessons: Lesson[] = [
     unit: "Figurative Language Toolbox",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Write extended metaphors that reveal deeper meaning",
       "Understand the difference between simile and metaphor",
@@ -2678,6 +2896,7 @@ const lessons: Lesson[] = [
     unit: "Figurative Language Toolbox",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Personify abstract concepts and inanimate objects",
       "Understand how personification makes writing more engaging",
@@ -2690,6 +2909,7 @@ const lessons: Lesson[] = [
     unit: "Figurative Language Toolbox",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Identify overused phrases and cliches in writing",
       "Replace cliches with original figurative language",
@@ -2702,6 +2922,7 @@ const lessons: Lesson[] = [
     unit: "Figurative Language Toolbox",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Write a description using multiple figurative language techniques",
       "Demonstrate command of simile, metaphor, and personification",
@@ -2717,6 +2938,7 @@ const lessons: Lesson[] = [
     unit: "Tone and Mood",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Identify the mood created by descriptive passages",
       "Understand that word choice creates emotional atmosphere",
@@ -2729,6 +2951,7 @@ const lessons: Lesson[] = [
     unit: "Tone and Mood",
     type: "descriptive",
     tier: 2,
+    template: "try_first",
     learningObjectives: [
       "Rewrite a scene with a different mood by changing word choice",
       "Choose words deliberately to create a target emotional effect",
@@ -2741,6 +2964,7 @@ const lessons: Lesson[] = [
     unit: "Tone and Mood",
     type: "descriptive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Distinguish between author's tone and reader's mood",
       "Analyze how tone and mood work together in writing",
@@ -2753,6 +2977,7 @@ const lessons: Lesson[] = [
     unit: "Tone and Mood",
     type: "descriptive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Edit writing for mood consistency throughout a piece",
       "Identify words or phrases that break the established mood",
@@ -2765,6 +2990,7 @@ const lessons: Lesson[] = [
     unit: "Tone and Mood",
     type: "descriptive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a scene with a specific target mood",
       "Use word choice, imagery, and pacing to create atmosphere",
@@ -2780,6 +3006,7 @@ const lessons: Lesson[] = [
     unit: "Descriptive Nonfiction",
     type: "descriptive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Analyze how descriptive writing works in nonfiction",
       "Understand the role of description in engaging nonfiction readers",
@@ -2792,6 +3019,7 @@ const lessons: Lesson[] = [
     unit: "Descriptive Nonfiction",
     type: "descriptive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Write a vivid description of a real location",
       "Balance factual accuracy with engaging descriptive language",
@@ -2804,6 +3032,7 @@ const lessons: Lesson[] = [
     unit: "Descriptive Nonfiction",
     type: "descriptive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Describe a real event you witnessed with vivid detail",
       "Capture the energy and atmosphere of an event in writing",
@@ -2816,6 +3045,7 @@ const lessons: Lesson[] = [
     unit: "Descriptive Nonfiction",
     type: "descriptive",
     tier: 2,
+    template: "workshop",
     learningObjectives: [
       "Write a descriptive profile of a real person",
       "Combine physical description with personality and character",
@@ -2828,6 +3058,7 @@ const lessons: Lesson[] = [
     unit: "Descriptive Nonfiction",
     type: "descriptive",
     tier: 2,
+    template: "study_apply",
     learningObjectives: [
       "Write a complete polished descriptive nonfiction piece",
       "Demonstrate ability to make real subjects vivid and engaging",
@@ -2847,6 +3078,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Analyze literary descriptive passages for craft and technique",
       "Understand how description serves narrative and thematic purposes",
@@ -2859,6 +3091,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "try_first",
     learningObjectives: [
       "Create powerful imagery that engages the reader's imagination",
       "Use concrete sensory details to evoke abstract emotions",
@@ -2871,6 +3104,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Embed meaning in descriptive detail choices",
       "Use objects, settings, and images as symbols",
@@ -2883,6 +3117,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Build mood and atmosphere through sustained description",
       "Use setting details to reflect character psychology",
@@ -2895,6 +3130,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Say more with less through precise word choice",
       "Eliminate unnecessary words while preserving richness",
@@ -2907,6 +3143,7 @@ const lessons: Lesson[] = [
     unit: "Literary Description",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a polished literary descriptive piece",
       "Demonstrate mastery of imagery, symbolism, and atmosphere",
@@ -2922,6 +3159,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Read and analyze memoir excerpts from published authors",
       "Understand the conventions and purposes of personal essay writing",
@@ -2934,6 +3172,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Connect personal experience to broader themes and ideas",
       "Find universal meaning in specific personal moments",
@@ -2946,6 +3185,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "workshop",
     learningObjectives: [
       "Create vivid scenes from memory using sensory detail",
       "Reconstruct moments with descriptive precision",
@@ -2958,6 +3198,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Balance showing (scene) with telling (reflection) in personal essays",
       "Move between narrative and analysis naturally",
@@ -2970,6 +3211,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "try_first",
     learningObjectives: [
       "Write with authentic voice and emotional honesty",
       "Take risks in personal writing while maintaining boundaries",
@@ -2982,6 +3224,7 @@ const lessons: Lesson[] = [
     unit: "Personal Essays and Memoir",
     type: "descriptive",
     tier: 3,
+    template: "study_apply",
     learningObjectives: [
       "Write a polished personal or memoir essay",
       "Demonstrate mastery of scene writing, reflection, and authentic voice",

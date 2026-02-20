@@ -52,7 +52,7 @@ export default function AssessmentPhase({
     .split(/\s+/)
     .filter((w) => w.length > 0).length;
 
-  const canSubmit = wordCount >= defaultTask.minimumToSubmit;
+  const canSubmit = wordCount >= wordRange.min;
 
   const toggleCheck = (index: number) => {
     setCheckedItems((prev) => ({ ...prev, [index]: !prev[index] }));

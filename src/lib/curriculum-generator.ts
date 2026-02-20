@@ -1,6 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/db";
 import { getLessonsByTier } from "@/lib/curriculum";
+import { sendMessageWithMeta } from "@/lib/llm";
+import { logLLMInteraction } from "@/lib/event-logger";
 import type { Lesson, Tier } from "@/types";
 
 interface GenerateCurriculumOptions {
@@ -39,9 +40,7 @@ export async function generateCurriculum(options: GenerateCurriculumOptions) {
     .map((l) => `${l.id}: "${l.title}" (${l.type}, ${l.unit})`)
     .join("\n");
 
-  // 4. Ask Claude to generate a week-by-week plan
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
+  // 4. Ask LLM to generate a week-by-week plan
   let placementContext = "";
   if (placement) {
     try {
@@ -70,19 +69,22 @@ Rules:
 
 Return ONLY valid JSON: an array of objects with { "weekNumber": number, "theme": "string", "lessonIds": ["id1", "id2", "id3"] }`;
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-5-20250929",
-    max_tokens: 2048,
-    system: systemPrompt,
-    messages: [
-      {
-        role: "user",
-        content: `Available lessons:\n${lessonSummary}\n\nGenerate the ${weekCount}-week plan.`,
-      },
-    ],
+  const userMsg = `Available lessons:\n${lessonSummary}\n\nGenerate the ${weekCount}-week plan.`;
+  const { text, llmMeta } = await sendMessageWithMeta(
+    systemPrompt,
+    [{ role: "user", content: userMsg }],
+    2048
+  );
+
+  logLLMInteraction({
+    childId,
+    requestType: "curriculum_generate",
+    systemPrompt,
+    userMessage: userMsg,
+    rawResponse: text,
+    llmResult: { text, ...llmMeta },
   });
 
-  const text = response.content.find((b) => b.type === "text")?.text || "[]";
   let weekPlans: WeekPlan[];
   try {
     const cleaned = text

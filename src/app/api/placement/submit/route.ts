@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { sendMessageWithMeta } from "@/lib/llm";
+import { logLLMInteraction } from "@/lib/event-logger";
 
 export async function POST(request: Request) {
   try {
@@ -74,20 +73,20 @@ Tier 3 (ages 13-15, Advanced): Thesis-driven writing, literary techniques, compl
 Evaluate these 3 writing samples and determine the appropriate tier.
 Return ONLY valid JSON: { "recommendedTier": 1|2|3, "confidence": 0.0-1.0, "strengths": ["..."], "gaps": ["..."], "reasoning": "..." }`;
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-5-20250929",
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Evaluate these writing samples from ${child.name} (age ${child.age}):\n\n${writingSamples}`,
-        },
-      ],
-    });
+    const userMsg = `Evaluate these writing samples from ${child.name} (age ${child.age}):\n\n${writingSamples}`;
+    const { text, llmMeta } = await sendMessageWithMeta(
+      systemPrompt,
+      [{ role: "user", content: userMsg }]
+    );
 
-    const text =
-      response.content.find((b) => b.type === "text")?.text || "";
+    logLLMInteraction({
+      childId,
+      requestType: "placement_analysis",
+      systemPrompt,
+      userMessage: userMsg,
+      rawResponse: text,
+      llmResult: { text, ...llmMeta },
+    });
 
     let analysis: {
       recommendedTier: number;

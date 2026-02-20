@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { sendMessageWithMeta } from "@/lib/llm";
+import { logLLMInteraction } from "@/lib/event-logger";
 
 export async function POST(request: Request) {
   try {
@@ -68,20 +67,20 @@ export async function POST(request: Request) {
 3. A PERSUASIVE prompt (argue for or convince someone)
 Each prompt should be 1-2 sentences, age-appropriate, and fun. Return ONLY a JSON array of 3 strings, no other text.`;
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-5-20250929",
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Generate 3 writing prompts for a ${child.age}-year-old named ${child.name}.`,
-        },
-      ],
-    });
+    const userMsg = `Generate 3 writing prompts for a ${child.age}-year-old named ${child.name}.`;
+    const { text, llmMeta } = await sendMessageWithMeta(
+      systemPrompt,
+      [{ role: "user", content: userMsg }]
+    );
 
-    const text =
-      response.content.find((b) => b.type === "text")?.text || "";
+    logLLMInteraction({
+      childId,
+      requestType: "placement_prompt",
+      systemPrompt,
+      userMessage: userMsg,
+      rawResponse: text,
+      llmResult: { text, ...llmMeta },
+    });
 
     let prompts: string[];
     try {

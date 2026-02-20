@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { SessionState, Tier, Phase } from "@/types";
+import type { SessionState, Tier, Phase, LessonTemplate } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Content directory — skill files loaded once at startup
@@ -52,11 +52,31 @@ export const TIER_INSERTS: Record<Tier, string> = {
 // ---------------------------------------------------------------------------
 // PHASE_PROMPTS — parsed from phase_prompts.md (now includes feedback)
 // ---------------------------------------------------------------------------
-export const PHASE_PROMPTS: Record<Phase, string> = {
-  instruction: extractSection(
+
+// Template-specific instruction prompts
+const INSTRUCTION_PROMPTS: Record<LessonTemplate, string> = {
+  try_first: extractSection(
     skillContent.phasePrompts,
-    "## Instruction Phase"
+    "## Instruction Phase: Try First"
   ),
+  study_apply: extractSection(
+    skillContent.phasePrompts,
+    "## Instruction Phase: Study Then Apply"
+  ),
+  workshop: extractSection(
+    skillContent.phasePrompts,
+    "## Instruction Phase: Workshop"
+  ),
+};
+
+// Common rules shared by all instruction templates
+const INSTRUCTION_COMMON_RULES = extractSection(
+  skillContent.phasePrompts,
+  "## Instruction Phase: Common Rules"
+);
+
+export const PHASE_PROMPTS: Record<Phase, string> = {
+  instruction: INSTRUCTION_COMMON_RULES, // fallback if no template specified
   guided: extractSection(
     skillContent.phasePrompts,
     "## Guided Practice Phase"
@@ -79,10 +99,13 @@ export interface PromptContext {
   lessonId?: string;
   lessonTitle: string;
   learningObjectives: string[];
+  lessonTemplate?: LessonTemplate;
+  learnerContext?: string;
   phaseState?: {
     instructionCompleted?: boolean;
     comprehensionPassed?: boolean;
     phase1Step?: number;
+    guidedStage?: number;
     guidedAttempts?: number;
     hintsGiven?: number;
     assessmentSubmitted?: boolean;
@@ -99,8 +122,19 @@ export function buildPrompt(context: PromptContext): string {
   // 2. Tier adaptation
   parts.push(TIER_INSERTS[context.tier]);
 
-  // 3. Phase behavior
-  parts.push(PHASE_PROMPTS[context.phase]);
+  // 3. Learner context (if available — injected between tier and phase)
+  if (context.learnerContext) {
+    parts.push(context.learnerContext);
+  }
+
+  // 4. Phase behavior (template-aware for instruction phase)
+  if (context.phase === "instruction" && context.lessonTemplate) {
+    // Use template-specific prompt + common rules
+    parts.push(INSTRUCTION_PROMPTS[context.lessonTemplate]);
+    parts.push(INSTRUCTION_COMMON_RULES);
+  } else {
+    parts.push(PHASE_PROMPTS[context.phase]);
+  }
 
   // 4. Session context
   const objectives = context.learningObjectives
@@ -122,6 +156,10 @@ SESSION BOUNDARY: You are teaching ONLY this lesson. Your responses MUST stay wi
     sessionContext = `Student: ${context.studentName}${ageStr}\n${sessionContext}`;
   }
 
+  if (context.lessonTemplate) {
+    sessionContext += `\nLesson Template: ${context.lessonTemplate}`;
+  }
+
   if (context.phaseState) {
     sessionContext += `
 
@@ -129,6 +167,7 @@ Phase State:
 - Instruction completed: ${context.phaseState.instructionCompleted ?? false}
 - Comprehension check passed: ${context.phaseState.comprehensionPassed ?? false}
 - Phase 1 current step: ${context.phaseState.phase1Step ?? 1}
+- Guided practice stage: ${context.phaseState.guidedStage ?? 1}
 - Guided practice attempts: ${context.phaseState.guidedAttempts ?? 0}
 - Hints given: ${context.phaseState.hintsGiven ?? 0}
 - Assessment submitted: ${context.phaseState.assessmentSubmitted ?? false}`;
@@ -156,9 +195,10 @@ ${context.rubricSummary}`);
 // ---------------------------------------------------------------------------
 export function buildPromptFromSession(
   session: SessionState,
-  lesson: { title: string; learningObjectives: string[]; tier: Tier },
+  lesson: { title: string; learningObjectives: string[]; tier: Tier; template?: LessonTemplate },
   studentName?: string,
-  rubricSummary?: string
+  rubricSummary?: string,
+  learnerContext?: string
 ): string {
   return buildPrompt({
     studentName,
@@ -167,11 +207,14 @@ export function buildPromptFromSession(
     lessonId: session.lessonId,
     lessonTitle: lesson.title,
     learningObjectives: lesson.learningObjectives,
+    lessonTemplate: lesson.template,
+    learnerContext,
     phaseState: session.phaseState
       ? {
           instructionCompleted: session.phaseState.instructionCompleted,
           comprehensionPassed: session.phaseState.comprehensionCheckPassed,
           phase1Step: session.phaseState.phase1Step,
+          guidedStage: session.phaseState.guidedStage,
           guidedAttempts: session.phaseState.guidedAttempts,
           hintsGiven: session.phaseState.hintsGiven,
         }

@@ -23,9 +23,10 @@ test.describe("Lesson Lifecycle", () => {
     const lessonLink = page.locator('a[href^="/lesson/"]').first();
     await lessonLink.click();
 
-    // Wait for lesson page to load — instruction phase shows "Step X of 5"
+    // Wait for lesson page URL + instruction phase content
+    await page.waitForURL("**/lesson/**", { timeout: 30_000 });
     await page.waitForFunction(
-      () => document.body.innerText.includes("of 5"),
+      () => /Step \d of 3/.test(document.body.innerText),
       { timeout: 60_000 }
     );
     console.log("Lesson loaded — instruction phase");
@@ -52,13 +53,13 @@ test.describe("Lesson Lifecycle", () => {
         }
       }
 
-      // Alternative: the step indicator may show we completed all 5 steps
+      // Alternative: the step indicator may show we completed all 3 steps
       const step = await getCurrentStep(page);
-      if (step >= 5) {
-        // After step 5, should transition
+      if (step >= 3) {
+        // After step 3, should transition
         await page.waitForTimeout(2000);
         const text = await page.locator("body").innerText();
-        if (!text.includes("of 5")) {
+        if (!text.includes("of 3")) {
           currentPhase = "guided";
           console.log(`Transitioned to guided phase after step ${step}`);
         }
@@ -99,7 +100,7 @@ test.describe("Lesson Lifecycle", () => {
       // Interact with guided practice — type a message in the chat input
       const chatInput = page.locator('textarea, input[type="text"]').first();
       if (await chatInput.isVisible().catch(() => false)) {
-        await chatInput.fill("I think the main character should go on an adventure to find a lost treasure!");
+        await chatInput.fill("First, the hero found a map. Next, she followed the trail through the forest. Then, she discovered the hidden treasure!");
 
         const sendBtn = page.getByRole("button", { name: /send|done/i }).first();
         if (await sendBtn.isVisible().catch(() => false)) {

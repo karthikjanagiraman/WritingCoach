@@ -51,6 +51,12 @@ model ChildProfile {
   placementDraft     PlacementDraft?
   placementResult    PlacementResult?
   curriculum         Curriculum?
+  lessonCompletions  LessonCompletion[]
+  writingSamples     WritingSample[]
+  studentPreferences StudentPreference[]
+  learnerProfile     LearnerProfileSnapshot?
+  llmInteractions    LLMInteraction[]
+  lessonEvents       LessonEvent[]
 
   @@index([parentId])
 }
@@ -292,4 +298,143 @@ model Achievement {
 
   @@unique([childId, badgeId])
   @@index([childId])
+}
+
+// ============================================
+// Learner Profile — Cross-Lesson Personalization
+// ============================================
+
+model LessonCompletion {
+  id             String   @id @default(uuid())
+  childId        String
+  lessonId       String
+  sessionId      String
+  template       String?  // try_first | study_apply | workshop
+  completedAt    DateTime @default(now())
+  overallScore   Float
+  timeSpentSec   Int?
+  hintsUsed      Int      @default(0)
+  guidedStages   Int      @default(0)
+
+  child  ChildProfile  @relation(fields: [childId], references: [id])
+  scores LessonScore[]
+
+  @@index([childId])
+  @@index([childId, completedAt])
+}
+
+model LessonScore {
+  id                 String   @id @default(uuid())
+  lessonCompletionId String
+  criterion          String
+  score              Float
+  createdAt          DateTime @default(now())
+
+  lessonCompletion LessonCompletion @relation(fields: [lessonCompletionId], references: [id])
+
+  @@index([lessonCompletionId])
+}
+
+model WritingSample {
+  id        String   @id @default(uuid())
+  childId   String
+  lessonId  String
+  type      String   // strength | growth
+  criterion String   // which rubric criterion this exemplifies
+  excerpt   String
+  createdAt DateTime @default(now())
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+
+  @@index([childId])
+  @@index([childId, createdAt])
+}
+
+model StudentPreference {
+  id        String   @id @default(uuid())
+  childId   String
+  category  String   // topic_interest | writing_habit | style_preference | favorite_genre
+  value     String
+  source    String   // lesson_chat | placement | parent_input
+  createdAt DateTime @default(now())
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+
+  @@index([childId])
+  @@index([childId, category])
+}
+
+model LearnerProfileSnapshot {
+  id              String   @id @default(uuid())
+  childId         String   @unique
+  profileData     String   // JSON: full LearnerProfile object
+  totalLessons    Int      @default(0)
+  lastComputedAt  DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+}
+
+// ============================================
+// Event Logging & Observability
+// ============================================
+
+model SystemPromptLog {
+  id          String   @id @default(uuid())
+  promptHash  String   @unique
+  promptText  String
+  byteLength  Int
+  firstSeenAt DateTime @default(now())
+
+  interactions LLMInteraction[]
+}
+
+model LLMInteraction {
+  id                     String   @id @default(uuid())
+  sessionId              String?
+  childId                String?
+  lessonId               String?
+  requestType            String   // lesson_start, lesson_message, assessment_eval, etc.
+  systemPromptHash       String
+  conversationTurnNumber Int?
+  userMessage            String?
+  rawResponse            String
+  strippedResponse       String?
+  markersDetected        String?  // JSON of detected markers
+  provider               String   // "anthropic" | "google"
+  model                  String
+  inputTokens            Int?
+  outputTokens           Int?
+  latencyMs              Int
+  error                  String?
+  createdAt              DateTime @default(now())
+
+  child            ChildProfile?   @relation(fields: [childId], references: [id])
+  systemPromptLog  SystemPromptLog @relation(fields: [systemPromptHash], references: [promptHash])
+
+  @@index([sessionId])
+  @@index([childId])
+  @@index([requestType])
+  @@index([createdAt])
+  @@index([systemPromptHash])
+}
+
+model LessonEvent {
+  id        String   @id @default(uuid())
+  childId   String
+  sessionId String
+  lessonId  String
+  eventType String   // lesson_start, message_sent, phase_transition, etc.
+  phase     String?
+  eventData String?  // JSON payload
+  createdAt DateTime @default(now())
+
+  child ChildProfile @relation(fields: [childId], references: [id])
+
+  @@index([childId])
+  @@index([sessionId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([childId, lessonId])
+  @@index([sessionId, eventType])
 }

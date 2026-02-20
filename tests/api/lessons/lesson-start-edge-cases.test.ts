@@ -64,7 +64,7 @@ describe('POST /api/lessons/start — edge cases', () => {
     // session.findFirst should NOT be called when forceNew=true
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome!' });
 
     const res = await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',
@@ -148,7 +148,7 @@ describe('POST /api/lessons/start — edge cases', () => {
     prismaMock.session.findFirst.mockResolvedValue(null);
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome Maya!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome Maya!' });
 
     await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',
@@ -167,7 +167,7 @@ describe('POST /api/lessons/start — edge cases', () => {
     prismaMock.childProfile.findFirst.mockResolvedValue(CHILD_MAYA);
     prismaMock.session.findFirst.mockResolvedValue(null);
     prismaMock.session.create.mockRejectedValue(new Error('DB connection lost'));
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome!' });
 
     const res = await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',
@@ -181,7 +181,7 @@ describe('POST /api/lessons/start — edge cases', () => {
     prismaMock.childProfile.findFirst.mockResolvedValue(CHILD_MAYA);
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome to a fresh start!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome to a fresh start!' });
 
     const res = await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getLessonById } from "@/lib/curriculum";
-import { sendMessage } from "@/lib/llm";
+import { sendMessageWithMeta } from "@/lib/llm";
+import { logLLMInteraction } from "@/lib/event-logger";
 
 export async function GET(
   request: NextRequest,
@@ -106,9 +107,21 @@ Score: ${assessment.overallScore}/4
 
 Provide 2-3 brief, specific suggestions for the parent to help reinforce this lesson at home. Be warm and practical. Each suggestion should be 1-2 sentences. Format as a numbered list.`;
 
-          parentTips = await sendMessage(prompt, [
-            { role: "user", content: "What can I do at home to help my child improve?" },
+          const userMsg = "What can I do at home to help my child improve?";
+          const { text: tipsText, llmMeta } = await sendMessageWithMeta(prompt, [
+            { role: "user", content: userMsg },
           ]);
+          parentTips = tipsText;
+
+          logLLMInteraction({
+            childId,
+            lessonId,
+            requestType: "lesson_report",
+            systemPrompt: prompt,
+            userMessage: userMsg,
+            rawResponse: tipsText,
+            llmResult: { text: tipsText, ...llmMeta },
+          });
         } catch (err) {
           console.error("Failed to generate parent tips:", err);
         }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import type { Message } from "@/types";
-import { ChatBubble, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted } from "./shared";
+import type { Message, AnswerMeta } from "@/types";
+import { ChatBubble, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted, AnswerCardActive, AnswerCardCompleted } from "./shared";
 import { useTier } from "@/contexts/TierContext";
 
 // ---------------------------------------------------------------------------
@@ -20,21 +20,19 @@ interface InstructionPhaseProps {
 // ---------------------------------------------------------------------------
 type ChatItem =
   | { type: "coach"; id: string; message: Message }
-  | { type: "quick-answer"; id: string; answer: string; completed: boolean }
+  | { type: "quick-answer"; id: string; answer: string; completed: boolean; answerMeta?: AnswerMeta }
   | { type: "step-divider"; id: string; step: number; label: string };
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 const STEP_LABELS: Record<number, string> = {
-  1: "Intro",
-  2: "Learn",
-  3: "Read",
-  4: "Compare",
-  5: "Check",
+  1: "Learn",
+  2: "Practice",
+  3: "Check",
 };
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 3;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -64,6 +62,14 @@ function parseExpectsResponse(content: string): {
     return { text: content.replace(/\[EXPECTS_RESPONSE\]\s*/gi, "").trim(), expectsResponse: true };
   }
   return { text: content, expectsResponse: false };
+}
+
+/** Strip [WRITING_PROMPT] markers — instruction phase doesn't use writing cards */
+function stripWritingPrompt(content: string): string {
+  return content
+    .replace(/\[WRITING_PROMPT:\s*"[\s\S]*?"\]\s*/gi, "")
+    .replace(/\[WRITING_PROMPT:\s*[^\]]+?\]\s*/gi, "")
+    .trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -162,7 +168,8 @@ export default function InstructionPhase({
   const addCoachMessage = useCallback(
     (msg: Message, items?: ChatItem[], step?: number): { newItems: ChatItem[]; newStep: number } => {
       const { text: textAfterStep, step: parsedStep } = parseStepMarker(msg.content);
-      const { text, expectsResponse } = parseExpectsResponse(textAfterStep);
+      const { text: textAfterExpects, expectsResponse } = parseExpectsResponse(textAfterStep);
+      const text = stripWritingPrompt(textAfterExpects);
       const effectiveStep = parsedStep ?? step ?? currentStep;
       const result: ChatItem[] = items ? [...items] : [];
 
@@ -185,12 +192,15 @@ export default function InstructionPhase({
       });
 
       // Add quick-answer card if coach expects a response
-      if (expectsResponse) {
+      // answerMeta on the message implies a response is expected
+      const hasAnswerType = msg.answerMeta && msg.answerMeta.answerType !== "text";
+      if (hasAnswerType || expectsResponse) {
         result.push({
           type: "quick-answer",
           id: generateId(),
           answer: "",
           completed: false,
+          answerMeta: msg.answerMeta,
         });
       }
 
@@ -212,7 +222,8 @@ export default function InstructionPhase({
     for (const msg of externalMessages) {
       if (msg.role === "coach") {
         const { text: textAfterStep, step: parsedStep } = parseStepMarker(msg.content);
-        const { text } = parseExpectsResponse(textAfterStep);
+        const { text: textAfterExpects } = parseExpectsResponse(textAfterStep);
+        const text = stripWritingPrompt(textAfterExpects);
 
         // Insert step divider on step change
         if (parsedStep && parsedStep !== step) {
@@ -241,16 +252,18 @@ export default function InstructionPhase({
       }
     }
 
-    // If the last message is from the coach and has [EXPECTS_RESPONSE], add active quick-answer
+    // If the last message is from the coach and expects a response, add active quick-answer
     const lastMsg = externalMessages[externalMessages.length - 1];
     if (lastMsg.role === "coach") {
       const { expectsResponse } = parseExpectsResponse(lastMsg.content);
-      if (expectsResponse) {
+      const hasAnswerType = lastMsg.answerMeta && lastMsg.answerMeta.answerType !== "text";
+      if (hasAnswerType || expectsResponse) {
         items.push({
           type: "quick-answer",
           id: generateId(),
           answer: "",
           completed: false,
+          answerMeta: lastMsg.answerMeta,
         });
       }
     }
@@ -283,8 +296,10 @@ export default function InstructionPhase({
           setIsTyping(false);
           if (coachResponse) {
             const { text: textAfterStep, step: parsedStep } = parseStepMarker(coachResponse.content);
-            const { text: cleanText, expectsResponse } = parseExpectsResponse(textAfterStep);
+            const { text: textAfterExpects, expectsResponse } = parseExpectsResponse(textAfterStep);
+            const cleanText = stripWritingPrompt(textAfterExpects);
             const newStep = parsedStep ?? currentStep;
+            const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
             setChatItems((prev) => {
               const added: ChatItem[] = [];
@@ -305,12 +320,13 @@ export default function InstructionPhase({
                 message: cleanMessage,
               });
 
-              if (expectsResponse) {
+              if (hasAnswerType || expectsResponse) {
                 added.push({
                   type: "quick-answer",
                   id: generateId(),
                   answer: "",
                   completed: false,
+                  answerMeta: coachResponse.answerMeta,
                 });
               }
 
@@ -362,8 +378,10 @@ export default function InstructionPhase({
       setIsTyping(false);
       if (coachResponse) {
         const { text: textAfterStep, step: parsedStep } = parseStepMarker(coachResponse.content);
-        const { text: cleanText, expectsResponse } = parseExpectsResponse(textAfterStep);
+        const { text: textAfterExpects, expectsResponse } = parseExpectsResponse(textAfterStep);
+        const cleanText = stripWritingPrompt(textAfterExpects);
         const newStep = parsedStep ?? currentStep;
+        const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
         setChatItems((prev) => {
           const added: ChatItem[] = [];
@@ -384,12 +402,13 @@ export default function InstructionPhase({
             message: cleanMessage,
           });
 
-          if (expectsResponse) {
+          if (hasAnswerType || expectsResponse) {
             added.push({
               type: "quick-answer",
               id: generateId(),
               answer: "",
               completed: false,
+              answerMeta: coachResponse.answerMeta,
             });
           }
 
@@ -431,8 +450,10 @@ export default function InstructionPhase({
       setIsTyping(false);
       if (coachResponse) {
         const { text: textAfterStep, step: parsedStep } = parseStepMarker(coachResponse.content);
-        const { text: cleanText, expectsResponse } = parseExpectsResponse(textAfterStep);
+        const { text: textAfterExpects, expectsResponse } = parseExpectsResponse(textAfterStep);
+        const cleanText = stripWritingPrompt(textAfterExpects);
         const newStep = parsedStep ?? currentStep;
+        const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
         setChatItems((prev) => {
           const added: ChatItem[] = [];
@@ -453,12 +474,13 @@ export default function InstructionPhase({
             message: cleanMessage,
           });
 
-          if (expectsResponse) {
+          if (hasAnswerType || expectsResponse) {
             added.push({
               type: "quick-answer",
               id: generateId(),
               answer: "",
               completed: false,
+              answerMeta: coachResponse.answerMeta,
             });
           }
 
@@ -493,6 +515,19 @@ export default function InstructionPhase({
                 );
 
               case "quick-answer":
+                // Use structured answer cards when answerMeta specifies a non-text type
+                if (item.answerMeta && item.answerMeta.answerType !== "text") {
+                  return item.completed ? (
+                    <div key={item.id} className="mb-2">
+                      <AnswerCardCompleted answerMeta={item.answerMeta} answer={item.answer} />
+                    </div>
+                  ) : (
+                    <div key={item.id} className="mb-2">
+                      <AnswerCardActive answerMeta={item.answerMeta} onSubmit={handleSubmit} />
+                    </div>
+                  );
+                }
+                // Default: free-text input
                 return item.completed ? (
                   <div key={item.id} className="mb-2">
                     <QuickAnswerCardCompleted answer={item.answer} />

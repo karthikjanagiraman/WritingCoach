@@ -25,7 +25,7 @@ function makeStudentMessage(content: string, id = 'student-1'): Message {
 }
 
 describe('InstructionPhase', () => {
-  it('renders step progress bar with 5 step dots', () => {
+  it('renders step progress bar with 3 step dots', () => {
     const messages: Message[] = [
       makeCoachMessage('[STEP: 1] Welcome! Today we are learning about hooks. What is a great first line you remember?'),
     ];
@@ -37,10 +37,10 @@ describe('InstructionPhase', () => {
       />,
       { tier: 1 }
     );
-    // Should show step indicator "Step 1 of 5"
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
-    // Should have the "Intro" label for step 1
-    expect(screen.getByText('Intro')).toBeInTheDocument();
+    // Should show step indicator "Step 1 of 3"
+    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
+    // Should have the "Learn" label for step 1
+    expect(screen.getByText('Learn')).toBeInTheDocument();
   });
 
   it('parses [STEP: N] from coach messages and creates step dividers', () => {
@@ -58,9 +58,9 @@ describe('InstructionPhase', () => {
       { tier: 1 }
     );
     // Should show step 2 as current
-    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Step 2 of 3')).toBeInTheDocument();
     // Step divider should appear
-    expect(screen.getByText('Step 2: Learn')).toBeInTheDocument();
+    expect(screen.getByText('Step 2: Practice')).toBeInTheDocument();
   });
 
   it('strips [STEP: N] from displayed coach message text', () => {
@@ -150,7 +150,7 @@ describe('InstructionPhase', () => {
     );
 
     // Start at step 1
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
 
     // Submit answer
     const input = screen.getByPlaceholderText('Type your answer...');
@@ -159,7 +159,7 @@ describe('InstructionPhase', () => {
 
     // After response, step should advance to 2
     await waitFor(() => {
-      expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+      expect(screen.getByText('Step 2 of 3')).toBeInTheDocument();
     });
   });
 
@@ -180,10 +180,10 @@ describe('InstructionPhase', () => {
       { tier: 1 }
     );
     // Should be on step 3 after resuming
-    expect(screen.getByText('Step 3 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Step 3 of 3')).toBeInTheDocument();
     // Step dividers should exist for steps 2 and 3
-    expect(screen.getByText('Step 2: Learn')).toBeInTheDocument();
-    expect(screen.getByText('Step 3: Read')).toBeInTheDocument();
+    expect(screen.getByText('Step 2: Practice')).toBeInTheDocument();
+    expect(screen.getByText('Step 3: Check')).toBeInTheDocument();
   });
 
   it('"Ask" button opens free-form chat input', () => {

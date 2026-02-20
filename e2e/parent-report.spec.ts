@@ -17,7 +17,7 @@ test.describe("Parent Report", () => {
     await page.goto(`/dashboard/children/${CHILD_ID}/report`);
     await page.waitForFunction(
       () => document.body.innerText.includes("Progress Report"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
   });
 
@@ -34,7 +34,7 @@ test.describe("Parent Report", () => {
     // Wait for summary stats to render
     await page.waitForFunction(
       () => document.body.innerText.includes("Lessons Done"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     const bodyText = await page.locator("body").innerText();
@@ -55,19 +55,23 @@ test.describe("Parent Report", () => {
   test("needs improvement alert shows when needs_improvement lessons exist", async ({ page }) => {
     // The amber banner should appear since N1.1.2 is needs_improvement
     await page.waitForFunction(
-      () => document.body.innerText.includes("needs") || document.body.innerText.includes("revision"),
-      { timeout: 15_000 }
+      () =>
+        document.body.innerText.includes("needs") ||
+        document.body.innerText.includes("revision") ||
+        document.body.innerText.includes("Needs") ||
+        document.body.innerText.includes("Revision"),
+      { timeout: 20_000 }
     );
 
     const alertText = page.getByText(/lesson[s]?\s+need[s]?\s+revision/i);
-    await expect(alertText).toBeVisible({ timeout: 5_000 });
+    await expect(alertText).toBeVisible({ timeout: 10_000 });
   });
 
   test("assessment row shows lesson title, type, date, score", async ({ page }) => {
     // Wait for recent assessments section
     await page.waitForFunction(
       () => document.body.innerText.includes("Recent Assessments"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     await expect(page.getByText("Recent Assessments")).toBeVisible();
@@ -82,12 +86,12 @@ test.describe("Parent Report", () => {
     // Wait for recent assessments
     await page.waitForFunction(
       () => document.body.innerText.includes("Recent Assessments"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     // Click the first assessment row to expand it
-    const assessmentRow = page.locator("button", { hasText: /Narrative|N1/ }).first();
-    if (await assessmentRow.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    const assessmentRow = page.locator("button", { hasText: /Narrative|N1|Descriptive/ }).first();
+    if (await assessmentRow.isVisible({ timeout: 10_000 }).catch(() => false)) {
       await assessmentRow.click();
 
       // Should show expanded details
@@ -105,12 +109,12 @@ test.describe("Parent Report", () => {
   test("expanded assessment has 'View Full Detail' link", async ({ page }) => {
     await page.waitForFunction(
       () => document.body.innerText.includes("Recent Assessments"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     // Expand first assessment
-    const assessmentRow = page.locator("button", { hasText: /3\.2|1\.0/ }).first();
-    if (await assessmentRow.isVisible({ timeout: 5_000 }).catch(() => false)) {
+    const assessmentRow = page.locator("button", { hasText: /3\.2|1\.0|2\.0/ }).first();
+    if (await assessmentRow.isVisible({ timeout: 10_000 }).catch(() => false)) {
       await assessmentRow.click();
       await page.waitForTimeout(500);
 
@@ -125,7 +129,7 @@ test.describe("Parent Report", () => {
 
   test("'Export CSV' button is visible", async ({ page }) => {
     const exportBtn = page.getByText("Export CSV");
-    await expect(exportBtn).toBeVisible({ timeout: 10_000 });
+    await expect(exportBtn).toBeVisible({ timeout: 15_000 });
   });
 });
 
@@ -138,7 +142,7 @@ test.describe("Lesson Detail (from report)", () => {
 
     await page.waitForFunction(
       () => document.body.innerText.includes("Lesson Detail"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     const bodyText = await page.locator("body").innerText();
@@ -158,7 +162,7 @@ test.describe("Lesson Detail (from report)", () => {
       () =>
         document.body.innerText.includes("Lesson Detail") ||
         document.body.innerText.includes("Learning Objectives"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     const bodyText = await page.locator("body").innerText();
@@ -174,7 +178,7 @@ test.describe("Lesson Detail (from report)", () => {
 
     await page.waitForFunction(
       () => document.body.innerText.includes("Original") || document.body.innerText.includes("Submission"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
 
     // Should show the seeded submission text

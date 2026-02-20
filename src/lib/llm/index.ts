@@ -3,12 +3,16 @@ export {
   getInitialPrompt,
   generateCoachResponse,
   sendMessage,
+  sendMessageWithMeta,
   stripPhaseMarkers,
 } from "./client";
-export type { CoachResponse } from "./client";
+export type { CoachResponse, CoachResponseWithMeta, LLMMeta } from "./client";
+
+export { llmSend, getLLMConfig } from "./provider";
+export type { LLMMessage, LLMRequestOptions, LLMResult } from "./provider";
 
 export { evaluateWriting, evaluateSubmission, evaluateWritingGeneral } from "./evaluator";
-export type { LessonContext } from "./evaluator";
+export type { LessonContext, EvalResultWithMeta } from "./evaluator";
 
 export {
   buildPrompt,

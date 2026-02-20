@@ -105,7 +105,7 @@ describe('E2E: Lesson Lifecycle', () => {
     prismaMock.session.findFirst.mockResolvedValue(null);
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome! Today we learn about story hooks.');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome! Today we learn about story hooks.' });
 
     const startRes = await startPOST(makeRequest('http://localhost/api/lessons/start', {
       childId: CHILD_MAYA.id,
@@ -197,7 +197,7 @@ describe('E2E: Lesson Lifecycle', () => {
       id: 'session-new-retake',
     });
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome back! Let us try again.');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome back! Let us try again.' });
 
     const res = await startPOST(makeRequest('http://localhost/api/lessons/start', {
       childId: CHILD_MAYA.id,

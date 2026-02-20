@@ -42,9 +42,9 @@ test.describe("Authentication", () => {
     await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 
-  test("unauthenticated visit to / → redirect to /auth/login", async ({ page }) => {
-    // goto() follows the redirect, so by the time it resolves we're already at /auth/login
-    await page.goto("/");
+  test("unauthenticated visit to /home → redirect to /auth/login", async ({ page }) => {
+    // /home is protected by middleware; goto() follows the redirect
+    await page.goto("/home");
 
     // Verify we ended up on the login page (middleware redirect)
     await expect(page.getByRole("button", { name: "Log In" })).toBeVisible({ timeout: 15_000 });

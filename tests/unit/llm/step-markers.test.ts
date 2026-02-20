@@ -20,9 +20,9 @@ describe('[STEP: N] marker behavior', () => {
   });
 
   it('stripPhaseMarkers preserves [STEP: N] while stripping other markers', () => {
-    const input = '[STEP: 5] You got it! Let\'s move on.\n\n[COMPREHENSION_CHECK: passed]\n[PHASE_TRANSITION: guided]';
+    const input = '[STEP: 3] You got it! Let\'s move on.\n\n[COMPREHENSION_CHECK: passed]\n[PHASE_TRANSITION: guided]';
     const result = stripPhaseMarkers(input);
-    expect(result).toContain('[STEP: 5]');
+    expect(result).toContain('[STEP: 3]');
     expect(result).not.toContain('[COMPREHENSION_CHECK');
     expect(result).not.toContain('[PHASE_TRANSITION');
   });
@@ -30,7 +30,7 @@ describe('[STEP: N] marker behavior', () => {
   it('stripPhaseMarkers handles [STEP: N] with various spacing', () => {
     expect(stripPhaseMarkers('[STEP: 3] Some content')).toContain('[STEP: 3]');
     expect(stripPhaseMarkers('[STEP:2] Some content')).toContain('[STEP:2]');
-    expect(stripPhaseMarkers('[step: 4] Some content')).toContain('[step: 4]');
+    expect(stripPhaseMarkers('[step: 2] Some content')).toContain('[step: 2]');
   });
 
   it('stripPhaseMarkers strips [HINT_GIVEN] but not [STEP: N]', () => {

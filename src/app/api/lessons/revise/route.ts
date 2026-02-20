@@ -5,6 +5,7 @@ import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
 import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
 import { validateSubmissionQuality } from "@/lib/submission-validator";
+import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
 import type { Message, PhaseState, Tier } from "@/types";
 
 const MAX_REVISIONS = 2;
@@ -102,6 +103,14 @@ export async function POST(request: NextRequest) {
       ? JSON.parse(previousAssessment.scores)
       : null;
 
+    const wordCount = text.trim().split(/\s+/).length;
+
+    logLessonEvent({
+      childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+      eventType: "revision_submit", phase: "feedback",
+      eventData: { wordCount, revisionNumber: assessmentCount, timeSpentSec: timeSpentSec ?? null },
+    });
+
     // Evaluate the revised writing — with rubric if available, general otherwise
     let result;
     let rubricId: string | undefined;
@@ -130,6 +139,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    logLLMInteraction({
+      sessionId: session.id,
+      childId: session.childId,
+      lessonId: session.lessonId,
+      requestType: "revision_eval",
+      systemPrompt: result.systemPromptUsed,
+      userMessage: text.trim(),
+      rawResponse: JSON.stringify({ scores: result.scores, overallScore: result.overallScore, feedback: result.feedback }),
+      llmResult: { text: "", ...result.llmMeta },
+    });
+
+    logLessonEvent({
+      childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+      eventType: "revision_score", phase: "feedback",
+      eventData: { overallScore: result.overallScore, scores: result.scores, previousOverallScore: previousAssessment?.overallScore },
+    });
+
     // Store the new assessment
     const assessment = await prisma.assessment.create({
       data: {
@@ -145,8 +171,6 @@ export async function POST(request: NextRequest) {
     });
 
     // Also create WritingSubmission + AIFeedback records for the revision
-    const wordCount = text.trim().split(/\s+/).length;
-
     const originalSubmission = await prisma.writingSubmission.findFirst({
       where: { sessionId, revisionNumber: 0 },
     });

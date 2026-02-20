@@ -89,7 +89,7 @@ describe('POST /api/lessons/start', () => {
     prismaMock.session.findFirst.mockResolvedValue(null); // No existing session
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue(PROGRESS_IN_PROGRESS);
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome to the lesson!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome to the lesson!' });
 
     const res = await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',
@@ -123,7 +123,7 @@ describe('POST /api/lessons/start', () => {
     prismaMock.session.findFirst.mockResolvedValue(null);
     prismaMock.session.create.mockResolvedValue(SESSION_INSTRUCTION);
     prismaMock.lessonProgress.upsert.mockResolvedValue({});
-    claudeMock.getInitialPrompt.mockResolvedValue('Welcome!');
+    claudeMock.getInitialPrompt.mockResolvedValue({ message: 'Welcome!' });
 
     const res = await startPOST(new Request('http://localhost/api/lessons/start', {
       method: 'POST',

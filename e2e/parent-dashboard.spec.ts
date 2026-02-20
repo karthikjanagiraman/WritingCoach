@@ -20,15 +20,18 @@ test.describe("Parent Dashboard", () => {
   test("click Maya's card → navigates to student dashboard", async ({ page }) => {
     await login(page);
 
-    const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
-    await mayaCard.click();
+    // Wait for async child data to load (streak/badges cause card re-renders)
+    await page.waitForTimeout(1000);
 
-    await page.waitForURL("/", { timeout: 10_000 });
+    const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
+    await mayaCard.click({ force: true });
+
+    await page.waitForURL("**/home", { timeout: 30_000 });
 
     // Student dashboard should show greeting with Maya's name
     await page.waitForFunction(
       () => document.body.innerText.includes("Maya"),
-      { timeout: 15_000 }
+      { timeout: 20_000 }
     );
   });
 

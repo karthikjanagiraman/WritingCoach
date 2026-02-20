@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { sendMessageWithMeta } from "@/lib/llm";
 import { getLessonsByTier, getLessonById } from "@/lib/curriculum";
+import { logLLMInteraction } from "@/lib/event-logger";
 import type { Tier } from "@/types";
 
 export async function POST(
@@ -100,8 +101,6 @@ export async function POST(
       ? JSON.parse(curriculum.focusAreas)
       : null;
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
     const systemPrompt = `You are a curriculum planning assistant for a children's writing program.
 You need to revise the remaining weeks of an existing curriculum plan.
 
@@ -121,20 +120,21 @@ Details: ${description}
 
 Return ONLY valid JSON: an array of objects with { "weekNumber": number, "theme": "string", "lessonIds": ["id1", "id2", "id3"] }`;
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-5-20250929",
-      max_tokens: 2048,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Available lessons:\n${lessonSummary}\n\nRevise weeks ${pendingWeeks[0].weekNumber}-${pendingWeeks[pendingWeeks.length - 1].weekNumber}.`,
-        },
-      ],
-    });
+    const userMsg = `Available lessons:\n${lessonSummary}\n\nRevise weeks ${pendingWeeks[0].weekNumber}-${pendingWeeks[pendingWeeks.length - 1].weekNumber}.`;
+    const { text, llmMeta } = await sendMessageWithMeta(
+      systemPrompt,
+      [{ role: "user", content: userMsg }],
+      2048
+    );
 
-    const text =
-      response.content.find((b) => b.type === "text")?.text || "[]";
+    logLLMInteraction({
+      childId,
+      requestType: "curriculum_revise",
+      systemPrompt,
+      userMessage: userMsg,
+      rawResponse: text,
+      llmResult: { text, ...llmMeta },
+    });
 
     interface RevisedWeek {
       weekNumber: number;

@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { Message } from "@/types";
+import type { Message, AnswerMeta } from "@/types";
 import { useTier } from "@/contexts/TierContext";
-import { ChatBubble, CoachAvatar, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted } from "./shared";
+import { ChatBubble, CoachAvatar, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted, AnswerCardActive, AnswerCardCompleted } from "./shared";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -18,20 +18,47 @@ type InteractionState = "WAITING_FOR_COACH" | "ANSWER_ACTIVE" | "WRITING_ACTIVE"
 
 type ChatItem =
   | { type: "coach"; id: string; message: Message; writingPrompt: string | null }
-  | { type: "quick-answer"; id: string; answer: string; completed: boolean }
-  | { type: "writing-response"; id: string; prompt: string; answer: string; completed: boolean };
+  | { type: "quick-answer"; id: string; answer: string; completed: boolean; answerMeta?: AnswerMeta }
+  | { type: "writing-response"; id: string; prompt: string; answer: string; completed: boolean }
+  | { type: "stage-divider"; id: string; stage: number; label: string };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const STAGE_LABELS: Record<number, string> = {
+  1: "Focused Drill",
+  2: "Combination",
+  3: "Mini-Draft",
+};
+
+function parseGuidedStage(content: string): { text: string; stage: number | null } {
+  const match = content.match(/\[GUIDED_STAGE:\s*(\d)\]/i);
+  if (match) {
+    return {
+      text: content.replace(match[0], "").trim(),
+      stage: parseInt(match[1], 10),
+    };
+  }
+  return { text: content, stage: null };
+}
 
 function parseWritingPrompt(content: string): {
   text: string;
   writingPrompt: string | null;
 } {
-  const match = content.match(/\[WRITING_PROMPT:\s*"([^"]+)"\]/);
-  if (match) {
+  // Try quoted form first: [WRITING_PROMPT: "some text"]
+  const quoted = content.match(/\[WRITING_PROMPT:\s*"([^"]+)"\]/);
+  if (quoted) {
     return {
-      text: content.replace(match[0], "").trim(),
-      writingPrompt: match[1],
+      text: content.replace(quoted[0], "").trim(),
+      writingPrompt: quoted[1],
+    };
+  }
+  // Fallback: unquoted form [WRITING_PROMPT: some text]
+  const unquoted = content.match(/\[WRITING_PROMPT:\s*([^\]]+?)\]/);
+  if (unquoted) {
+    return {
+      text: content.replace(unquoted[0], "").trim(),
+      writingPrompt: unquoted[1].trim(),
     };
   }
   return { text: content, writingPrompt: null };
@@ -173,9 +200,24 @@ function LockedCard() {
   );
 }
 
-function BottomProgressBar({ writingsDone, practiceComplete }: { writingsDone: number; practiceComplete: boolean }) {
-  const total = 3;
-  const pct = practiceComplete ? 100 : Math.min((writingsDone / total) * 100, 100);
+function StageDivider({ stage, label }: { stage: number; label: string }) {
+  return (
+    <div className="flex items-center gap-3 py-3" role="separator">
+      <div className="flex-1 h-px bg-active-secondary/20" />
+      <span className="text-[0.72rem] font-bold uppercase tracking-wider text-active-secondary/60 whitespace-nowrap flex items-center gap-1.5">
+        <span className="w-5 h-5 rounded-full bg-active-secondary/15 text-active-secondary flex items-center justify-center text-[0.6rem] font-extrabold">
+          {stage}
+        </span>
+        Stage {stage}: {label}
+      </span>
+      <div className="flex-1 h-px bg-active-secondary/20" />
+    </div>
+  );
+}
+
+function BottomProgressBar({ currentStage, practiceComplete }: { currentStage: number; practiceComplete: boolean }) {
+  const totalStages = 3;
+  const pct = practiceComplete ? 100 : Math.min(((currentStage - 1) / totalStages) * 100 + 10, 95);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-[#e0dcd5] shadow-[0_-2px_12px_rgba(0,0,0,0.05)]">
@@ -185,7 +227,7 @@ function BottomProgressBar({ writingsDone, practiceComplete }: { writingsDone: n
           <span>
             {practiceComplete
               ? "Practice complete!"
-              : `${writingsDone} of ${total} writing challenges done`}
+              : `Stage ${currentStage}: ${STAGE_LABELS[currentStage] ?? "Practice"}`}
           </span>
           <div className="flex-1 max-w-[140px] h-1.5 bg-[#eae6df] rounded-full overflow-hidden">
             <div
@@ -213,6 +255,7 @@ export default function GuidedPracticePhase({
   const [isTyping, setIsTyping] = useState(false);
   const [isLoadingFirstQuestion, setIsLoadingFirstQuestion] = useState(false);
   const [fallbackIndex, setFallbackIndex] = useState(0);
+  const [currentStage, setCurrentStage] = useState(1);
 
   const scrollEndRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
@@ -240,10 +283,22 @@ export default function GuidedPracticePhase({
 
   const addCoachMessage = useCallback(
     (msg: Message): { writingPrompt: string | null } => {
-      const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(msg.content);
+      const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(msg.content);
+      const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(textAfterStage);
       const { text, expectsResponse } = parseExpectsResponse(textAfterWriting);
 
       const cleanMessage: Message = { ...msg, content: text };
+
+      // Insert stage divider if stage changed
+      if (parsedStage && parsedStage !== currentStage) {
+        setChatItems((prev) => [...prev, {
+          type: "stage-divider" as const,
+          id: generateId(),
+          stage: parsedStage,
+          label: STAGE_LABELS[parsedStage] ?? `Stage ${parsedStage}`,
+        }]);
+        setCurrentStage(parsedStage);
+      }
 
       const coachItem: ChatItem = {
         type: "coach",
@@ -253,6 +308,8 @@ export default function GuidedPracticePhase({
       };
 
       setChatItems((prev) => [...prev, coachItem]);
+
+      const hasAnswerType = msg.answerMeta && msg.answerMeta.answerType !== "text";
 
       if (writingPrompt) {
         const writingItem: ChatItem = {
@@ -264,13 +321,14 @@ export default function GuidedPracticePhase({
         };
         setChatItems((prev) => [...prev, writingItem]);
         setInteractionState("WRITING_ACTIVE");
-      } else if (expectsResponse) {
-        // Coach asked a question — show QuickAnswerCard
+      } else if (hasAnswerType || expectsResponse) {
+        // Coach asked a question — show appropriate answer card
         const answerItem: ChatItem = {
           type: "quick-answer",
           id: generateId(),
           answer: "",
           completed: false,
+          answerMeta: msg.answerMeta,
         };
         setChatItems((prev) => [...prev, answerItem]);
         setInteractionState("ANSWER_ACTIVE");
@@ -297,13 +355,27 @@ export default function GuidedPracticePhase({
 
     const items: ChatItem[] = [];
     let lastCoachWritingPrompt: string | null = null;
+    let stage = 1;
 
     for (let i = 0; i < sourceMessages.length; i++) {
       const msg = sourceMessages[i];
 
       if (msg.role === "coach") {
-        const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(msg.content);
+        const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(msg.content);
+        const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(textAfterStage);
         const { text } = parseExpectsResponse(textAfterWriting);
+
+        // Insert stage divider on stage change
+        if (parsedStage && parsedStage !== stage) {
+          items.push({
+            type: "stage-divider",
+            id: generateId(),
+            stage: parsedStage,
+            label: STAGE_LABELS[parsedStage] ?? `Stage ${parsedStage}`,
+          });
+          stage = parsedStage;
+        }
+
         const cleanMessage: Message = { ...msg, content: text };
         items.push({
           type: "coach",
@@ -346,14 +418,16 @@ export default function GuidedPracticePhase({
         });
         setInteractionState("WRITING_ACTIVE");
       } else {
-        // Check if the last coach message has an [EXPECTS_RESPONSE] marker
+        // Check if the last coach message expects a response
         const { expectsResponse } = parseExpectsResponse(lastMsg.content);
-        if (expectsResponse) {
+        const hasAnswerType = lastMsg.answerMeta && lastMsg.answerMeta.answerType !== "text";
+        if (hasAnswerType || expectsResponse) {
           items.push({
             type: "quick-answer",
             id: generateId(),
             answer: "",
             completed: false,
+            answerMeta: lastMsg.answerMeta,
           });
           setInteractionState("ANSWER_ACTIVE");
         } else {
@@ -368,6 +442,7 @@ export default function GuidedPracticePhase({
     }
 
     setChatItems(items);
+    setCurrentStage(stage);
   }, [externalMessages]);
 
   // ─── Auto-fetch first guided practice question if transition had no question ─
@@ -494,6 +569,19 @@ export default function GuidedPracticePhase({
                     );
 
                   case "quick-answer":
+                    // Use structured answer cards when answerMeta specifies a non-text type
+                    if (item.answerMeta && item.answerMeta.answerType !== "text") {
+                      return item.completed ? (
+                        <div key={item.id} className="mb-2">
+                          <AnswerCardCompleted answerMeta={item.answerMeta} answer={item.answer} />
+                        </div>
+                      ) : (
+                        <div key={item.id} className="mb-2">
+                          <AnswerCardActive answerMeta={item.answerMeta} onSubmit={handleSubmit} />
+                        </div>
+                      );
+                    }
+                    // Default: free-text input
                     return item.completed ? (
                       <div key={item.id} className="mb-2">
                         <QuickAnswerCardCompleted answer={item.answer} />
@@ -513,6 +601,15 @@ export default function GuidedPracticePhase({
                       <div key={item.id} className="my-2">
                         <WritingCardActive prompt={item.prompt} onSubmit={handleSubmit} />
                       </div>
+                    );
+
+                  case "stage-divider":
+                    return (
+                      <StageDivider
+                        key={item.id}
+                        stage={item.stage}
+                        label={item.label}
+                      />
                     );
 
                   default:
@@ -555,7 +652,7 @@ export default function GuidedPracticePhase({
           </div>
 
           {/* Fixed bottom progress bar */}
-          <BottomProgressBar writingsDone={writingsDone} practiceComplete={false} />
+          <BottomProgressBar currentStage={currentStage} practiceComplete={false} />
         </>
       )}
     </div>

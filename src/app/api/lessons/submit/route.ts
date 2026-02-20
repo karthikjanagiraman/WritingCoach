@@ -9,7 +9,9 @@ import { updateSkillProgress } from "@/lib/progress-tracker";
 import { updateStreak } from "@/lib/streak-tracker";
 import { checkAndUnlockBadges } from "@/lib/badge-checker";
 import { checkCurriculumAdaptation } from "@/lib/curriculum-adapter";
-import type { Message, Tier } from "@/types";
+import { buildLearnerProfile } from "@/lib/learner-profile";
+import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
+import type { Message, Tier, PhaseState } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,6 +72,11 @@ export async function POST(request: NextRequest) {
     const rubricForValidation = lesson.rubricId ? getRubricById(lesson.rubricId) : null;
     const validation = validateSubmissionQuality(text.trim(), rubricForValidation ?? null);
     if (!validation.valid) {
+      logLessonEvent({
+        childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+        eventType: "validation_rejected", phase: "assessment",
+        eventData: { error: validation.error, wordCount: validation.wordCount, minWords: validation.minWords },
+      });
       return NextResponse.json(
         { error: validation.error, message: validation.message, wordCount: validation.wordCount, minWords: validation.minWords },
         { status: 422 }
@@ -82,9 +89,18 @@ export async function POST(request: NextRequest) {
       learningObjectives: lesson.learningObjectives ?? [],
     };
 
+    const wordCount = text.trim().split(/\s+/).length;
+
+    logLessonEvent({
+      childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+      eventType: "assessment_submit", phase: "assessment",
+      eventData: { wordCount, timeSpentSec: timeSpentSec ?? null },
+    });
+
     // Evaluate the writing submission — with rubric if available, general otherwise
     let result;
     let rubricId: string | undefined;
+    let evalRequestType = "assessment_eval_general";
 
     if (lesson.rubricId) {
       const rubric = getRubricById(lesson.rubricId);
@@ -97,6 +113,7 @@ export async function POST(request: NextRequest) {
           lessonContext
         );
         rubricId = lesson.rubricId;
+        evalRequestType = "assessment_eval";
       }
     }
 
@@ -109,6 +126,21 @@ export async function POST(request: NextRequest) {
         lessonContext
       );
     }
+
+    // Log the evaluation LLM interaction
+    logLLMInteraction({
+      sessionId: session.id,
+      childId: session.childId,
+      lessonId: session.lessonId,
+      requestType: evalRequestType,
+      systemPrompt: result.systemPromptUsed,
+      userMessage: text.trim(),
+      rawResponse: JSON.stringify({ scores: result.scores, overallScore: result.overallScore, feedback: result.feedback }),
+      llmResult: {
+        text: "",
+        ...result.llmMeta,
+      },
+    });
 
     // Store the assessment
     const assessment = await prisma.assessment.create({
@@ -125,7 +157,6 @@ export async function POST(request: NextRequest) {
     });
 
     // Also create WritingSubmission + AIFeedback records
-    const wordCount = text.trim().split(/\s+/).length;
     const writingSubmission = await prisma.writingSubmission.create({
       data: {
         sessionId,
@@ -155,6 +186,12 @@ export async function POST(request: NextRequest) {
       data: {
         phase: "feedback",
       },
+    });
+
+    logLessonEvent({
+      childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+      eventType: "assessment_score", phase: "assessment",
+      eventData: { overallScore: result.overallScore, scores: result.scores, rubricId: rubricId ?? "general" },
     });
 
     // Mark lesson status based on score — soft completion gate
@@ -187,11 +224,51 @@ export async function POST(request: NextRequest) {
       console.error("Failed to check badges:", err);
     }
 
+    logLessonEvent({
+      childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
+      eventType: "lesson_complete", phase: "feedback",
+      eventData: { status: lessonStatus, overallScore: result.overallScore, badgesUnlocked: newBadges },
+    });
+
     // Check curriculum adaptation
     try {
       await checkCurriculumAdaptation(session.childId, session.lessonId, result.overallScore);
     } catch (err) {
       console.error("Failed to check curriculum adaptation:", err);
+    }
+
+    // Create LessonCompletion + LessonScore records for learner profile (non-blocking)
+    try {
+      const phaseState: PhaseState = JSON.parse(session.phaseState);
+      const lessonCompletion = await prisma.lessonCompletion.create({
+        data: {
+          childId: session.childId,
+          lessonId: session.lessonId,
+          sessionId: session.id,
+          template: lesson.template,
+          overallScore: result.overallScore,
+          timeSpentSec: timeSpentSec ?? null,
+          hintsUsed: phaseState.hintsGiven ?? 0,
+          guidedStages: phaseState.guidedStage ?? 0,
+        },
+      });
+
+      // Create per-criterion scores
+      const scoreEntries = Object.entries(result.scores);
+      if (scoreEntries.length > 0) {
+        await prisma.lessonScore.createMany({
+          data: scoreEntries.map(([criterion, score]) => ({
+            lessonCompletionId: lessonCompletion.id,
+            criterion,
+            score,
+          })),
+        });
+      }
+
+      // Rebuild learner profile snapshot after new completion
+      await buildLearnerProfile(session.childId);
+    } catch (err) {
+      console.error("Failed to create lesson completion records:", err);
     }
 
     // Add feedback message to conversation history

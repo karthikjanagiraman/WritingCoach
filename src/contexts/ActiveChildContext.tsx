@@ -27,18 +27,15 @@ const ActiveChildContext = createContext<ActiveChildContextType | null>(null);
 const STORAGE_KEY = "writewise-active-child";
 
 export function ActiveChildProvider({ children }: { children: ReactNode }) {
-  const [activeChild, setActiveChildState] = useState<ActiveChild | null>(null);
-
-  useEffect(() => {
+  const [activeChild, setActiveChildState] = useState<ActiveChild | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setActiveChildState(JSON.parse(stored));
-      }
+      return stored ? JSON.parse(stored) : null;
     } catch {
-      // Ignore parse errors from corrupted localStorage
+      return null;
     }
-  }, []);
+  });
 
   function setActiveChild(child: ActiveChild | null) {
     setActiveChildState(child);

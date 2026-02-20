@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getLessonById } from "@/lib/curriculum";
 import { SKILL_DEFINITIONS } from "@/lib/skill-map";
-import { sendMessage } from "@/lib/llm";
+import { sendMessageWithMeta } from "@/lib/llm";
+import { logLLMInteraction } from "@/lib/event-logger";
 
 export async function GET(
   request: NextRequest,
@@ -258,9 +259,20 @@ Write a parent-friendly summary (3-4 paragraphs) covering:
 
 Use a warm, encouraging tone. Address the parent directly ("Your child..."). Keep it concise.`;
 
-        aiSummary = await sendMessage(prompt, [
-          { role: "user", content: "Please generate the parent summary report." },
+        const userMsg = "Please generate the parent summary report.";
+        const { text: summaryText, llmMeta } = await sendMessageWithMeta(prompt, [
+          { role: "user", content: userMsg },
         ]);
+        aiSummary = summaryText;
+
+        logLLMInteraction({
+          childId,
+          requestType: "report_summary",
+          systemPrompt: prompt,
+          userMessage: userMsg,
+          rawResponse: summaryText,
+          llmResult: { text: summaryText, ...llmMeta },
+        });
       } catch (err) {
         console.error("Failed to generate AI summary:", err);
         aiSummary = null;

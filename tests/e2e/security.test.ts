@@ -22,7 +22,7 @@ vi.mock('@/lib/llm', () => ({
     comprehensionPassed: false,
     hintGiven: false,
   }),
-  getInitialPrompt: vi.fn().mockResolvedValue('Welcome!'),
+  getInitialPrompt: vi.fn().mockResolvedValue({ message: 'Welcome!' }),
   evaluateWriting: vi.fn().mockResolvedValue({
     scores: { hook: 4, character: 3, setting: 4, creativity: 5 },
     overallScore: 4.0,

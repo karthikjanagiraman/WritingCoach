@@ -3,7 +3,13 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getInitialPrompt } from "@/lib/llm";
-import type { Message, Phase } from "@/types";
+import {
+  buildLearnerProfile,
+  buildLearnerContext,
+  formatLearnerContextForPrompt,
+} from "@/lib/learner-profile";
+import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
+import type { Message, Phase, AnswerMeta } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -88,12 +94,19 @@ export async function POST(request: NextRequest) {
               title: lesson.title,
               unit: lesson.unit,
               type: lesson.type,
+              template: lesson.template,
               learningObjectives: lesson.learningObjectives,
             },
           });
         }
 
         // Resume an in-progress session
+        logLessonEvent({
+          childId, sessionId: existingSession.id, lessonId,
+          eventType: "lesson_resume", phase: existingSession.phase,
+          eventData: { messageCount: conversationHistory.length },
+        });
+
         return NextResponse.json({
           sessionId: existingSession.id,
           resumed: true,
@@ -105,6 +118,7 @@ export async function POST(request: NextRequest) {
             title: lesson.title,
             unit: lesson.unit,
             type: lesson.type,
+            template: lesson.template,
             learningObjectives: lesson.learningObjectives,
           },
         });
@@ -112,17 +126,43 @@ export async function POST(request: NextRequest) {
     }
 
     // ── No existing session — create a new one ──────────────────────
-    const initialPrompt = await getInitialPrompt(
+
+    // Build learner context for personalization (non-blocking on failure)
+    let learnerContextStr: string | undefined;
+    try {
+      const profile = await buildLearnerProfile(childId);
+      if (profile) {
+        const context = buildLearnerContext(profile, child.name);
+        learnerContextStr = formatLearnerContextForPrompt(context);
+      }
+    } catch (err) {
+      console.error("Failed to build learner profile:", err);
+    }
+
+    const initialResult = await getInitialPrompt(
       lesson,
       child.name,
-      child.tier
+      child.tier,
+      learnerContextStr
     );
+
+    // Build answerMeta from parsed markers (same as message route)
+    let answerMeta: AnswerMeta | undefined;
+    if (initialResult.answerType) {
+      answerMeta = {
+        answerType: initialResult.answerType,
+        options: initialResult.answerOptions,
+        passage: initialResult.highlightPassage,
+        prompt: initialResult.answerPrompt,
+      };
+    }
 
     const initialMessage: Message = {
       id: crypto.randomUUID(),
       role: "coach",
-      content: initialPrompt,
+      content: initialResult.message,
       timestamp: new Date().toISOString(),
+      ...(answerMeta && { answerMeta }),
     };
 
     const newSession = await prisma.session.create({
@@ -132,6 +172,28 @@ export async function POST(request: NextRequest) {
         phase: "instruction" satisfies Phase,
         phaseState: JSON.stringify({ phase1Step: 1 }),
         conversationHistory: JSON.stringify([initialMessage]),
+      },
+    });
+
+    logLessonEvent({
+      childId, sessionId: newSession.id, lessonId,
+      eventType: "lesson_start", phase: "instruction",
+      eventData: { tier: child.tier, template: lesson.template },
+    });
+
+    logLLMInteraction({
+      sessionId: newSession.id,
+      childId,
+      lessonId,
+      requestType: "lesson_start",
+      systemPrompt: initialResult.systemPromptUsed,
+      conversationTurnNumber: 0,
+      userMessage: `Hi! I'm ${child.name} and I'm ready for today's lesson.`,
+      rawResponse: initialResult.rawResponse,
+      strippedResponse: initialResult.message,
+      llmResult: {
+        text: initialResult.rawResponse,
+        ...initialResult.llmMeta,
       },
     });
 
@@ -165,6 +227,7 @@ export async function POST(request: NextRequest) {
         title: lesson.title,
         unit: lesson.unit,
         type: lesson.type,
+        template: lesson.template,
         learningObjectives: lesson.learningObjectives,
       },
     });

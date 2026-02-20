@@ -1,11 +1,17 @@
 import type { AssessmentResult, Rubric, Tier } from "@/types";
-import { sendMessage } from "./client";
+import { sendMessageWithMeta } from "./client";
+import type { LLMMeta } from "./client";
 import { formatRubricForPrompt } from "./rubrics";
 import { TIER_INSERTS } from "./prompt-builder";
 
 export interface LessonContext {
   title: string;
   learningObjectives: string[];
+}
+
+export interface EvalResultWithMeta extends AssessmentResult {
+  llmMeta: LLMMeta;
+  systemPromptUsed: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -18,7 +24,7 @@ export async function evaluateWriting(
   studentName: string,
   tier: number,
   lessonContext?: LessonContext
-): Promise<AssessmentResult> {
+): Promise<EvalResultWithMeta> {
   return evaluateSubmission(submissionText, rubric, tier as Tier, lessonContext);
 }
 
@@ -30,7 +36,7 @@ export async function evaluateSubmission(
   rubric: Rubric,
   tier: Tier,
   lessonContext?: LessonContext
-): Promise<AssessmentResult> {
+): Promise<EvalResultWithMeta> {
   const rubricText = formatRubricForPrompt(rubric);
 
   // Build feedback stems section from rubric criteria
@@ -88,9 +94,9 @@ SCORING GUIDELINES:
     },
   ];
 
-  const responseText = await sendMessage(systemPrompt, messages);
+  const { text: responseText, llmMeta } = await sendMessageWithMeta(systemPrompt, messages);
 
-  return parseEvaluationResponse(responseText, rubric);
+  return { ...parseEvaluationResponse(responseText, rubric), llmMeta, systemPromptUsed: systemPrompt };
 }
 
 // ---------------------------------------------------------------------------
@@ -101,7 +107,7 @@ export async function evaluateWritingGeneral(
   tier: Tier,
   lessonTitle: string,
   lessonContext?: LessonContext
-): Promise<AssessmentResult> {
+): Promise<EvalResultWithMeta> {
   const lessonSection = lessonContext
     ? `\nLESSON: "${lessonContext.title}"\nLEARNING OBJECTIVES:\n${lessonContext.learningObjectives.map((o) => `- ${o}`).join("\n")}\n`
     : `\nLESSON: "${lessonTitle}"\n`;
@@ -143,9 +149,9 @@ SCORING GUIDELINES:
     },
   ];
 
-  const responseText = await sendMessage(systemPrompt, messages);
+  const { text: responseText, llmMeta } = await sendMessageWithMeta(systemPrompt, messages);
 
-  return parseGeneralEvaluationResponse(responseText);
+  return { ...parseGeneralEvaluationResponse(responseText), llmMeta, systemPromptUsed: systemPrompt };
 }
 
 // ---------------------------------------------------------------------------

@@ -25,9 +25,9 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
-- **Database**: PostgreSQL via Prisma ORM (15 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak, Achievement)
+- **Database**: PostgreSQL via Prisma ORM (20 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementDraft, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak, Achievement, LessonCompletion, LessonScore, WritingSample, StudentPreference, LearnerProfileSnapshot)
 - **Charts**: Recharts (skill radar chart, future progress charts)
-- **AI**: Anthropic Claude API (`claude-sonnet-4-5-20250929`) via `@anthropic-ai/sdk`
+- **AI**: Configurable LLM provider — Anthropic Claude (default) or Google Gemini, via `src/lib/llm/provider.ts`. SDKs: `@anthropic-ai/sdk`, `@google/genai`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
 - **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider + Google OAuth, JWT sessions
 
@@ -35,7 +35,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 **Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` and `DATABASE_URL` in `.env`)
 **DB reset**: `npx prisma db push --force-reset && npx prisma db seed`
 **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1) with placement + curriculum + lesson progress, Ethan (age 11, tier 2) without placement
-**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `LLM_PROVIDER` (optional, `anthropic`|`google`), `LLM_MODEL` (optional, overrides default model), `GOOGLE_AI_API_KEY` (required if `LLM_PROVIDER=google`)
 
 ---
 
@@ -48,8 +48,14 @@ Instruction → Guided Practice → Assessment → Feedback
 ```
 
 ### 2. Phase-Specific AI Behavior
-- **Instruction**: AI teaches directly, uses 2-3 examples, ends with comprehension check
-- **Guided Practice**: AI guides with questions, does NOT give answers, max 3 hints before more direct help
+- **Instruction**: Uses one of 3 lesson templates (try_first, study_apply, workshop) with 3 steps (Learn, Practice, Check). Ends with comprehension check.
+  - `try_first`: Student attempts skill cold → coach teaches using their attempt → knowledge check
+  - `study_apply`: Coach introduces concept with mentor examples → guided application → knowledge check
+  - `workshop`: Coach and student co-construct a piece → extract techniques → reflection check
+- **Guided Practice**: 3 escalating stages with `[GUIDED_STAGE: N]` markers:
+  - Stage 1 (Focused Drill): Isolate one technique
+  - Stage 2 (Combination): Combine 2+ techniques
+  - Stage 3 (Mini-Draft): Short connected piece as assessment prep
 - **Assessment**: AI does NOT help during writing. Zero assistance. This is independent work.
 - **Feedback**: Strength first → ONE growth area → encouragement. Always quote the student's actual writing.
 
@@ -77,6 +83,8 @@ interface SessionState {
 interface PhaseState {
   instructionCompleted?: boolean;
   comprehensionCheckPassed?: boolean;
+  phase1Step?: number;       // 1-3, current step in instruction phase
+  guidedStage?: number;      // 1-3, current guided practice stage (Focused Drill → Combination → Mini-Draft)
   guidedAttempts?: number;
   hintsGiven?: number;
   guidedComplete?: boolean;
@@ -106,7 +114,8 @@ NEVER inline system prompts. NEVER skip the tier or phase inserts. See `src/lib/
 src/
 ├── lib/
 │   ├── llm/
-│   │   ├── client.ts             # Claude API singleton, sendMessage(), getCoachResponse()
+│   │   ├── provider.ts           # LLM provider abstraction (Anthropic/Google), llmSend(), getLLMConfig()
+│   │   ├── client.ts             # sendMessage() wrapper, getCoachResponse(), marker parsing
 │   │   ├── prompt-builder.ts     # Assembles system prompt from skill files
 │   │   ├── evaluator.ts          # Rubric-based + general writing evaluation
 │   │   ├── rubrics.ts            # Loads rubric JSON files
@@ -125,6 +134,7 @@ src/
 │   ├── api.ts                    # Client-side API helper (fetch wrappers)
 │   ├── curriculum.ts             # Public curriculum lookup (used by API routes)
 │   ├── curriculum-generator.ts   # AI-powered curriculum generation (Claude API)
+│   ├── learner-profile.ts        # buildLearnerProfile() + buildLearnerContext() — cross-lesson personalization
 │   ├── skill-map.ts              # SKILL_DEFINITIONS + getLessonSkills() + scoreToLevel()
 │   ├── progress-tracker.ts       # updateSkillProgress() — 70/30 rolling average
 │   ├── streak-tracker.ts         # updateStreak() — consecutive day + weekly tracking
@@ -260,9 +270,15 @@ lesson/[id]/page.tsx (orchestrator)
 client.ts → getCoachResponse()
   ├── calls: prompt-builder.ts → buildPromptFromSession()
   ├── calls: rubrics.ts → getRubric() + formatRubricForPrompt() (assessment/feedback phases)
-  ├── calls: Claude API via sendMessage()
-  ├── detects: [PHASE_TRANSITION], [COMPREHENSION_CHECK], [HINT_GIVEN] markers
+  ├── calls: provider.ts → llmSend() (routes to Anthropic or Google based on LLM_PROVIDER)
+  ├── detects: [PHASE_TRANSITION], [COMPREHENSION_CHECK], [HINT_GIVEN], [STEP], [GUIDED_STAGE] markers
+  ├── detects: [SCORES], [SAMPLE], [PREFERENCE] markers for learner profile data
   └── strips markers via stripPhaseMarkers() before returning clean text
+
+provider.ts → llmSend()
+  ├── reads: LLM_PROVIDER, LLM_MODEL env vars (defaults to anthropic + claude-sonnet-4-5-20250929)
+  ├── lazy-inits: Anthropic SDK or Google GenAI SDK singleton (unused provider never loaded)
+  └── ALL LLM API calls flow through here — no other file imports SDK clients directly
 
 prompt-builder.ts
   ├── reads: SKILL.md, tier_inserts.md, phase_prompts.md
@@ -321,9 +337,14 @@ The AI is instructed via `tier_inserts.md` to NOT start messages with the mascot
 10. NEVER skip comprehension check before moving to guided practice
 
 ### Structured Markers (AI outputs these, backend strips them)
+- `[STEP: N]` — tracks instruction phase step (1=Learn, 2=Practice, 3=Check)
 - `[PHASE_TRANSITION: guided]` / `[PHASE_TRANSITION: assessment]` — triggers phase change
 - `[COMPREHENSION_CHECK: passed]` — marks comprehension check passed
+- `[GUIDED_STAGE: N]` — tracks guided practice stage (1=Focused Drill, 2=Combination, 3=Mini-Draft)
 - `[HINT_GIVEN]` — tracks hint count
+- `[SCORES]criterion:score,...[/SCORES]` — learner profile scoring data
+- `[SAMPLE: type | criterion]excerpt[/SAMPLE]` — writing sample for learner profile
+- `[PREFERENCE: category | value]` — student preference for learner profile
 - All markers are stripped by `stripPhaseMarkers()` in `client.ts` before display
 
 **WARNING**: If you modify marker format, you MUST update BOTH:
@@ -409,6 +430,31 @@ Streak
 Achievement
 ├── childId + badgeId (unique)
 ├── unlockedAt (default now), seen (boolean, default false)
+
+LessonCompletion
+├── id (uuid), childId, lessonId
+├── completedAt, overallScore
+├── → LessonScore[]
+
+LessonScore
+├── id (uuid), lessonCompletionId
+├── criterion, score (Float)
+
+WritingSample
+├── id (uuid), childId, lessonId
+├── type (strength | growth), criterion, excerpt
+├── createdAt
+
+StudentPreference
+├── id (uuid), childId
+├── category (topic_interest | writing_habit | style_preference | favorite_genre)
+├── value, source (lesson_chat | placement | parent_input)
+├── createdAt
+
+LearnerProfileSnapshot
+├── id (uuid), childId (unique)
+├── profileData (JSON: full LearnerProfile object)
+├── totalLessons, lastComputedAt, updatedAt
 ```
 
 **Key rename**: All `studentId` columns are now `childId`. All `student` relations are now `child`.
@@ -606,3 +652,5 @@ Before considering any task complete, verify ALL of these:
 | 2026-02-11 | Phase 5: Achievement & Motivation System — Achievement model, 24 badges across 5 categories, badge checker with auto-unlock on submit, CelebrationOverlay with canvas-confetti, badge collection page, FeedbackView integration, recent badges on dashboard | prisma/schema.prisma, src/lib/badges.ts, src/lib/badge-checker.ts, src/app/api/children/[id]/badges/*, src/app/api/lessons/submit/route.ts, src/components/CelebrationOverlay.tsx, src/components/FeedbackView.tsx, src/app/lesson/[id]/page.tsx, src/app/badges/[childId]/page.tsx, src/app/page.tsx, src/lib/api.ts |
 | 2026-02-11 | Phase 6: Parent Dashboard & Curriculum Adaptation — Enhanced parent dashboard with streak/badge stats per child, progress report page with Recharts charts (bar chart, activity heatmap), CSV export, auto-curriculum adaptation (struggling/excelling/type weakness triggers), manual curriculum revision UI, submit hook for auto-adaptation | src/app/dashboard/page.tsx, src/app/dashboard/children/[id]/report/page.tsx, src/app/api/children/[id]/report/*, src/components/charts/*, src/lib/curriculum-adapter.ts, src/app/api/lessons/submit/route.ts, src/app/curriculum/[childId]/revise/page.tsx |
 | 2026-02-16 | Google OAuth — Added Google provider to Auth.js, passwordHash optional for OAuth-only users, Google sign-in buttons on login/signup pages, signIn callback with find-or-create user | prisma/schema.prisma, src/lib/auth.ts, src/app/auth/login/page.tsx, src/app/auth/signup/page.tsx |
+| 2026-02-17 | Configurable LLM provider — Added provider abstraction (Anthropic/Google Gemini) via env vars, removed duplicated SDK client instantiation from 6 files, all LLM calls now route through provider.ts | src/lib/llm/provider.ts (new), src/lib/llm/client.ts, src/lib/llm/index.ts, src/lib/curriculum-generator.ts, src/app/api/placement/start/route.ts, src/app/api/placement/submit/route.ts, src/app/api/curriculum/[childId]/revise/route.ts, scripts/run-evals.ts, .env.example, CLAUDE.md |
+| 2026-02-17 | Lesson template system (3 templates replacing 5-step masterclass), 3-stage guided practice, learner profile system (5 new DB tables), LLM provider abstraction | prisma/schema.prisma, src/types/index.ts, src/lib/learner-profile.ts (new), src/lib/llm/client.ts, src/lib/llm/prompt-builder.ts, src/lib/llm/provider.ts, src/lib/llm/curriculum.ts, src/lib/llm/content/SKILL.md, src/lib/llm/content/prompts/phase_prompts.md, src/lib/llm/content/prompts/tier_inserts.md, src/lib/llm/content/evals/evals.json, src/lib/llm/index.ts, src/components/InstructionPhase.tsx, src/components/GuidedPracticePhase.tsx, src/components/shared/index.ts, src/components/shared/AnswerCards.tsx (new), src/app/api/lessons/start/route.ts, src/app/api/lessons/message/route.ts, src/app/api/lessons/submit/route.ts, src/app/api/placement/start/route.ts, src/app/api/placement/submit/route.ts, src/app/api/curriculum/[childId]/revise/route.ts, src/lib/curriculum-generator.ts, scripts/run-evals.ts, tests/components/InstructionPhase.test.tsx, tests/setup/claude-mock.ts, tests/api/lessons/lesson-flow.test.ts, tests/api/lessons/lesson-start-edge-cases.test.ts, tests/e2e/lesson-lifecycle.test.ts, e2e/phase1-instruction.spec.ts, e2e/lesson-lifecycle.spec.ts, e2e/helpers.ts, CLAUDE.md |

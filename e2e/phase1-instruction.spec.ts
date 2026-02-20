@@ -8,7 +8,7 @@ import {
 } from "./helpers";
 
 /**
- * E2E test: Phase 1 Interactive 5-Step Masterclass
+ * E2E test: Phase 1 Interactive 3-Step Lesson Templates
  *
  * Tests the full instruction phase flow with live AI responses.
  * Uses SPA navigation (clicking links) to preserve React context,
@@ -20,34 +20,45 @@ import {
  *   - ANTHROPIC_API_KEY set in .env
  */
 
-async function navigateToAnyLesson(page: import("@playwright/test").Page) {
-  const lessonLink = page.locator('a[href^="/lesson/"]').first();
-  await lessonLink.click();
+async function navigateToFreshLesson(page: import("@playwright/test").Page) {
+  // Navigate directly to N1.2.1 — a completely fresh lesson with no seeded session or progress
+  // (N1.1.3 is seeded as in_progress/guided, lesson-lifecycle uses N1.3.1)
+  // page.goto() works because loginAndSelectMaya already set activeChild in localStorage
+  await page.goto("/lesson/N1.2.1");
+
+  // Wait for lesson-specific content (NOT "of 3" which also matches home page "2 of 3 done")
   await page.waitForFunction(
-    () => document.body.innerText.includes("of 5"),
+    () => {
+      const text = document.body.innerText;
+      return (
+        /Step \d of 3/.test(text) ||
+        text.includes("Start writing") ||
+        text.includes("Time to write")
+      );
+    },
     { timeout: 60_000 }
   );
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
+test.describe("Phase 1: Interactive 3-Template Lesson", () => {
   test("lesson loads with step progress bar showing Step 1", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
-    // Step progress bar should show "Step N of 5" (N may be > 1 if resuming)
-    const stepText = page.locator("text=/Step \\d of 5/");
-    await expect(stepText).toBeVisible();
+    // Step progress bar should show "Step N of 3" (N may be > 1 if resuming)
+    const stepText = page.locator("text=/Step \\d of 3/");
+    await expect(stepText).toBeVisible({ timeout: 15_000 });
 
-    // Should have 5 step dots in the progress bar
-    const stepDots = page.locator('[title="Intro"], [title="Learn"], [title="Read"], [title="Compare"], [title="Check"]');
-    await expect(stepDots).toHaveCount(5);
+    // Should have 3 step dots in the progress bar
+    const stepDots = page.locator('[title="Learn"], [title="Practice"], [title="Check"]');
+    await expect(stepDots).toHaveCount(3);
   });
 
   test("initial coach message renders and [STEP: N] marker is stripped", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // The [STEP: N] marker should NOT be visible in the rendered text
     const bodyText = await page.locator("body").innerText();
@@ -60,7 +71,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("interaction controls appear (QuickAnswerCard or Continue button)", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // Check if either QuickAnswerCard (input) or Continue button is visible
     const quickAnswer = page.getByPlaceholder("Type your answer...");
@@ -77,7 +88,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("submitting an answer shows typing indicator then AI response", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // Count current coach messages
     const initialText = await page.locator("body").innerText();
@@ -99,7 +110,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("multi-step interaction advances the step indicator", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // Get starting step
     const startStep = await getCurrentStep(page);
@@ -121,7 +132,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
     // If we advanced past the start step, verify the step indicator
     if (step > startStep) {
-      await expect(page.getByText(`Step ${step} of 5`)).toBeVisible();
+      await expect(page.getByText(`Step ${step} of 3`)).toBeVisible();
 
       // Step divider should have appeared
       const dividers = page.locator('[role="separator"]');
@@ -132,7 +143,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("Ask button opens and closes free-form chat input", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // Look for any Ask button variant
     const askBtn = page.getByRole("button", { name: /^Ask/ });
@@ -171,7 +182,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("student answer appears as completed card after submission", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     const quickAnswer = page.getByPlaceholder("Type your answer...");
     if (await quickAnswer.isVisible().catch(() => false)) {
@@ -200,7 +211,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
 
   test("free-form question gets AI response", async ({ page }) => {
     await loginAndSelectMaya(page);
-    await navigateToAnyLesson(page);
+    await navigateToFreshLesson(page);
 
     // First, handle any active QuickAnswerCard
     const quickAnswer = page.getByPlaceholder("Type your answer...");
@@ -224,7 +235,7 @@ test.describe("Phase 1: Interactive 5-Step Masterclass", () => {
       await waitForAIResponse(page);
 
       // Page should have the question and response
-      await expect(page.getByText("Can you give me another example of a hook?")).toBeVisible();
+      await expect(page.getByText("Can you give me another example of a hook?").first()).toBeVisible();
     }
   });
 });

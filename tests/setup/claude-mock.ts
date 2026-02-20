@@ -21,11 +21,12 @@ export const claudeMock = {
     comprehensionPassed: false,
     hintGiven: false,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
   }),
 
-  getInitialPrompt: vi.fn().mockResolvedValue(
-    'Welcome! Today we are going to learn about story hooks.'
-  ),
+  getInitialPrompt: vi.fn().mockResolvedValue({
+    message: 'Welcome! Today we are going to learn about story hooks.',
+  }),
 
   evaluateWriting: vi.fn().mockResolvedValue({
     scores: { hook: 4, character: 3, setting: 4, creativity: 5 },
@@ -60,6 +61,7 @@ export const COACH_RESPONSES = {
     comprehensionPassed: true,
     hintGiven: false,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
   },
   guidedWithHint: {
     message: 'Good try! Think about what would make a reader curious. What if something unexpected happened?',
@@ -68,6 +70,25 @@ export const COACH_RESPONSES = {
     comprehensionPassed: false,
     hintGiven: true,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
+  },
+  guidedStage2: {
+    message: 'Great work on the drill! Now let\'s combine what you\'ve learned.',
+    phaseUpdate: undefined,
+    assessmentReady: false,
+    comprehensionPassed: false,
+    hintGiven: false,
+    stepUpdate: undefined,
+    guidedStageUpdate: 2,
+  },
+  guidedStage3: {
+    message: 'You\'re doing amazing! Time for a mini-draft to put it all together.',
+    phaseUpdate: undefined,
+    assessmentReady: false,
+    comprehensionPassed: false,
+    hintGiven: false,
+    stepUpdate: undefined,
+    guidedStageUpdate: 3,
   },
   guidedToAssessment: {
     message: 'Excellent work on the practice! You\'re ready to write on your own now.',
@@ -76,6 +97,7 @@ export const COACH_RESPONSES = {
     comprehensionPassed: false,
     hintGiven: false,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
   },
   instructionToGuided: {
     message: 'You got it! Ready to try it together?',
@@ -84,6 +106,7 @@ export const COACH_RESPONSES = {
     comprehensionPassed: false,
     hintGiven: false,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
   },
 };
 
@@ -162,11 +185,12 @@ export function resetClaudeMock() {
     comprehensionPassed: false,
     hintGiven: false,
     stepUpdate: undefined,
+    guidedStageUpdate: undefined,
   });
 
-  claudeMock.getInitialPrompt.mockResolvedValue(
-    'Welcome! Today we are going to learn about story hooks.'
-  );
+  claudeMock.getInitialPrompt.mockResolvedValue({
+    message: 'Welcome! Today we are going to learn about story hooks.',
+  });
 
   claudeMock.evaluateWriting.mockResolvedValue(EVALUATION_RESPONSES.goodSubmission);
   claudeMock.evaluateWritingGeneral.mockResolvedValue(EVALUATION_RESPONSES.goodSubmission);
