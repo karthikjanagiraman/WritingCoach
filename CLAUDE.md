@@ -27,7 +27,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`) + CSS custom properties for tier-adaptive theming
 - **Database**: PostgreSQL via Prisma ORM (20 tables — User, ChildProfile, LessonProgress, Session, Assessment, PlacementDraft, PlacementResult, Curriculum, CurriculumWeek, CurriculumRevision, WritingSubmission, AIFeedback, SkillProgress, Streak, Achievement, LessonCompletion, LessonScore, WritingSample, StudentPreference, LearnerProfileSnapshot)
 - **Charts**: Recharts (skill radar chart, future progress charts)
-- **AI**: Configurable LLM provider — Anthropic Claude (default) or Google Gemini, via `src/lib/llm/provider.ts`. SDKs: `@anthropic-ai/sdk`, `@google/genai`
+- **AI**: Configurable LLM provider — Anthropic Claude (default), Google Gemini, or DeepInfra (Qwen), via `src/lib/llm/provider.ts`. SDKs: `@anthropic-ai/sdk`, `@google/genai`, `openai`
 - **Fonts**: Nunito (Tier 1), DM Sans (Tier 2), Sora (Tier 3), Literata (writing areas)
 - **Auth**: Auth.js v5 (`next-auth@beta` v5.0.0-beta.30) with credentials provider + Google OAuth, JWT sessions
 
@@ -35,7 +35,7 @@ WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. I
 **Dev command**: `npm run dev` (requires `ANTHROPIC_API_KEY` and `DATABASE_URL` in `.env`)
 **DB reset**: `npx prisma db push --force-reset && npx prisma db seed`
 **Seed data**: Seeds parent (`parent@example.com` / `password123`), Maya (age 8, tier 1) with placement + curriculum + lesson progress, Ethan (age 11, tier 2) without placement
-**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `LLM_PROVIDER` (optional, `anthropic`|`google`), `LLM_MODEL` (optional, overrides default model), `GOOGLE_AI_API_KEY` (required if `LLM_PROVIDER=google`)
+**Env vars**: `ANTHROPIC_API_KEY`, `DATABASE_URL` (PostgreSQL), `AUTH_SECRET`, `AUTH_URL=http://localhost:3000`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `LLM_PROVIDER` (optional, `anthropic`|`google`|`deepinfra`), `LLM_MODEL` (optional, overrides default model), `GOOGLE_AI_API_KEY` (required if `LLM_PROVIDER=google`), `DEEPINFRA_API_KEY` (required if `LLM_PROVIDER=deepinfra`)
 
 ---
 
@@ -114,7 +114,7 @@ NEVER inline system prompts. NEVER skip the tier or phase inserts. See `src/lib/
 src/
 ├── lib/
 │   ├── llm/
-│   │   ├── provider.ts           # LLM provider abstraction (Anthropic/Google), llmSend(), getLLMConfig()
+│   │   ├── provider.ts           # LLM provider abstraction (Anthropic/Google/DeepInfra), llmSend(), getLLMConfig()
 │   │   ├── client.ts             # sendMessage() wrapper, getCoachResponse(), marker parsing
 │   │   ├── prompt-builder.ts     # Assembles system prompt from skill files
 │   │   ├── evaluator.ts          # Rubric-based + general writing evaluation
@@ -277,7 +277,7 @@ client.ts → getCoachResponse()
 
 provider.ts → llmSend()
   ├── reads: LLM_PROVIDER, LLM_MODEL env vars (defaults to anthropic + claude-sonnet-4-5-20250929)
-  ├── lazy-inits: Anthropic SDK or Google GenAI SDK singleton (unused provider never loaded)
+  ├── lazy-inits: Anthropic SDK, Google GenAI SDK, or OpenAI SDK singleton (unused providers never loaded)
   └── ALL LLM API calls flow through here — no other file imports SDK clients directly
 
 prompt-builder.ts

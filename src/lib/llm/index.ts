@@ -5,6 +5,8 @@ export {
   sendMessage,
   sendMessageWithMeta,
   stripPhaseMarkers,
+  responseHasExpectedMarkers,
+  MARKER_RETRY_SYSTEM_PROMPT,
 } from "./client";
 export type { CoachResponse, CoachResponseWithMeta, LLMMeta } from "./client";
 

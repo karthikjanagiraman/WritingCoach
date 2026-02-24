@@ -44,6 +44,7 @@ export interface CoachResponseWithMeta extends CoachResponse {
   llmMeta: LLMMeta;
   rawResponse: string;
   systemPromptUsed: string;
+  retried?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -92,6 +93,150 @@ function convertHistory(
 }
 
 // ---------------------------------------------------------------------------
+// parseAnswerMarkers — shared answer marker extraction
+// ---------------------------------------------------------------------------
+interface ParsedAnswerMarkers {
+  answerType?: AnswerType;
+  answerOptions?: string[];
+  highlightPassage?: string;
+  answerPrompt?: string;
+}
+
+function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
+  const answerTypeMatch = text.match(
+    /\[ANSWER_TYPE:\s*(choice|multiselect|poll|order|highlight)\]/i
+  );
+  const answerType = answerTypeMatch
+    ? (answerTypeMatch[1].toLowerCase() as AnswerType)
+    : undefined;
+
+  const optionsMatch = text.match(/\[OPTIONS:\s*(.+?)\]/i);
+  const answerOptions = optionsMatch
+    ? optionsMatch[1].split("|").map((o) => o.trim().replace(/^"|"$/g, ""))
+    : undefined;
+
+  const passageMatch = text.match(/\[PASSAGE:\s*"([\s\S]+?)"\]/i);
+  const highlightPassage = passageMatch ? passageMatch[1] : undefined;
+
+  const answerPromptMatch = text.match(/\[ANSWER_PROMPT:\s*"?(.+?)"?\]/i);
+  const answerPrompt = answerPromptMatch ? answerPromptMatch[1].trim() : undefined;
+
+  return { answerType, answerOptions, highlightPassage, answerPrompt };
+}
+
+// ---------------------------------------------------------------------------
+// responseHasExpectedMarkers — check if response has at least one marker
+// ---------------------------------------------------------------------------
+export function responseHasExpectedMarkers(text: string, phase: Phase): boolean {
+  // Assessment and feedback phases don't need interactive markers
+  if (phase === "assessment" || phase === "feedback") return true;
+
+  // For instruction and guided phases, check for ANY valid marker
+  return (
+    /\[STEP:\s*\d\]/i.test(text) ||
+    /\[GUIDED_STAGE:\s*\d\]/i.test(text) ||
+    /\[ANSWER_TYPE:\s*\w+\]/i.test(text) ||
+    /\[WRITING_PROMPT:\s*"[^"]*"\]/i.test(text) ||
+    /\[EXPECTS_RESPONSE\]/i.test(text) ||
+    /\[COMPREHENSION_CHECK:\s*\w+\]/i.test(text) ||
+    /\[COMPREHENSION_CHECK_PASSED\]/i.test(text) ||
+    /\[PHASE_TRANSITION:\s*\w+\]/i.test(text) ||
+    /\[HINT_GIVEN\]/i.test(text)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// MARKER_RETRY_SYSTEM_PROMPT — sent on retry to add missing markers
+// ---------------------------------------------------------------------------
+export const MARKER_RETRY_SYSTEM_PROMPT = `You are a formatting assistant. The following response was written by a writing coach for a student, but it is missing required structured markers. Your job is to add the appropriate markers to the response WITHOUT changing any of the content, tone, or wording.
+
+Valid markers (add whichever are appropriate):
+
+- [STEP: N] — instruction phase step number (1=Learn, 2=Practice, 3=Check). Add at the start of the response.
+- [GUIDED_STAGE: N] — guided practice stage (1=Focused Drill, 2=Combination, 3=Mini-Draft). Add at the start.
+- [ANSWER_TYPE: choice] + [OPTIONS: "Option A" | "Option B" | "Option C"] + [ANSWER_PROMPT: "question text"] — when the response presents choices to the student
+- [ANSWER_TYPE: multiselect] + [OPTIONS: ...] + [ANSWER_PROMPT: ...] — when multiple answers can be selected
+- [WRITING_PROMPT: "prompt text"] — when asking the student to write something
+- [EXPECTS_RESPONSE] — when asking the student a free-text question (not a choice)
+- [COMPREHENSION_CHECK: passed] — when the student has correctly answered a comprehension check
+- [PHASE_TRANSITION: guided] — when transitioning from instruction to guided practice
+- [PHASE_TRANSITION: assessment] — when transitioning from guided to assessment
+- [HINT_GIVEN] — when providing a scaffold/hint to help the student
+
+Rules:
+1. Return the COMPLETE original response with markers inserted at the appropriate positions
+2. Do NOT change ANY of the content, tone, wording, or formatting
+3. Add markers that match what the response is doing (e.g., if it asks a question with options, add ANSWER_TYPE + OPTIONS + ANSWER_PROMPT)
+4. Place markers at the beginning of the response or inline where they logically belong
+5. If the response truly doesn't need any markers (e.g., a simple acknowledgment), return it unchanged`;
+
+// ---------------------------------------------------------------------------
+// mergeLLMMeta — combine metadata from two LLM calls
+// ---------------------------------------------------------------------------
+function mergeLLMMeta(a: LLMMeta, b: LLMMeta): LLMMeta {
+  return {
+    provider: a.provider,
+    model: a.model,
+    inputTokens:
+      a.inputTokens != null && b.inputTokens != null
+        ? a.inputTokens + b.inputTokens
+        : a.inputTokens ?? b.inputTokens,
+    outputTokens:
+      a.outputTokens != null && b.outputTokens != null
+        ? a.outputTokens + b.outputTokens
+        : a.outputTokens ?? b.outputTokens,
+    latencyMs: a.latencyMs + b.latencyMs,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// validateAndRetryMarkers — retry once if expected markers are missing
+// ---------------------------------------------------------------------------
+async function validateAndRetryMarkers(
+  responseText: string,
+  phase: Phase,
+  llmMeta: LLMMeta
+): Promise<{ text: string; llmMeta: LLMMeta; retried: boolean }> {
+  if (responseHasExpectedMarkers(responseText, phase)) {
+    return { text: responseText, llmMeta, retried: false };
+  }
+
+  try {
+    const retryMessages: Array<{ role: "user" | "assistant"; content: string }> = [
+      {
+        role: "user",
+        content: `Current phase: ${phase}\n\nResponse to add markers to:\n\n${responseText}`,
+      },
+    ];
+
+    const { text: retriedText, llmMeta: retryMeta } = await sendMessageWithMeta(
+      MARKER_RETRY_SYSTEM_PROMPT,
+      retryMessages,
+      2048
+    );
+
+    const merged = mergeLLMMeta(llmMeta, retryMeta);
+
+    if (responseHasExpectedMarkers(retriedText, phase)) {
+      if (process.env.NODE_ENV === "development") {
+        console.log(`[MARKER RETRY] Success — phase: ${phase}, added markers to response`);
+      }
+      return { text: retriedText, llmMeta: merged, retried: true };
+    }
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[MARKER RETRY] Failed — retry still missing markers, using original`);
+    }
+    return { text: responseText, llmMeta: merged, retried: false };
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[MARKER RETRY] Error — ${err instanceof Error ? err.message : err}`);
+    }
+    return { text: responseText, llmMeta, retried: false };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // getCoachResponse — full pipeline used by the API route
 // ---------------------------------------------------------------------------
 export async function getCoachResponse(
@@ -122,7 +267,8 @@ export async function getCoachResponse(
   const messages = convertHistory(session.conversationHistory);
   messages.push({ role: "user", content: studentMessage });
 
-  const { text: responseText, llmMeta } = await sendMessageWithMeta(systemPrompt, messages);
+  const { text: rawText, llmMeta: initialMeta } = await sendMessageWithMeta(systemPrompt, messages);
+  const { text: responseText, llmMeta, retried } = await validateAndRetryMarkers(rawText, session.phase, initialMeta);
 
   // Detect phase transition signals in the response
   const phaseUpdate = detectPhaseTransition(responseText, session.phase, lesson);
@@ -146,24 +292,8 @@ export async function getCoachResponse(
   const guidedStageMatch = responseText.match(/\[GUIDED_STAGE:\s*(\d)\]/i);
   const guidedStageUpdate = guidedStageMatch ? parseInt(guidedStageMatch[1], 10) : undefined;
 
-  // Detect answer type markers
-  const answerTypeMatch = responseText.match(
-    /\[ANSWER_TYPE:\s*(choice|multiselect|poll|order|highlight)\]/i
-  );
-  const answerType = answerTypeMatch
-    ? (answerTypeMatch[1].toLowerCase() as AnswerType)
-    : undefined;
-
-  const optionsMatch = responseText.match(/\[OPTIONS:\s*(.+?)\]/i);
-  const answerOptions = optionsMatch
-    ? optionsMatch[1].split("|").map((o) => o.trim().replace(/^"|"$/g, ""))
-    : undefined;
-
-  const passageMatch = responseText.match(/\[PASSAGE:\s*"([\s\S]+?)"\]/i);
-  const highlightPassage = passageMatch ? passageMatch[1] : undefined;
-
-  const answerPromptMatch = responseText.match(/\[ANSWER_PROMPT:\s*"?(.+?)"?\]/i);
-  const answerPrompt = answerPromptMatch ? answerPromptMatch[1].trim() : undefined;
+  // Detect answer type markers (shared helper)
+  const { answerType, answerOptions, highlightPassage, answerPrompt } = parseAnswerMarkers(responseText);
 
   // Parse learner profile data markers
   const scores = extractScores(responseText);
@@ -188,6 +318,7 @@ export async function getCoachResponse(
     llmMeta,
     rawResponse: responseText,
     systemPromptUsed: systemPrompt,
+    retried,
   };
 }
 
@@ -224,29 +355,14 @@ export async function getInitialPrompt(
     },
   ];
 
-  const { text: responseText, llmMeta } = await sendMessageWithMeta(systemPrompt, messages);
+  const { text: rawText, llmMeta: initialMeta } = await sendMessageWithMeta(systemPrompt, messages);
+  const { text: responseText, llmMeta, retried } = await validateAndRetryMarkers(rawText, "instruction", initialMeta);
 
-  // Parse markers the same way getCoachResponse does
+  // Parse markers
   const stepMatch = responseText.match(/\[STEP:\s*(\d)\]/i);
   const stepUpdate = stepMatch ? parseInt(stepMatch[1], 10) : undefined;
 
-  const answerTypeMatch = responseText.match(
-    /\[ANSWER_TYPE:\s*(choice|multiselect|poll|order|highlight)\]/i
-  );
-  const answerType = answerTypeMatch
-    ? (answerTypeMatch[1].toLowerCase() as AnswerType)
-    : undefined;
-
-  const optionsMatch = responseText.match(/\[OPTIONS:\s*(.+?)\]/i);
-  const answerOptions = optionsMatch
-    ? optionsMatch[1].split("|").map((o) => o.trim().replace(/^"|"$/g, ""))
-    : undefined;
-
-  const passageMatch = responseText.match(/\[PASSAGE:\s*"([\s\S]+?)"\]/i);
-  const highlightPassage = passageMatch ? passageMatch[1] : undefined;
-
-  const answerPromptMatch = responseText.match(/\[ANSWER_PROMPT:\s*"?(.+?)"?\]/i);
-  const answerPrompt = answerPromptMatch ? answerPromptMatch[1].trim() : undefined;
+  const { answerType, answerOptions, highlightPassage, answerPrompt } = parseAnswerMarkers(responseText);
 
   return {
     message: stripPhaseMarkers(responseText),
@@ -258,6 +374,7 @@ export async function getInitialPrompt(
     llmMeta,
     rawResponse: responseText,
     systemPromptUsed: systemPrompt,
+    retried,
   };
 }
 

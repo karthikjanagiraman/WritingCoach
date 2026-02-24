@@ -5,6 +5,15 @@
  * assembled prompt pipeline, then auto-grades each expectation using
  * a judge LLM call and prints a structured report.
  *
+ * Marker validation & retry scoring:
+ *   For instruction/guided phase evals, the runner checks whether the raw
+ *   LLM response contains required structured markers. If not, it runs the
+ *   marker retry prompt and re-checks. The report tracks:
+ *     - markersPresent: did the raw response have markers?
+ *     - retried: was a retry attempted?
+ *     - retryFixed: did the retry add the missing markers?
+ *   The summary includes aggregate marker stats and a retry success rate.
+ *
  * Usage:
  *   npx tsx scripts/run-evals.ts              # run all evals
  *   npx tsx scripts/run-evals.ts --id tier2   # run evals matching "tier2"
@@ -15,7 +24,12 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { llmSend, getLLMConfig } from "../src/lib/llm/provider";
+import {
+  responseHasExpectedMarkers,
+  MARKER_RETRY_SYSTEM_PROMPT,
+} from "../src/lib/llm/client";
 import type { LLMMessage } from "../src/lib/llm/provider";
+import type { Phase } from "../src/types";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -176,11 +190,27 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, baseDelay = 5000)
 }
 
 // ---------------------------------------------------------------------------
-// Run a single eval (generation)
+// Marker validation result
 // ---------------------------------------------------------------------------
-async function runEval(
-  evalCase: EvalCase
-): Promise<string> {
+interface MarkerResult {
+  /** Phase requires markers (instruction/guided = true, assessment/feedback = false) */
+  requiresMarkers: boolean;
+  /** Did the raw LLM response contain at least one expected marker? */
+  markersPresent: boolean;
+  /** Was a retry attempted because markers were missing? */
+  retried: boolean;
+  /** If retried, did the retry response contain markers? */
+  retryFixed: boolean;
+  /** The response text used for judging (retried text if retry succeeded, else raw) */
+  finalResponse: string;
+  /** Raw response before any retry */
+  rawResponse: string;
+}
+
+// ---------------------------------------------------------------------------
+// Run a single eval (generation + marker validation + optional retry)
+// ---------------------------------------------------------------------------
+async function runEval(evalCase: EvalCase): Promise<MarkerResult> {
   const systemPrompt = buildEvalPrompt(evalCase);
 
   const messages: LLMMessage[] = [];
@@ -213,10 +243,62 @@ async function runEval(
 
   messages.push({ role: "user", content: evalCase.prompt });
 
-  return withRetry(async () => {
+  const rawResponse = await withRetry(async () => {
     const result = await llmSend({ systemPrompt, messages });
     return result.text;
   });
+
+  const phase = ctx.current_phase as Phase;
+  const requiresMarkers = phase === "instruction" || phase === "guided";
+  const markersPresent = responseHasExpectedMarkers(rawResponse, phase);
+
+  // If markers are present or phase doesn't need them, no retry needed
+  if (markersPresent || !requiresMarkers) {
+    return {
+      requiresMarkers,
+      markersPresent,
+      retried: false,
+      retryFixed: false,
+      finalResponse: rawResponse,
+      rawResponse,
+    };
+  }
+
+  // Markers missing — attempt retry
+  let retryFixed = false;
+  let finalResponse = rawResponse;
+
+  try {
+    const retryResult = await withRetry(async () => {
+      const result = await llmSend({
+        systemPrompt: MARKER_RETRY_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: `Current phase: ${phase}\n\nResponse to add markers to:\n\n${rawResponse}`,
+          },
+        ],
+        maxTokens: 2048,
+      });
+      return result.text;
+    });
+
+    if (responseHasExpectedMarkers(retryResult, phase)) {
+      retryFixed = true;
+      finalResponse = retryResult;
+    }
+  } catch {
+    // Retry failed — use raw response
+  }
+
+  return {
+    requiresMarkers,
+    markersPresent,
+    retried: true,
+    retryFixed,
+    finalResponse,
+    rawResponse,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -344,6 +426,14 @@ interface EvalResult {
   totalExpectations: number;
   passed: boolean;
   error?: string;
+  // Marker validation fields
+  markers: {
+    requiresMarkers: boolean;
+    markersPresent: boolean;
+    retried: boolean;
+    retryFixed: boolean;
+  };
+  rawResponse?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -359,6 +449,10 @@ async function main() {
   }
   if (provider === "google" && !process.env.GOOGLE_AI_API_KEY) {
     console.error("Error: GOOGLE_AI_API_KEY environment variable is not set.");
+    process.exit(1);
+  }
+  if (provider === "groq" && !process.env.GROQ_API_KEY) {
+    console.error("Error: GROQ_API_KEY environment variable is not set.");
     process.exit(1);
   }
 
@@ -389,12 +483,12 @@ async function main() {
     let result: EvalResult;
 
     try {
-      // Step 1: Generate response
-      const response = await runEval(evalCase);
-      const wc = wordCount(response);
+      // Step 1: Generate response + marker validation + optional retry
+      const markerResult = await runEval(evalCase);
+      const wc = wordCount(markerResult.finalResponse);
 
-      // Step 2: Judge response
-      const judgments = await judgeResponse(evalCase, response);
+      // Step 2: Judge the final response (retried if retry succeeded, raw otherwise)
+      const judgments = await judgeResponse(evalCase, markerResult.finalResponse);
       const passCount = judgments.filter((j) => j.pass).length;
 
       result = {
@@ -402,12 +496,19 @@ async function main() {
         name: evalCase.name,
         phase: evalCase.context.current_phase,
         tier: evalCase.context.student_tier,
-        response,
+        response: markerResult.finalResponse,
         wordCount: wc,
         judgments,
         passCount,
         totalExpectations: evalCase.expectations.length,
         passed: passCount === evalCase.expectations.length,
+        markers: {
+          requiresMarkers: markerResult.requiresMarkers,
+          markersPresent: markerResult.markersPresent,
+          retried: markerResult.retried,
+          retryFixed: markerResult.retryFixed,
+        },
+        rawResponse: markerResult.retried ? markerResult.rawResponse : undefined,
       };
     } catch (err) {
       result = {
@@ -422,6 +523,12 @@ async function main() {
         totalExpectations: evalCase.expectations.length,
         passed: false,
         error: err instanceof Error ? err.message : String(err),
+        markers: {
+          requiresMarkers: false,
+          markersPresent: false,
+          retried: false,
+          retryFixed: false,
+        },
       };
     }
 
@@ -429,8 +536,23 @@ async function main() {
     const elapsed = ((Date.now() - start) / 1000).toFixed(1);
     const status = result.error ? "ERR" : result.passed ? "PASS" : "FAIL";
     const score = `${result.passCount}/${result.totalExpectations}`;
+
+    // Marker status suffix
+    let markerTag = "";
+    if (result.markers.requiresMarkers) {
+      if (result.markers.markersPresent) {
+        markerTag = " [markers: ok]";
+      } else if (result.markers.retryFixed) {
+        markerTag = " [markers: RETRY-FIXED]";
+      } else if (result.markers.retried) {
+        markerTag = " [markers: RETRY-FAILED]";
+      } else {
+        markerTag = " [markers: MISSING]";
+      }
+    }
+
     console.log(
-      `  [${completed}/${totalCount}] ${status} ${score}  ${evalCase.id} (${elapsed}s)`
+      `  [${completed}/${totalCount}] ${status} ${score}  ${evalCase.id} (${elapsed}s)${markerTag}`
     );
 
     results.push(result);
@@ -452,6 +574,19 @@ async function main() {
     console.log(`\n  ${status}  ${r.name} (${r.id})`);
     console.log(`  Phase: ${r.phase} | Tier: ${r.tier} | Words: ${r.wordCount}`);
 
+    // Marker status line
+    if (r.markers.requiresMarkers) {
+      if (r.markers.markersPresent) {
+        console.log(`  Markers: present in raw response`);
+      } else if (r.markers.retryFixed) {
+        console.log(`  Markers: MISSING in raw → FIXED by retry`);
+      } else if (r.markers.retried) {
+        console.log(`  Markers: MISSING in raw → retry also FAILED`);
+      } else {
+        console.log(`  Markers: MISSING (no retry attempted)`);
+      }
+    }
+
     if (r.error) {
       console.log(`  Error: ${r.error}`);
       continue;
@@ -462,6 +597,14 @@ async function main() {
       ? r.response.slice(0, 300) + "..."
       : r.response;
     console.log(`  Response: ${truncated.replace(/\n/g, "\n    ")}`);
+
+    // If retried, also show the raw response (truncated)
+    if (r.rawResponse) {
+      const rawTruncated = r.rawResponse.length > 200
+        ? r.rawResponse.slice(0, 200) + "..."
+        : r.rawResponse;
+      console.log(`  Raw (pre-retry): ${rawTruncated.replace(/\n/g, "\n    ")}`);
+    }
 
     // Print judgments
     for (const j of r.judgments) {
@@ -492,6 +635,43 @@ async function main() {
   console.log(`  Failed:       ${failed}`);
   console.log(`  Errors:       ${errored}`);
   console.log(`  Expectations: ${totalPassed}/${totalExpectations} (${((totalPassed / totalExpectations) * 100).toFixed(0)}%)\n`);
+
+  // ---------------------------------------------------------------------------
+  // Marker validation summary
+  // ---------------------------------------------------------------------------
+  const markerEvals = results.filter((r) => r.markers.requiresMarkers && !r.error);
+  const markersOk = markerEvals.filter((r) => r.markers.markersPresent).length;
+  const markersMissing = markerEvals.filter((r) => !r.markers.markersPresent).length;
+  const retriedCount = markerEvals.filter((r) => r.markers.retried).length;
+  const retryFixedCount = markerEvals.filter((r) => r.markers.retryFixed).length;
+  const retryFailedCount = retriedCount - retryFixedCount;
+
+  if (markerEvals.length > 0) {
+    console.log("  Marker Validation (instruction + guided phases):");
+    console.log(`    Evals requiring markers: ${markerEvals.length}`);
+    console.log(`    Markers present (raw):   ${markersOk}/${markerEvals.length} (${((markersOk / markerEvals.length) * 100).toFixed(0)}%)`);
+    if (retriedCount > 0) {
+      console.log(`    Missing → retried:       ${retriedCount}`);
+      console.log(`    Retry fixed:             ${retryFixedCount}/${retriedCount} (${((retryFixedCount / retriedCount) * 100).toFixed(0)}%)`);
+      console.log(`    Retry failed:            ${retryFailedCount}`);
+      const effectiveRate = markersOk + retryFixedCount;
+      console.log(`    Effective marker rate:    ${effectiveRate}/${markerEvals.length} (${((effectiveRate / markerEvals.length) * 100).toFixed(0)}%) — after retry`);
+    } else {
+      console.log(`    No retries needed — all raw responses had markers`);
+    }
+    console.log();
+
+    // List evals where markers were missing
+    const missingList = markerEvals.filter((r) => !r.markers.markersPresent);
+    if (missingList.length > 0) {
+      console.log("    Evals with missing markers:");
+      for (const r of missingList) {
+        const fixStatus = r.markers.retryFixed ? "FIXED by retry" : "NOT fixed";
+        console.log(`      - ${r.id} (${r.phase}) → ${fixStatus}`);
+      }
+      console.log();
+    }
+  }
 
   // Group by category
   const categories: Record<string, { pass: number; fail: number; total: number }> = {};
@@ -542,6 +722,20 @@ async function main() {
         errored,
         expectationsPass: totalPassed,
         expectationsTotal: totalExpectations,
+        markers: {
+          evalsRequiringMarkers: markerEvals.length,
+          markersPresent: markersOk,
+          markersMissing,
+          retried: retriedCount,
+          retryFixed: retryFixedCount,
+          retryFailed: retryFailedCount,
+          rawMarkerRate: markerEvals.length > 0
+            ? `${((markersOk / markerEvals.length) * 100).toFixed(1)}%`
+            : "N/A",
+          effectiveMarkerRate: markerEvals.length > 0
+            ? `${(((markersOk + retryFixedCount) / markerEvals.length) * 100).toFixed(1)}%`
+            : "N/A",
+        },
         results: results.map((r) => ({
           id: r.id,
           name: r.name,
@@ -549,8 +743,10 @@ async function main() {
           score: `${r.passCount}/${r.totalExpectations}`,
           wordCount: r.wordCount,
           response: r.response,
+          rawResponse: r.rawResponse,
           judgments: r.judgments,
           error: r.error,
+          markers: r.markers,
         })),
       },
       null,

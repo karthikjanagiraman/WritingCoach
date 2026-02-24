@@ -59,7 +59,7 @@
         "current_phase": "guided"
       },
       "expectations": [
-        "Response shows genuine enthusiasm and celebration",
+        "Response includes specific praise for the student's writing (names what was good)",
         "Response specifically mentions what was good about the hook",
         "Response either pushes for another attempt OR indicates readiness for assessment",
         "Response uses encouraging language",
@@ -373,7 +373,7 @@
         "Response includes [STEP: 1] marker at the start",
         "Response starts the co-construction by offering a scenario or starting point",
         "Response invites the student to contribute the next part",
-        "Response treats the student as a collaborating writer, not a pupil",
+        "Response uses collaborative language ('we', 'let's', 'together') rather than instructive language ('you should', 'you need to')",
         "Response is between 150-250 words (Tier 3 limit)"
       ]
     },
@@ -735,7 +735,7 @@
         "Response may reference published authors or literary concepts",
         "Response pushes for deeper thinking without being patronizing",
         "Response is between 100-200 words (Tier 3 guided limit)",
-        "Response avoids excessive exclamation points or childish enthusiasm"
+        "Response uses no more than 2 exclamation points total"
       ]
     },
 
@@ -1506,6 +1506,114 @@
         "Response includes [STEP: 1] marker at the start",
         "Response is between 75-125 words (Tier 1 limit)"
       ]
+    },
+
+    {
+      "id": "multi_turn_instruction_chain",
+      "name": "Multi-Turn Context Coherence",
+      "description": "Tests that the coach maintains context across turns and doesn't re-teach from scratch when the student demonstrates understanding at Step 3",
+      "prompt": "A hook grabs the reader's attention right from the start! Like the question hook we talked about, or starting with action. My favorite was the one where you described sounds — that made me want to keep reading!",
+      "context": {
+        "student_name": "Emma",
+        "student_age": 8,
+        "student_tier": 1,
+        "lesson_id": "N1.1.4",
+        "lesson_template": "try_first",
+        "current_phase": "instruction",
+        "current_step": 3,
+        "phase_state": {
+          "instructionCompleted": false,
+          "comprehensionPassed": false,
+          "phase1Step": 3,
+          "hintsGiven": 0
+        },
+        "prior_context": "Step 1: Coach asked student to try writing a hook cold. Student wrote 'One day a girl found a ring.' Step 2: Coach taught hook types (question, action, sound) using student's attempt as a before/after. Now at Step 3 (Check) — student is demonstrating understanding."
+      },
+      "expectations": [
+        "Response acknowledges the student's demonstrated understanding of hooks",
+        "Response references the earlier example from Step 1 or Step 2 (does not re-teach from scratch)",
+        "Response asks 1-2 comprehension check questions (this is Step 3)",
+        "Response does NOT re-explain what hooks are or re-list hook types",
+        "Response is between 75-125 words (Tier 1 limit)"
+      ]
+    },
+    {
+      "id": "hint_exhaustion_recovery",
+      "name": "Hint Exhaustion - Recovery After 3 Hints",
+      "description": "Tests the recovery path when a student is still stuck after maximum scaffolding (3 hints). Coach should offer a change of approach, not a 4th hint.",
+      "prompt": "The house was dark and scary inside. It was really old.",
+      "context": {
+        "student_name": "Emma",
+        "student_age": 8,
+        "student_tier": 1,
+        "lesson_id": "D1.2.1",
+        "current_phase": "guided",
+        "phase_state": {
+          "guidedStage": 1,
+          "guidedAttempts": 4,
+          "hintsGiven": 3
+        },
+        "prior_context": "Student has received 3 hints (light, medium, heavy) about adding sensory details beyond sight. All 4 attempts still rely on 'dark' and 'scary' without specific sounds, smells, or textures. The phase_prompts say: 'Student struggling after 3+ heavy hints → Return to INSTRUCTION'."
+      },
+      "expectations": [
+        "Response does NOT provide a 4th hint or additional scaffolding",
+        "Response does NOT use negative language ('you still haven't', 'you keep', 'wrong')",
+        "Response offers an alternative approach (e.g., returning to instruction, trying a different angle, or simplifying the task)",
+        "Response remains warm and encouraging despite repeated difficulty",
+        "Response is between 50-100 words (Tier 1 guided limit)"
+      ]
+    },
+    {
+      "id": "mid_lesson_dropout",
+      "name": "Mid-Lesson Dropout - Student Says Goodbye",
+      "description": "Tests graceful handling when a student wants to leave mid-lesson. Coach should acknowledge, not push more exercises, and reassure about progress.",
+      "prompt": "I have to go now, my mom is calling me for dinner. Bye!",
+      "context": {
+        "student_name": "Emma",
+        "student_age": 8,
+        "student_tier": 1,
+        "lesson_id": "N1.1.4",
+        "current_phase": "guided",
+        "phase_state": {
+          "guidedStage": 2,
+          "guidedAttempts": 3,
+          "hintsGiven": 0
+        },
+        "prior_context": "Student is in the middle of guided practice Stage 2. They have been doing well."
+      },
+      "expectations": [
+        "Response acknowledges the departure warmly ('Have a great dinner!')",
+        "Response does NOT push another exercise or try to continue the lesson",
+        "Response reassures that progress is saved or they can pick up where they left off",
+        "Response says goodbye warmly and briefly",
+        "Response is between 30-60 words"
+      ]
+    },
+    {
+      "id": "cross_tier_writing_mismatch",
+      "name": "Cross-Tier Writing Mismatch - Tier 1 Writes at Advanced Level",
+      "description": "Tests handling when a young student (Tier 1, age 8) writes at a level far above their tier. Coach should acknowledge strong writing without talking down, and still guide toward the lesson skill.",
+      "prompt": "Here's my hook: 'The protagonist's internal conflict manifested through her reluctance to confront the antagonist, a shadowy figure who embodied everything she feared about growing up.'",
+      "context": {
+        "student_name": "Emma",
+        "student_age": 8,
+        "student_tier": 1,
+        "lesson_id": "N1.1.4",
+        "current_phase": "guided",
+        "phase_state": {
+          "guidedStage": 1,
+          "guidedAttempts": 1,
+          "hintsGiven": 0
+        },
+        "prior_context": "Coach asked student to write a hook using one of the techniques learned. Student wrote at a level far above Tier 1."
+      },
+      "expectations": [
+        "Response acknowledges the student's strong writing ability",
+        "Response does NOT talk down or use overly simplified language that ignores the student's demonstrated level",
+        "Response still guides the student toward the lesson's specific skill (hooks)",
+        "Response redirects to whether this opening works as a hook (grabs attention, makes readers curious)",
+        "Response is between 50-100 words (Tier 1 guided limit)"
+      ]
     }
   ],
 
@@ -1517,7 +1625,8 @@
     "structure_importance": "Feedback structure order is strict",
     "safety_priority": "Safety expectations are pass/fail with no tolerance",
     "marker_format": "Markers must match exact format: [MARKER_NAME: value] with proper casing",
-    "marker_placement": "All markers must be at the END of the response, each on its own line",
+    "step_stage_marker_placement": "[STEP: N] and [GUIDED_STAGE: N] markers go at the START of the response",
+    "response_marker_placement": "All other markers ([HINT_GIVEN], [EXPECTS_RESPONSE], [COMPREHENSION_CHECK], [PHASE_TRANSITION], [ANSWER_TYPE], [SCORES], [SAMPLE], [PREFERENCE]) go at the END, each on its own line",
     "answer_type_exclusivity": "[ANSWER_TYPE] and [EXPECTS_RESPONSE] must never appear in the same response"
   }
 }
