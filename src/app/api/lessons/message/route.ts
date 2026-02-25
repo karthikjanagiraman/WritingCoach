@@ -98,7 +98,8 @@ export async function POST(request: NextRequest) {
       sessionState,
       lesson,
       message.trim(),
-      learnerContextStr
+      learnerContextStr,
+      session.child.name
     );
 
     // --- Event logging (fire-and-forget) ---
@@ -227,6 +228,15 @@ export async function POST(request: NextRequest) {
         childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
         eventType: "assessment_start", phase: "assessment",
       });
+    }
+
+    // Track answer type diversity in phaseState
+    if (coachResult.answerType) {
+      const used = phaseState.answerTypesUsed || [];
+      if (!used.includes(coachResult.answerType)) {
+        used.push(coachResult.answerType);
+      }
+      phaseState.answerTypesUsed = used;
     }
 
     // Build answer metadata if the LLM specified an answer type

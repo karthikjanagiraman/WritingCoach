@@ -115,8 +115,9 @@ function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
     ? optionsMatch[1].split("|").map((o) => o.trim().replace(/^"|"$/g, ""))
     : undefined;
 
-  const passageMatch = text.match(/\[PASSAGE:\s*"([\s\S]+?)"\]/i);
-  const highlightPassage = passageMatch ? passageMatch[1] : undefined;
+  // Accept both quoted [PASSAGE: "..."] and unquoted [PASSAGE: ...]
+  const passageMatch = text.match(/\[PASSAGE:\s*"?([\s\S]+?)"?\]/i);
+  const highlightPassage = passageMatch ? passageMatch[1].trim() : undefined;
 
   const answerPromptMatch = text.match(/\[ANSWER_PROMPT:\s*"?(.+?)"?\]/i);
   const answerPrompt = answerPromptMatch ? answerPromptMatch[1].trim() : undefined;
@@ -125,50 +126,58 @@ function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
 }
 
 // ---------------------------------------------------------------------------
-// responseHasExpectedMarkers — check if response has at least one marker
+// responseHasExpectedMarkers — check if response has required markers
 // ---------------------------------------------------------------------------
 export function responseHasExpectedMarkers(text: string, phase: Phase): boolean {
   // Assessment and feedback phases don't need interactive markers
   if (phase === "assessment" || phase === "feedback") return true;
 
-  // For instruction and guided phases, check for ANY valid marker
-  return (
-    /\[STEP:\s*\d\]/i.test(text) ||
-    /\[GUIDED_STAGE:\s*\d\]/i.test(text) ||
+  // Phase transitions are sufficient — the frontend handles the transition UI
+  if (/\[PHASE_TRANSITION:\s*\w+\]/i.test(text)) return true;
+
+  // Interactive markers — these give the student something to do
+  const hasInteractive =
     /\[ANSWER_TYPE:\s*\w+\]/i.test(text) ||
     /\[WRITING_PROMPT:\s*"[^"]*"\]/i.test(text) ||
-    /\[EXPECTS_RESPONSE\]/i.test(text) ||
-    /\[COMPREHENSION_CHECK:\s*\w+\]/i.test(text) ||
-    /\[COMPREHENSION_CHECK_PASSED\]/i.test(text) ||
-    /\[PHASE_TRANSITION:\s*\w+\]/i.test(text) ||
-    /\[HINT_GIVEN\]/i.test(text)
-  );
+    /\[EXPECTS_RESPONSE\]/i.test(text);
+
+  // State-only markers (STEP, GUIDED_STAGE, HINT_GIVEN, COMPREHENSION_CHECK)
+  // are NOT sufficient on their own — the student needs an interactive element
+  // to keep the conversation going. The retry layer will add one.
+  return hasInteractive;
 }
 
 // ---------------------------------------------------------------------------
 // MARKER_RETRY_SYSTEM_PROMPT — sent on retry to add missing markers
 // ---------------------------------------------------------------------------
-export const MARKER_RETRY_SYSTEM_PROMPT = `You are a formatting assistant. The following response was written by a writing coach for a student, but it is missing required structured markers. Your job is to add the appropriate markers to the response WITHOUT changing any of the content, tone, or wording.
+export const MARKER_RETRY_SYSTEM_PROMPT = `You are a formatting assistant. The following response was written by a writing coach for a student, but it is missing required interactive markers. Your job is to add the appropriate markers to the response WITHOUT changing any of the content, tone, or wording.
 
-Valid markers (add whichever are appropriate):
+CRITICAL REQUIREMENT: The response MUST end with an interactive marker so the student has something to do. State-tracking markers like [STEP] or [GUIDED_STAGE] alone are NOT enough.
 
-- [STEP: N] — instruction phase step number (1=Learn, 2=Practice, 3=Check). Add at the start of the response.
-- [GUIDED_STAGE: N] — guided practice stage (1=Focused Drill, 2=Combination, 3=Mini-Draft). Add at the start.
+Interactive markers (at least ONE required at the END of the response):
+
 - [ANSWER_TYPE: choice] + [OPTIONS: "Option A" | "Option B" | "Option C"] + [ANSWER_PROMPT: "question text"] — when the response presents choices to the student
 - [ANSWER_TYPE: multiselect] + [OPTIONS: ...] + [ANSWER_PROMPT: ...] — when multiple answers can be selected
+- [ANSWER_TYPE: poll] + [OPTIONS: "😕 Still learning" | "🤔 Getting there" | ...] + [ANSWER_PROMPT: "..."] — for opinion/confidence checks
+- [ANSWER_TYPE: order] + [OPTIONS: ...] + [ANSWER_PROMPT: "..."] — for ordering tasks
+- [ANSWER_TYPE: highlight] + [PASSAGE: "..."] + [ANSWER_PROMPT: "..."] — for tapping words in a passage
 - [WRITING_PROMPT: "prompt text"] — when asking the student to write something
 - [EXPECTS_RESPONSE] — when asking the student a free-text question (not a choice)
-- [COMPREHENSION_CHECK: passed] — when the student has correctly answered a comprehension check
-- [PHASE_TRANSITION: guided] — when transitioning from instruction to guided practice
-- [PHASE_TRANSITION: assessment] — when transitioning from guided to assessment
-- [HINT_GIVEN] — when providing a scaffold/hint to help the student
+
+State-tracking markers (add if appropriate, but NOT sufficient alone):
+
+- [STEP: N] — instruction phase step number (1=Learn, 2=Practice, 3=Check). Add at the start.
+- [GUIDED_STAGE: N] — guided practice stage (1-3). Add at the start.
+- [COMPREHENSION_CHECK: passed] — when student passed a comprehension check
+- [PHASE_TRANSITION: guided] or [PHASE_TRANSITION: assessment] — phase change
+- [HINT_GIVEN] — when providing a scaffold/hint
 
 Rules:
 1. Return the COMPLETE original response with markers inserted at the appropriate positions
 2. Do NOT change ANY of the content, tone, wording, or formatting
-3. Add markers that match what the response is doing (e.g., if it asks a question with options, add ANSWER_TYPE + OPTIONS + ANSWER_PROMPT)
-4. Place markers at the beginning of the response or inline where they logically belong
-5. If the response truly doesn't need any markers (e.g., a simple acknowledgment), return it unchanged`;
+3. If the response asks a question, add the appropriate interactive marker at the end
+4. If the response doesn't ask a question, add [EXPECTS_RESPONSE] at the end so the student can continue the conversation
+5. Prefer structured answer types (choice, multiselect, poll) over [EXPECTS_RESPONSE] when the response presents clear options`;
 
 // ---------------------------------------------------------------------------
 // mergeLLMMeta — combine metadata from two LLM calls
@@ -243,7 +252,8 @@ export async function getCoachResponse(
   session: SessionState,
   lesson: Lesson,
   studentMessage: string,
-  learnerContext?: string
+  learnerContext?: string,
+  studentName?: string
 ): Promise<CoachResponseWithMeta> {
   // Build rubric summary for assessment or feedback phase
   let rubricSummary: string | undefined;
@@ -258,7 +268,7 @@ export async function getCoachResponse(
   const systemPrompt = buildPromptFromSession(
     session,
     lesson,
-    undefined,
+    studentName,
     rubricSummary,
     learnerContext
   );
@@ -391,7 +401,7 @@ export async function generateCoachResponse(
     throw new Error(`Lesson not found: ${session.lessonId}`);
   }
 
-  const result = await getCoachResponse(session, lesson, studentMessage);
+  const result = await getCoachResponse(session, lesson, studentMessage, undefined, studentName);
   return result.message;
 }
 
@@ -485,7 +495,7 @@ export function stripPhaseMarkers(text: string): string {
     .replace(/\[HINT_GIVEN\]\s*/gi, "")
     .replace(/\[ANSWER_TYPE:\s*\w+\]\s*/gi, "")
     .replace(/\[OPTIONS:\s*.+?\]\s*/gi, "")
-    .replace(/\[PASSAGE:\s*"[\s\S]+?"\]\s*/gi, "")
+    .replace(/\[PASSAGE:\s*"?[\s\S]+?"?\]\s*/gi, "")
     .replace(/\[ANSWER_PROMPT:\s*[^\]]+?\]\s*/gi, "")
     .replace(/\[SCORES\][\s\S]+?\[\/SCORES\]\s*/gi, "")
     .replace(/\[SAMPLE:\s*[^\]]+?\][\s\S]+?\[\/SAMPLE\]\s*/gi, "")

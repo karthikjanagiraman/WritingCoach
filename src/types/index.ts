@@ -66,6 +66,7 @@ export interface PhaseState {
   guidedComplete?: boolean;
   writingStartedAt?: string;
   revisionsUsed?: number;
+  answerTypesUsed?: string[];  // tracks answer types used this session
 }
 
 export interface Message {

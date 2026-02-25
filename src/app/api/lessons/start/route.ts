@@ -165,12 +165,13 @@ export async function POST(request: NextRequest) {
       ...(answerMeta && { answerMeta }),
     };
 
+    const initialAnswerTypes = initialResult.answerType ? [initialResult.answerType] : [];
     const newSession = await prisma.session.create({
       data: {
         childId,
         lessonId,
         phase: "instruction" satisfies Phase,
-        phaseState: JSON.stringify({ phase1Step: 1 }),
+        phaseState: JSON.stringify({ phase1Step: 1, answerTypesUsed: initialAnswerTypes }),
         conversationHistory: JSON.stringify([initialMessage]),
       },
     });

@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
-import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
+import { evaluateWriting, extractTeachingContext } from "@/lib/llm";
+import { generateRubricFromLesson } from "@/lib/rubric-generator";
 import { validateSubmissionQuality } from "@/lib/submission-validator";
 import { updateSkillProgress } from "@/lib/progress-tracker";
 import { updateStreak } from "@/lib/streak-tracker";
@@ -11,7 +12,7 @@ import { checkAndUnlockBadges } from "@/lib/badge-checker";
 import { checkCurriculumAdaptation } from "@/lib/curriculum-adapter";
 import { buildLearnerProfile } from "@/lib/learner-profile";
 import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
-import type { Message, Tier, PhaseState } from "@/types";
+import type { Message, PhaseState } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,35 +98,40 @@ export async function POST(request: NextRequest) {
       eventData: { wordCount, timeSpentSec: timeSpentSec ?? null },
     });
 
-    // Evaluate the writing submission — with rubric if available, general otherwise
-    let result;
-    let rubricId: string | undefined;
-    let evalRequestType = "assessment_eval_general";
-
-    if (lesson.rubricId) {
-      const rubric = getRubricById(lesson.rubricId);
-      if (rubric) {
-        result = await evaluateWriting(
-          text.trim(),
-          rubric,
-          session.child.name,
-          session.child.tier,
-          lessonContext
-        );
-        rubricId = lesson.rubricId;
-        evalRequestType = "assessment_eval";
-      }
-    }
-
-    if (!result) {
-      // No rubric — use general evaluation
-      result = await evaluateWritingGeneral(
-        text.trim(),
-        session.child.tier as Tier,
-        lesson.title,
-        lessonContext
+    // Extract teaching context from conversation history (best-effort)
+    let teachingContext: string | undefined;
+    try {
+      const conversationHistory: Message[] = JSON.parse(session.conversationHistory);
+      const phaseState: PhaseState = JSON.parse(session.phaseState);
+      teachingContext = extractTeachingContext(
+        conversationHistory,
+        phaseState,
+        lesson.template
       );
+    } catch (err) {
+      console.error("Failed to extract teaching context:", err);
     }
+
+    // Evaluate the writing submission — explicit rubric or generated from objectives
+    let rubric = lesson.rubricId ? getRubricById(lesson.rubricId) : undefined;
+    let rubricId = lesson.rubricId;
+    let evalRequestType = "assessment_eval";
+
+    if (!rubric) {
+      // No hand-authored rubric — generate one from lesson objectives
+      rubric = generateRubricFromLesson(lesson);
+      rubricId = rubric.id;
+      evalRequestType = "assessment_eval_generated";
+    }
+
+    const result = await evaluateWriting(
+      text.trim(),
+      rubric,
+      session.child.name,
+      session.child.tier,
+      lessonContext,
+      teachingContext
+    );
 
     // Log the evaluation LLM interaction
     logLLMInteraction({
@@ -290,22 +296,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Build rubric info for the response (if available)
-    let rubricInfo = null;
-    if (rubricId && rubricId !== "general") {
-      const rubric = getRubricById(rubricId);
-      if (rubric) {
-        rubricInfo = {
-          id: rubric.id,
-          description: rubric.description,
-          criteria: rubric.criteria.map((c) => ({
-            name: c.name,
-            displayName: c.display_name,
-            weight: c.weight,
-          })),
-        };
-      }
-    }
+    // Build rubric info for the response
+    const rubricInfo = {
+      id: rubric.id,
+      description: rubric.description,
+      criteria: rubric.criteria.map((c) => ({
+        name: c.name,
+        displayName: c.display_name,
+        weight: c.weight,
+      })),
+    };
 
     return NextResponse.json({
       assessmentId: assessment.id,

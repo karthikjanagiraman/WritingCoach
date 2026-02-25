@@ -28,6 +28,7 @@ prisma/dev.db-journal
 # testing
 test-results/
 .playwright-mcp/
+eval-report.json
 
 # misc
 .DS_Store

@@ -144,11 +144,22 @@ async function sendAnthropic(options: LLMRequestOptions): Promise<LLMResult> {
   const resolvedModel = options.model || model;
   const maxTokens = options.maxTokens || DEFAULT_MAX_TOKENS.anthropic;
 
+  // Use prompt caching: mark the system prompt for caching so the ~8K token
+  // system prompt is reused across turns within a session (5-min TTL, auto-extended).
+  // Cached input tokens are billed at 90% discount ($0.30/MTok vs $3/MTok).
+  const systemWithCache = [
+    {
+      type: "text" as const,
+      text: options.systemPrompt,
+      cache_control: { type: "ephemeral" as const },
+    },
+  ];
+
   const start = Date.now();
   const response = await client.messages.create({
     model: resolvedModel,
     max_tokens: maxTokens,
-    system: options.systemPrompt,
+    system: systemWithCache,
     messages: options.messages,
   });
   const latencyMs = Date.now() - start;
@@ -159,6 +170,17 @@ async function sendAnthropic(options: LLMRequestOptions): Promise<LLMResult> {
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("No text content in Anthropic response");
   }
+
+  // Log cache performance in development
+  const usage = response.usage as Record<string, unknown>;
+  if (process.env.NODE_ENV === "development" && usage) {
+    const cacheRead = usage.cache_read_input_tokens ?? 0;
+    const cacheWrite = usage.cache_creation_input_tokens ?? 0;
+    if (cacheRead || cacheWrite) {
+      console.log(`[ANTHROPIC CACHE] read=${cacheRead} tokens, write=${cacheWrite} tokens`);
+    }
+  }
+
   return {
     text: (textBlock as { type: "text"; text: string }).text,
     provider: "anthropic",

@@ -89,6 +89,84 @@ export const PHASE_PROMPTS: Record<Phase, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// buildPhaseProgressContext — actionable phase-specific instructions
+// ---------------------------------------------------------------------------
+const ALL_ANSWER_TYPES = ["choice", "multiselect", "order", "highlight", "freeform"];
+
+function buildPhaseProgressContext(
+  phase: Phase,
+  ps?: PromptContext["phaseState"]
+): string {
+  if (!ps) return "";
+
+  if (phase === "instruction") {
+    const step = ps.phase1Step ?? 1;
+    const nextStep = Math.min(step + 1, 3);
+    const compStatus = ps.comprehensionPassed ? "PASSED" : "not yet passed";
+    const stepAdvice =
+      step < 3
+        ? `When you finish this step, emit \`[STEP: ${nextStep}]\` to advance.`
+        : "This is the final step. You MUST run a comprehension check now.";
+
+    let text = `## Phase Progress — Instruction
+
+You are on Step ${step} of 3. ${stepAdvice}
+Comprehension check status: ${compStatus}.`;
+
+    if (step === 3 || ps.comprehensionPassed !== undefined) {
+      text += `
+When the student passes the comprehension check, emit \`[COMPREHENSION_CHECK: passed]\` then \`[PHASE_TRANSITION: guided]\`.
+These markers are functional triggers that change the phase in the system — without them, the student stays stuck.`;
+    }
+
+    // Answer type diversity nudge
+    text += buildAnswerTypeDiversityNudge(ps.answerTypesUsed);
+
+    return text;
+  }
+
+  if (phase === "guided") {
+    const stage = ps.guidedStage ?? 1;
+    const nextStage = Math.min(stage + 1, 3);
+    const hints = ps.hintsGiven ?? 0;
+    const stageAdvice =
+      stage < 3
+        ? `When you finish this stage, emit \`[GUIDED_STAGE: ${nextStage}]\` to advance.`
+        : "This is the final stage. When the student completes their mini-draft satisfactorily, emit `[PHASE_TRANSITION: assessment]`.";
+
+    let text = `## Phase Progress — Guided Practice
+
+You are on Stage ${stage} of 3 (Focused Drill → Combination → Mini-Draft). ${stageAdvice}
+Hints used: ${hints}/3.
+These markers are functional triggers — without them, the student cannot proceed.`;
+
+    // Answer type diversity nudge
+    text += buildAnswerTypeDiversityNudge(ps.answerTypesUsed);
+
+    return text;
+  }
+
+  // Assessment and feedback phases don't need phase progress context
+  return "";
+}
+
+function buildAnswerTypeDiversityNudge(answerTypesUsed?: string[]): string {
+  const used = answerTypesUsed ?? [];
+  if (used.length === 0) return "";
+
+  const unused = ALL_ANSWER_TYPES.filter((t) => !used.includes(t));
+  const lastUsed = used[used.length - 1];
+
+  let nudge = `\n\nAnswer types used so far: [${used.join(", ")}].`;
+  if (unused.length > 0) {
+    nudge += `\nAvailable types you HAVEN'T used yet: ${unused.join(", ")}.`;
+  }
+  nudge += `\nRULE: You MUST use a different answer type than your last one (${lastUsed}). Prioritize unused types.`;
+
+  return nudge;
+}
+
+// ---------------------------------------------------------------------------
 // buildPrompt — assembles the full system prompt for a session + turn
 // ---------------------------------------------------------------------------
 export interface PromptContext {
@@ -109,6 +187,7 @@ export interface PromptContext {
     guidedAttempts?: number;
     hintsGiven?: number;
     assessmentSubmitted?: boolean;
+    answerTypesUsed?: string[];
   };
   rubricSummary?: string;
 }
@@ -160,20 +239,13 @@ SESSION BOUNDARY: You are teaching ONLY this lesson. Your responses MUST stay wi
     sessionContext += `\nLesson Template: ${context.lessonTemplate}`;
   }
 
-  if (context.phaseState) {
-    sessionContext += `
-
-Phase State:
-- Instruction completed: ${context.phaseState.instructionCompleted ?? false}
-- Comprehension check passed: ${context.phaseState.comprehensionPassed ?? false}
-- Phase 1 current step: ${context.phaseState.phase1Step ?? 1}
-- Guided practice stage: ${context.phaseState.guidedStage ?? 1}
-- Guided practice attempts: ${context.phaseState.guidedAttempts ?? 0}
-- Hints given: ${context.phaseState.hintsGiven ?? 0}
-- Assessment submitted: ${context.phaseState.assessmentSubmitted ?? false}`;
-  }
-
   parts.push(sessionContext);
+
+  // Phase progress context (actionable instructions instead of flat state dump)
+  const phaseProgress = buildPhaseProgressContext(context.phase, context.phaseState);
+  if (phaseProgress) {
+    parts.push(phaseProgress);
+  }
 
   // 5. Rubric context (assessment or feedback phase)
   if (
@@ -185,6 +257,28 @@ Phase State:
 Use this rubric to grade the student's submission:
 
 ${context.rubricSummary}`);
+  }
+
+  // Assessment boundary block — appended LAST for end-of-prompt recency
+  if (context.phase === "assessment") {
+    parts.push(`## CRITICAL: ASSESSMENT BOUNDARY — READ THIS LAST
+
+This is the INDEPENDENT WRITING phase. The student MUST write alone.
+
+PERMITTED responses (choose ONE per turn):
+1. INTRO: "Now it's your turn to write! [brief prompt]. Take your time — I'll read it when you're done."
+2. ENCOURAGEMENT ONLY: "You're doing great — keep going!" or "Take your time, there's no rush."
+
+FORBIDDEN — do NOT do ANY of these:
+- Give examples, suggestions, sentence starters, or story ideas
+- Ask questions about their writing approach or content
+- Provide structure, outlines, or organizational hints
+- Offer vocabulary, phrasing, or technique reminders
+- Reference anything taught in earlier phases
+
+If the student asks for help, say: "This is your chance to show what you've learned! Trust yourself — you've got this."
+
+ANY other response is a violation of the assessment protocol.`);
   }
 
   return parts.join("\n\n---\n\n");
@@ -217,6 +311,7 @@ export function buildPromptFromSession(
           guidedStage: session.phaseState.guidedStage,
           guidedAttempts: session.phaseState.guidedAttempts,
           hintsGiven: session.phaseState.hintsGiven,
+          answerTypesUsed: session.phaseState.answerTypesUsed,
         }
       : undefined,
     rubricSummary,

@@ -3,10 +3,11 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
 import { getRubricById } from "@/lib/rubrics";
-import { evaluateWriting, evaluateWritingGeneral } from "@/lib/llm";
+import { evaluateWriting, extractTeachingContext } from "@/lib/llm";
+import { generateRubricFromLesson } from "@/lib/rubric-generator";
 import { validateSubmissionQuality } from "@/lib/submission-validator";
 import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
-import type { Message, PhaseState, Tier } from "@/types";
+import type { Message, PhaseState } from "@/types";
 
 const MAX_REVISIONS = 2;
 
@@ -111,33 +112,33 @@ export async function POST(request: NextRequest) {
       eventData: { wordCount, revisionNumber: assessmentCount, timeSpentSec: timeSpentSec ?? null },
     });
 
-    // Evaluate the revised writing — with rubric if available, general otherwise
-    let result;
-    let rubricId: string | undefined;
-
-    if (lesson.rubricId) {
-      const rubric = getRubricById(lesson.rubricId);
-      if (rubric) {
-        result = await evaluateWriting(
-          text.trim(),
-          rubric,
-          session.child.name,
-          session.child.tier,
-          lessonContext
-        );
-        rubricId = lesson.rubricId;
-      }
+    // Extract teaching context from conversation history (best-effort)
+    let teachingContext: string | undefined;
+    try {
+      const convHistory: Message[] = JSON.parse(session.conversationHistory);
+      const pState: PhaseState = JSON.parse(session.phaseState);
+      teachingContext = extractTeachingContext(convHistory, pState, lesson.template);
+    } catch (err) {
+      console.error("Failed to extract teaching context:", err);
     }
 
-    if (!result) {
-      // No rubric — use general evaluation
-      result = await evaluateWritingGeneral(
-        text.trim(),
-        session.child.tier as Tier,
-        lesson.title,
-        lessonContext
-      );
+    // Evaluate the revised writing — explicit rubric or generated from objectives
+    let rubric = lesson.rubricId ? getRubricById(lesson.rubricId) : undefined;
+    let rubricId = lesson.rubricId;
+
+    if (!rubric) {
+      rubric = generateRubricFromLesson(lesson);
+      rubricId = rubric.id;
     }
+
+    const result = await evaluateWriting(
+      text.trim(),
+      rubric,
+      session.child.name,
+      session.child.tier,
+      lessonContext,
+      teachingContext
+    );
 
     logLLMInteraction({
       sessionId: session.id,
@@ -241,22 +242,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Build rubric info for the response (if available)
-    let rubricInfo = null;
-    if (rubricId && rubricId !== "general") {
-      const rubric = getRubricById(rubricId);
-      if (rubric) {
-        rubricInfo = {
-          id: rubric.id,
-          description: rubric.description,
-          criteria: rubric.criteria.map((c) => ({
-            name: c.name,
-            displayName: c.display_name,
-            weight: c.weight,
-          })),
-        };
-      }
-    }
+    // Build rubric info for the response
+    const rubricInfo = {
+      id: rubric.id,
+      description: rubric.description,
+      criteria: rubric.criteria.map((c) => ({
+        name: c.name,
+        displayName: c.display_name,
+        weight: c.weight,
+      })),
+    };
 
     return NextResponse.json({
       assessmentId: assessment.id,
