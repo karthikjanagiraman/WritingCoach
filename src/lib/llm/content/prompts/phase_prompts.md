@@ -224,6 +224,8 @@ ANSWER TYPE RULES:
 - VARY answer types across the lesson — do NOT default to choice every time
 - For choice/multiselect: 2-4 options (never more than 6)
 - For poll: always include emoji at the start of each option
+- Use `order` ONLY when the student must arrange items in a specific sequence (first to last, beginning to end). If the question asks the student to PICK, SELECT, or CHOOSE one item from a list, always use `choice` — never `order`.
+- The [ANSWER_TYPE] you emit MUST match what your prose asks. If your message says "which one" or "pick one", the type MUST be `choice`. If your message says "put in order" or "arrange", the type MUST be `order`.
 - All markers are automatically stripped from displayed text.
 
 COMPREHENSION CHECK (Step 3 only):
@@ -381,6 +383,8 @@ Every answer type MUST include [ANSWER_PROMPT].
 ANSWER TYPE RULES:
 - VARY types — do NOT default to choice every time
 - Keep options concise (1-5 words each)
+- Use `order` ONLY when the student must arrange items in a specific sequence (first to last, beginning to end). If the question asks the student to PICK, SELECT, or CHOOSE one item, always use `choice`.
+- The [ANSWER_TYPE] MUST match your prose. "Which one" / "pick one" → `choice`. "Put in order" / "arrange" → `order`.
 - All markers are stripped from displayed text
 
 SCAFFOLDING LEVELS (always end with [HINT_GIVEN] when scaffolding):

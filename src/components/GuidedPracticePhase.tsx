@@ -17,7 +17,7 @@ interface GuidedPracticePhaseProps {
 type InteractionState = "WAITING_FOR_COACH" | "ANSWER_ACTIVE" | "WRITING_ACTIVE" | "CONTINUE_ACTIVE";
 
 type ChatItem =
-  | { type: "coach"; id: string; message: Message; writingPrompt: string | null }
+  | { type: "coach"; id: string; message: Message; writingPrompt: string | null; isNew?: boolean }
   | { type: "quick-answer"; id: string; answer: string; completed: boolean; answerMeta?: AnswerMeta }
   | { type: "writing-response"; id: string; prompt: string; answer: string; completed: boolean }
   | { type: "stage-divider"; id: string; stage: number; label: string };
@@ -253,6 +253,7 @@ export default function GuidedPracticePhase({
   const [chatItems, setChatItems] = useState<ChatItem[]>([]);
   const [interactionState, setInteractionState] = useState<InteractionState>("WAITING_FOR_COACH");
   const [isTyping, setIsTyping] = useState(false);
+  const [isAnimatingText, setIsAnimatingText] = useState(false);
   const [isLoadingFirstQuestion, setIsLoadingFirstQuestion] = useState(false);
   const [fallbackIndex, setFallbackIndex] = useState(0);
   const [currentStage, setCurrentStage] = useState(1);
@@ -260,6 +261,7 @@ export default function GuidedPracticePhase({
   const scrollEndRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const needsAutoFetch = useRef(false);
+  const completeTypingRef = useRef<(() => void) | null>(null);
 
   // ─── Derived counts ──────────────────────────────────────────────────────
 
@@ -305,8 +307,10 @@ export default function GuidedPracticePhase({
         id: generateId(),
         message: cleanMessage,
         writingPrompt,
+        isNew: true,
       };
 
+      setIsAnimatingText(true);
       setChatItems((prev) => [...prev, coachItem]);
 
       const hasAnswerType = msg.answerMeta && msg.answerMeta.answerType !== "text";
@@ -468,6 +472,9 @@ export default function GuidedPracticePhase({
 
   const handleSubmit = useCallback(
     async (text: string) => {
+      // Instantly complete any in-progress typing animation
+      completeTypingRef.current?.();
+
       setChatItems((prev) => {
         const updated = [...prev];
         for (let i = updated.length - 1; i >= 0; i--) {
@@ -528,6 +535,9 @@ export default function GuidedPracticePhase({
   // ─── Continue handler (no-question coach statements) ────────────────────
 
   const handleContinue = useCallback(async () => {
+    // Instantly complete any in-progress typing animation
+    completeTypingRef.current?.();
+
     setInteractionState("WAITING_FOR_COACH");
     setIsTyping(true);
     if (onSendMessage) {
@@ -564,11 +574,18 @@ export default function GuidedPracticePhase({
                   case "coach":
                     return (
                       <div key={item.id} className="mb-2">
-                        <ChatBubble message={item.message} />
+                        <ChatBubble
+                          message={item.message}
+                          isNew={item.isNew}
+                          onTypingComplete={() => setIsAnimatingText(false)}
+                          completeRef={completeTypingRef}
+                        />
                       </div>
                     );
 
                   case "quick-answer":
+                    // Hide incomplete answer cards while text is still animating
+                    if (!item.completed && isAnimatingText) return null;
                     // Use structured answer cards when answerMeta specifies a non-text type
                     if (item.answerMeta && item.answerMeta.answerType !== "text") {
                       return item.completed ? (
@@ -576,7 +593,7 @@ export default function GuidedPracticePhase({
                           <AnswerCardCompleted answerMeta={item.answerMeta} answer={item.answer} />
                         </div>
                       ) : (
-                        <div key={item.id} className="mb-2">
+                        <div key={item.id} className="mb-2 animate-fade-in">
                           <AnswerCardActive answerMeta={item.answerMeta} onSubmit={handleSubmit} />
                         </div>
                       );
@@ -587,18 +604,20 @@ export default function GuidedPracticePhase({
                         <QuickAnswerCardCompleted answer={item.answer} />
                       </div>
                     ) : (
-                      <div key={item.id} className="mb-2">
+                      <div key={item.id} className="mb-2 animate-fade-in">
                         <QuickAnswerCardActive onSubmit={handleSubmit} />
                       </div>
                     );
 
                   case "writing-response":
+                    // Hide incomplete writing cards while text is still animating
+                    if (!item.completed && isAnimatingText) return null;
                     return item.completed ? (
                       <div key={item.id} className="my-2">
                         <WritingCardCompleted prompt={item.prompt} answer={item.answer} />
                       </div>
                     ) : (
-                      <div key={item.id} className="my-2">
+                      <div key={item.id} className="my-2 animate-fade-in">
                         <WritingCardActive prompt={item.prompt} onSubmit={handleSubmit} />
                       </div>
                     );

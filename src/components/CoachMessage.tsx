@@ -1,11 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
+import { useTypingEffect } from "./shared";
 
 interface CoachMessageProps {
   content: string;
+  isNew?: boolean;
+  onTypingComplete?: () => void;
+  completeRef?: React.MutableRefObject<(() => void) | null>;
 }
 
 const markdownComponents: Components = {
@@ -102,12 +107,30 @@ function stripLeadingMascot(text: string): string {
   return text.replace(/^(?:🦉|🦊|🐺)\s*/, "");
 }
 
-export default function CoachMessage({ content }: CoachMessageProps) {
+export default function CoachMessage({ content, isNew, onTypingComplete, completeRef }: CoachMessageProps) {
+  const cleaned = stripLeadingMascot(content);
+  const { displayedText, isTyping, complete } = useTypingEffect(cleaned, !!isNew);
+
+  // Expose complete() so parent can instant-finish the animation
+  useEffect(() => {
+    if (completeRef) completeRef.current = complete;
+  }, [complete, completeRef]);
+
+  // Notify parent when typing finishes
+  useEffect(() => {
+    if (!isTyping && displayedText === cleaned && onTypingComplete) {
+      onTypingComplete();
+    }
+  }, [isTyping, displayedText, cleaned, onTypingComplete]);
+
   return (
     <div className="coach-message text-[0.95rem] leading-relaxed">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {stripLeadingMascot(content)}
+        {displayedText}
       </ReactMarkdown>
+      {isTyping && (
+        <span className="inline-block w-[2px] h-[1em] bg-active-text/40 animate-pulse align-text-bottom ml-0.5" />
+      )}
     </div>
   );
 }

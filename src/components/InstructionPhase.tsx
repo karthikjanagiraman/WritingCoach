@@ -19,7 +19,7 @@ interface InstructionPhaseProps {
 // Internal types
 // ---------------------------------------------------------------------------
 type ChatItem =
-  | { type: "coach"; id: string; message: Message }
+  | { type: "coach"; id: string; message: Message; isNew?: boolean }
   | { type: "quick-answer"; id: string; answer: string; completed: boolean; answerMeta?: AnswerMeta }
   | { type: "step-divider"; id: string; step: number; label: string };
 
@@ -153,11 +153,13 @@ export default function InstructionPhase({
   const [chatItems, setChatItems] = useState<ChatItem[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [isTyping, setIsTyping] = useState(false);
+  const [isAnimatingText, setIsAnimatingText] = useState(false);
   const [showAskQuestion, setShowAskQuestion] = useState(false);
   const [questionInput, setQuestionInput] = useState("");
 
   const scrollEndRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
+  const completeTypingRef = useRef<(() => void) | null>(null);
 
   // Auto-scroll on new items
   useEffect(() => {
@@ -275,6 +277,9 @@ export default function InstructionPhase({
   // ── Submit handler (quick-answer card) ────────────────────────────────
   const handleSubmit = useCallback(
     async (text: string) => {
+      // Instantly complete any in-progress typing animation
+      completeTypingRef.current?.();
+
       // Mark latest quick-answer as completed
       setChatItems((prev) => {
         const updated = [...prev];
@@ -301,6 +306,8 @@ export default function InstructionPhase({
             const newStep = parsedStep ?? currentStep;
             const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
+            setIsAnimatingText(true);
+
             setChatItems((prev) => {
               const added: ChatItem[] = [];
 
@@ -318,6 +325,7 @@ export default function InstructionPhase({
                 type: "coach",
                 id: generateId(),
                 message: cleanMessage,
+                isNew: true,
               });
 
               if (hasAnswerType || expectsResponse) {
@@ -363,6 +371,9 @@ export default function InstructionPhase({
     setQuestionInput("");
     setShowAskQuestion(false);
 
+    // Instantly complete any in-progress typing animation
+    completeTypingRef.current?.();
+
     // Add student message
     const studentItem: ChatItem = {
       type: "quick-answer",
@@ -383,6 +394,8 @@ export default function InstructionPhase({
         const newStep = parsedStep ?? currentStep;
         const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
+        setIsAnimatingText(true);
+
         setChatItems((prev) => {
           const added: ChatItem[] = [];
 
@@ -400,6 +413,7 @@ export default function InstructionPhase({
             type: "coach",
             id: generateId(),
             message: cleanMessage,
+            isNew: true,
           });
 
           if (hasAnswerType || expectsResponse) {
@@ -435,6 +449,9 @@ export default function InstructionPhase({
   const handleContinue = useCallback(async () => {
     if (!onSendMessage || isTyping) return;
 
+    // Instantly complete any in-progress typing animation
+    completeTypingRef.current?.();
+
     const text = "I understand, please continue!";
     const studentItem: ChatItem = {
       type: "quick-answer",
@@ -455,6 +472,8 @@ export default function InstructionPhase({
         const newStep = parsedStep ?? currentStep;
         const hasAnswerType = coachResponse.answerMeta && coachResponse.answerMeta.answerType !== "text";
 
+        setIsAnimatingText(true);
+
         setChatItems((prev) => {
           const added: ChatItem[] = [];
 
@@ -472,6 +491,7 @@ export default function InstructionPhase({
             type: "coach",
             id: generateId(),
             message: cleanMessage,
+            isNew: true,
           });
 
           if (hasAnswerType || expectsResponse) {
@@ -510,11 +530,18 @@ export default function InstructionPhase({
               case "coach":
                 return (
                   <div key={item.id} className="mb-2 animate-fade-in">
-                    <ChatBubble message={item.message} />
+                    <ChatBubble
+                      message={item.message}
+                      isNew={item.isNew}
+                      onTypingComplete={() => setIsAnimatingText(false)}
+                      completeRef={completeTypingRef}
+                    />
                   </div>
                 );
 
               case "quick-answer":
+                // Hide incomplete answer cards while text is still animating
+                if (!item.completed && isAnimatingText) return null;
                 // Use structured answer cards when answerMeta specifies a non-text type
                 if (item.answerMeta && item.answerMeta.answerType !== "text") {
                   return item.completed ? (
@@ -522,7 +549,7 @@ export default function InstructionPhase({
                       <AnswerCardCompleted answerMeta={item.answerMeta} answer={item.answer} />
                     </div>
                   ) : (
-                    <div key={item.id} className="mb-2">
+                    <div key={item.id} className="mb-2 animate-fade-in">
                       <AnswerCardActive answerMeta={item.answerMeta} onSubmit={handleSubmit} />
                     </div>
                   );
@@ -533,7 +560,7 @@ export default function InstructionPhase({
                     <QuickAnswerCardCompleted answer={item.answer} />
                   </div>
                 ) : (
-                  <div key={item.id} className="mb-2">
+                  <div key={item.id} className="mb-2 animate-fade-in">
                     <QuickAnswerCardActive onSubmit={handleSubmit} />
                   </div>
                 );

@@ -102,11 +102,11 @@ interface ParsedAnswerMarkers {
   answerPrompt?: string;
 }
 
-function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
+export function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
   const answerTypeMatch = text.match(
     /\[ANSWER_TYPE:\s*(choice|multiselect|poll|order|highlight)\]/i
   );
-  const answerType = answerTypeMatch
+  let answerType = answerTypeMatch
     ? (answerTypeMatch[1].toLowerCase() as AnswerType)
     : undefined;
 
@@ -121,6 +121,30 @@ function parseAnswerMarkers(text: string): ParsedAnswerMarkers {
 
   const answerPromptMatch = text.match(/\[ANSWER_PROMPT:\s*"?(.+?)"?\]/i);
   const answerPrompt = answerPromptMatch ? answerPromptMatch[1].trim() : undefined;
+
+  // Validate: auto-correct `order` → `choice` when the prose indicates pick-one
+  if (answerType === "order") {
+    // Strip markers to get the natural language prose
+    const prose = text
+      .replace(/\[ANSWER_TYPE:[^\]]*\]/gi, "")
+      .replace(/\[ANSWER_PROMPT:[^\]]*\]/gi, "")
+      .replace(/\[OPTIONS:[^\]]*\]/gi, "")
+      .replace(/\[PASSAGE:[^\]]*\]/gi, "")
+      .toLowerCase();
+    const promptLower = (answerPrompt ?? "").toLowerCase();
+
+    // Pick-one signals in the prose or prompt
+    const pickOnePattern = /\bwhich one\b|\bpick one\b|\bchoose one\b|\bselect one\b|\bwhich .{0,20}sounds\b|\bwhich .{0,20}best\b|\bwhich .{0,20}most\b|\bwhich .{0,20}like\b/;
+    const isPickOne = pickOnePattern.test(prose) || pickOnePattern.test(promptLower);
+
+    // Order signals in the prompt
+    const orderPattern = /\border\b|\bsequence\b|\barrange\b|\bfirst.{0,15}last\b|\bbeginning.{0,15}end\b/;
+    const isOrder = orderPattern.test(promptLower);
+
+    if (isPickOne && !isOrder) {
+      answerType = "choice";
+    }
+  }
 
   return { answerType, answerOptions, highlightPassage, answerPrompt };
 }

@@ -7,9 +7,12 @@ import { useTier } from "@/contexts/TierContext";
 
 interface ChatBubbleProps {
   message: Message;
+  isNew?: boolean;
+  onTypingComplete?: () => void;
+  completeRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-export default function ChatBubble({ message }: ChatBubbleProps) {
+export default function ChatBubble({ message, isNew, onTypingComplete, completeRef }: ChatBubbleProps) {
   const isCoach = message.role === "coach";
   const { coachName } = useTier();
 
@@ -30,7 +33,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
         <div className="text-[0.72rem] font-bold text-[#3dbdb5] uppercase tracking-wide mb-[3px]">
           {coachName}
         </div>
-        <CoachMessage content={message.content} />
+        <CoachMessage content={message.content} isNew={isNew} onTypingComplete={onTypingComplete} completeRef={completeRef} />
       </div>
     </div>
   );

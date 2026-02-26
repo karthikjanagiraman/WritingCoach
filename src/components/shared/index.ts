@@ -5,3 +5,4 @@ export { default as ChatInput } from "./ChatInput";
 export { default as SectionLabel } from "./SectionLabel";
 export { QuickAnswerCardActive, QuickAnswerCardCompleted } from "./QuickAnswerCard";
 export { AnswerCardActive, AnswerCardCompleted } from "./AnswerCards";
+export { useTypingEffect } from "./TypingEffect";

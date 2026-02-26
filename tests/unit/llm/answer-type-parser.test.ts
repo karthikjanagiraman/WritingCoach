@@ -7,34 +7,20 @@
  * - Edge cases: malformed markers, empty options, mixed markers
  */
 import { describe, it, expect } from 'vitest';
-import { stripPhaseMarkers } from '@/lib/llm/client';
+import { stripPhaseMarkers, parseAnswerMarkers as realParseAnswerMarkers } from '@/lib/llm/client';
 
-// ---------------------------------------------------------------------------
-// Helper: replicates the parsing logic from getCoachResponse() in client.ts
-// ---------------------------------------------------------------------------
+// Wrap the real parser to match the simpler test interface
 function parseAnswerMarkers(text: string): {
   answerType: string | undefined;
   options: string[] | undefined;
   passage: string | undefined;
 } {
-  const answerTypeMatch = text.match(
-    /\[ANSWER_TYPE:\s*(choice|multiselect|poll|order|highlight)\]/i
-  );
-  const answerType = answerTypeMatch
-    ? answerTypeMatch[1].toLowerCase()
-    : undefined;
-
-  const optionsMatch = text.match(/\[OPTIONS:\s*(.+?)\]/i);
-  const options = optionsMatch
-    ? optionsMatch[1]
-        .split('|')
-        .map((o) => o.trim().replace(/^"|"$/g, ''))
-    : undefined;
-
-  const passageMatch = text.match(/\[PASSAGE:\s*"([\s\S]+?)"\]/i);
-  const passage = passageMatch ? passageMatch[1] : undefined;
-
-  return { answerType, options, passage };
+  const result = realParseAnswerMarkers(text);
+  return {
+    answerType: result.answerType,
+    options: result.answerOptions,
+    passage: result.highlightPassage,
+  };
 }
 
 // ===========================================================================
@@ -317,5 +303,82 @@ describe('parseAnswerMarkers — edge cases', () => {
     // .match() returns first match
     expect(answerType).toBe('choice');
     expect(options).toEqual(['A', 'B']);
+  });
+});
+
+// ===========================================================================
+// Order → choice auto-correction
+// ===========================================================================
+describe('parseAnswerMarkers — order → choice auto-correction', () => {
+  it('downgrades order to choice when prose says "which one"', () => {
+    const text = [
+      'Which one sounds most like your teacher?',
+      '',
+      '[ANSWER_TYPE: order]',
+      '[ANSWER_PROMPT: Pick the details that describe hair]',
+      '[OPTIONS: "Short and neat" | "Long and wavy" | "Bald and shiny"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('choice');
+  });
+
+  it('downgrades order to choice when prose says "pick one"', () => {
+    const text = [
+      'Pick one of these openings for your story.',
+      '',
+      '[ANSWER_TYPE: order]',
+      '[ANSWER_PROMPT: Choose your favorite]',
+      '[OPTIONS: "Once upon a time" | "It was a dark night" | "Hey, listen!"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('choice');
+  });
+
+  it('downgrades order to choice when prose says "which ... best"', () => {
+    const text = [
+      'Which description works best for this character?',
+      '',
+      '[ANSWER_TYPE: order]',
+      '[ANSWER_PROMPT: Pick the best description]',
+      '[OPTIONS: "Tall and brave" | "Shy and clever"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('choice');
+  });
+
+  it('keeps order when prompt explicitly asks for ordering', () => {
+    const text = [
+      'Put these story events in order from beginning to end.',
+      '',
+      '[ANSWER_TYPE: order]',
+      '[ANSWER_PROMPT: Put the story parts in order]',
+      '[OPTIONS: "Climax" | "Exposition" | "Resolution"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('order');
+  });
+
+  it('keeps order when prompt says "arrange"', () => {
+    const text = [
+      'Now arrange these sentences into a paragraph.',
+      '',
+      '[ANSWER_TYPE: order]',
+      '[ANSWER_PROMPT: Arrange the sentences]',
+      '[OPTIONS: "Topic sentence" | "Detail" | "Conclusion"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('order');
+  });
+
+  it('does not affect choice type (no false positive)', () => {
+    const text = [
+      'Which one do you like?',
+      '',
+      '[ANSWER_TYPE: choice]',
+      '[ANSWER_PROMPT: Pick your favorite]',
+      '[OPTIONS: "A" | "B" | "C"]',
+    ].join('\n');
+    const { answerType } = parseAnswerMarkers(text);
+    expect(answerType).toBe('choice');
   });
 });
