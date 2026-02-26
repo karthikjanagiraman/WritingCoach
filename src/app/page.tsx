@@ -1,13 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import styles from "./landing.module.css";
 
 export default function LandingPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/dashboard");
+    }
+  }, [status, router]);
   const [navScrolled, setNavScrolled] = useState(false);
   const navbarRef = useRef<HTMLElement>(null);
   const typingTextRef = useRef<HTMLDivElement>(null);
