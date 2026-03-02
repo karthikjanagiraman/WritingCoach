@@ -315,6 +315,7 @@ model LessonCompletion {
   timeSpentSec   Int?
   hintsUsed      Int      @default(0)
   guidedStages   Int      @default(0)
+  parentReport   String?  // JSON: ParentReportSections
 
   child  ChildProfile  @relation(fields: [childId], references: [id])
   scores LessonScore[]

@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getLessonById } from "@/lib/curriculum";
-import { sendMessageWithMeta } from "@/lib/llm";
-import { logLLMInteraction } from "@/lib/event-logger";
+import type { ParentReportSections } from "@/lib/email";
 
 export async function GET(
   request: NextRequest,
@@ -57,6 +56,20 @@ export async function GET(
       orderBy: { revisionNumber: "asc" },
     });
 
+    // Load stored parent report from LessonCompletion
+    let parentReport: ParentReportSections | null = null;
+    const lessonCompletion = await prisma.lessonCompletion.findFirst({
+      where: { childId, lessonId },
+      orderBy: { completedAt: "desc" },
+    });
+    if (lessonCompletion?.parentReport) {
+      try {
+        parentReport = JSON.parse(lessonCompletion.parentReport);
+      } catch {
+        // Corrupted JSON — treat as null
+      }
+    }
+
     // Parse assessment data
     let assessmentData = null;
     if (assessment) {
@@ -91,43 +104,6 @@ export async function GET(
         : null,
     }));
 
-    // Generate parent tips based on the growth area
-    let parentTips: string | null = null;
-    if (assessment) {
-      let parsedFeedback: { strength: string; growth: string; encouragement: string } | null = null;
-      try { parsedFeedback = JSON.parse(assessment.feedback); } catch { /* ignore */ }
-
-      if (parsedFeedback?.growth) {
-        try {
-          const prompt = `You are an educational consultant. A child (${child.name}, age ${child.age}) just completed a writing lesson called "${lesson.title}" (${lesson.type} writing).
-
-Their growth area from the assessment: "${parsedFeedback.growth}"
-Their strength: "${parsedFeedback.strength}"
-Score: ${assessment.overallScore}/4
-
-Provide 2-3 brief, specific suggestions for the parent to help reinforce this lesson at home. Be warm and practical. Each suggestion should be 1-2 sentences. Format as a numbered list.`;
-
-          const userMsg = "What can I do at home to help my child improve?";
-          const { text: tipsText, llmMeta } = await sendMessageWithMeta(prompt, [
-            { role: "user", content: userMsg },
-          ]);
-          parentTips = tipsText;
-
-          logLLMInteraction({
-            childId,
-            lessonId,
-            requestType: "lesson_report",
-            systemPrompt: prompt,
-            userMessage: userMsg,
-            rawResponse: tipsText,
-            llmResult: { text: tipsText, ...llmMeta },
-          });
-        } catch (err) {
-          console.error("Failed to generate parent tips:", err);
-        }
-      }
-    }
-
     return NextResponse.json({
       lesson: {
         id: lesson.id,
@@ -139,7 +115,8 @@ Provide 2-3 brief, specific suggestions for the parent to help reinforce this le
       status: progress?.status ?? "not_started",
       assessment: assessmentData,
       submissions: formattedSubmissions,
-      parentTips,
+      parentReport,
+      parentTips: null, // Deprecated — replaced by parentReport.growthPlan
     });
   } catch (error) {
     console.error("GET /api/children/[id]/report/[lessonId] error:", error);

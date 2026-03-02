@@ -286,6 +286,15 @@ export async function generateReportSummary(
   );
 }
 
+export interface ParentReportSections {
+  lessonJourney: string;
+  effortAssessment: string;
+  coachingHighlights: string;
+  writingAnalysis: string;
+  strengthsDeepDive: string;
+  growthPlan: string;
+}
+
 export interface LessonReportResponse {
   lesson: {
     id: string;
@@ -315,6 +324,7 @@ export interface LessonReportResponse {
       encouragement: string;
     } | null;
   }[];
+  parentReport: ParentReportSections | null;
   parentTips: string | null;
 }
 
@@ -325,4 +335,15 @@ export async function getLessonReport(
   return apiFetch<LessonReportResponse>(
     `/api/children/${encodeURIComponent(childId)}/report/${encodeURIComponent(lessonId)}`
   );
+}
+
+export async function generateLessonReport(
+  childId: string,
+  lessonId: string
+): Promise<ParentReportSections> {
+  const res = await apiFetch<{ parentReport: ParentReportSections }>(
+    `/api/children/${encodeURIComponent(childId)}/report/${encodeURIComponent(lessonId)}/generate`,
+    { method: "POST", headers: { "Content-Type": "application/json" } }
+  );
+  return res.parentReport;
 }

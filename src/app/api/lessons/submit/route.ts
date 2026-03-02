@@ -12,6 +12,7 @@ import { checkAndUnlockBadges } from "@/lib/badge-checker";
 import { checkCurriculumAdaptation } from "@/lib/curriculum-adapter";
 import { buildLearnerProfile } from "@/lib/learner-profile";
 import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
+import { isEmailConfigured, gatherLessonReportData, generateParentReport, sendLessonCompleteEmail } from "@/lib/email";
 import type { Message, PhaseState } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -276,6 +277,43 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       console.error("Failed to create lesson completion records:", err);
     }
+
+    // Generate LLM parent report, store it, and send email (fire-and-forget)
+    // Always generate (dashboard needs it), email only if configured
+    gatherLessonReportData(
+      session.childId,
+      session.lessonId,
+      lesson,
+      result,
+      wordCount,
+      newBadges,
+      { conversationHistory: session.conversationHistory, phaseState: session.phaseState },
+      text.trim()
+    )
+      .then(async (reportData) => {
+        if (!reportData) return;
+        // 1. Generate the LLM report sections (2 parallel calls)
+        let reportSections = await generateParentReport(reportData).catch((err) => {
+          console.error("[Report] LLM report generation failed:", err);
+          return null;
+        });
+        // 2. Store in LessonCompletion (best-effort)
+        if (reportSections) {
+          try {
+            await prisma.lessonCompletion.updateMany({
+              where: { childId: session.childId, lessonId: session.lessonId },
+              data: { parentReport: JSON.stringify(reportSections) },
+            });
+          } catch (err) {
+            console.error("[Report] Failed to store parentReport:", err);
+          }
+        }
+        // 3. Send email with pre-generated sections (if configured)
+        if (isEmailConfigured()) {
+          await sendLessonCompleteEmail(reportData, reportSections);
+        }
+      })
+      .catch((err) => console.error("[Report] Failed:", err));
 
     // Add feedback message to conversation history
     const conversationHistory: Message[] = JSON.parse(
