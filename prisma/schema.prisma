@@ -407,10 +407,22 @@ model Subscription {
   trialLessonsUsed   Int                @default(0)
   currentPeriodEnd   DateTime?
   cancelAtPeriodEnd  Boolean            @default(false)
+  accessCodeId       String?            // null = normal sub, set = code-activated
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model AccessCode {
+  id        String           @id @default(uuid())
+  code      String           @unique
+  plan      SubscriptionPlan @default(FAMILY_4)
+  maxUses   Int              @default(10)
+  usedCount Int              @default(0)
+  expiresAt DateTime?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
 }
 
 // ============================================

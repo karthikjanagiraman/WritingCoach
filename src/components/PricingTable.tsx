@@ -50,6 +50,7 @@ const PLANS = [
 export default function PricingTable({ compact }: PricingTableProps) {
   const [annual, setAnnual] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState("FAMILY_4");
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -111,11 +112,14 @@ export default function PricingTable({ compact }: PricingTableProps) {
           const priceKey = annual ? plan.priceKeyAnnual : plan.priceKeyMonthly;
           const isLoading = loadingPlan === priceKey;
 
+          const isSelected = selectedPlan === plan.key;
+
           return (
             <div
               key={plan.key}
-              className={`relative bg-white rounded-2xl p-6 shadow-sm border-2 transition-all hover:shadow-md flex flex-col ${
-                plan.popular
+              onClick={() => setSelectedPlan(plan.key)}
+              className={`relative bg-white rounded-2xl p-6 shadow-sm border-2 transition-all hover:shadow-md flex flex-col cursor-pointer ${
+                isSelected
                   ? "border-[#6C5CE7] ring-1 ring-[#6C5CE7]/20"
                   : "border-[#2D3436]/10 hover:border-[#6C5CE7]/30"
               }`}
@@ -158,9 +162,9 @@ export default function PricingTable({ compact }: PricingTableProps) {
                 onClick={() => handleSubscribe(priceKey)}
                 disabled={isLoading}
                 className={`w-full py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-auto ${
-                  plan.popular
+                  isSelected
                     ? "bg-[#6C5CE7] text-white hover:bg-[#5A4BD1] shadow-sm"
-                    : "border-2 border-[#6C5CE7]/30 text-[#6C5CE7] hover:bg-[#6C5CE7] hover:text-white hover:border-[#6C5CE7]"
+                    : "bg-[#6C5CE7]/10 text-[#6C5CE7] hover:bg-[#6C5CE7] hover:text-white"
                 }`}
               >
                 {isLoading ? "Redirecting..." : session?.user ? "Subscribe" : "Start Free Trial"}

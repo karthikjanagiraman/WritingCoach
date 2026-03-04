@@ -4,6 +4,97 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PricingTable from "@/components/PricingTable";
 
+function AccessCodeSection() {
+  const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  async function handleRedeem() {
+    if (!code.trim()) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/subscriptions/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim() }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
+      setSuccess(true);
+      setTimeout(() => router.push("/dashboard"), 1500);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="max-w-md mx-auto text-center py-6">
+        <div className="inline-flex items-center gap-2 px-5 py-3 bg-[#00B894]/10 text-[#00B894] rounded-2xl text-sm font-bold">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+          Code applied! Redirecting to dashboard...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-md mx-auto text-center py-6">
+      {!expanded ? (
+        <button
+          onClick={() => setExpanded(true)}
+          className="text-sm font-semibold text-[#6C5CE7] hover:text-[#5A4BD1] transition-colors underline underline-offset-2"
+        >
+          Have an access code?
+        </button>
+      ) : (
+        <div className="bg-white rounded-2xl border border-[#2D3436]/10 p-5 shadow-sm">
+          <p className="text-sm font-bold text-[#2D3436] mb-3">Enter your access code</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError(null);
+              }}
+              onKeyDown={(e) => e.key === "Enter" && handleRedeem()}
+              placeholder="e.g. FRIENDS2026"
+              className="flex-1 px-4 py-2.5 rounded-xl border border-[#2D3436]/10 text-sm font-semibold text-[#2D3436] placeholder:text-[#2D3436]/30 focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/30 focus:border-[#6C5CE7]"
+              disabled={loading}
+              autoFocus
+            />
+            <button
+              onClick={handleRedeem}
+              disabled={loading || !code.trim()}
+              className="px-5 py-2.5 bg-[#6C5CE7] text-white text-sm font-bold rounded-xl hover:bg-[#5A4BD1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Applying..." : "Apply"}
+            </button>
+          </div>
+          {error && (
+            <p className="mt-2 text-sm text-[#FF6B6B] font-semibold">{error}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const FAQ = [
   {
     q: "What happens during the free trial?",
@@ -67,6 +158,11 @@ export default function PricingPage() {
         {/* Pricing Cards */}
         <section className="animate-fade-in stagger-1">
           <PricingTable />
+        </section>
+
+        {/* Access Code */}
+        <section className="animate-fade-in stagger-1">
+          <AccessCodeSection />
         </section>
 
         {/* FAQ */}

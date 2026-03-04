@@ -515,6 +515,23 @@ async function main() {
     console.log(`  Week ${week.weekNumber}: ${week.theme} (${week.status})`);
   }
 
+  // ============================================
+  // Access Code for Friends & Family
+  // ============================================
+
+  await prisma.accessCode.upsert({
+    where: { code: "FRIENDS2026" },
+    update: {},
+    create: {
+      code: "FRIENDS2026",
+      plan: "FAMILY_4",
+      maxUses: 25,
+      usedCount: 0,
+      isActive: true,
+    },
+  });
+  console.log("Created access code: FRIENDS2026 (FAMILY_4, 25 uses)");
+
   console.log("Seed complete!");
 }
 
