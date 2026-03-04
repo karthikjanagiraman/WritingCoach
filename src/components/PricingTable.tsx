@@ -12,9 +12,9 @@ const PLANS = [
   {
     key: "FAMILY_2",
     name: "Family",
-    monthlyPrice: 7.99,
-    annualPrice: 71.88,
-    annualMonthly: 5.99,
+    monthlyPrice: 5.99,
+    annualPrice: 49.99,
+    annualMonthly: 4.17,
     children: 2,
     features: [
       "Up to 2 children",
@@ -29,9 +29,9 @@ const PLANS = [
   {
     key: "FAMILY_4",
     name: "Family Plus",
-    monthlyPrice: 9.99,
-    annualPrice: 89.88,
-    annualMonthly: 7.49,
+    monthlyPrice: 7.99,
+    annualPrice: 74.99,
+    annualMonthly: 6.25,
     children: 4,
     popular: true,
     features: [
@@ -99,7 +99,7 @@ export default function PricingTable({ compact }: PricingTableProps) {
         </span>
         {annual && (
           <span className="px-2.5 py-1 bg-[#00B894]/10 text-[#00B894] text-xs font-bold rounded-full">
-            Save 25%
+            Save 30%
           </span>
         )}
       </div>
