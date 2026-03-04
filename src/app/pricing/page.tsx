@@ -73,7 +73,7 @@ function AccessCodeSection() {
                 setError(null);
               }}
               onKeyDown={(e) => e.key === "Enter" && handleRedeem()}
-              placeholder="e.g. FRIENDS2026"
+              placeholder="Enter code"
               className="flex-1 px-4 py-2.5 rounded-xl border border-[#2D3436]/10 text-sm font-semibold text-[#2D3436] placeholder:text-[#2D3436]/30 focus:outline-none focus:ring-2 focus:ring-[#6C5CE7]/30 focus:border-[#6C5CE7]"
               disabled={loading}
               autoFocus

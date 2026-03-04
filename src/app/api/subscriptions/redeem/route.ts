@@ -93,7 +93,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, plan: accessCode.plan });
   } catch (error) {
-    console.error("POST /api/subscriptions/redeem error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("POST /api/subscriptions/redeem error:", msg);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
