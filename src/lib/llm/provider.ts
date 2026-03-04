@@ -172,7 +172,7 @@ async function sendAnthropic(options: LLMRequestOptions): Promise<LLMResult> {
   }
 
   // Log cache performance in development
-  const usage = response.usage as Record<string, unknown>;
+  const usage = response.usage as unknown as Record<string, unknown>;
   if (process.env.NODE_ENV === "development" && usage) {
     const cacheRead = usage.cache_read_input_tokens ?? 0;
     const cacheWrite = usage.cache_creation_input_tokens ?? 0;

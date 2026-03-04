@@ -444,6 +444,237 @@ function parseLLMJson<T extends Record<string, string>>(
 }
 
 // ---------------------------------------------------------------------------
+// Subscription email templates
+// ---------------------------------------------------------------------------
+
+export async function sendTrialWelcomeEmail(
+  parentEmail: string,
+  parentName: string,
+  childName?: string
+): Promise<boolean> {
+  const resend = getResend();
+  if (!resend) return false;
+
+  const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
+  const html = buildTrialWelcomeHtml(parentName, childName, dashboardUrl);
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+
+  try {
+    await resend.emails.send({
+      from: fromAddress,
+      to: parentEmail,
+      subject: childName
+        ? `Welcome to WriteWise Kids \u2014 ${childName}'s writing adventure starts now!`
+        : "Welcome to WriteWise Kids \u2014 Your free trial is ready!",
+      html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[Email] Failed to send trial welcome:", err);
+    return false;
+  }
+}
+
+export async function sendTrialExpiringEmail(
+  parentEmail: string,
+  parentName: string,
+  childNames: string[],
+  daysLeft: number,
+  lessonsCompleted: number
+): Promise<boolean> {
+  const resend = getResend();
+  if (!resend) return false;
+
+  const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
+  const html = buildTrialExpiringHtml(parentName, childNames, daysLeft, lessonsCompleted, dashboardUrl);
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+
+  try {
+    await resend.emails.send({
+      from: fromAddress,
+      to: parentEmail,
+      subject: `Your WriteWise Kids trial ends in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`,
+      html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[Email] Failed to send trial expiring:", err);
+    return false;
+  }
+}
+
+export async function sendSubscriptionConfirmedEmail(
+  parentEmail: string,
+  parentName: string,
+  planName: string,
+  childNames: string[]
+): Promise<boolean> {
+  const resend = getResend();
+  if (!resend) return false;
+
+  const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
+  const html = buildSubscriptionConfirmedHtml(parentName, planName, childNames, dashboardUrl);
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+
+  try {
+    await resend.emails.send({
+      from: fromAddress,
+      to: parentEmail,
+      subject: "You're all set! Unlimited writing adventures await",
+      html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[Email] Failed to send subscription confirmed:", err);
+    return false;
+  }
+}
+
+function buildTrialWelcomeHtml(parentName: string, childName: string | undefined, baseUrl: string): string {
+  const greeting = childName
+    ? `${childName}'s writing adventure starts now!`
+    : "Your family's writing adventure starts now!";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:24px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+  <tr><td style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E);padding:32px 24px;text-align:center;">
+    <p style="margin:0;font-size:36px;">&#9997;&#65039;</p>
+    <h1 style="margin:8px 0 0;font-size:22px;color:#fff;font-weight:700;">Welcome to WriteWise Kids!</h1>
+    <p style="margin:6px 0 0;font-size:15px;color:#ffe0e0;">${greeting}</p>
+  </td></tr>
+  <tr><td style="padding:32px 24px;">
+    <p style="margin:0 0 16px;font-size:16px;color:#374151;">Hi ${parentName},</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">Every child has a story worth telling. We're here to help them write it.</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#374151;line-height:1.6;">Your <strong>7-day free trial</strong> includes:</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:12px;margin-bottom:24px;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 8px;font-size:14px;color:#374151;">&#10003; 2 complete writing lessons with AI coaching</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#374151;">&#10003; Free placement assessment to find the perfect level</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#374151;">&#10003; Personalized curriculum recommendations</p>
+        <p style="margin:0;font-size:14px;color:#374151;">&#10003; Detailed progress reports for parents</p>
+      </td></tr>
+    </table>
+    <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.5;"><strong>Quick start:</strong> Add a child profile, take the placement assessment, and jump into the first lesson. The whole process takes about 15 minutes!</p>
+    <div style="text-align:center;">
+      <a href="${baseUrl}/dashboard" style="display:inline-block;padding:14px 32px;background:#FF6B6B;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Get Started</a>
+    </div>
+  </td></tr>
+  <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function buildTrialExpiringHtml(
+  parentName: string,
+  childNames: string[],
+  daysLeft: number,
+  lessonsCompleted: number,
+  baseUrl: string
+): string {
+  const childList = childNames.length > 0
+    ? childNames.join(" and ")
+    : "your child";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:24px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+  <tr><td style="background:linear-gradient(135deg,#FDCB6E,#F9A825);padding:32px 24px;text-align:center;">
+    <p style="margin:0;font-size:36px;">&#9203;</p>
+    <h1 style="margin:8px 0 0;font-size:22px;color:#fff;font-weight:700;">Your trial ends in ${daysLeft} day${daysLeft === 1 ? "" : "s"}</h1>
+  </td></tr>
+  <tr><td style="padding:32px 24px;">
+    <p style="margin:0 0 16px;font-size:16px;color:#374151;">Hi ${parentName},</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">${childList} ${childNames.length === 1 ? "has" : "have"} completed <strong>${lessonsCompleted} lesson${lessonsCompleted === 1 ? "" : "s"}</strong> so far. Don't let that progress go to waste!</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef3c7;border-radius:12px;border-left:4px solid #f59e0b;margin-bottom:24px;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#92400e;">What you'll lose without subscribing:</p>
+        <p style="margin:0 0 4px;font-size:14px;color:#78350f;">&#8226; Access to new lessons and AI coaching</p>
+        <p style="margin:0 0 4px;font-size:14px;color:#78350f;">&#8226; Streak progress and weekly goals</p>
+        <p style="margin:0;font-size:14px;color:#78350f;">&#8226; New skill development and badges</p>
+      </td></tr>
+    </table>
+    <p style="margin:0 0 24px;font-size:14px;color:#6b7280;">Your writing portfolio and progress data are always preserved, even after the trial ends.</p>
+    <div style="text-align:center;">
+      <a href="${baseUrl}/pricing" style="display:inline-block;padding:14px 32px;background:#6C5CE7;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Subscribe Now</a>
+      <p style="margin:10px 0 0;font-size:13px;color:#9ca3af;">Plans start at $5.99/mo (billed annually)</p>
+    </div>
+  </td></tr>
+  <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+function buildSubscriptionConfirmedHtml(
+  parentName: string,
+  planName: string,
+  childNames: string[],
+  baseUrl: string
+): string {
+  const childList = childNames.length > 0
+    ? childNames.map((n) => `<li style="margin:4px 0;font-size:14px;color:#374151;">${n}</li>`).join("")
+    : '<li style="margin:4px 0;font-size:14px;color:#6b7280;">No children added yet &mdash; <a href="' + baseUrl + '/dashboard/children/new" style="color:#6C5CE7;">add one now</a></li>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:24px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+  <tr><td style="background:linear-gradient(135deg,#6C5CE7,#a78bfa);padding:32px 24px;text-align:center;">
+    <p style="margin:0;font-size:36px;">&#127881;</p>
+    <h1 style="margin:8px 0 0;font-size:22px;color:#fff;font-weight:700;">You're all set!</h1>
+    <p style="margin:6px 0 0;font-size:15px;color:#e9d5ff;">${planName} plan activated</p>
+  </td></tr>
+  <tr><td style="padding:32px 24px;">
+    <p style="margin:0 0 16px;font-size:16px;color:#374151;">Hi ${parentName},</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">Thank you for subscribing! Your family now has <strong>unlimited access</strong> to all writing lessons, AI coaching, and progress tracking.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:12px;margin-bottom:24px;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#166534;text-transform:uppercase;">What's unlocked</p>
+        <p style="margin:0 0 4px;font-size:14px;color:#374151;">&#10003; Unlimited lessons across all writing types</p>
+        <p style="margin:0 0 4px;font-size:14px;color:#374151;">&#10003; AI-powered coaching with personalized feedback</p>
+        <p style="margin:0 0 4px;font-size:14px;color:#374151;">&#10003; Detailed parent reports after every lesson</p>
+        <p style="margin:0;font-size:14px;color:#374151;">&#10003; Skill tracking, badges, and streaks</p>
+      </td></tr>
+    </table>
+    <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#374151;">Your writers:</p>
+    <ul style="margin:0 0 24px;padding-left:20px;">${childList}</ul>
+    <div style="text-align:center;">
+      <a href="${baseUrl}/dashboard" style="display:inline-block;padding:14px 32px;background:#6C5CE7;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">Go to Dashboard</a>
+    </div>
+  </td></tr>
+  <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#d1d5db;">Manage your subscription from your <a href="${baseUrl}/dashboard" style="color:#9ca3af;">dashboard</a>.</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+// ---------------------------------------------------------------------------
 // HTML helpers
 // ---------------------------------------------------------------------------
 

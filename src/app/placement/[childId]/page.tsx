@@ -303,6 +303,19 @@ export default function PlacementAssessmentPage() {
       <QuestCharacterDefs />
       <AmbientParticles trialIndex={step} />
 
+      {/* Back to dashboard */}
+      <div className="relative" style={{ zIndex: 2 }}>
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.8rem] font-semibold text-[#2D3436]/40 hover:text-[#2D3436]/70 hover:bg-white/50 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Dashboard
+        </button>
+      </div>
+
       {/* Main layout */}
       <div
         className="flex mx-auto relative"

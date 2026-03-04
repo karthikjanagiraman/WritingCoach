@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { createTrialSubscription } from "@/lib/subscription";
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,6 +62,13 @@ export async function POST(request: NextRequest) {
         role: "PARENT",
       },
     });
+
+    // Auto-create trial subscription for new users
+    try {
+      await createTrialSubscription(user.id);
+    } catch (err) {
+      console.error("Failed to create trial subscription:", err);
+    }
 
     return NextResponse.json({ userId: user.id }, { status: 201 });
   } catch {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import UpgradeBanner from "@/components/UpgradeBanner";
 
 const AVATAR_OPTIONS = [
   "\uD83E\uDD89", // owl
@@ -30,6 +31,7 @@ export default function NewChildPage() {
   const [avatarEmoji, setAvatarEmoji] = useState(AVATAR_OPTIONS[0]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,6 +64,9 @@ export default function NewChildPage() {
 
       if (!res.ok) {
         const errData = await res.json();
+        if (res.status === 403 && errData.upgradeRequired) {
+          setUpgradeRequired(true);
+        }
         throw new Error(errData.error || "Failed to create child profile");
       }
 
@@ -102,8 +107,13 @@ export default function NewChildPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm font-medium mb-6">
-            {error}
+          <div className="space-y-3 mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm font-medium">
+              {error}
+            </div>
+            {upgradeRequired && (
+              <UpgradeBanner variant="child_limit" />
+            )}
           </div>
         )}
 

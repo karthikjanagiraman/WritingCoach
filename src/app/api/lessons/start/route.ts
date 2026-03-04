@@ -9,6 +9,7 @@ import {
   formatLearnerContextForPrompt,
 } from "@/lib/learner-profile";
 import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
+import { canStartLesson, incrementTrialLessonCount } from "@/lib/subscription";
 import type { Message, Phase, AnswerMeta } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -127,6 +128,23 @@ export async function POST(request: NextRequest) {
 
     // ── No existing session — create a new one ──────────────────────
 
+    // Subscription gate: check lesson limit before creating a new session
+    const lessonCheck = await canStartLesson(session.user.userId!);
+    if (!lessonCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: lessonCheck.reason === "LESSON_LIMIT"
+            ? "You've used all your free trial lessons. Subscribe to continue learning!"
+            : "Your subscription has expired. Please subscribe to start lessons.",
+          code: lessonCheck.reason,
+          upgradeRequired: true,
+          lessonsUsed: lessonCheck.lessonsUsed,
+          lessonsLimit: lessonCheck.lessonsLimit,
+        },
+        { status: 403 }
+      );
+    }
+
     // Build learner context for personalization (non-blocking on failure)
     let learnerContextStr: string | undefined;
     try {
@@ -197,6 +215,9 @@ export async function POST(request: NextRequest) {
         ...initialResult.llmMeta,
       },
     });
+
+    // Increment trial lesson counter (no-op for paid plans)
+    await incrementTrialLessonCount(session.user.userId!);
 
     // Upsert lesson progress to "in_progress"
     await prisma.lessonProgress.upsert({

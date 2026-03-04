@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
+import { useSubscription } from "@/hooks/useSubscription";
+import UpgradeBanner from "@/components/UpgradeBanner";
 
 interface ChildData {
   id: string;
@@ -42,6 +45,7 @@ export default function ParentDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [childStatuses, setChildStatuses] = useState<Record<string, ChildStatus>>({});
   const [childExtraStats, setChildExtraStats] = useState<Record<string, ChildExtraStats>>({});
+  const { isTrialing, isExpired, daysRemaining, lessonsRemaining, subscription } = useSubscription();
 
   useEffect(() => {
     fetch("/api/children")
@@ -155,6 +159,86 @@ export default function ParentDashboard() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm font-medium">
             {error}
+          </div>
+        )}
+
+        {/* Subscription Banners */}
+        {isExpired && (
+          <UpgradeBanner variant="expired" />
+        )}
+        {isTrialing && daysRemaining !== null && daysRemaining <= 3 && !isExpired && (
+          <UpgradeBanner variant="trial_expiring" daysRemaining={daysRemaining} />
+        )}
+
+        {/* Always-visible trial progress card */}
+        {isTrialing && !isExpired && (
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#FDCB6E]/30 animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-bold text-[#2D3436]">Your Free Trial</h4>
+              <Link
+                href="/pricing"
+                className="text-xs font-bold text-[#6C5CE7] hover:underline"
+              >
+                See Plans &rarr;
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  {[0, 1].map((i) => (
+                    <div
+                      key={i}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        i < (subscription?.trialLessonsUsed ?? 0)
+                          ? "bg-[#FF6B6B] text-white"
+                          : "bg-[#2D3436]/5 text-[#2D3436]/30"
+                      }`}
+                    >
+                      {i < (subscription?.trialLessonsUsed ?? 0) ? "\u2713" : i + 1}
+                    </div>
+                  ))}
+                  <span className="text-xs text-[#2D3436]/50 ml-1">
+                    {subscription?.trialLessonsUsed ?? 0} of 2 lessons used
+                  </span>
+                </div>
+                <p className="text-xs text-[#2D3436]/40">
+                  {daysRemaining !== null && daysRemaining > 0
+                    ? `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining`
+                    : "Trial ending today"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subscription Badge */}
+        {subscription && (
+          <div className="flex items-center gap-2 animate-fade-in">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+              subscription.effectiveStatus === "ACTIVE"
+                ? "bg-[#00B894]/10 text-[#00B894]"
+                : subscription.effectiveStatus === "TRIALING"
+                ? "bg-[#FDCB6E]/20 text-[#B7950B]"
+                : "bg-[#2D3436]/10 text-[#2D3436]/50"
+            }`}>
+              {subscription.effectiveStatus === "ACTIVE" && subscription.plan === "FAMILY_2" && "Family Plan"}
+              {subscription.effectiveStatus === "ACTIVE" && subscription.plan === "FAMILY_4" && "Family Plus"}
+              {subscription.effectiveStatus === "TRIALING" && `Free Trial \u00B7 ${daysRemaining ?? 0}d left`}
+              {subscription.effectiveStatus === "EXPIRED" && "Trial Expired"}
+              {subscription.effectiveStatus === "CANCELED" && "Canceled"}
+            </span>
+            {subscription.effectiveStatus === "ACTIVE" && (
+              <button
+                onClick={async () => {
+                  const res = await fetch("/api/subscriptions/portal", { method: "POST" });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                }}
+                className="text-xs font-semibold text-[#2D3436]/40 hover:text-[#2D3436]/60 transition-colors"
+              >
+                Manage
+              </button>
+            )}
           </div>
         )}
 

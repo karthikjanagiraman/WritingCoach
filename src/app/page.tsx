@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import styles from "./landing.module.css";
+import PricingTable from "@/components/PricingTable";
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
@@ -227,17 +228,26 @@ export default function LandingPage() {
                 Pricing
               </a>
             </li>
-            <li>
-              {session ? (
+            {session ? (
+              <li>
                 <Link href="/dashboard" className={styles.navCta}>
                   Go to Dashboard
                 </Link>
-              ) : (
-                <Link href="/auth/signup" className={styles.navCta}>
-                  Free Assessment
-                </Link>
-              )}
-            </li>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <Link href="/auth/login" className={styles.navLogin}>
+                    Log In
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/auth/signup" className={styles.navCta}>
+                    Get Started Free
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
           <button
             className={styles.mobileMenuBtn}
@@ -275,6 +285,10 @@ export default function LandingPage() {
                 See how it works <span>&#8595;</span>
               </a>
             </div>
+            <p className={styles.heroLoginHint}>
+              Already have an account?{" "}
+              <Link href="/auth/login">Log in</Link>
+            </p>
           </div>
           <div className={styles.heroVisual}>
             <div className={styles.notebookCard}>
@@ -866,7 +880,7 @@ export default function LandingPage() {
       </section>
 
       {/* ===== THE METHOD ===== */}
-      <section className={styles.method} id="pricing">
+      <section className={styles.method} id="method">
         <div className={styles.container}>
           <div className={`${styles.methodText} ${styles.animateOnScroll}`}>
             <p>
@@ -903,6 +917,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ===== PRICING ===== */}
+      <section className={styles.pricingSection} id="pricing">
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>Pricing</span>
+            <h2 className={styles.sectionTitle}>
+              Simple, family-friendly pricing
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Start free. See real progress before you pay.
+            </p>
+          </div>
+          <div className={styles.pricingWrapper}>
+            <PricingTable compact />
+          </div>
+          <div
+            className={`${styles.pricingTrust} ${styles.animateOnScroll}`}
+          >
+            <div className={styles.pricingTrustItem}>
+              <span className={styles.pricingTrustIcon}>&#128737;</span>
+              <span>7-day free trial</span>
+            </div>
+            <div className={styles.pricingTrustItem}>
+              <span className={styles.pricingTrustIcon}>&#10003;</span>
+              <span>Cancel anytime</span>
+            </div>
+            <div className={styles.pricingTrustItem}>
+              <span className={styles.pricingTrustIcon}>&#128179;</span>
+              <span>No credit card required</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== FINAL CTA ===== */}
       <section className={styles.finalCta} id="cta">
         <div className={styles.container}>
@@ -912,8 +962,8 @@ export default function LandingPage() {
           <p
             className={`${styles.finalCtaSub} ${styles.animateOnScroll} ${styles.delay1}`}
           >
-            A free 5-minute placement assessment shows you exactly where your
-            child is — and where they can go.
+            Start with a free placement assessment, then explore 2 full writing
+            lessons — all free for 7 days.
           </p>
           <div
             className={`${styles.animateOnScroll} ${styles.delay2}`}
@@ -923,13 +973,19 @@ export default function LandingPage() {
               className={styles.btnPrimary}
               style={{ fontSize: "19px", padding: "18px 40px" }}
             >
-              Start the Free Assessment {"\u2192"}
+              Get Started Free {"\u2192"}
             </Link>
           </div>
           <p
             className={`${styles.finalCtaNote} ${styles.animateOnScroll} ${styles.delay3}`}
           >
-            No credit card required. Takes 5 minutes.
+            Free assessment + 2 lessons. No credit card required.
+          </p>
+          <p
+            className={`${styles.finalCtaLogin} ${styles.animateOnScroll} ${styles.delay3}`}
+          >
+            Already a member?{" "}
+            <Link href="/auth/login">Log in here</Link>
           </p>
         </div>
       </section>
@@ -952,6 +1008,15 @@ export default function LandingPage() {
             </li>
             <li>
               <a href="#">Contact</a>
+            </li>
+            <li>
+              <Link href="/pricing">Pricing</Link>
+            </li>
+            <li>
+              <Link href="/auth/login">Log In</Link>
+            </li>
+            <li>
+              <Link href="/auth/signup">Sign Up</Link>
             </li>
           </ul>
           <p className={styles.footerCopy}>

@@ -20,6 +20,7 @@ import {
   type LessonDetailResponse,
 } from "@/lib/api";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
+import UpgradeBanner from "@/components/UpgradeBanner";
 
 export default function LessonPage() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function LessonPage() {
   const [newBadges, setNewBadges] = useState<string[]>([]);
   const [isCompletedReview, setIsCompletedReview] = useState(false);
   const [qualityError, setQualityError] = useState<string | null>(null);
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
 
   useEffect(() => {
     if (!activeChild) {
@@ -77,7 +79,12 @@ export default function LessonPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to start lesson");
+          if (err instanceof ApiError && err.status === 403 && err.body.upgradeRequired) {
+            setUpgradeRequired(true);
+            setError(err.message);
+          } else {
+            setError(err instanceof Error ? err.message : "Failed to start lesson");
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -211,6 +218,11 @@ export default function LessonPage() {
             <CoachAvatar size="lg" />
           </div>
           <p className="mt-4 text-active-primary font-semibold">{error}</p>
+          {upgradeRequired && (
+            <div className="mt-4">
+              <UpgradeBanner variant="lessons_used" lessonsRemaining={0} />
+            </div>
+          )}
           <div className="mt-4 flex gap-3 justify-center">
             <button
               onClick={() => router.push("/home")}
@@ -218,12 +230,22 @@ export default function LessonPage() {
             >
               Go Home
             </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-5 py-2.5 rounded-xl bg-active-primary text-white font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
-            >
-              Try Again
-            </button>
+            {!upgradeRequired && (
+              <button
+                onClick={() => window.location.reload()}
+                className="px-5 py-2.5 rounded-xl bg-active-primary text-white font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
+              >
+                Try Again
+              </button>
+            )}
+            {upgradeRequired && (
+              <button
+                onClick={() => router.push("/pricing")}
+                className="px-5 py-2.5 rounded-xl bg-[#6C5CE7] text-white font-bold text-sm hover:bg-[#5A4BD1] transition-colors shadow-sm"
+              >
+                See Plans
+              </button>
+            )}
           </div>
         </div>
       </div>

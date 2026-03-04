@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import bcryptjs from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { authConfig } from "@/lib/auth.config";
+import { createTrialSubscription } from "@/lib/subscription";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -59,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         let dbUser = await prisma.user.findUnique({
           where: { email: user.email!.toLowerCase() },
         });
+        let isNewUser = false;
         if (!dbUser) {
           dbUser = await prisma.user.create({
             data: {
@@ -67,9 +69,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: "PARENT",
             },
           });
+          isNewUser = true;
         }
         user.id = dbUser.id;
         (user as Record<string, unknown>).role = dbUser.role;
+
+        // Auto-create trial subscription for new Google OAuth users
+        if (isNewUser) {
+          try {
+            await createTrialSubscription(dbUser.id);
+          } catch (err) {
+            console.error("Failed to create trial subscription for OAuth user:", err);
+          }
+        }
       }
       return true;
     },

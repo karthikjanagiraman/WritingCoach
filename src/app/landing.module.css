@@ -239,6 +239,16 @@
 
 .navCta::after { display: none !important; }
 
+.navLogin {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--charcoal) !important;
+  transition: color 0.2s ease;
+}
+
+.navLogin:hover { color: var(--coral) !important; }
+.navLogin::after { display: none !important; }
+
 .mobileMenuBtn {
   display: none;
   background: none;
@@ -363,6 +373,22 @@
 }
 
 .btnSecondaryLink:hover { color: var(--coral); }
+
+.heroLoginHint {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--gray-400);
+}
+
+.heroLoginHint a {
+  color: var(--coral);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.heroLoginHint a:hover {
+  color: var(--coral-dark);
+}
 
 .heroVisual {
   animation: slideInRight 0.8s ease 0.2s forwards;
@@ -1242,6 +1268,38 @@
   color: var(--gray-300);
 }
 
+/* ===== PRICING ===== */
+.pricingSection {
+  padding: 100px 24px;
+  background: var(--white);
+}
+
+.pricingWrapper {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.pricingTrust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.pricingTrustItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.pricingTrustIcon {
+  font-size: 18px;
+}
+
 /* ===== FINAL CTA ===== */
 .finalCta {
   padding: 120px 24px;
@@ -1287,6 +1345,22 @@
   margin-top: 16px;
   font-size: 14px;
   color: var(--gray-400);
+}
+
+.finalCtaLogin {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.finalCtaLogin a {
+  color: var(--coral);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.finalCtaLogin a:hover {
+  color: var(--coral-dark);
 }
 
 /* ===== FOOTER ===== */
@@ -1393,6 +1467,11 @@
   .insightGrid {
     grid-template-columns: 1fr;
     gap: 48px;
+  }
+
+  .pricingTrust {
+    flex-direction: column;
+    gap: 16px;
   }
 
   .sectionTitle { font-size: 30px; }

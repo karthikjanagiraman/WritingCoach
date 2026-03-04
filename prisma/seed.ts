@@ -20,6 +20,22 @@ async function main() {
   });
   console.log(`Created parent: ${parent.name} (${parent.id})`);
 
+  // Create a FAMILY_2 subscription for the demo parent (active, so seeded data works without limits)
+  const trialEndsAt = new Date();
+  trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+  await prisma.subscription.upsert({
+    where: { userId: parent.id },
+    update: {},
+    create: {
+      userId: parent.id,
+      plan: "FAMILY_2",
+      status: "ACTIVE",
+      trialEndsAt: null,
+      trialLessonsUsed: 0,
+    },
+  });
+  console.log(`Created subscription for ${parent.name}`);
+
   // Create child profile: Maya, age 8, Tier 1
   const maya = await prisma.childProfile.upsert({
     where: { id: "child-maya-001" },

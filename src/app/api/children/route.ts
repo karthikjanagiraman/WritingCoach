@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { canCreateChild } from "@/lib/subscription";
 
 function computeTier(age: number): number {
   if (age <= 9) return 1;
@@ -51,6 +52,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Age must be between 7 and 15" },
         { status: 400 }
+      );
+    }
+
+    // Subscription gate: check child limit
+    const childCheck = await canCreateChild(session.user.userId);
+    if (!childCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: childCheck.reason === "CHILD_LIMIT"
+            ? `Your plan allows up to ${childCheck.limit} children. Upgrade for more.`
+            : "Your subscription has expired. Please subscribe to add children.",
+          code: childCheck.reason,
+          upgradeRequired: true,
+          currentCount: childCheck.currentCount,
+          limit: childCheck.limit,
+        },
+        { status: 403 }
       );
     }
 

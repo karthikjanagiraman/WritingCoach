@@ -10,6 +10,7 @@ import {
 } from "@/lib/api";
 import { TierProvider, useTier } from "@/contexts/TierContext";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { Tier } from "@/types";
 
 interface SkillCategory {
@@ -78,9 +79,12 @@ interface DashboardContentProps {
   skills: SkillCategory[] | null;
   streakData: StreakData | null;
   recentBadges: RecentBadge[] | null;
+  canStartLesson: boolean;
+  isTrialing: boolean;
+  lessonsRemaining: number | null;
 }
 
-function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData, recentBadges }: DashboardContentProps) {
+function DashboardContent({ data, childName, childTier, activeChild, hasPlacement, curriculum, curriculumLoading, skills, streakData, recentBadges, canStartLesson, isTrialing, lessonsRemaining }: DashboardContentProps) {
   const { coachName } = useTier();
   const { clearActiveChild } = useActiveChild();
   const router = useRouter();
@@ -233,9 +237,39 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
           </section>
         )}
 
-        {/* Primary CTA Card — ALWAYS visible (3 states) */}
+        {/* Trial Progress Banner */}
+        {isTrialing && lessonsRemaining !== null && canStartLesson && (
+          <section className="animate-fade-in stagger-1">
+            <div className="bg-gradient-to-r from-[#FDCB6E]/10 to-[#FFE66D]/10 rounded-2xl px-5 py-3.5 border border-[#FDCB6E]/25 flex items-center gap-3">
+              <span className="text-xl flex-shrink-0">{"\u2728"}</span>
+              <p className="text-sm font-semibold text-[#2D3436]/70">
+                {lessonsRemaining === 1
+                  ? "1 free lesson left in your trial — make it count!"
+                  : `${lessonsRemaining} free lesson${lessonsRemaining === 1 ? "" : "s"} left in your trial`}
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* Primary CTA Card — ALWAYS visible (4 states: blocked, continue, start, all done) */}
         <section className="animate-fade-in stagger-1">
-          {primaryAction ? (
+          {!canStartLesson ? (
+            <div className="bg-white rounded-2xl p-6 border-2 border-[#6C5CE7]/20 text-center">
+              <span className="text-4xl block mb-3">{"\uD83C\uDF1F"}</span>
+              <h2 className="text-lg font-extrabold text-[#2D3436] mb-1">
+                Your trial lessons are complete!
+              </h2>
+              <p className="text-sm text-[#2D3436]/50 mb-4">
+                Ask your parent about continuing your writing adventures.
+              </p>
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#6C5CE7] text-white rounded-xl text-sm font-bold hover:bg-[#5A4BD1] transition-colors shadow-sm"
+              >
+                See Plans &rarr;
+              </Link>
+            </div>
+          ) : primaryAction ? (
             <Link href={`/lesson/${primaryAction.lessonId}`}>
               <div className="bg-white rounded-2xl p-5 border-2 border-active-primary/20 hover:border-active-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer group">
                 <div className="flex items-center gap-4">
@@ -510,6 +544,7 @@ export default function Dashboard() {
   const [skills, setSkills] = useState<SkillCategory[] | null>(null);
   const [streakData, setStreakData] = useState<StreakData | null>(null);
   const [recentBadges, setRecentBadges] = useState<RecentBadge[] | null>(null);
+  const { canStartLesson, isTrialing, lessonsRemaining } = useSubscription();
 
   useEffect(() => {
     if (!activeChild) {
@@ -601,7 +636,7 @@ export default function Dashboard() {
   return (
     <TierProvider tier={activeChild.tier as Tier}>
       <Suspense>
-        <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} />
+        <DashboardContent data={data} childName={activeChild.name} childTier={activeChild.tier} activeChild={activeChild} hasPlacement={hasPlacement} curriculum={curriculum} curriculumLoading={curriculumLoading} skills={skills} streakData={streakData} recentBadges={recentBadges} canStartLesson={canStartLesson} isTrialing={isTrialing} lessonsRemaining={lessonsRemaining} />
       </Suspense>
     </TierProvider>
   );

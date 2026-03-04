@@ -20,7 +20,8 @@ model User {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  children ChildProfile[]
+  children     ChildProfile[]
+  subscription Subscription?
 }
 
 enum UserRole {
@@ -374,6 +375,42 @@ model LearnerProfileSnapshot {
   updatedAt       DateTime @updatedAt
 
   child ChildProfile @relation(fields: [childId], references: [id])
+}
+
+// ============================================
+// Subscriptions & Billing
+// ============================================
+
+enum SubscriptionPlan {
+  TRIAL
+  FAMILY_2
+  FAMILY_4
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  plan               SubscriptionPlan   @default(TRIAL)
+  status             SubscriptionStatus @default(TRIALING)
+  stripeCustomerId   String?
+  stripeSubId        String?
+  stripePriceId      String?
+  trialEndsAt        DateTime?
+  trialLessonsUsed   Int                @default(0)
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // ============================================

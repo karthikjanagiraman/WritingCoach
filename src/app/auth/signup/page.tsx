@@ -85,6 +85,23 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {/* Trial Terms */}
+        <div className="mb-6 bg-[#4ECDC4]/5 border border-[#4ECDC4]/20 rounded-xl px-5 py-4">
+          <p className="text-sm font-bold text-[#2D3436]/70 mb-2">Your free trial includes:</p>
+          <ul className="space-y-1.5">
+            <li className="flex items-center gap-2 text-sm text-[#2D3436]/60">
+              <span className="text-[#4ECDC4] font-bold">&#10003;</span> 7 days access
+            </li>
+            <li className="flex items-center gap-2 text-sm text-[#2D3436]/60">
+              <span className="text-[#4ECDC4] font-bold">&#10003;</span> 2 full lessons
+            </li>
+            <li className="flex items-center gap-2 text-sm text-[#2D3436]/60">
+              <span className="text-[#4ECDC4] font-bold">&#10003;</span> Free placement assessment
+            </li>
+          </ul>
+          <p className="text-xs text-[#2D3436]/40 mt-2">No credit card required.</p>
+        </div>
+
         {/* Signup Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-tier1-primary/10 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
