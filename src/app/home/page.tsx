@@ -11,6 +11,7 @@ import {
 import { TierProvider, useTier } from "@/contexts/TierContext";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
 import { useSubscription } from "@/hooks/useSubscription";
+import PinModal from "@/components/PinModal";
 import type { Tier } from "@/types";
 
 interface SkillCategory {
@@ -91,6 +92,27 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>("all");
   const [showCelebration, setShowCelebration] = useState(false);
+  const [pinModalOpen, setPinModalOpen] = useState(false);
+  const [hasPin, setHasPin] = useState<boolean | null>(null);
+  const [pinMode, setPinMode] = useState<"setup" | "verify">("setup");
+
+  // Fetch PIN status
+  useEffect(() => {
+    fetch("/api/pin")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setHasPin(d?.hasPin ?? false))
+      .catch(() => setHasPin(false));
+  }, []);
+
+  function handleParentAccess() {
+    if (hasPin === false) {
+      setPinMode("setup");
+      setPinModalOpen(true);
+    } else if (hasPin === true) {
+      setPinMode("verify");
+      setPinModalOpen(true);
+    }
+  }
 
   const { completedLessons, currentLesson, nextLesson, availableLessons, assessments, typeStats, stats } = data;
 
@@ -151,13 +173,10 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
 
   return (
     <div className="min-h-screen bg-active-bg">
-      {/* Header — greeting merged into nav bar */}
+      {/* Header — greeting + profile/parent buttons */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200/60">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 h-16 flex items-center justify-between">
-          <button
-            onClick={() => { clearActiveChild(); router.push("/dashboard"); }}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
+          <div className="flex items-center gap-3">
             <CoachAvatar size="sm" />
             <div className="text-left">
               <h1 className="text-base font-extrabold text-active-text leading-tight">
@@ -167,13 +186,31 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                 {tierBadge.emoji} {tierBadge.label}
               </p>
             </div>
-          </button>
-          <Link
-            href={`/portfolio/${activeChild?.id}`}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold text-active-primary hover:bg-active-primary/10 transition-colors"
-          >
-            My Writing
-          </Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { clearActiveChild(); router.push("/dashboard"); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-active-text/40 hover:text-active-text/70 border border-active-text/10 hover:border-active-text/20 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Switch Profile
+            </button>
+            <button
+              onClick={handleParentAccess}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-active-text/30 hover:text-active-text/60 border border-active-text/8 hover:border-active-text/15 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Parent
+            </button>
+          </div>
         </div>
       </header>
 
@@ -528,6 +565,21 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
           </section>
         )}
       </main>
+
+      {/* PIN Modal for parent access */}
+      <PinModal
+        mode={pinMode}
+        open={pinModalOpen}
+        onSuccess={() => {
+          setPinModalOpen(false);
+          router.push("/dashboard/parent");
+        }}
+        onCancel={() => setPinModalOpen(false)}
+        onSkip={pinMode === "setup" ? () => {
+          setPinModalOpen(false);
+          router.push("/dashboard/parent");
+        } : undefined}
+      />
     </div>
   );
 }

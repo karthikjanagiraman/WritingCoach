@@ -17,6 +17,7 @@ model User {
   passwordHash String?
   name         String
   role         UserRole     @default(PARENT)
+  parentPin    String?      // bcrypt hash of 4-digit parent dashboard PIN
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

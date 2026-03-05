@@ -47,6 +47,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify session belongs to authenticated parent
+    if (session.child.parentId !== authSession.user.userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
     // Load lesson
     const lesson = getLessonById(session.lessonId);
     if (!lesson) {

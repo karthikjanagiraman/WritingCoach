@@ -51,6 +51,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify session belongs to authenticated parent
+    if (session.child.parentId !== authSession.user.userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
     // Only allow submission during assessment or guided phase
     // (guided allowed because client-side escape hatch can transition
     //  to assessment before server phase is updated)

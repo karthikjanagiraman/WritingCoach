@@ -47,6 +47,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify session belongs to authenticated parent
+    if (session.child.parentId !== authSession.user.userId) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
+
     // Only allow revisions in the feedback phase
     if (session.phase !== "feedback") {
       return NextResponse.json(
