@@ -22,7 +22,15 @@ function AccessCodeSection() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: code.trim() }),
+        redirect: "manual",
       });
+
+      // Middleware redirects to login if not authenticated
+      if (res.type === "opaqueredirect" || res.status === 307) {
+        router.push("/auth/login?callbackUrl=/pricing");
+        return;
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
