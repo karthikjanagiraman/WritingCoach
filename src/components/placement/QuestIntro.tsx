@@ -37,6 +37,28 @@ function buildNarrations(childName: string): NarrationStep[] {
   ];
 }
 
+function buildCondensedNarrations(childName: string): NarrationStep[] {
+  return [
+    {
+      text: `Hi ${childName}! I'm Ollie, and I'm going to help you become a better writer. Before we start, I need to see how you write right now — that way I can plan lessons that are just right for you.`,
+      highlights: [
+        { word: childName, type: "name" },
+        { word: "Ollie", type: "highlight" },
+        { word: "just right for you", type: "highlight" },
+      ],
+      btn: "Sounds good!",
+    },
+    {
+      text: `You'll do three short writing activities — a story, a description, and a persuasive piece. There are no wrong answers! Just do your best and have fun.`,
+      highlights: [
+        { word: "three short writing activities", type: "highlight" },
+        { word: "no wrong answers", type: "highlight" },
+      ],
+      btn: "Let's start!",
+    },
+  ];
+}
+
 function renderNarrationText(text: string, highlights: NarrationStep["highlights"]) {
   let result = text;
   for (const h of highlights) {
@@ -49,13 +71,16 @@ function renderNarrationText(text: string, highlights: NarrationStep["highlights
 interface QuestIntroProps {
   childName: string;
   onComplete: () => void;
+  condensed?: boolean;
 }
 
-export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
+export function QuestIntro({ childName, onComplete, condensed = false }: QuestIntroProps) {
   const [narrationStep, setNarrationStep] = useState(0);
   const [fading, setFading] = useState(false);
 
-  const narrations = buildNarrations(childName);
+  const narrations = condensed
+    ? buildCondensedNarrations(childName)
+    : buildNarrations(childName);
   const current = narrations[narrationStep];
 
   const handleNext = useCallback(() => {
@@ -72,11 +97,41 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
     }, 350);
   }, [narrationStep, narrations.length, onComplete]);
 
+  // Condensed mode uses tier-2 styling
+  const bgGradient = condensed
+    ? "linear-gradient(170deg, #F8F9FD 0%, #EEF0FB 40%, #F5F3FF 100%)"
+    : "linear-gradient(170deg, #FFF9F0 0%, #FFE8D6 40%, #FFF0E6 100%)";
+  const glowBg = condensed
+    ? "radial-gradient(circle, #6C5CE715 0%, transparent 70%)"
+    : "radial-gradient(circle, #FF6B6B15 0%, transparent 70%)";
+  const btnGradient = condensed
+    ? "linear-gradient(135deg, #6C5CE7, #A29BFE)"
+    : "linear-gradient(135deg, #FF6B6B, #FF8E8E)";
+  const btnShadow = condensed
+    ? "0 4px 20px #6C5CE735"
+    : "0 4px 20px #FF6B6B35";
+  const btnHoverShadow = condensed
+    ? "0 8px 28px #6C5CE745"
+    : "0 8px 28px #FF6B6B45";
+  const dotCompletedColor = condensed ? "#00B894" : "#4ECDC4";
+  const dotActiveColor = condensed ? "#6C5CE7" : "#FF6B6B";
+  const dotActiveShadow = condensed
+    ? "0 0 12px #6C5CE760"
+    : "0 0 12px #FF6B6B60";
+  const mascotShadow = condensed
+    ? "drop-shadow(0 8px 24px rgba(108,92,231,0.2))"
+    : "drop-shadow(0 8px 24px rgba(255,107,107,0.2))";
+  const narrationFontSize = condensed ? 16 : 18;
+  const narrationFontWeight = condensed ? 600 : 700;
+  const narrationFontFamily = condensed
+    ? "'DM Sans', sans-serif"
+    : "inherit";
+
   return (
     <div
       className="fixed inset-0 flex flex-col items-center justify-center"
       style={{
-        background: "linear-gradient(170deg, #FFF9F0 0%, #FFE8D6 40%, #FFF0E6 100%)",
+        background: bgGradient,
         padding: 24,
         zIndex: 100,
         transition: "opacity 0.8s, transform 0.6s",
@@ -89,7 +144,7 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
           width: 400,
           height: 400,
           borderRadius: "50%",
-          background: "radial-gradient(circle, #FF6B6B15 0%, transparent 70%)",
+          background: glowBg,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -55%)",
@@ -102,13 +157,14 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
         style={{
           position: "relative",
           zIndex: 2,
-          animation: "introMascotEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+          animation:
+            "introMascotEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both",
         }}
       >
         <div
           style={{
             animation: "introFloat 2.5s ease-in-out infinite",
-            filter: "drop-shadow(0 8px 24px rgba(255,107,107,0.2))",
+            filter: mascotShadow,
           }}
         >
           <QuestCharacter id="ollie" width={80} height={80} />
@@ -124,6 +180,9 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
           position: "relative",
           zIndex: 2,
         }}
+        role="progressbar"
+        aria-valuenow={narrationStep + 1}
+        aria-valuemax={narrations.length}
       >
         {narrations.map((_, i) => (
           <div
@@ -134,9 +193,9 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
               borderRadius: "50%",
               background:
                 i < narrationStep
-                  ? "#4ECDC4"
+                  ? dotCompletedColor
                   : i === narrationStep
-                    ? "#FF6B6B"
+                    ? dotActiveColor
                     : "#2D343612",
               transform:
                 i < narrationStep
@@ -145,7 +204,7 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
                     ? "scale(1.4)"
                     : "scale(1)",
               boxShadow:
-                i === narrationStep ? "0 0 12px #FF6B6B60" : "none",
+                i === narrationStep ? dotActiveShadow : "none",
               transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
           />
@@ -154,6 +213,7 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
 
       {/* Narration box */}
       <div
+        aria-live="polite"
         style={{
           maxWidth: 440,
           textAlign: "center",
@@ -168,12 +228,13 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
       >
         <div
           style={{
-            fontSize: 18,
-            fontWeight: 700,
+            fontSize: narrationFontSize,
+            fontWeight: narrationFontWeight,
+            fontFamily: narrationFontFamily,
             color: "#2D3436cc",
             lineHeight: 1.75,
             marginBottom: 28,
-            minHeight: 100,
+            minHeight: 120,
             opacity: fading ? 0 : 1,
             transform: fading ? "translateY(8px)" : "translateY(0)",
             transition: "opacity 0.35s, transform 0.35s",
@@ -186,7 +247,7 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
         <button
           onClick={handleNext}
           style={{
-            background: "linear-gradient(135deg, #FF6B6B, #FF8E8E)",
+            background: btnGradient,
             color: "white",
             border: "none",
             padding: "15px 44px",
@@ -194,28 +255,37 @@ export function QuestIntro({ childName, onComplete }: QuestIntroProps) {
             fontSize: 16,
             fontWeight: 800,
             cursor: "pointer",
-            fontFamily: "inherit",
-            boxShadow: "0 4px 20px #FF6B6B35",
+            fontFamily: condensed ? "'DM Sans', sans-serif" : "inherit",
+            boxShadow: btnShadow,
             position: "relative",
             overflow: "hidden",
             opacity: fading ? 0 : 1,
             transform: fading ? "translateY(8px)" : "translateY(0)",
-            transition: "opacity 0.3s, transform 0.3s, box-shadow 0.25s",
+            transition:
+              "opacity 0.3s, transform 0.3s, box-shadow 0.25s",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
-            e.currentTarget.style.boxShadow = "0 8px 28px #FF6B6B45";
+            e.currentTarget.style.boxShadow = btnHoverShadow;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = fading
               ? "translateY(8px)"
               : "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 20px #FF6B6B35";
+            e.currentTarget.style.boxShadow = btnShadow;
           }}
         >
           {current.btn}
         </button>
       </div>
+
+      {/* Condensed mode: override highlight colors via inline style tag */}
+      {condensed && (
+        <style>{`
+          .intro-highlight { color: #6C5CE7 !important; }
+          .intro-name { color: #6C5CE7 !important; }
+        `}</style>
+      )}
     </div>
   );
 }

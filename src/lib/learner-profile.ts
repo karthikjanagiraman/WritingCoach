@@ -23,7 +23,7 @@ export async function buildLearnerProfile(
 ): Promise<LearnerProfile | null> {
   // --- Fetch data in parallel ---------------------------------------------------
 
-  const [completions, samples, preferences] = await Promise.all([
+  const [completions, samples, preferences, child] = await Promise.all([
     prisma.lessonCompletion.findMany({
       where: { childId },
       orderBy: { completedAt: "desc" },
@@ -39,10 +39,15 @@ export async function buildLearnerProfile(
       where: { childId },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.childProfile.findUnique({
+      where: { id: childId },
+      select: { isEsl: true, homeLanguage: true },
+    }),
   ]);
 
   if (completions.length === 0) {
-    return null;
+    // Fallback: build a minimal profile from placement data
+    return buildPlacementBasedProfile(childId, child);
   }
 
   // --- Criterion averages -------------------------------------------------------
@@ -143,6 +148,7 @@ export async function buildLearnerProfile(
     writingLengthTrend,
     recentSamples,
     preferences: prefs,
+    ...(child?.isEsl ? { isEsl: true, homeLanguage: child.homeLanguage ?? undefined } : {}),
   };
 
   // --- Persist snapshot (upsert) ------------------------------------------------
@@ -207,6 +213,14 @@ export function buildLearnerContext(
     value: p.value,
   }));
 
+  // ESL context
+  const eslContext = profile.isEsl
+    ? {
+        isEsl: true as const,
+        homeLanguage: profile.homeLanguage,
+      }
+    : undefined;
+
   // Connection points: 1-3 actionable teaching strategies
   const connectionPoints = buildConnectionPoints(profile);
 
@@ -217,6 +231,7 @@ export function buildLearnerContext(
     recentSamples,
     preferences,
     connectionPoints,
+    eslContext,
   };
 }
 
@@ -280,6 +295,24 @@ export function formatLearnerContextForPrompt(
     for (const point of context.connectionPoints) {
       sections.push(`- ${point}`);
     }
+  }
+
+  // ESL / Language background
+  if (context.eslContext?.isEsl) {
+    sections.push("");
+    sections.push("### Language Background");
+    const lang = context.eslContext.homeLanguage || "another language";
+    sections.push(
+      `This student is learning English as an additional language (home language: ${lang}).`
+    );
+    sections.push("- Prioritize ideas and creativity over grammatical accuracy");
+    sections.push(
+      "- Recognize L1 transfer patterns (may omit articles, use different word order, etc.)"
+    );
+    sections.push("- Celebrate bilingual strength as an asset");
+    sections.push(
+      "- Use simpler sentence structures in your explanations"
+    );
   }
 
   // Usage instructions
@@ -382,4 +415,104 @@ function buildConnectionPoints(profile: LearnerProfile): string[] {
   }
 
   return points.slice(0, 3);
+}
+
+// ---------------------------------------------------------------------------
+// buildPlacementBasedProfile — fallback when no lessons completed
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a minimal LearnerProfile from placement assessment data when the
+ * child has zero lesson completions. Returns null if no placement exists.
+ */
+async function buildPlacementBasedProfile(
+  childId: string,
+  child: { isEsl: boolean; homeLanguage: string | null } | null
+): Promise<LearnerProfile | null> {
+  const placement = await prisma.placementResult.findUnique({
+    where: { childId },
+  });
+
+  if (!placement) return null;
+
+  let strengths: LearnerProfile["strengths"] = [];
+  let growthAreas: LearnerProfile["growthAreas"] = [];
+
+  try {
+    const analysis = JSON.parse(placement.aiAnalysis);
+
+    // Map placement strengths/gaps to criterion-style entries
+    if (analysis.strengths?.length) {
+      strengths = analysis.strengths.slice(0, 3).map((s: string) => ({
+        criterion: s,
+        avgScore: 3.0, // Placement-derived, no numeric score per criterion
+      }));
+    }
+
+    if (analysis.gaps?.length) {
+      growthAreas = analysis.gaps.slice(0, 2).map((g: string) => ({
+        criterion: g,
+        avgScore: 1.5, // Placeholder indicating area needing growth
+      }));
+    }
+
+    // If promptAverages available, use them for more precise scoring
+    if (analysis.promptAverages) {
+      const avgs = analysis.promptAverages as Record<string, number>;
+      const sorted = Object.entries(avgs).sort((a, b) => b[1] - a[1]);
+
+      // Override with actual type-level scores if we have them
+      const strongTypes = sorted.filter(([, score]) => score >= 2.5);
+      const weakTypes = sorted.filter(([, score]) => score < 2.5);
+
+      if (strongTypes.length > 0 && strengths.length === 0) {
+        strengths = strongTypes.slice(0, 3).map(([type, score]) => ({
+          criterion: `${type} writing`,
+          avgScore: round2(score),
+        }));
+      }
+      if (weakTypes.length > 0 && growthAreas.length === 0) {
+        growthAreas = weakTypes.slice(0, 2).map(([type, score]) => ({
+          criterion: `${type} writing`,
+          avgScore: round2(score),
+        }));
+      }
+    }
+  } catch {
+    // Malformed placement data — return null
+    return null;
+  }
+
+  const profile: LearnerProfile = {
+    childId,
+    totalLessons: 0,
+    strengths,
+    growthAreas,
+    scoreTrajectory: "stable",
+    scaffoldingTrend: "stable",
+    engagementLevel: "medium",
+    writingLengthTrend: "stable",
+    recentSamples: [],
+    preferences: [],
+    ...(child?.isEsl
+      ? { isEsl: true, homeLanguage: child.homeLanguage ?? undefined }
+      : {}),
+  };
+
+  // Persist snapshot
+  await prisma.learnerProfileSnapshot.upsert({
+    where: { childId },
+    update: {
+      profileData: JSON.stringify(profile),
+      totalLessons: 0,
+      lastComputedAt: new Date(),
+    },
+    create: {
+      childId,
+      profileData: JSON.stringify(profile),
+      totalLessons: 0,
+    },
+  });
+
+  return profile;
 }

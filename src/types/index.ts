@@ -120,6 +120,8 @@ export interface LearnerProfile {
   writingLengthTrend: "increasing" | "stable" | "decreasing";
   recentSamples: WritingSampleRecord[];
   preferences: StudentPreferenceRecord[];
+  isEsl?: boolean;
+  homeLanguage?: string;
 }
 
 export interface LearnerContext {
@@ -129,6 +131,10 @@ export interface LearnerContext {
   recentSamples: Array<{ type: string; excerpt: string }>;
   preferences: Array<{ category: string; value: string }>;
   connectionPoints: string[];
+  eslContext?: {
+    isEsl: true;
+    homeLanguage?: string;
+  };
 }
 
 export interface WritingSampleRecord {

@@ -28,21 +28,65 @@ export default function CurriculumSetupPage() {
   const [weekCount, setWeekCount] = useState(8);
   const [focusAreas, setFocusAreas] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
+  const [recommendation, setRecommendation] = useState<{
+    types: string[];
+    label: string;
+  } | null>(null);
 
   useEffect(() => {
-    async function fetchChild() {
+    async function fetchChildAndPlacement() {
       try {
-        const res = await fetch(`/api/children/${childId}`);
-        if (!res.ok) throw new Error("Failed to load child profile");
-        const data = await res.json();
-        setChildName(data.child?.name || data.name || "Your Child");
+        const [childRes, placementRes] = await Promise.all([
+          fetch(`/api/children/${childId}`),
+          fetch(`/api/placement/${childId}`),
+        ]);
+
+        if (!childRes.ok) throw new Error("Failed to load child profile");
+        const childData = await childRes.json();
+        setChildName(childData.child?.name || childData.name || "Your Child");
+
+        // Parse placement to auto-suggest focus areas
+        if (placementRes.ok) {
+          const placementData = await placementRes.json();
+          const analysis = placementData.placement?.aiAnalysis;
+          const averages =
+            typeof analysis === "string"
+              ? JSON.parse(analysis)?.promptAverages
+              : analysis?.promptAverages;
+
+          if (averages) {
+            const entries = Object.entries(averages as Record<string, number>);
+            // Types scoring below 2.0 — or the single lowest if none below 2.0
+            const weak = entries.filter(([, score]) => (score as number) < 2.0);
+            let suggested: string[];
+            if (weak.length > 0) {
+              suggested = weak.map(([type]) => type);
+            } else {
+              const sorted = [...entries].sort(
+                (a, b) => (a[1] as number) - (b[1] as number)
+              );
+              suggested = sorted.length > 0 ? [sorted[0][0]] : [];
+            }
+            if (suggested.length > 0) {
+              setFocusAreas(suggested);
+              const name = childData.child?.name || "your child";
+              const typeLabels = suggested
+                .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+                .join(" and ");
+              setRecommendation({
+                types: suggested,
+                label: `Based on ${name}'s assessment, we recommend focusing on ${typeLabels}. You can adjust this.`,
+              });
+            }
+          }
+        }
       } catch {
         setError("Could not load child profile.");
       } finally {
         setLoading(false);
       }
     }
-    fetchChild();
+    fetchChildAndPlacement();
   }, [childId]);
 
   function toggleFocusArea(area: string) {
@@ -195,6 +239,14 @@ export default function CurriculumSetupPage() {
               <p className="text-xs text-[#2D3436]/50 mb-3">
                 Leave unchecked for a balanced curriculum across all types.
               </p>
+              {recommendation && (
+                <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[#4ECDC4]/10 border border-[#4ECDC4]/20 mb-3">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0 text-[#4ECDC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-xs font-medium text-[#2D3436]/70">{recommendation.label}</p>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 {WRITING_TYPES.map((type) => (
                   <button

@@ -30,30 +30,69 @@ export async function generateCurriculum(options: GenerateCurriculumOptions) {
   // 1. Get available lessons for this tier
   const lessons = getLessonsByTier(tier as Tier);
 
-  // 2. Get placement result for additional context (optional)
-  const placement = await prisma.placementResult.findUnique({
-    where: { childId },
-  });
+  // 2. Get placement result and child profile for additional context
+  const [placement, child] = await Promise.all([
+    prisma.placementResult.findUnique({ where: { childId } }),
+    prisma.childProfile.findUnique({
+      where: { id: childId },
+      select: { isEsl: true, homeLanguage: true, name: true },
+    }),
+  ]);
 
   // 3. Build a summary of available lessons for Claude
   const lessonSummary = lessons
     .map((l) => `${l.id}: "${l.title}" (${l.type}, ${l.unit})`)
     .join("\n");
 
-  // 4. Ask LLM to generate a week-by-week plan
+  // 4. Build rich placement context for the LLM
   let placementContext = "";
   if (placement) {
     try {
       const analysis = JSON.parse(placement.aiAnalysis);
+
+      // Per-type averages (if available)
+      if (analysis.promptAverages) {
+        const avgs = analysis.promptAverages;
+        const avgEntries = Object.entries(avgs as Record<string, number>)
+          .map(([type, score]) => `${type}: ${(score as number).toFixed(1)}/4`)
+          .join(", ");
+        placementContext += `\nPer-type placement scores: ${avgEntries}`;
+
+        // Identify weakest and strongest types
+        const sorted = Object.entries(avgs as Record<string, number>).sort(
+          (a, b) => (a[1] as number) - (b[1] as number)
+        );
+        if (sorted.length > 0) {
+          placementContext += `\nWeakest writing type: ${sorted[0][0]} (${(sorted[0][1] as number).toFixed(1)}/4)`;
+          placementContext += `\nStrongest writing type: ${sorted[sorted.length - 1][0]} (${(sorted[sorted.length - 1][1] as number).toFixed(1)}/4)`;
+        }
+      }
+
       if (analysis.strengths?.length) {
         placementContext += `\nStudent strengths: ${analysis.strengths.join(", ")}`;
       }
       if (analysis.gaps?.length) {
         placementContext += `\nStudent gaps: ${analysis.gaps.join(", ")}`;
       }
+
+      // Confidence level
+      const confidence = placement.confidence;
+      const confidenceLabel =
+        confidence >= 0.8 ? "high" : confidence >= 0.5 ? "medium" : "low";
+      placementContext += `\nPlacement confidence: ${confidenceLabel} (${Math.round(confidence * 100)}%)`;
+
+      // Tier clamping info
+      if (placement.assignedTier !== placement.recommendedTier) {
+        placementContext += `\nNote: AI recommended tier ${placement.recommendedTier} but parent chose tier ${placement.assignedTier}`;
+      }
     } catch {
       // Ignore malformed placement data
     }
+  }
+
+  // ESL context
+  if (child?.isEsl) {
+    placementContext += `\nESL student: yes${child.homeLanguage ? ` (home language: ${child.homeLanguage})` : ""}`;
   }
 
   const systemPrompt = `You are a curriculum planning assistant for a children's writing program.
@@ -65,7 +104,8 @@ Rules:
 - Mix writing types for variety (unless focus areas are specified)
 - Lessons within the same unit should be kept in order
 - Only use lesson IDs from the provided list
-- ${focusAreas?.length ? `Focus on these writing types: ${focusAreas.join(", ")}` : "Balance all writing types"}${placementContext}
+- ${focusAreas?.length ? `Focus on these writing types: ${focusAreas.join(", ")}` : "Balance all writing types"}
+${placementContext ? `\nPlacement data:\n${placementContext}\n\nUse this placement data to personalize the curriculum:\n- Front-load lessons addressing the student's weakest writing type in weeks 1-3\n- Interleave strong types with weak types to maintain confidence while building skills\n- If placement confidence is low, start with more foundational/introductory lessons\n- If the student is an ESL learner, begin with narrative writing (most accessible for L2 learners) before introducing persuasive writing (most language-demanding)` : ""}
 
 Return ONLY valid JSON: an array of objects with { "weekNumber": number, "theme": "string", "lessonIds": ["id1", "id2", "id3"] }`;
 

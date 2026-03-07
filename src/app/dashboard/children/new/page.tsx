@@ -29,6 +29,8 @@ export default function NewChildPage() {
   const [gradeLevel, setGradeLevel] = useState("");
   const [interests, setInterests] = useState("");
   const [avatarEmoji, setAvatarEmoji] = useState(AVATAR_OPTIONS[0]);
+  const [isEsl, setIsEsl] = useState(false);
+  const [homeLanguage, setHomeLanguage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [upgradeRequired, setUpgradeRequired] = useState(false);
@@ -59,6 +61,8 @@ export default function NewChildPage() {
           gradeLevel: gradeLevel.trim() || undefined,
           interests: interests.trim() || undefined,
           avatarEmoji,
+          isEsl,
+          homeLanguage: isEsl && homeLanguage.trim() ? homeLanguage.trim() : undefined,
         }),
       });
 
@@ -152,6 +156,93 @@ export default function NewChildPage() {
                 {computeTierLabel(age)}
               </p>
             )}
+          </div>
+
+          {/* ESL Checkbox */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#FF6B6B]/10">
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+              <input
+                type="checkbox"
+                id="esl-checkbox"
+                checked={isEsl}
+                onChange={(e) => setIsEsl(e.target.checked)}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 6,
+                  flexShrink: 0,
+                  marginTop: 2,
+                  cursor: "pointer",
+                  accentColor: "#4ECDC4",
+                }}
+              />
+              <label
+                htmlFor="esl-checkbox"
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#2D3436",
+                  lineHeight: 1.4,
+                  cursor: "pointer",
+                }}
+              >
+                English is an additional language for {name.trim() || "this child"}
+              </label>
+            </div>
+            <p
+              style={{
+                fontSize: 12.5,
+                fontWeight: 500,
+                color: "#64748B",
+                lineHeight: 1.6,
+                marginTop: 6,
+                marginLeft: 32,
+              }}
+            >
+              This helps us focus on ideas and creativity rather than grammar
+              patterns during assessment.
+            </p>
+
+            {/* Home language field (conditionally shown) */}
+            {isEsl && (
+              <div
+                style={{
+                  marginTop: 16,
+                  animation: "slideDownFade 0.25s ease-out",
+                }}
+              >
+                <label
+                  htmlFor="home-language"
+                  style={{
+                    display: "block",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#2D3436",
+                    marginBottom: 8,
+                  }}
+                >
+                  Home language{" "}
+                  <span style={{ fontWeight: 400, color: "#2D343640" }}>
+                    (optional)
+                  </span>
+                </label>
+                <input
+                  id="home-language"
+                  type="text"
+                  value={homeLanguage}
+                  onChange={(e) => setHomeLanguage(e.target.value)}
+                  placeholder="e.g., Spanish, Mandarin, Arabic"
+                  className="w-full px-4 py-3 border border-[#2D3436]/10 rounded-xl text-[#2D3436] placeholder-[#2D3436]/30 focus:outline-none focus:border-[#FF6B6B]/50 focus:ring-2 focus:ring-[#FF6B6B]/20 transition-colors"
+                />
+              </div>
+            )}
+
+            <style>{`
+              @keyframes slideDownFade {
+                from { opacity: 0; transform: translateY(-8px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+            `}</style>
           </div>
 
           {/* Avatar Picker */}

@@ -22,7 +22,7 @@ export async function GET(
     if (!child) {
       return NextResponse.json(
         { error: "Child not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function GET(
     if (!placementResult) {
       return NextResponse.json(
         { error: "No placement result found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -55,7 +55,7 @@ export async function GET(
     console.error("GET /api/placement/[childId] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -80,7 +80,7 @@ export async function PATCH(
     if (!child) {
       return NextResponse.json(
         { error: "Child not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -91,7 +91,7 @@ export async function PATCH(
     if (!existingResult) {
       return NextResponse.json(
         { error: "No placement result found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -105,7 +105,21 @@ export async function PATCH(
     ) {
       return NextResponse.json(
         { error: "assignedTier must be 1, 2, or 3" },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    // Tier clamping validation based on child's age
+    const ageTier = child.age <= 9 ? 1 : child.age <= 12 ? 2 : 3;
+    const minTier = Math.max(1, ageTier - 1);
+    const maxTier = Math.min(3, ageTier + 1);
+    if (assignedTier < minTier || assignedTier > maxTier) {
+      return NextResponse.json(
+        {
+          error: `Tier ${assignedTier} is not valid for a ${child.age}-year-old. Valid range: Tier ${minTier} to Tier ${maxTier}.`,
+          validRange: { min: minTier, max: maxTier },
+        },
+        { status: 400 },
       );
     }
 
@@ -139,7 +153,73 @@ export async function PATCH(
     console.error("PATCH /api/placement/[childId] error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ childId: string }> }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { childId } = await params;
+
+    // Verify parent owns the child
+    const child = await prisma.childProfile.findFirst({
+      where: { id: childId, parentId: session.user.userId },
+    });
+
+    if (!child) {
+      return NextResponse.json(
+        { error: "Child not found" },
+        { status: 404 },
+      );
+    }
+
+    // Check retake limit: max 3 retakes (count existing placement_analysis interactions)
+    const analysisCount = await prisma.lLMInteraction.count({
+      where: {
+        childId,
+        requestType: "placement_analysis",
+      },
+    });
+
+    if (analysisCount >= 3) {
+      return NextResponse.json(
+        { error: "Maximum number of placement retakes (3) reached for this child." },
+        { status: 400 },
+      );
+    }
+
+    // Delete PlacementResult, PlacementDraft, and seeded SkillProgress
+    // (narrative, descriptive, persuasive categories only -- NOT expository)
+    await prisma.$transaction([
+      prisma.placementResult.deleteMany({
+        where: { childId },
+      }),
+      prisma.placementDraft.deleteMany({
+        where: { childId },
+      }),
+      prisma.skillProgress.deleteMany({
+        where: {
+          childId,
+          skillCategory: { in: ["narrative", "descriptive", "persuasive"] },
+        },
+      }),
+    ]);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("DELETE /api/placement/[childId] error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

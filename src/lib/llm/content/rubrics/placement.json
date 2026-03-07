@@ -1,0 +1,362 @@
+{
+  "rubric_id": "placement",
+  "lesson_ids": [],
+  "description": "Placement assessment rubric for evaluating writing ability across narrative, descriptive, and persuasive prompts",
+  "word_range": [20, 500],
+
+  "prompt_types": {
+    "narrative": {
+      "label": "Narrative (Story Writing)",
+      "dimensions": [
+        {
+          "name": "story_structure",
+          "display_name": "Story Structure & Ideas",
+          "skill_map_category": "narrative",
+          "skill_map_name": "story_structure",
+          "weight": 0.35,
+          "levels": {
+            "4": "Writing has a clear beginning, development, and sense of ending; ideas are original and engaging; events connect logically",
+            "3": "Writing has recognizable structure with a beginning and some development; ideas are clear; most events connect",
+            "2": "Some attempt at structure but events are loosely connected or incomplete; ideas are present but underdeveloped",
+            "1": "Little to no structure; writing is a list of disconnected statements or events; ideas are unclear"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Has a clear beginning, something happens, and an ending; shows imagination",
+              "3": "Has a beginning and something happens; shows some imagination",
+              "2": "Starts a story but it trails off or jumps around",
+              "1": "Writes sentences that don't form a connected story"
+            },
+            "10-12": {
+              "4": "Clear narrative arc with setup, rising action, and resolution; engaging premise",
+              "3": "Recognizable story structure with beginning, middle, and end",
+              "2": "Attempts story structure but missing key parts (e.g., no ending, abrupt shifts)",
+              "1": "No recognizable narrative structure; reads as disconnected thoughts"
+            },
+            "13-15": {
+              "4": "Sophisticated narrative structure; may use non-linear elements, subtext, or thematic coherence; compelling premise",
+              "3": "Solid narrative arc with clear setup, development, and resolution",
+              "2": "Basic structure present but predictable or underdeveloped",
+              "1": "Minimal narrative structure; lacks intentional organization"
+            }
+          }
+        },
+        {
+          "name": "character_voice",
+          "display_name": "Character & Voice",
+          "skill_map_category": "narrative",
+          "skill_map_name": "voice_style",
+          "weight": 0.35,
+          "levels": {
+            "4": "Distinct voice comes through; characters feel real through action, dialogue, or thought; writing has personality",
+            "3": "Some voice present; characters are named or described; writing shows some personality",
+            "2": "Flat or generic voice; characters exist but feel like placeholders; writing lacks personality",
+            "1": "No discernible voice; no real characters; writing feels mechanical or copied"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Writing sounds like THEM -- playful, curious, or excited; characters do things and have feelings",
+              "3": "Writing has some personality; characters are mentioned with at least one detail",
+              "2": "Writing is flat but functional; characters are named but not developed",
+              "1": "Writing feels robotic or copied; no characters distinguishable"
+            },
+            "10-12": {
+              "4": "Strong individual voice; characters have motivations and reactions; dialogue or internal thought present",
+              "3": "Emerging voice; characters have basic traits; some personality in writing style",
+              "2": "Generic voice; characters are generic ('a boy', 'she'); no real personality",
+              "1": "No voice; characters absent or purely functional"
+            },
+            "13-15": {
+              "4": "Distinctive authorial voice; nuanced characters with inner life; tone is intentional and controlled",
+              "3": "Clear voice and style; characters have some depth; tone is mostly consistent",
+              "2": "Voice is emerging but inconsistent; characters are one-dimensional",
+              "1": "No discernible voice or style; writing is purely functional"
+            }
+          }
+        },
+        {
+          "name": "language_mechanics",
+          "display_name": "Language & Mechanics",
+          "skill_map_category": "narrative",
+          "skill_map_name": "setting_description",
+          "weight": 0.30,
+          "levels": {
+            "4": "Varied sentence structures; age-appropriate vocabulary used effectively; minimal errors that don't impede meaning",
+            "3": "Some sentence variety; vocabulary is adequate; errors present but meaning is clear",
+            "2": "Simple or repetitive sentences; limited vocabulary; errors sometimes impede meaning",
+            "1": "Fragmented or run-on sentences throughout; very limited vocabulary; frequent errors impede meaning"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Writes in complete sentences; uses some interesting words; spelling/punctuation mostly correct for age",
+              "3": "Mostly complete sentences; basic vocabulary; some spelling/punctuation errors typical for age",
+              "2": "Mix of complete and incomplete sentences; very basic vocabulary; many errors but still readable",
+              "1": "Mostly fragments or extremely simple sentences; minimal vocabulary; hard to read"
+            },
+            "10-12": {
+              "4": "Varied sentence lengths and types; uses descriptive or precise vocabulary; minor mechanical errors",
+              "3": "Some sentence variety; adequate vocabulary; mechanical errors don't impede understanding",
+              "2": "Repetitive sentence patterns; limited vocabulary; noticeable errors affect flow",
+              "1": "Little sentence control; very basic vocabulary; errors significantly impede reading"
+            },
+            "13-15": {
+              "4": "Sophisticated sentence structures; precise vocabulary with intentional word choice; minimal errors",
+              "3": "Good sentence variety; appropriate vocabulary; occasional errors",
+              "2": "Basic sentence structures; adequate but unambitious vocabulary; frequent errors",
+              "1": "Poor sentence control; limited vocabulary; pervasive errors"
+            }
+          }
+        }
+      ]
+    },
+
+    "descriptive": {
+      "label": "Descriptive (Sensory Writing)",
+      "dimensions": [
+        {
+          "name": "sensory_detail",
+          "display_name": "Sensory Detail & Specificity",
+          "skill_map_category": "descriptive",
+          "skill_map_name": "sensory_detail",
+          "weight": 0.40,
+          "levels": {
+            "4": "Uses multiple senses (sight, sound, touch, smell, taste) with specific, vivid details that create a strong mental picture",
+            "3": "Uses at least two senses with some specific details; reader can picture the subject",
+            "2": "Relies on one sense (usually sight) or uses generic details; picture is vague",
+            "1": "Tells rather than describes; no sensory language; just labels things"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Mentions what they see, hear, AND feel/smell/taste; uses specific words ('crunchy red apple' not just 'apple')",
+              "3": "Uses two senses; has some specific words",
+              "2": "Mostly tells what things look like; uses common words ('big', 'nice', 'good')",
+              "1": "Lists things without describing them ('There was a tree. There was a house.')"
+            },
+            "10-12": {
+              "4": "Rich sensory layering across 3+ senses; details are precise and evocative",
+              "3": "Uses 2-3 senses; details are specific enough to form a mental image",
+              "2": "Some sensory language but generic ('it smelled good', 'it was loud')",
+              "1": "No real sensory engagement; writing tells rather than shows"
+            },
+            "13-15": {
+              "4": "Masterful sensory selection -- chooses details for emotional and thematic effect, not just coverage; unexpected sense pairings",
+              "3": "Effective sensory writing across multiple senses; details serve a descriptive purpose",
+              "2": "Sensory language is present but predictable or surface-level",
+              "1": "Little to no sensory engagement; abstract rather than concrete"
+            }
+          }
+        },
+        {
+          "name": "word_choice",
+          "display_name": "Word Choice & Precision",
+          "skill_map_category": "descriptive",
+          "skill_map_name": "word_choice",
+          "weight": 0.30,
+          "levels": {
+            "4": "Words are chosen for precision and effect; avoids vague or overused words; language feels intentional",
+            "3": "Some precise word choices; mostly avoids the vaguest terms; shows effort to describe well",
+            "2": "Relies on common/vague words (nice, good, big, stuff); little precision",
+            "1": "Very limited vocabulary; words are functional, not descriptive"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Uses interesting describing words beyond 'big/small/nice'; tries new words",
+              "3": "Uses some describing words; occasionally specific",
+              "2": "Mostly uses 'big', 'nice', 'good', 'bad' type words",
+              "1": "Barely any adjectives or describing words"
+            },
+            "10-12": {
+              "4": "Chooses specific verbs and adjectives; avoids cliches; words create mood",
+              "3": "Some strong word choices mixed with generic ones",
+              "2": "Mostly generic vocabulary; occasional interesting word",
+              "1": "Flat, repetitive vocabulary throughout"
+            },
+            "13-15": {
+              "4": "Sophisticated, intentional vocabulary; connotation and denotation both considered; language creates texture",
+              "3": "Good vocabulary range; words mostly serve their purpose well",
+              "2": "Adequate vocabulary but uninspired; no risk-taking in word choice",
+              "1": "Limited or imprecise vocabulary; words don't serve the description"
+            }
+          }
+        },
+        {
+          "name": "imagery_figurative",
+          "display_name": "Imagery & Figurative Language",
+          "skill_map_category": "descriptive",
+          "skill_map_name": "figurative_language",
+          "weight": 0.30,
+          "levels": {
+            "4": "Creates vivid mental images through concrete details, comparisons, or figurative language that enhances understanding",
+            "3": "Some imagery present; may include a comparison or figurative language attempt",
+            "2": "Limited imagery; writing is more telling than showing; no figurative language",
+            "1": "No imagery; purely functional or abstract language"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Uses at least one comparison ('like a...' or 'as...as') that helps the reader picture something; creates a clear mental picture",
+              "3": "Tries to paint a picture with words; may have one comparison",
+              "2": "Doesn't try to create mental images; just states facts",
+              "1": "No attempt at imagery or comparison"
+            },
+            "10-12": {
+              "4": "Uses simile, metaphor, or personification effectively; imagery creates atmosphere",
+              "3": "Includes figurative language or strong imagery; some of it is effective",
+              "2": "Minimal imagery; figurative language absent or cliched",
+              "1": "No figurative language or imagery; writing is entirely literal and flat"
+            },
+            "13-15": {
+              "4": "Original figurative language that illuminates subject; extended imagery or symbolism; shows craft awareness",
+              "3": "Effective use of figurative language; imagery serves a clear purpose",
+              "2": "Some figurative language but predictable or decorative rather than functional",
+              "1": "No figurative language; imagery absent"
+            }
+          }
+        }
+      ]
+    },
+
+    "persuasive": {
+      "label": "Persuasive (Argument Writing)",
+      "dimensions": [
+        {
+          "name": "argument_clarity",
+          "display_name": "Argument Clarity & Position",
+          "skill_map_category": "persuasive",
+          "skill_map_name": "argument_structure",
+          "weight": 0.35,
+          "levels": {
+            "4": "Position is crystal clear from the start; argument is focused and doesn't wander; reader knows exactly what is being argued and why",
+            "3": "Position is stated and mostly maintained; argument has some focus",
+            "2": "Position is vague or shifts; argument wanders between points",
+            "1": "No clear position; hard to tell what is being argued"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Clearly says what they want or believe AND gives a reason; stays focused on one idea",
+              "3": "States an opinion; gives at least one reason",
+              "2": "Has an opinion but it's hard to find or changes; reasons are weak",
+              "1": "No clear opinion; just describes the topic without taking a side"
+            },
+            "10-12": {
+              "4": "Clear thesis/claim; argument is structured with distinct reasons; maintains focus throughout",
+              "3": "Position is clear; has at least two supporting reasons",
+              "2": "Position exists but is vague; reasons are present but unfocused",
+              "1": "No discernible position or argument"
+            },
+            "13-15": {
+              "4": "Sophisticated, nuanced thesis; argument is logically structured with clear progression; shows awareness of complexity",
+              "3": "Clear position with logical support; argument flows well",
+              "2": "Position is stated but argument lacks depth or logical structure",
+              "1": "No clear argumentative stance; writing is informational rather than persuasive"
+            }
+          }
+        },
+        {
+          "name": "evidence_reasoning",
+          "display_name": "Evidence & Reasoning",
+          "skill_map_category": "persuasive",
+          "skill_map_name": "evidence_support",
+          "weight": 0.35,
+          "levels": {
+            "4": "Supports claims with specific evidence (examples, facts, personal experience); explains WHY the evidence matters",
+            "3": "Provides some evidence or examples; connection to claim is present",
+            "2": "Claims are made but evidence is weak, vague, or missing; 'because I think so' reasoning",
+            "1": "No evidence; pure assertion without support"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Gives at least two specific reasons; reasons make sense and connect to their opinion",
+              "3": "Gives at least one specific reason that connects to their opinion",
+              "2": "Gives a reason but it's very vague ('because it's fun') or doesn't connect",
+              "1": "No reasons given; just states opinion"
+            },
+            "10-12": {
+              "4": "Multiple pieces of evidence (examples, facts, experiences); reasoning explains the connection between evidence and claim",
+              "3": "At least two pieces of evidence; some reasoning present",
+              "2": "Evidence is thin or generic; reasoning is implicit",
+              "1": "No supporting evidence; argument is unsupported assertion"
+            },
+            "13-15": {
+              "4": "Strong, varied evidence with explicit reasoning; may anticipate counterarguments; shows logical sophistication",
+              "3": "Adequate evidence with clear reasoning; argument is logically sound",
+              "2": "Some evidence but reasoning is weak or assumptions unstated",
+              "1": "Assertions without evidence or logical support"
+            }
+          }
+        },
+        {
+          "name": "persuasive_voice",
+          "display_name": "Persuasive Voice & Impact",
+          "skill_map_category": "persuasive",
+          "skill_map_name": "persuasive_language",
+          "weight": 0.30,
+          "levels": {
+            "4": "Writing is genuinely persuasive -- reader feels pulled toward the position; uses rhetorical techniques appropriate for age",
+            "3": "Writing has some persuasive energy; reads as more than just a report of opinions",
+            "2": "Writing states opinions but doesn't actively try to persuade; reads like a list of facts",
+            "1": "Not persuasive; reads as neutral description or disconnected statements"
+          },
+          "age_anchors": {
+            "7-9": {
+              "4": "Sounds like they really care about their opinion; enthusiasm and conviction come through; may address the reader directly",
+              "3": "Shows some feeling about the topic; opinion is expressed with some energy",
+              "2": "States opinion flatly without much feeling; doesn't try to convince",
+              "1": "No persuasive intent detectable"
+            },
+            "10-12": {
+              "4": "Uses persuasive techniques (rhetorical questions, emotional appeals, direct address); voice is confident and compelling",
+              "3": "Some persuasive techniques; voice shows conviction",
+              "2": "Mostly informational tone; little active persuasion",
+              "1": "No persuasive voice; reads as a neutral report"
+            },
+            "13-15": {
+              "4": "Sophisticated rhetorical awareness; voice balances logic and emotion; may use irony, analogy, or strategic concession; genuinely compelling",
+              "3": "Effective persuasive voice; uses some rhetorical devices; comes across as convincing",
+              "2": "Some persuasive intent but execution is weak; relies on assertion over rhetoric",
+              "1": "No rhetorical awareness; flat, unconvincing tone"
+            }
+          }
+        }
+      ]
+    }
+  },
+
+  "effort_engagement": {
+    "description": "A holistic modifier applied after per-dimension scoring to account for genuine effort vs. gaming/disengagement",
+    "indicators_of_genuine_effort": [
+      "Writing shows personal investment (unique ideas, personal voice, specific details)",
+      "Length is appropriate for the child's age, even if quality is low",
+      "Content is on-topic and responsive to the prompt",
+      "Errors appear to be developmental, not carelessness"
+    ],
+    "indicators_of_low_effort_or_gaming": [
+      "Extremely short responses (well below age-appropriate minimum)",
+      "Repeated sentences, filler text, or keyboard mashing",
+      "Copied text from the prompt itself",
+      "Off-topic content unrelated to the prompt",
+      "Responses that feel AI-generated (unnaturally sophisticated vocabulary, formulaic structure unlike a child's writing)"
+    ],
+    "scoring_impact": "Do NOT adjust per-dimension scores for effort. Instead, set confidence lower (0.3-0.5) and note effort concerns in the reasoning field. The tier recommendation should still reflect observed writing ability."
+  },
+
+  "scoring_guidance": {
+    "4": {
+      "label": "Exceeds Expectations",
+      "emoji": "star"
+    },
+    "3": {
+      "label": "Meets Expectations",
+      "emoji": "check"
+    },
+    "2": {
+      "label": "Approaching",
+      "emoji": "arrow_up"
+    },
+    "1": {
+      "label": "Beginning",
+      "emoji": "seedling"
+    }
+  },
+
+  "overall_score_calculation": "weighted_average_per_prompt_then_grand_average"
+}

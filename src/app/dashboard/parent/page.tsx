@@ -452,11 +452,11 @@ export default function ParentDashboard() {
                   {/* Layer 4: Recent lessons strip */}
                   {child.recentLessons.length > 0 && (
                     <div className="mx-5 mt-3 flex items-center gap-2 flex-wrap">
-                      {child.recentLessons.map((lesson) => {
+                      {child.recentLessons.map((lesson, idx) => {
                         const ls = getScoreLabel(lesson.score);
                         return (
                           <span
-                            key={lesson.lessonId}
+                            key={`${lesson.lessonId}-${idx}`}
                             className="inline-flex items-center gap-1.5 text-xs text-[#2D3436]/50 bg-[#2D3436]/[0.03] rounded-lg px-2.5 py-1"
                             style={{ fontFamily: "'DM Sans', sans-serif" }}
                           >

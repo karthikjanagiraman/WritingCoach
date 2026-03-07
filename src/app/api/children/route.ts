@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, age, gradeLevel, interests, avatarEmoji } = body;
+    const { name, age, gradeLevel, interests, avatarEmoji, isEsl, homeLanguage } = body;
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json(
@@ -83,6 +83,8 @@ export async function POST(request: NextRequest) {
         gradeLevel: gradeLevel || null,
         interests: interests || null,
         avatarEmoji: avatarEmoji || undefined,
+        isEsl: isEsl === true,
+        homeLanguage: homeLanguage?.trim() || null,
       },
     });
 

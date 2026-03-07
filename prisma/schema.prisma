@@ -40,6 +40,8 @@ model ChildProfile {
   avatarEmoji String   @default("🦉")
   gradeLevel  String?
   interests   String?  // JSON array of writing interests
+  isEsl       Boolean  @default(false)
+  homeLanguage String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
