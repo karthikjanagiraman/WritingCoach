@@ -39,6 +39,7 @@ export default function LessonPage() {
   const [submitting, setSubmitting] = useState(false);
   const [transition, setTransition] = useState<"instruction" | "guided" | null>(null);
   const [newBadges, setNewBadges] = useState<string[]>([]);
+  const [rubricCriteria, setRubricCriteria] = useState<{ name: string; displayName: string; weight: number }[]>([]);
   const [isCompletedReview, setIsCompletedReview] = useState(false);
   const [qualityError, setQualityError] = useState<string | null>(null);
   const [upgradeRequired, setUpgradeRequired] = useState(false);
@@ -143,6 +144,9 @@ export default function LessonPage() {
           overallScore: result.overallScore,
           feedback: result.feedback,
         });
+        if (result.rubric?.criteria) {
+          setRubricCriteria(result.rubric.criteria);
+        }
         if (result.newBadges && result.newBadges.length > 0) {
           setNewBadges(result.newBadges);
         }
@@ -334,6 +338,7 @@ export default function LessonPage() {
                   newBadges={newBadges}
                   childId={activeChild?.id}
                   onRetake={isCompletedReview ? handleRetake : undefined}
+                  rubricCriteria={rubricCriteria.length > 0 ? rubricCriteria : undefined}
                 />
               )}
             </>

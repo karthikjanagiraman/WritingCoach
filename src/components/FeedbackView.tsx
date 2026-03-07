@@ -8,6 +8,12 @@ import { reviseAssessment } from "@/lib/api";
 import { getBadgeById } from "@/lib/badges";
 import CelebrationOverlay from "./CelebrationOverlay";
 
+interface RubricCriterionInfo {
+  name: string;
+  displayName: string;
+  weight: number;
+}
+
 interface FeedbackViewProps {
   result: AssessmentResult;
   submittedText: string;
@@ -16,6 +22,7 @@ interface FeedbackViewProps {
   newBadges?: string[];
   childId?: string;
   onRetake?: () => void;
+  rubricCriteria?: RubricCriterionInfo[];
 }
 
 function StarRating({
@@ -103,10 +110,12 @@ function FeedbackCard({
 
 function ScoreComparison({
   criterion,
+  displayName,
   previous,
   current,
 }: {
   criterion: string;
+  displayName?: string;
   previous: number;
   current: number;
 }) {
@@ -117,7 +126,7 @@ function ScoreComparison({
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-sm font-semibold text-active-text capitalize flex-shrink-0">
-        {criterion.replace(/_/g, " ")}
+        {displayName || criterion.replace(/_/g, " ")}
       </span>
       <div className="flex items-center gap-2">
         <StarRating score={previous} size="sm" />
@@ -145,6 +154,7 @@ export default function FeedbackView({
   newBadges,
   childId,
   onRetake,
+  rubricCriteria,
 }: FeedbackViewProps) {
   const { tier, coachName } = useTier();
   const [showWriting, setShowWriting] = useState(false);
@@ -189,6 +199,14 @@ export default function FeedbackView({
 
   const roundedOverall = Math.round(currentResult.overallScore * 2) / 2;
   const canRevise = revisionsRemaining > 0 && sessionId;
+
+  // Build a lookup for criterion display names from rubric info
+  const criterionDisplayNames: Record<string, string> = {};
+  if (rubricCriteria) {
+    for (const c of rubricCriteria) {
+      criterionDisplayNames[c.name] = c.displayName;
+    }
+  }
   const reviseButtonText = tier === 1 ? "Try Again" : "Revise My Writing";
 
   const wordCount = revisionText
@@ -382,6 +400,7 @@ export default function FeedbackView({
               <ScoreComparison
                 key={criterion}
                 criterion={criterion}
+                displayName={criterionDisplayNames[criterion]}
                 previous={previousScores[criterion] ?? 0}
                 current={score}
               />
@@ -398,7 +417,7 @@ export default function FeedbackView({
                 className="flex items-center justify-between gap-3"
               >
                 <span className="text-sm font-semibold text-active-text capitalize flex-shrink-0">
-                  {criterion.replace(/_/g, " ")}
+                  {criterionDisplayNames[criterion] || criterion.replace(/_/g, " ")}
                 </span>
                 <StarRating score={score} size="sm" />
               </div>
@@ -454,17 +473,21 @@ export default function FeedbackView({
         </div>
       )}
 
-      {/* Revision Nudge — shown for low scores when revision is available */}
-      {currentResult.overallScore < 1.5 && canRevise && !showImprovement && (
+      {/* Revision Nudge — shown for lower scores when revision is available */}
+      {currentResult.overallScore < 2.5 && canRevise && !showImprovement && (
         <div className="bg-gradient-to-br from-active-primary/10 to-active-accent/10 rounded-2xl p-5 border-2 border-active-primary/20 animate-fade-in stagger-4">
           <div className="flex items-start gap-3">
             <CoachAvatar size="sm" />
             <div className="flex-1">
               <h3 className="font-bold text-active-text text-sm mb-1">
-                Your writing has room to grow!
+                {currentResult.overallScore < 1.5
+                  ? "Your writing has room to grow!"
+                  : "Want to level up?"}
               </h3>
               <p className="text-active-text/70 text-[15px] leading-relaxed">
-                Try revising it &mdash; I bet you can do even better. Look at the feedback above and give it another shot!
+                {currentResult.overallScore < 1.5
+                  ? "Try revising it \u2014 I bet you can do even better. Look at the feedback above and give it another shot!"
+                  : "You\u2019re on the right track! Try revising with the feedback above \u2014 small changes can make a big difference."}
               </p>
             </div>
           </div>
@@ -497,7 +520,7 @@ export default function FeedbackView({
 
       {/* Action Buttons */}
       {(() => {
-        const needsWork = currentResult.overallScore < 1.5 && canRevise && !showImprovement;
+        const needsWork = currentResult.overallScore < 2.0 && canRevise && !showImprovement;
         return (
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 pb-4 animate-fade-in stagger-5">
             <button

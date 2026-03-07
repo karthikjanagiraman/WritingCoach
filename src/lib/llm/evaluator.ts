@@ -350,7 +350,6 @@ RESPONSE FORMAT — you MUST respond with valid JSON and nothing else:
     "<criterion_name>": <score: 1, 1.5, 2, 2.5, 3, 3.5, or 4>,
     ...one entry per criterion in the rubric
   },
-  "overallScore": <weighted average rounded to 1 decimal>,
   "feedback": {
     "strength": "<1-2 sentences about what the student did well, referencing their actual writing AND a specific technique from the lesson>",
     "growth": "<1-2 sentences about one area for improvement, connected to a lesson objective, with a concrete suggestion>",
@@ -420,7 +419,6 @@ RESPONSE FORMAT — you MUST respond with valid JSON and nothing else:
     "organization": <score: 1, 1.5, 2, 2.5, 3, 3.5, or 4>,
     "voice_style": <score: 1, 1.5, 2, 2.5, 3, 3.5, or 4>
   },
-  "overallScore": <average rounded to 1 decimal>,
   "feedback": {
     "strength": "<1-2 sentences about what the student did well, referencing their actual writing>",
     "growth": "<1-2 sentences about one area for improvement, with a concrete suggestion>",
@@ -487,15 +485,9 @@ function parseGeneralEvaluationResponse(
           : 2;
     }
 
-    let overallScore = parsed.overallScore;
-    if (
-      typeof overallScore !== "number" ||
-      overallScore < 1 ||
-      overallScore > 4
-    ) {
-      overallScore =
-        (scores.ideas_content + scores.organization + scores.voice_style) / 3;
-    }
+    // Always compute overall score from criteria — never trust LLM's value
+    let overallScore =
+      (scores.ideas_content + scores.organization + scores.voice_style) / 3;
     overallScore = Math.round(overallScore * 10) / 10;
 
     return {
@@ -552,19 +544,19 @@ function parseEvaluationResponse(
           : 2;
     }
 
-    // Calculate weighted overall score if not provided or invalid
-    let overallScore = parsed.overallScore;
-    if (
-      typeof overallScore !== "number" ||
-      overallScore < 1 ||
-      overallScore > 4
-    ) {
-      overallScore = 0;
-      for (const criterion of rubric.criteria) {
-        overallScore += scores[criterion.name] * criterion.weight;
-      }
+    // Always compute overall score from weighted criteria — never trust LLM's value
+    let overallScore = 0;
+    for (const criterion of rubric.criteria) {
+      overallScore += scores[criterion.name] * criterion.weight;
     }
     overallScore = Math.round(overallScore * 10) / 10;
+
+    // Log warning if LLM's self-reported score differs significantly
+    if (typeof parsed.overallScore === "number" && Math.abs(parsed.overallScore - overallScore) > 0.5) {
+      console.warn(
+        `[Evaluator] LLM overallScore (${parsed.overallScore}) differs from computed (${overallScore}) — using computed`
+      );
+    }
 
     return {
       scores,
