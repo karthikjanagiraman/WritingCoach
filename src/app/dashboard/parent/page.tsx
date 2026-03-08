@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
@@ -36,6 +36,8 @@ interface ChildCard {
     lessonId: string;
     title: string;
   }>;
+  wordsWritten: number;
+  weeklyActivity: boolean[];
 }
 
 interface AttentionItem {
@@ -45,6 +47,7 @@ interface AttentionItem {
   message: string;
   actionLabel: string;
   actionUrl: string;
+  icon: string;
 }
 
 interface DashboardData {
@@ -54,48 +57,78 @@ interface DashboardData {
   attentionItems: AttentionItem[];
 }
 
-const ATTENTION_COLORS: Record<string, { bar: string; bg: string; text: string; btn: string; btnHover: string }> = {
+const ATTENTION_COLORS: Record<string, { bar: string; bg: string; iconBg: string; text: string; btn: string }> = {
   red: {
-    bar: "bg-[#E74C3C]",
-    bg: "bg-[#E74C3C]/[0.04]",
-    text: "text-[#E74C3C]/80",
-    btn: "bg-[#E74C3C]/10 text-[#E74C3C] hover:bg-[#E74C3C]/20",
-    btnHover: "",
+    bar: "border-l-[#FF6B6B]",
+    bg: "bg-white",
+    iconBg: "bg-[#FFF0F0]",
+    text: "text-[#2D3436]",
+    btn: "bg-[#FFF0F0] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white",
   },
   amber: {
-    bar: "bg-[#F0932B]",
-    bg: "bg-[#F0932B]/[0.04]",
-    text: "text-[#F0932B]/80",
-    btn: "bg-[#F0932B]/10 text-[#F0932B] hover:bg-[#F0932B]/20",
-    btnHover: "",
+    bar: "border-l-[#E17055]",
+    bg: "bg-white",
+    iconBg: "bg-[#FFF4F0]",
+    text: "text-[#2D3436]",
+    btn: "bg-[#FFF4F0] text-[#E17055] hover:bg-[#E17055] hover:text-white",
   },
   green: {
-    bar: "bg-[#00B894]",
-    bg: "bg-[#00B894]/[0.04]",
-    text: "text-[#00B894]/80",
-    btn: "bg-[#00B894]/10 text-[#00B894] hover:bg-[#00B894]/20",
-    btnHover: "",
+    bar: "border-l-[#00B894]",
+    bg: "bg-white",
+    iconBg: "bg-[#E8FFF8]",
+    text: "text-[#2D3436]",
+    btn: "bg-[#E8FFF8] text-[#00B894] hover:bg-[#00B894] hover:text-white",
   },
   blue: {
-    bar: "bg-[#0984E3]",
-    bg: "bg-[#0984E3]/[0.04]",
-    text: "text-[#0984E3]/80",
-    btn: "bg-[#0984E3]/10 text-[#0984E3] hover:bg-[#0984E3]/20",
-    btnHover: "",
+    bar: "border-l-[#0984E3]",
+    bg: "bg-white",
+    iconBg: "bg-[#EBF5FF]",
+    text: "text-[#2D3436]",
+    btn: "bg-[#EBF5FF] text-[#0984E3] hover:bg-[#0984E3] hover:text-white",
   },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string }> = {
-  on_track: { label: "On Track", dot: "bg-[#00B894]", text: "text-[#00B894]" },
-  needs_attention: { label: "Needs Attention", dot: "bg-[#F0932B]", text: "text-[#F0932B]" },
-  needs_setup: { label: "Needs Setup", dot: "bg-[#0984E3]", text: "text-[#0984E3]" },
+const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
+  on_track: { label: "On Track", dot: "bg-[#00B894]", text: "text-[#00B894]", bg: "bg-[#E8FFF8]" },
+  needs_attention: { label: "Needs Attention", dot: "bg-[#E17055]", text: "text-[#E17055]", bg: "bg-[#FFF4F0]" },
+  needs_setup: { label: "Needs Setup", dot: "bg-[#0984E3]", text: "text-[#0984E3]", bg: "bg-[#EBF5FF]" },
+};
+
+const TIER_PRIMARY: Record<number, string> = {
+  1: "#FF6B6B",
+  2: "#6C5CE7",
+  3: "#2D3436",
+};
+
+const TIER_GRADIENTS: Record<number, string> = {
+  1: "linear-gradient(90deg, #FF6B6B, #FFB8B8)",
+  2: "linear-gradient(90deg, #6C5CE7, #A29BFE)",
+  3: "linear-gradient(90deg, #2D3436, #636E72)",
+};
+
+const TIER_LABELS: Record<number, string> = {
+  1: "Explorer",
+  2: "Adventurer",
+  3: "Trailblazer",
+};
+
+const TIER_BADGE_STYLES: Record<number, string> = {
+  1: "bg-[#FFF0F0] text-[#FF6B6B]",
+  2: "bg-[#F0EEFF] text-[#6C5CE7]",
+  3: "bg-[#F0F0F0] text-[#2D3436]",
+};
+
+const DOT_COLORS: Record<number, string> = {
+  1: "bg-[#FF6B6B]",
+  2: "bg-[#6C5CE7]",
+  3: "bg-[#2D3436]",
 };
 
 function getScoreLabel(score: number): { label: string; color: string } {
-  if (score >= 3.5) return { label: "Excellent", color: "bg-[#00B894]/15 text-[#00B894]" };
-  if (score >= 2.5) return { label: "On Track", color: "bg-[#0984E3]/15 text-[#0984E3]" };
-  if (score >= 1.5) return { label: "Building Skills", color: "bg-[#F0932B]/15 text-[#F0932B]" };
-  return { label: "Needs Support", color: "bg-[#E74C3C]/15 text-[#E74C3C]" };
+  if (score >= 3.5) return { label: "Excellent", color: "bg-[#E8FFF8] text-[#00B894]" };
+  if (score >= 2.5) return { label: "On Track", color: "bg-[#EBF5FF] text-[#0984E3]" };
+  if (score >= 1.5) return { label: "Building", color: "bg-[#FFF4F0] text-[#E17055]" };
+  return { label: "Needs Support", color: "bg-[#FFEAEA] text-[#D63031]" };
 }
 
 function getTimeAgo(dateStr: string): { label: string; color: string } {
@@ -104,7 +137,7 @@ function getTimeAgo(dateStr: string): { label: string; color: string } {
   if (days === 0) return { label: "Today", color: "text-[#00B894]" };
   if (days === 1) return { label: "Yesterday", color: "text-[#00B894]" };
   if (days <= 3) return { label: `${days}d ago`, color: "text-[#2D3436]/50" };
-  return { label: `${days}d ago`, color: "text-[#F0932B]" };
+  return { label: `${days}d ago`, color: "text-[#E17055]" };
 }
 
 function getGreeting(): string {
@@ -113,12 +146,6 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
-
-const TIER_PRIMARY: Record<number, string> = {
-  1: "#FF6B6B",
-  2: "#6C5CE7",
-  3: "#2D3436",
-};
 
 export default function ParentDashboard() {
   const { data: session, status: authStatus } = useSession();
@@ -197,68 +224,75 @@ export default function ParentDashboard() {
   const weeklyTotal = data.children.reduce((s, c) => s + c.weeklyTotal, 0);
   const weeklyDone = data.children.reduce((s, c) => s + c.weeklyCompleted, 0);
 
+  const activeChildren = data.children.filter((c) => c.status !== "needs_setup");
+  const todayDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
   return (
     <div className="min-h-screen bg-[#FFF9F0]">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-[#2D3436]/[0.06]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-[960px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl">&#128218;</span>
             <span
               className="text-lg font-semibold text-[#2D3436]"
               style={{ fontFamily: "'Fraunces', serif" }}
             >
-              WriteWise Kids
+              Write<span className="text-[#6C5CE7]">Wise</span> Kids
             </span>
             {planLabel && (
-              <span className="text-[10px] font-bold text-[#6C5CE7] bg-[#6C5CE7]/[0.08] px-2.5 py-1 rounded-full ml-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C5CE7] bg-[#F0EEFF] px-2.5 py-1 rounded-full">
                 {planLabel}
               </span>
             )}
           </div>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#2D3436]/50 hover:text-[#2D3436] hover:bg-[#2D3436]/[0.04] rounded-xl transition-colors"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            Back to Profiles
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="text-[13px] font-medium text-[#636E72] hover:text-[#2D3436] transition-colors"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Back to Profiles
+            </button>
+            <button
+              onClick={() => signOut({ callbackUrl: "/auth/login" })}
+              className="text-[13px] font-medium text-[#636E72] hover:text-[#2D3436] transition-colors"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Log out
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <main className="max-w-[960px] mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Greeting */}
         <section className="animate-fade-in">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <h1
-                className="text-2xl sm:text-3xl font-medium text-[#2D3436]"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
+                className="text-2xl sm:text-[26px] font-medium text-[#2D3436] tracking-tight"
+                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, lineHeight: 1.2 }}
               >
                 {getGreeting()}, {data.parentName}
               </h1>
               <p
-                className="text-base text-[#2D3436]/40 mt-1"
+                className="text-sm text-[#636E72] mt-1"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
                 Here&apos;s how your family is doing this week
               </p>
             </div>
 
-            {/* Weekly progress pill */}
             {weeklyTotal > 0 && (
-              <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-[#2D3436]/[0.06]">
-                <span className="text-sm font-medium text-[#2D3436]/60" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  {weeklyDone} of {weeklyTotal} lessons this week
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="text-[13px] font-semibold text-[#636E72] whitespace-nowrap" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <strong className="text-[#2D3436] font-bold">{weeklyDone}</strong> of <strong className="text-[#2D3436] font-bold">{weeklyTotal}</strong> lessons this week
                 </span>
-                <div className="w-24 h-2 bg-[#2D3436]/[0.06] rounded-full overflow-hidden">
+                <div className="w-[120px] h-1.5 bg-[#F5EDE0] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-[#6C5CE7] rounded-full transition-all duration-700"
-                    style={{ width: `${Math.min(100, (weeklyDone / weeklyTotal) * 100)}%` }}
+                    style={{ width: `${Math.min(100, weeklyTotal > 0 ? (weeklyDone / weeklyTotal) * 100 : 0)}%` }}
                   />
                 </div>
               </div>
@@ -268,16 +302,19 @@ export default function ParentDashboard() {
 
         {/* Attention Items */}
         {data.attentionItems.length > 0 && (
-          <section className="space-y-2 animate-fade-in stagger-1">
+          <section className="flex flex-col gap-2 animate-fade-in stagger-1">
             {data.attentionItems.slice(0, 4).map((item, idx) => {
               const colors = ATTENTION_COLORS[item.type] || ATTENTION_COLORS.amber;
               return (
                 <div
                   key={`${item.childId}-${item.type}-${idx}`}
-                  className={`flex items-center gap-3 ${colors.bg} rounded-xl pl-0 pr-3 py-3 overflow-hidden`}
+                  className={`flex items-center gap-3 ${colors.bg} rounded-xl px-4 py-3 border-l-[3px] ${colors.bar} transition-all hover:shadow-sm hover:translate-x-0.5`}
+                  style={{ boxShadow: "0 1px 2px rgba(45,52,54,0.03)" }}
                 >
-                  <div className={`w-1 self-stretch rounded-r-full ${colors.bar}`} />
-                  <p className="flex-1 text-sm text-[#2D3436]/70 min-w-0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <div className={`w-7 h-7 rounded-lg ${colors.iconBg} flex items-center justify-center text-base flex-shrink-0`}>
+                    {item.icon}
+                  </div>
+                  <p className="flex-1 text-[13px] text-[#2D3436] min-w-0 leading-snug" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                     {item.message}
                   </p>
                   <Link
@@ -289,7 +326,7 @@ export default function ParentDashboard() {
                         if (child) handleSelectChild(child);
                       }
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${colors.btn}`}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${colors.btn}`}
                     style={{ fontFamily: "'DM Sans', sans-serif" }}
                   >
                     {item.actionLabel}
@@ -300,205 +337,360 @@ export default function ParentDashboard() {
           </section>
         )}
 
-        {/* Child Progress Cards */}
-        <section className="animate-fade-in stagger-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {data.children.map((child) => {
-              const statusCfg = STATUS_CONFIG[child.status] || STATUS_CONFIG.on_track;
-              const tierColor = TIER_PRIMARY[child.tier] || "#FF6B6B";
-              const scoreInfo = child.avgScore !== null ? getScoreLabel(child.avgScore) : null;
-              const lastActiveInfo = child.lastActive ? getTimeAgo(child.lastActive) : null;
+        {/* Section heading */}
+        <h2
+          className="text-xl font-medium text-[#2D3436] tracking-tight animate-fade-in stagger-2"
+          style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
+        >
+          Your writers
+        </h2>
 
-              if (child.status === "needs_setup") {
-                return (
-                  <div
-                    key={child.id}
-                    className="bg-white rounded-2xl border-2 border-dashed border-[#2D3436]/[0.08] p-6"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#0984E3]/[0.08] flex items-center justify-center text-2xl">
-                        {child.avatarEmoji}
-                      </div>
-                      <div>
-                        <span className="text-base font-bold text-[#2D3436]" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                          {child.name}
-                        </span>
-                        <span className="block text-xs text-[#2D3436]/40" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                          Age {child.age}
-                        </span>
-                      </div>
-                      <span className={`ml-auto text-xs font-bold ${statusCfg.text}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                        {statusCfg.label}
-                      </span>
-                    </div>
-                    <p className="text-sm text-[#2D3436]/50 mb-4 leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                      {child.name} needs a placement assessment to find the right starting level. This short writing exercise takes about 10 minutes.
-                    </p>
-                    <Link
-                      href={`/placement/${child.id}`}
-                      className="inline-flex items-center px-5 py-2.5 bg-[#00B894] text-white rounded-xl text-sm font-bold hover:bg-[#00A884] transition-colors shadow-sm"
-                      style={{ fontFamily: "'DM Sans', sans-serif" }}
-                    >
-                      Begin Assessment
-                    </Link>
-                  </div>
-                );
-              }
+        {/* Child Progress Cards — single column */}
+        <section className="flex flex-col gap-4 animate-fade-in stagger-2">
+          {data.children.map((child) => {
+            const statusCfg = STATUS_CONFIG[child.status] || STATUS_CONFIG.on_track;
+            const tierColor = TIER_PRIMARY[child.tier] || "#FF6B6B";
+            const scoreInfo = child.avgScore !== null ? getScoreLabel(child.avgScore) : null;
+            const lastActiveInfo = child.lastActive ? getTimeAgo(child.lastActive) : null;
 
+            /* ─── Onboarding card (needs_setup) ─── */
+            if (child.status === "needs_setup") {
               return (
                 <div
                   key={child.id}
-                  className="bg-white rounded-2xl border border-[#2D3436]/[0.06] overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white rounded-2xl p-6 relative overflow-hidden"
+                  style={{
+                    borderTop: "3px solid transparent",
+                    borderImage: "linear-gradient(90deg, #0984E3, #74B9FF) 1",
+                    border: "1.5px dashed rgba(9,132,227,0.2)",
+                    boxShadow: "0 1px 3px rgba(45,52,54,0.04), 0 4px 12px rgba(45,52,54,0.03)",
+                  }}
                 >
-                  {/* Layer 1: Identity bar */}
-                  <div className="px-5 pt-5 pb-3 flex items-center gap-3">
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${tierColor}10` }}
-                    >
+                  {/* Blue gradient top strip */}
+                  <div
+                    className="absolute top-0 left-0 right-0 h-[3px]"
+                    style={{ background: "linear-gradient(90deg, #0984E3, #74B9FF)" }}
+                  />
+
+                  <div className="flex items-center gap-3 mb-0">
+                    <div className="w-11 h-11 rounded-xl bg-[#EBF5FF] flex items-center justify-center text-xl flex-shrink-0">
                       {child.avatarEmoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-base font-bold text-[#2D3436]" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                        {child.name}
-                      </span>
-                      <span className="block text-xs text-[#2D3436]/40" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-semibold text-[#2D3436]" style={{ fontFamily: "'Fraunces', serif" }}>
+                          {child.name}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wide bg-[#EBF5FF] text-[#0984E3] px-2 py-0.5 rounded-full">
+                          New
+                        </span>
+                      </div>
+                      <span className="text-xs text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                         Age {child.age}
-                        {child.currentWeek && child.totalWeeks && ` \u00B7 Week ${child.currentWeek} of ${child.totalWeeks}`}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-2 h-2 rounded-full ${statusCfg.dot}`} />
-                      <span className={`text-xs font-bold ${statusCfg.text}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${statusCfg.bg}`}>
+                      <div className={`w-[7px] h-[7px] rounded-full ${statusCfg.dot}`} />
+                      <span className={`text-xs font-semibold ${statusCfg.text}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
                         {statusCfg.label}
                       </span>
                     </div>
                   </div>
 
-                  {/* Layer 2: Metrics row */}
-                  <div className="mx-5 grid grid-cols-4 rounded-xl overflow-hidden border border-[#2D3436]/[0.04]">
-                    <div className="bg-[#2D3436]/[0.015] px-3 py-2.5 text-center border-r border-[#2D3436]/[0.04]">
-                      <p className="text-sm font-bold text-[#2D3436]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                        {child.weeklyCompleted}/{child.weeklyTotal}
+                  <div className="mt-4 flex items-center gap-5 flex-wrap sm:flex-nowrap">
+                    <div className="flex-1">
+                      <p className="text-sm text-[#636E72] leading-relaxed" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {child.name} needs a placement assessment to find the right starting level. This short writing exercise helps us understand where they are and build a personalized curriculum.
                       </p>
-                      <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                        This Week
-                      </p>
+                      <div className="flex items-center gap-1 mt-2 text-xs text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 6v6l4 2" />
+                        </svg>
+                        Takes about 10 minutes
+                      </div>
                     </div>
-                    <div className="bg-[#2D3436]/[0.015] px-3 py-2.5 text-center border-r border-[#2D3436]/[0.04]">
-                      <p className="text-sm font-bold text-[#2D3436]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                        {child.streakCount > 0 ? `\uD83D\uDD25 ${child.streakCount}` : "\u2014"}
-                      </p>
-                      <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                        Streak
-                      </p>
-                    </div>
-                    <div className="bg-[#2D3436]/[0.015] px-3 py-2.5 text-center border-r border-[#2D3436]/[0.04]">
-                      {child.avgScore !== null && scoreInfo ? (
-                        <>
-                          <p className="text-sm font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                            <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-bold ${scoreInfo.color}`}>
-                              {child.avgScore.toFixed(1)}
-                            </span>
-                          </p>
-                          <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                            Avg Score
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm font-bold text-[#2D3436]/20" style={{ fontFamily: "'DM Sans', sans-serif" }}>&mdash;</p>
-                          <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>Avg Score</p>
-                        </>
-                      )}
-                    </div>
-                    <div className="bg-[#2D3436]/[0.015] px-3 py-2.5 text-center">
-                      {lastActiveInfo ? (
-                        <>
-                          <p className={`text-sm font-bold ${lastActiveInfo.color}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                            {lastActiveInfo.label}
-                          </p>
-                          <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>Active</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm font-bold text-[#2D3436]/20" style={{ fontFamily: "'DM Sans', sans-serif" }}>&mdash;</p>
-                          <p className="text-[10px] text-[#2D3436]/40 mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>Active</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Layer 3: Insights row */}
-                  {(child.strongest || child.weakest) && (
-                    <div className="mx-5 mt-3 flex items-center gap-4 flex-wrap">
-                      {child.strongest && (
-                        <span className="text-xs text-[#2D3436]/50" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                          <span className="text-[#00B894]">{"\u25B2"}</span> Strongest:{" "}
-                          <strong className="text-[#2D3436]/70">{child.strongest.name}</strong>{" "}
-                          <span className="text-[#2D3436]/30">({child.strongest.score})</span>
-                        </span>
-                      )}
-                      {child.weakest && (
-                        <span className="text-xs text-[#2D3436]/50" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                          <span className="text-[#F0932B]">{"\u25BD"}</span> Needs work:{" "}
-                          <strong className="text-[#2D3436]/70">{child.weakest.name}</strong>{" "}
-                          <span className="text-[#2D3436]/30">({child.weakest.score})</span>
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Layer 4: Recent lessons strip */}
-                  {child.recentLessons.length > 0 && (
-                    <div className="mx-5 mt-3 flex items-center gap-2 flex-wrap">
-                      {child.recentLessons.map((lesson, idx) => {
-                        const ls = getScoreLabel(lesson.score);
-                        return (
-                          <span
-                            key={`${lesson.lessonId}-${idx}`}
-                            className="inline-flex items-center gap-1.5 text-xs text-[#2D3436]/50 bg-[#2D3436]/[0.03] rounded-lg px-2.5 py-1"
-                            style={{ fontFamily: "'DM Sans', sans-serif" }}
-                          >
-                            {lesson.title}
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${ls.color}`}>
-                              {lesson.score.toFixed(1)}
-                            </span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Layer 5: Actions */}
-                  <div className="px-5 py-4 mt-3 border-t border-[#2D3436]/[0.04] flex items-center gap-3">
                     <Link
-                      href={`/dashboard/children/${child.id}/report`}
-                      className="flex-1 text-center px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-colors shadow-sm"
-                      style={{
-                        backgroundColor: tierColor,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
+                      href={`/placement/${child.id}`}
+                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-[#00B894] text-white rounded-xl text-[13px] font-bold hover:bg-[#00A383] transition-all hover:-translate-y-px shadow-sm flex-shrink-0"
+                      style={{ fontFamily: "'DM Sans', sans-serif" }}
                     >
-                      {"\uD83D\uDCCA"} See Full Report
+                      Begin Assessment &rarr;
                     </Link>
-                    <button
-                      onClick={() => handleSelectChild(child)}
-                      className="flex-1 text-center px-4 py-2.5 rounded-xl text-sm font-bold border transition-colors"
-                      style={{
-                        color: tierColor,
-                        borderColor: `${tierColor}30`,
-                        fontFamily: "'DM Sans', sans-serif",
-                      }}
-                    >
-                      {"\u270D\uFE0F"} Continue Lessons
-                    </button>
                   </div>
                 </div>
               );
-            })}
-          </div>
+            }
+
+            /* ─── Active child card ─── */
+            return (
+              <div
+                key={child.id}
+                className="bg-white rounded-2xl overflow-hidden transition-all hover:shadow-md hover:-translate-y-px relative"
+                style={{
+                  boxShadow: "0 1px 3px rgba(45,52,54,0.04), 0 4px 12px rgba(45,52,54,0.03)",
+                }}
+              >
+                {/* Tier accent gradient strip */}
+                <div
+                  className="h-[3px] w-full"
+                  style={{ background: TIER_GRADIENTS[child.tier] || TIER_GRADIENTS[1] }}
+                />
+
+                {/* Layer 1: Identity bar */}
+                <div className="px-6 pt-5 pb-3 flex items-center gap-3">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center text-[22px] flex-shrink-0"
+                    style={{ backgroundColor: `${tierColor}12` }}
+                  >
+                    {child.avatarEmoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-lg font-semibold text-[#2D3436]"
+                        style={{ fontFamily: "'Fraunces', serif" }}
+                      >
+                        {child.name}
+                      </span>
+                      <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${TIER_BADGE_STYLES[child.tier] || TIER_BADGE_STYLES[1]}`}>
+                        {TIER_LABELS[child.tier] || "Explorer"}
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      Age {child.age}
+                      {child.currentWeek && child.totalWeeks && ` \u00B7 Week ${child.currentWeek} of ${child.totalWeeks}`}
+                      {child.wordsWritten > 0 && ` \u00B7 ${child.wordsWritten.toLocaleString()} words written`}
+                    </span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full flex-shrink-0 ${statusCfg.bg}`}>
+                    <div
+                      className={`w-[7px] h-[7px] rounded-full ${statusCfg.dot}`}
+                      style={child.status === "on_track" ? { animation: "pulseGlow 2s ease-in-out infinite" } : undefined}
+                    />
+                    <span className={`text-xs font-semibold ${statusCfg.text}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      {statusCfg.label}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Layer 2: Metrics row */}
+                <div className="mx-6 grid grid-cols-2 sm:grid-cols-4 gap-3 pb-4 border-b border-[#2D3436]/[0.05]">
+                  {/* Weekly progress */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-[#B2BEC3] uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      This Week
+                    </span>
+                    <span className="text-sm font-bold text-[#2D3436]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      {child.weeklyCompleted}/{child.weeklyTotal} lessons
+                    </span>
+                    <div className="w-full h-1 bg-[#F5EDE0] rounded-full overflow-hidden mt-0.5">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${child.weeklyTotal > 0 ? Math.min(100, (child.weeklyCompleted / child.weeklyTotal) * 100) : 0}%`,
+                          backgroundColor: tierColor,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Streak */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-[#B2BEC3] uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      Streak
+                    </span>
+                    {child.streakCount > 0 ? (
+                      <span className="text-sm font-bold text-[#E17055]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {"\uD83D\uDD25"} {child.streakCount} day{child.streakCount !== 1 ? "s" : ""}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-medium text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {"\u2014"} broken
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Avg Score */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-[#B2BEC3] uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      Avg Score
+                    </span>
+                    {child.avgScore !== null && scoreInfo ? (
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full w-fit ${scoreInfo.color}`}>
+                        {child.avgScore.toFixed(1)} {"\u2014"} {scoreInfo.label}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-medium text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {"\u2014"}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Last Active */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] font-semibold text-[#B2BEC3] uppercase tracking-wide" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                      Last Active
+                    </span>
+                    {lastActiveInfo ? (
+                      <span className={`text-sm font-bold ${lastActiveInfo.color}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {lastActiveInfo.label}
+                      </span>
+                    ) : (
+                      <span className="text-sm font-medium text-[#B2BEC3]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        {"\u2014"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Layer 3: Insight pills */}
+                {(child.strongest || child.weakest) && (
+                  <div className="mx-6 mt-4 flex items-center gap-3 flex-wrap">
+                    {child.strongest && (
+                      <div className="flex items-center gap-1.5 text-xs bg-[#FFF9F0] rounded-lg px-3 py-1.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        <span>{"\uD83D\uDCAA"}</span>
+                        <span className="text-[#636E72]">
+                          Strongest: <strong className="text-[#2D3436]">{child.strongest.name}</strong>
+                        </span>
+                        <span className={`text-[11px] font-bold px-1.5 py-px rounded-full ${getScoreLabel(child.strongest.score).color}`}>
+                          {child.strongest.score.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                    {child.weakest && (
+                      <div className="flex items-center gap-1.5 text-xs bg-[#FFF9F0] rounded-lg px-3 py-1.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                        <span>{"\uD83C\uDF31"}</span>
+                        <span className="text-[#636E72]">
+                          Needs work: <strong className="text-[#2D3436]">{child.weakest.name}</strong>
+                        </span>
+                        <span className={`text-[11px] font-bold px-1.5 py-px rounded-full ${getScoreLabel(child.weakest.score).color}`}>
+                          {child.weakest.score.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Layer 4: Recent lessons */}
+                {child.recentLessons.length > 0 && (
+                  <div className="mx-6 mt-3 flex items-center gap-2 flex-wrap">
+                    {child.recentLessons.map((lesson, idx) => {
+                      const ls = getScoreLabel(lesson.score);
+                      const isLowScore = lesson.score <= 1.4;
+                      return (
+                        <div
+                          key={`${lesson.lessonId}-${idx}`}
+                          className="flex items-center gap-2 text-[13px] rounded-lg px-3.5 py-2 transition-colors"
+                          style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            background: isLowScore ? "#FFEAEA" : "#FFF9F0",
+                            border: isLowScore ? "1.5px solid rgba(214,48,49,0.15)" : "none",
+                            color: "#2D3436",
+                          }}
+                        >
+                          <span className="font-medium">{lesson.title}</span>
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${ls.color}`}>
+                            {lesson.score.toFixed(1)}{isLowScore ? " \u26A0" : ""}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Layer 5: Actions */}
+                <div className="px-6 py-4 mt-3 flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                  <Link
+                    href={`/dashboard/children/${child.id}/report`}
+                    className="flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-bold text-white transition-all hover:-translate-y-px inline-flex items-center justify-center gap-1.5"
+                    style={{
+                      backgroundColor: tierColor,
+                      fontFamily: "'DM Sans', sans-serif",
+                      boxShadow: `0 4px 12px ${tierColor}30`,
+                    }}
+                  >
+                    See Full Report &rarr;
+                  </Link>
+                  <button
+                    onClick={() => handleSelectChild(child)}
+                    className="flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-semibold border-[1.5px] transition-all hover:bg-[#F0EEFF]"
+                    style={{
+                      color: "#636E72",
+                      borderColor: "rgba(45,52,54,0.12)",
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  >
+                    Continue Lessons
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </section>
+
+        {/* Activity Summary */}
+        {activeChildren.length > 0 && (
+          <section className="animate-fade-in stagger-3">
+            <h2
+              className="text-xl font-medium text-[#2D3436] tracking-tight mb-4"
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
+            >
+              This week
+            </h2>
+            <div
+              className="bg-white rounded-2xl p-6"
+              style={{ boxShadow: "0 1px 3px rgba(45,52,54,0.04), 0 4px 12px rgba(45,52,54,0.03)" }}
+            >
+              {/* Header row */}
+              <div className="grid gap-1 pb-3 mb-3 border-b border-[#2D3436]/[0.05]" style={{ gridTemplateColumns: "100px repeat(7, 1fr)" }}>
+                <span />
+                {DAY_LABELS.map((day) => (
+                  <span
+                    key={day}
+                    className="text-[11px] font-semibold text-[#B2BEC3] uppercase tracking-wide text-center"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
+                    {day}
+                  </span>
+                ))}
+              </div>
+
+              {/* Child rows */}
+              {activeChildren.map((child, rowIdx) => (
+                <div
+                  key={child.id}
+                  className="grid gap-1 items-center py-2"
+                  style={{
+                    gridTemplateColumns: "100px repeat(7, 1fr)",
+                    borderTop: rowIdx > 0 ? "1px solid rgba(45,52,54,0.03)" : undefined,
+                  }}
+                >
+                  <div className="flex items-center gap-2 text-[13px] font-semibold text-[#2D3436]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <span className="text-base">{child.avatarEmoji}</span>
+                    {child.name}
+                  </div>
+                  {(child.weeklyActivity || [false, false, false, false, false, false, false]).map((active, dayIdx) => (
+                    <div key={dayIdx} className="flex justify-center items-center">
+                      <div
+                        className={`w-2.5 h-2.5 rounded-full ${
+                          active
+                            ? `${DOT_COLORS[child.tier] || DOT_COLORS[1]}`
+                            : "bg-[#F5EDE0] opacity-50"
+                        }`}
+                        style={
+                          active && dayIdx === todayDayIndex
+                            ? { boxShadow: `0 0 0 3px ${TIER_PRIMARY[child.tier] || TIER_PRIMARY[1]}33` }
+                            : undefined
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Bottom actions */}
         <section className="flex items-center justify-center gap-4 py-4 animate-fade-in stagger-3">
@@ -519,6 +711,14 @@ export default function ParentDashboard() {
           </Link>
         </section>
       </main>
+
+      {/* Inline keyframes for pulseGlow animation */}
+      <style jsx>{`
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,148,0.2); }
+          50% { box-shadow: 0 0 0 6px rgba(0,184,148,0); }
+        }
+      `}</style>
     </div>
   );
 }

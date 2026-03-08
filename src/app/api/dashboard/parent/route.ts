@@ -62,6 +62,31 @@ export async function GET() {
           where: { childId: child.id },
         });
 
+        // Total words written
+        const totalWords = await prisma.writingSubmission.aggregate({
+          where: { childId: child.id },
+          _sum: { wordCount: true },
+        });
+
+        // Weekly activity (Mon-Sun booleans)
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const weekStart = new Date(now);
+        weekStart.setHours(0, 0, 0, 0);
+        weekStart.setDate(weekStart.getDate() + mondayOffset);
+
+        const weekSessions = await prisma.session.findMany({
+          where: { childId: child.id, updatedAt: { gte: weekStart } },
+          select: { updatedAt: true },
+        });
+
+        const activeDays = new Array(7).fill(false);
+        for (const s of weekSessions) {
+          const d = s.updatedAt.getDay();
+          activeDays[d === 0 ? 6 : d - 1] = true; // Mon=0...Sun=6
+        }
+
         // Average score (recent 10 assessments)
         const recentAssessments = await prisma.assessment.findMany({
           where: { childId: child.id },
@@ -177,6 +202,8 @@ export async function GET() {
           strongest,
           weakest,
           recentLessons,
+          wordsWritten: totalWords._sum.wordCount ?? 0,
+          weeklyActivity: activeDays,
           recentBadges: recentBadges.map((b) => b.badgeId),
           needsImprovementLessons: needsImprovementLessons.map((l) => {
             const lesson = getLessonById(l.lessonId);
@@ -190,6 +217,9 @@ export async function GET() {
     );
 
     // Build attention items
+    const ALERT_ICONS: Record<string, string> = {
+      red: "\uD83D\uDCDD", amber: "\u23F0", green: "\uD83C\uDFC5", blue: "\uD83E\uDDED",
+    };
     const attentionItems: Array<{
       type: "red" | "amber" | "green" | "blue";
       childName: string;
@@ -197,6 +227,7 @@ export async function GET() {
       message: string;
       actionLabel: string;
       actionUrl: string;
+      icon: string;
     }> = [];
 
     for (const card of childCards) {
@@ -209,6 +240,7 @@ export async function GET() {
           message: `${card.name} needs a placement assessment to get started`,
           actionLabel: "Begin Assessment",
           actionUrl: `/placement/${card.id}`,
+          icon: ALERT_ICONS.blue,
         });
       }
 
@@ -221,6 +253,7 @@ export async function GET() {
           message: `${card.name}'s "${lesson.title}" needs revision`,
           actionLabel: "Encourage Revision",
           actionUrl: `/lesson/${lesson.lessonId}`,
+          icon: ALERT_ICONS.red,
         });
       }
 
@@ -240,6 +273,7 @@ export async function GET() {
           message: `${card.name} hasn't practiced in ${days} day${days === 1 ? "" : "s"}`,
           actionLabel: "Start Session",
           actionUrl: `/home`,
+          icon: ALERT_ICONS.amber,
         });
       }
 
@@ -252,6 +286,7 @@ export async function GET() {
           message: `${card.name} earned a new badge!`,
           actionLabel: "Celebrate",
           actionUrl: `/badges/${card.id}`,
+          icon: ALERT_ICONS.green,
         });
       }
     }
