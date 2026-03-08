@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { Message, AnswerMeta } from "@/types";
+import type { Message, AnswerMeta, Phase } from "@/types";
 import { useTier } from "@/contexts/TierContext";
 import { ChatBubble, CoachAvatar, TypingIndicator, QuickAnswerCardActive, QuickAnswerCardCompleted, AnswerCardActive, AnswerCardCompleted } from "./shared";
 
@@ -11,7 +11,7 @@ import { ChatBubble, CoachAvatar, TypingIndicator, QuickAnswerCardActive, QuickA
 interface GuidedPracticePhaseProps {
   onComplete: () => void;
   messages?: Message[];
-  onSendMessage?: (text: string) => Promise<Message | null>;
+  onSendMessage?: (text: string, options?: { forceTransition?: Phase }) => Promise<Message | null>;
 }
 
 type InteractionState = "WAITING_FOR_COACH" | "ANSWER_ACTIVE" | "WRITING_ACTIVE" | "CONTINUE_ACTIVE";
@@ -29,6 +29,10 @@ const STAGE_LABELS: Record<number, string> = {
   2: "Combination",
   3: "Mini-Draft",
 };
+
+function stripStepMarkers(content: string): string {
+  return content.replace(/\[STEP:\s*\d\]\s*/gi, "");
+}
 
 function parseGuidedStage(content: string): { text: string; stage: number | null } {
   const match = content.match(/\[GUIDED_STAGE:\s*(\d)\]/i);
@@ -285,7 +289,7 @@ export default function GuidedPracticePhase({
 
   const addCoachMessage = useCallback(
     (msg: Message): { writingPrompt: string | null } => {
-      const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(msg.content);
+      const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(stripStepMarkers(msg.content));
       const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(textAfterStage);
       const { text, expectsResponse } = parseExpectsResponse(textAfterWriting);
 
@@ -365,7 +369,7 @@ export default function GuidedPracticePhase({
       const msg = sourceMessages[i];
 
       if (msg.role === "coach") {
-        const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(msg.content);
+        const { text: textAfterStage, stage: parsedStage } = parseGuidedStage(stripStepMarkers(msg.content));
         const { text: textAfterWriting, writingPrompt } = parseWritingPrompt(textAfterStage);
         const { text } = parseExpectsResponse(textAfterWriting);
 
@@ -532,6 +536,30 @@ export default function GuidedPracticePhase({
     [onSendMessage, fallbackIndex, addCoachMessage]
   );
 
+  // ─── "Ready to write" handler (escape hatch → goes through API) ────────
+
+  const handleReadyToWrite = useCallback(async () => {
+    completeTypingRef.current?.();
+    setInteractionState("WAITING_FOR_COACH");
+    setIsTyping(true);
+
+    if (onSendMessage) {
+      try {
+        await onSendMessage("I'm ready to write on my own!", { forceTransition: "assessment" });
+        setIsTyping(false);
+        // The API forces the phase transition + generates assessment context.
+        // Parent's handleSendMessage calls handlePhaseAdvance, so we should
+        // already be transitioning. onComplete is a no-op safety net.
+        onComplete();
+      } catch {
+        setIsTyping(false);
+        onComplete();
+      }
+    } else {
+      onComplete();
+    }
+  }, [onSendMessage, onComplete]);
+
   // ─── Continue handler (no-question coach statements) ────────────────────
 
   const handleContinue = useCallback(async () => {
@@ -658,7 +686,7 @@ export default function GuidedPracticePhase({
               {totalExchanges >= ESCAPE_HATCH_EXCHANGES && (
                 <div className="flex justify-center py-2 animate-fade-in">
                   <button
-                    onClick={onComplete}
+                    onClick={handleReadyToWrite}
                     className="text-active-text/40 text-sm font-semibold hover:text-active-primary transition-colors"
                   >
                     I&rsquo;m ready to write on my own &rarr;

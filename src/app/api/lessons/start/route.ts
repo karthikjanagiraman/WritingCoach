@@ -108,6 +108,9 @@ export async function POST(request: NextRequest) {
           eventData: { messageCount: conversationHistory.length },
         });
 
+        // Parse phaseState to recover assessment context and draft
+        const resumePhaseState = JSON.parse(existingSession.phaseState || "{}");
+
         return NextResponse.json({
           sessionId: existingSession.id,
           resumed: true,
@@ -122,6 +125,12 @@ export async function POST(request: NextRequest) {
             template: lesson.template,
             learningObjectives: lesson.learningObjectives,
           },
+          ...(existingSession.phase === "assessment" && resumePhaseState.assessmentContext && {
+            assessmentContext: resumePhaseState.assessmentContext,
+          }),
+          ...(existingSession.phase === "assessment" && resumePhaseState.draftText && {
+            draftText: resumePhaseState.draftText,
+          }),
         });
       }
     }

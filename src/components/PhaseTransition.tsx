@@ -2,10 +2,13 @@
 
 import { CoachAvatar } from "@/components/shared";
 import { useTier } from "@/contexts/TierContext";
+import type { AssessmentContext } from "@/types";
 
 interface PhaseTransitionProps {
   fromPhase: "instruction" | "guided" | "assessment";
   onContinue: () => void;
+  assessmentContext?: AssessmentContext;
+  childName?: string;
 }
 
 const transitionContent = {
@@ -37,9 +40,127 @@ const transitionContent = {
 
 const phaseLabels = ["Learn", "Practice", "Write"];
 
-export default function PhaseTransition({ fromPhase, onContinue }: PhaseTransitionProps) {
-  const { coachName } = useTier();
+const TIER_TITLES: Record<1 | 2 | 3, string> = {
+  1: "You\u2019re ready!",
+  2: "Time to shine!",
+  3: "Time to write.",
+};
+
+const TIER_BUTTON_LABELS: Record<1 | 2 | 3, string> = {
+  1: "Start Writing!",
+  2: "Start Writing!",
+  3: "Begin Writing",
+};
+
+export default function PhaseTransition({
+  fromPhase,
+  onContinue,
+  assessmentContext,
+  childName,
+}: PhaseTransitionProps) {
+  const { coachName, tier } = useTier();
   const content = transitionContent[fromPhase];
+
+  // Enhanced guided→assessment transition with assessment context
+  if (fromPhase === "guided" && assessmentContext) {
+    return (
+      <div className="h-[var(--content-height)] flex items-center justify-center bg-active-bg">
+        <div className="flex flex-col items-center text-center px-6 max-w-lg">
+          {/* Big emoji with pop-in animation */}
+          <div className="animate-emoji-pop text-6xl sm:text-7xl mb-5" aria-hidden="true">
+            {"\u2728"}
+          </div>
+
+          {/* Tier-specific title */}
+          <h2 className="animate-fade-in text-2xl sm:text-3xl font-extrabold text-active-text mb-4">
+            {TIER_TITLES[tier]}
+          </h2>
+
+          {/* Coach encouragement — AI-generated, lesson-specific */}
+          <div className="animate-fade-in stagger-1 flex items-start gap-3 mb-5">
+            <CoachAvatar size="md" />
+            <p className="italic text-active-text/70 text-base sm:text-lg text-left pt-2">
+              &ldquo;{assessmentContext.encouragement}&rdquo;
+            </p>
+          </div>
+
+          {/* Techniques learned pills */}
+          {assessmentContext.techniquesLearned.length > 0 && (
+            <div className="animate-fade-in stagger-2 flex flex-wrap justify-center gap-2 mb-5">
+              {assessmentContext.techniquesLearned.map((technique) => (
+                <span
+                  key={technique}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-active-secondary/15 text-active-secondary"
+                >
+                  {technique}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Writing prompt preview card */}
+          <div className="animate-fade-in stagger-2 w-full rounded-xl border border-active-primary/15 bg-white/80 px-5 py-4 mb-6 text-left">
+            <p className="text-xs font-bold uppercase tracking-wider text-active-primary/60 mb-1.5">
+              Your writing prompt
+            </p>
+            <p className="text-sm text-active-text/80 leading-relaxed">
+              {assessmentContext.writingPrompt.length > 120
+                ? assessmentContext.writingPrompt.slice(0, 120) + "\u2026"
+                : assessmentContext.writingPrompt}
+            </p>
+          </div>
+
+          {/* Mini progress dots */}
+          <div className="animate-fade-in stagger-2 flex items-center gap-2 mb-6">
+            {phaseLabels.map((label, index) => {
+              const isCompleted = index <= 1;
+              const isNext = index === 2;
+              return (
+                <div key={label} className="flex items-center gap-2">
+                  {index > 0 && (
+                    <span className="text-active-text/30 text-xs font-bold mx-0.5">&rarr;</span>
+                  )}
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      className={`animate-dot-fill w-3 h-3 rounded-full transition-colors ${
+                        isCompleted
+                          ? "bg-active-secondary"
+                          : isNext
+                            ? "bg-active-primary ring-2 ring-active-primary/30"
+                            : "bg-gray-200"
+                      }`}
+                      style={{ animationDelay: `${0.3 + index * 0.15}s` }}
+                    />
+                    <span
+                      className={`text-[10px] font-bold ${
+                        isCompleted
+                          ? "text-active-secondary"
+                          : isNext
+                            ? "text-active-primary"
+                            : "text-gray-400"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CTA button */}
+          <button
+            onClick={onContinue}
+            className="animate-fade-in stagger-3 bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 active:scale-95 transition-all"
+          >
+            {TIER_BUTTON_LABELS[tier]}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Default transition (instruction→guided, assessment→feedback, or guided without context)
   const showButton = content.button !== null;
   const quote = content.quote ?? `${coachName} is reading your work...`;
 

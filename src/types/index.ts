@@ -56,6 +56,15 @@ export interface SessionState {
   conversationHistory: Message[];
 }
 
+export interface AssessmentContext {
+  writingPrompt: string;
+  selfCheckItems: string[];
+  encouragement: string;
+  techniquesLearned: string[];
+  wordRange: [number, number];
+  tier: Tier;
+}
+
 export interface PhaseState {
   instructionCompleted?: boolean;
   comprehensionCheckPassed?: boolean;
@@ -67,6 +76,8 @@ export interface PhaseState {
   writingStartedAt?: string;
   revisionsUsed?: number;
   answerTypesUsed?: string[];  // tracks answer types used this session
+  assessmentContext?: AssessmentContext;
+  draftText?: string;
 }
 
 export interface Message {

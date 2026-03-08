@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import type { Phase, Message, AssessmentResult, Tier } from "@/types";
+import type { Phase, Message, AssessmentResult, AssessmentContext, Tier } from "@/types";
 import { CoachAvatar } from "@/components/shared";
 import { TierProvider } from "@/contexts/TierContext";
 import PhaseIndicator from "@/components/PhaseIndicator";
@@ -43,6 +43,8 @@ export default function LessonPage() {
   const [isCompletedReview, setIsCompletedReview] = useState(false);
   const [qualityError, setQualityError] = useState<string | null>(null);
   const [upgradeRequired, setUpgradeRequired] = useState(false);
+  const [assessmentContext, setAssessmentContext] = useState<AssessmentContext | null>(null);
+  const [initialDraft, setInitialDraft] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!activeChild) {
@@ -74,6 +76,12 @@ export default function LessonPage() {
         } else if (session.resumed) {
           setMessages(session.conversationHistory);
           setCurrentPhase(session.phase);
+          if (session.assessmentContext) {
+            setAssessmentContext(session.assessmentContext);
+          }
+          if (session.draftText) {
+            setInitialDraft(session.draftText);
+          }
         } else {
           setMessages([session.initialPrompt]);
           setCurrentPhase("instruction");
@@ -107,7 +115,7 @@ export default function LessonPage() {
   }, []);
 
   const handleSendMessage = useCallback(
-    async (text: string): Promise<Message | null> => {
+    async (text: string, options?: { forceTransition?: Phase }): Promise<Message | null> => {
       if (!sessionId) return null;
       const studentMsg: Message = {
         id: `student-${Date.now()}`,
@@ -117,8 +125,11 @@ export default function LessonPage() {
       };
       setMessages((prev) => [...prev, studentMsg]);
       try {
-        const result = await apiSendMessage(sessionId, text);
+        const result = await apiSendMessage(sessionId, text, options);
         setMessages((prev) => [...prev, result.response]);
+        if (result.assessmentContext) {
+          setAssessmentContext(result.assessmentContext);
+        }
         if (result.phaseUpdate) {
           handlePhaseAdvance(result.phaseUpdate);
         }
@@ -302,6 +313,8 @@ export default function LessonPage() {
                 setTransition(null);
                 setCurrentPhase(nextPhase);
               }}
+              assessmentContext={assessmentContext ?? undefined}
+              childName={activeChild?.name}
             />
           ) : (
             <>
@@ -327,6 +340,9 @@ export default function LessonPage() {
                   onSubmit={handleAssessmentSubmit}
                   submitting={submitting}
                   qualityError={qualityError}
+                  assessmentContext={assessmentContext ?? undefined}
+                  sessionId={sessionId ?? undefined}
+                  initialDraft={initialDraft}
                 />
               )}
               {currentPhase === "feedback" && assessmentResult && (

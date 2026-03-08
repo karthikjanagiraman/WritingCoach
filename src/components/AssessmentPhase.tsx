@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CoachAvatar } from "./shared";
 import { useTier } from "@/contexts/TierContext";
+import { useAutoSave, useDraftRecovery } from "@/hooks/useAutoSave";
+import type { AssessmentContext } from "@/types";
 
 interface AssessmentPhaseProps {
   lessonTitle: string;
@@ -14,7 +16,28 @@ interface AssessmentPhaseProps {
     wordRange: [number, number];
     criteria: { name: string; displayName: string; weight: number }[];
   } | null;
+  assessmentContext?: AssessmentContext;
+  sessionId?: string;
+  initialDraft?: string;
 }
+
+const TIER_PLACEHOLDERS: Record<1 | 2 | 3, string> = {
+  1: "Once upon a time...",
+  2: "Start writing here...",
+  3: "Begin your piece...",
+};
+
+const TIER_SUBMIT_LABELS: Record<1 | 2 | 3, (coachName: string) => string> = {
+  1: (name) => `Show ${name}!`,
+  2: (name) => `Show ${name}!`,
+  3: () => "Submit",
+};
+
+const TIER_FONT_STYLES: Record<1 | 2 | 3, string> = {
+  1: "text-lg leading-[2.0]",
+  2: "text-base leading-[1.8]",
+  3: "text-[15px] leading-[1.7]",
+};
 
 const defaultTask = {
   prompt:
@@ -25,7 +48,6 @@ const defaultTask = {
     "Start with something that grabs attention",
   ],
   wordRange: { min: 50, max: 100 },
-  minimumToSubmit: 30,
 };
 
 export default function AssessmentPhase({
@@ -34,18 +56,46 @@ export default function AssessmentPhase({
   submitting = false,
   qualityError,
   rubric,
+  assessmentContext,
+  sessionId,
+  initialDraft,
 }: AssessmentPhaseProps) {
-  const { coachName } = useTier();
+  const { coachName, tier } = useTier();
+
+  // Draft recovery
+  const { recoveredDraft, clearRecoveredDraft } = useDraftRecovery(
+    sessionId,
+    initialDraft
+  );
   const [writingText, setWritingText] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
+  const [showDraftToast, setShowDraftToast] = useState(false);
 
-  // Use rubric data if available, otherwise fall back to defaults
-  const requirements =
-    rubric?.criteria.map((c) => c.displayName) || defaultTask.requirements;
-  const wordRange = rubric
-    ? { min: rubric.wordRange[0], max: rubric.wordRange[1] }
-    : defaultTask.wordRange;
+  // Apply recovered draft
+  useEffect(() => {
+    if (recoveredDraft && !writingText) {
+      setWritingText(recoveredDraft);
+      setShowDraftToast(true);
+      clearRecoveredDraft();
+      const timer = setTimeout(() => setShowDraftToast(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [recoveredDraft, writingText, clearRecoveredDraft]);
+
+  // Auto-save
+  const { saveStatus } = useAutoSave(sessionId, writingText);
+
+  // Determine checklist items and word range from assessment context or rubric fallback
+  const selfCheckItems = assessmentContext?.selfCheckItems
+    ?? rubric?.criteria.map((c) => c.displayName)
+    ?? defaultTask.requirements;
+
+  const wordRange = assessmentContext
+    ? { min: assessmentContext.wordRange[0], max: assessmentContext.wordRange[1] }
+    : rubric
+      ? { min: rubric.wordRange[0], max: rubric.wordRange[1] }
+      : defaultTask.wordRange;
 
   const wordCount = writingText
     .trim()
@@ -69,7 +119,7 @@ export default function AssessmentPhase({
     }
     if (wordCount <= wordRange.max) {
       return {
-        text: "Nice! You're in the sweet spot!",
+        text: "Nice! You\u2019re in the sweet spot!",
         color: "text-active-secondary",
       };
     }
@@ -90,60 +140,107 @@ export default function AssessmentPhase({
     onSubmit(writingText);
   };
 
+  const submitLabel = submitting
+    ? `${coachName} is reading your ${tier === 3 ? "piece" : "story"}...`
+    : TIER_SUBMIT_LABELS[tier](coachName);
+
   return (
     <div className="flex flex-col h-[var(--content-height)]">
-      {/* Coach Header with Checklist */}
+      {/* Writing Prompt + Checklist Header */}
       <div className="flex-shrink-0 bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-start gap-3">
-            <CoachAvatar size="sm" />
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-active-text text-sm leading-snug">
-                Time to write your story!
-              </p>
-              <p className="text-active-text/60 text-sm mt-0.5">
-                Remember what we learned:
-              </p>
-              <div className="mt-3 flex flex-col gap-1.5">
-                {requirements.map((req, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-2 cursor-pointer select-none group"
-                  >
-                    <span
-                      onClick={() => toggleCheck(i)}
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                        checkedItems[i]
-                          ? "bg-active-secondary border-active-secondary text-white"
-                          : "border-active-primary/20 text-transparent group-hover:border-active-primary/40"
-                      }`}
-                    >
-                      <svg
-                        className="w-3 h-3"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </span>
-                    <span
-                      className={`text-sm transition-colors ${
-                        checkedItems[i]
-                          ? "text-active-text/40 line-through"
-                          : "text-active-text/70"
-                      }`}
-                    >
-                      {req}
-                    </span>
-                  </label>
-                ))}
+          {/* Writing prompt card */}
+          {assessmentContext ? (
+            <div className="mb-3">
+              {/* Tier 1: Warm card with coach avatar */}
+              {tier === 1 && (
+                <div className="flex items-start gap-3 bg-[var(--tier1-bg)] rounded-xl p-4">
+                  <CoachAvatar size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-active-text text-sm leading-snug mb-1">
+                      Your writing adventure!
+                    </p>
+                    <p className="text-active-text/80 text-sm leading-relaxed">
+                      {assessmentContext.writingPrompt}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {/* Tier 2: Clean card */}
+              {tier === 2 && (
+                <div className="bg-white rounded-xl border border-active-primary/10 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-active-primary/50 mb-1.5">
+                    Writing prompt
+                  </p>
+                  <p className="text-active-text/80 text-sm leading-relaxed">
+                    {assessmentContext.writingPrompt}
+                  </p>
+                </div>
+              )}
+              {/* Tier 3: Minimal accent border */}
+              {tier === 3 && (
+                <div className="border-l-3 border-active-secondary pl-4 py-1">
+                  <p className="text-active-text/80 text-sm leading-relaxed">
+                    {assessmentContext.writingPrompt}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-start gap-3 mb-3">
+              <CoachAvatar size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-active-text text-sm leading-snug">
+                  Time to write your story!
+                </p>
               </div>
+            </div>
+          )}
+
+          {/* Self-check items */}
+          <div>
+            <p className="text-active-text/60 text-xs font-semibold mb-2">
+              {tier === 1 ? "Remember what we learned:" : tier === 2 ? "Check as you go:" : "Self-check:"}
+            </p>
+            <div className="flex flex-col gap-1.5">
+              {selfCheckItems.map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 cursor-pointer select-none group"
+                >
+                  <span
+                    onClick={() => toggleCheck(i)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      checkedItems[i]
+                        ? "bg-active-secondary border-active-secondary text-white"
+                        : "border-active-primary/20 text-transparent group-hover:border-active-primary/40"
+                    }`}
+                  >
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </span>
+                  <span
+                    className={`text-sm transition-colors ${
+                      checkedItems[i]
+                        ? "text-active-text/40 line-through"
+                        : "text-active-text/70"
+                    }`}
+                  >
+                    {item}
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -159,14 +256,25 @@ export default function AssessmentPhase({
         </div>
       )}
 
+      {/* Draft recovered toast */}
+      {showDraftToast && (
+        <div className="flex-shrink-0 bg-active-secondary/10 border-b border-active-secondary/20">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2 text-center">
+            <p className="text-xs font-semibold text-active-secondary">
+              Draft recovered! Your previous writing has been restored.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Writing Area */}
       <div className="flex-1 min-h-0 overflow-y-auto bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 h-full">
           <textarea
             value={writingText}
             onChange={(e) => setWritingText(e.target.value)}
-            placeholder="Start writing here... Take your time and do your best work!"
-            className="w-full h-full writing-area writing-lined text-active-text text-base leading-[1.8] resize-none outline-none placeholder:text-gray-300"
+            placeholder={TIER_PLACEHOLDERS[tier]}
+            className={`w-full h-full writing-area writing-lined text-active-text ${TIER_FONT_STYLES[tier]} resize-none outline-none placeholder:text-gray-300`}
             autoFocus
           />
         </div>
@@ -175,10 +283,23 @@ export default function AssessmentPhase({
       {/* Bottom Bar */}
       <div className="flex-shrink-0 bg-white border-t border-gray-100 h-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-4">
-          {/* Natural language word count */}
-          <span className={`text-sm font-bold ${wordCountMessage.color}`}>
-            {wordCountMessage.text}
-          </span>
+          {/* Word count + save status */}
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-bold ${wordCountMessage.color}`}>
+              {wordCountMessage.text}
+            </span>
+            {sessionId && writingText.length > 0 && (
+              <span className="text-[10px] font-semibold text-active-text/30">
+                {saveStatus === "saving"
+                  ? "Saving..."
+                  : saveStatus === "saved"
+                    ? "Saved"
+                    : saveStatus === "error"
+                      ? "Save failed"
+                      : ""}
+              </span>
+            )}
+          </div>
 
           {/* Submit */}
           <button
@@ -186,7 +307,7 @@ export default function AssessmentPhase({
             disabled={!canSubmit || submitting}
             className="bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {submitting ? `${coachName} is reading your story...` : `Show ${coachName}!`}
+            {submitLabel}
           </button>
         </div>
       </div>

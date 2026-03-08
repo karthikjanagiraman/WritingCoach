@@ -1,4 +1,4 @@
-import type { AssessmentResult, Message, Phase } from "@/types";
+import type { AssessmentContext, AssessmentResult, Message, Phase } from "@/types";
 
 // ── Response types from the API ─────────────────────────────────────────────
 
@@ -15,6 +15,8 @@ export interface StartLessonResponse {
     type: string;
     learningObjectives: string[];
   };
+  assessmentContext?: AssessmentContext;
+  draftText?: string;
 }
 
 export interface SendMessageResponse {
@@ -22,6 +24,7 @@ export interface SendMessageResponse {
   phaseUpdate: Phase | null;
   assessmentReady: boolean;
   stepUpdate?: number | null;
+  assessmentContext?: AssessmentContext;
 }
 
 export interface SubmitAssessmentResponse {
@@ -143,12 +146,17 @@ export async function startLesson(
 
 export async function sendMessage(
   sessionId: string,
-  message: string
+  message: string,
+  options?: { forceTransition?: Phase }
 ): Promise<SendMessageResponse> {
   return apiFetch<SendMessageResponse>("/api/lessons/message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId, message }),
+    body: JSON.stringify({
+      sessionId,
+      message,
+      ...(options?.forceTransition && { forceTransition: options.forceTransition }),
+    }),
   });
 }
 
@@ -227,6 +235,17 @@ export interface CurriculumResponse {
 
 export async function getCurriculum(childId: string): Promise<CurriculumResponse> {
   return apiFetch<CurriculumResponse>(`/api/curriculum/${encodeURIComponent(childId)}`);
+}
+
+export async function saveDraft(
+  sessionId: string,
+  draftText: string
+): Promise<void> {
+  await apiFetch("/api/lessons/draft", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId, draftText }),
+  });
 }
 
 // ── Portfolio ─────────────────────────────────────────────────────────────────

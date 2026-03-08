@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         tier,
         gradeLevel: gradeLevel || null,
         interests: interests || null,
-        avatarEmoji: avatarEmoji || undefined,
+        avatarEmoji: typeof avatarEmoji === "string" && avatarEmoji.length > 0 ? avatarEmoji : undefined,
         isEsl: isEsl === true,
         homeLanguage: homeLanguage?.trim() || null,
       },

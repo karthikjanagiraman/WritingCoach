@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getLessonById } from "@/lib/curriculum";
-import { getCoachResponse } from "@/lib/llm";
+import { getCoachResponse, getRubric } from "@/lib/llm";
 import {
   buildLearnerProfile,
   buildLearnerContext,
   formatLearnerContextForPrompt,
 } from "@/lib/learner-profile";
+import { generateAssessmentContext } from "@/lib/assessment-context";
 import { logLessonEvent, logLLMInteraction } from "@/lib/event-logger";
-import type { Message, Phase, PhaseState, SessionState, AnswerMeta } from "@/types";
+import type { Message, Phase, PhaseState, SessionState, AnswerMeta, Tier } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sessionId, message } = body;
+    const { sessionId, message, forceTransition } = body;
 
     if (!sessionId || !message) {
       return NextResponse.json(
@@ -159,6 +160,11 @@ export async function POST(request: NextRequest) {
 
     let phaseUpdate = coachResult.phaseUpdate;
 
+    // Force phase transition if requested (e.g., escape hatch in guided practice)
+    if (forceTransition === "assessment" && session.phase === "guided" && !phaseUpdate) {
+      phaseUpdate = "assessment";
+    }
+
     // --- Phase state tracking ---
 
     // Track comprehension check in instruction phase
@@ -227,6 +233,28 @@ export async function POST(request: NextRequest) {
     if (phaseUpdate === "assessment") {
       phaseState.guidedComplete = true;
       phaseState.writingStartedAt = new Date().toISOString();
+
+      // Generate lesson-specific assessment context
+      const rubric = lesson.rubricId ? getRubric(lesson.rubricId) : undefined;
+      try {
+        const assessmentCtx = await generateAssessmentContext(
+          conversationHistory,
+          phaseState,
+          {
+            title: lesson.title,
+            type: lesson.type,
+            learningObjectives: lesson.learningObjectives,
+            template: lesson.template,
+          },
+          rubric,
+          session.child.tier as Tier,
+          session.child.name
+        );
+        phaseState.assessmentContext = assessmentCtx;
+      } catch (err) {
+        console.error("Failed to generate assessment context:", err);
+      }
+
       logLessonEvent({
         childId: session.childId, sessionId: session.id, lessonId: session.lessonId,
         eventType: "phase_transition", phase: session.phase,
@@ -333,6 +361,9 @@ export async function POST(request: NextRequest) {
       phaseUpdate: phaseUpdate ?? null,
       assessmentReady: coachResult.assessmentReady ?? false,
       stepUpdate: coachResult.stepUpdate ?? null,
+      ...(phaseUpdate === "assessment" && phaseState.assessmentContext && {
+        assessmentContext: phaseState.assessmentContext,
+      }),
     });
   } catch (error) {
     console.error("POST /api/lessons/message error:", error);

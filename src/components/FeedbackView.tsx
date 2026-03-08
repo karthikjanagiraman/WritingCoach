@@ -175,17 +175,8 @@ export default function FeedbackView({
     .map((id) => getBadgeById(id))
     .filter((b): b is NonNullable<typeof b> => b !== undefined);
 
-  // Show celebration overlay after a short delay if there are new badges
+  // Mark badges as seen on mount (but don't auto-show celebration)
   useEffect(() => {
-    if (resolvedBadges.length > 0) {
-      const timer = setTimeout(() => setShowCelebration(true), 500);
-      return () => clearTimeout(timer);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleDismissCelebration = () => {
-    setShowCelebration(false);
-    // Mark badges as seen
     if (childId && newBadges && newBadges.length > 0) {
       fetch(`/api/children/${encodeURIComponent(childId)}/badges/seen`, {
         method: "POST",
@@ -194,6 +185,21 @@ export default function FeedbackView({
       }).catch(() => {
         // Silent fail — not critical
       });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleDismissCelebration = () => {
+    setShowCelebration(false);
+    // After celebration, navigate to next lesson
+    onNextLesson();
+  };
+
+  // Show celebration on Continue click if there are new badges, otherwise navigate
+  const handleContinueClick = () => {
+    if (resolvedBadges.length > 0 && !showCelebration && revisionCount === 0) {
+      setShowCelebration(true);
+    } else {
+      onNextLesson();
     }
   };
 
@@ -549,7 +555,7 @@ export default function FeedbackView({
               </button>
             )}
             <button
-              onClick={onNextLesson}
+              onClick={onRetake ? onNextLesson : handleContinueClick}
               className={needsWork
                 ? "px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-text/50 hover:bg-active-primary/5 transition-colors"
                 : "bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
