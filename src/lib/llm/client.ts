@@ -13,6 +13,8 @@ export interface LLMMeta {
   model: string;
   inputTokens: number | null;
   outputTokens: number | null;
+  cacheReadTokens: number | null;
+  cacheWriteTokens: number | null;
   latencyMs: number;
 }
 
@@ -75,6 +77,8 @@ export async function sendMessageWithMeta(
       model: result.model,
       inputTokens: result.inputTokens,
       outputTokens: result.outputTokens,
+      cacheReadTokens: result.cacheReadTokens,
+      cacheWriteTokens: result.cacheWriteTokens,
       latencyMs: result.latencyMs,
     },
   };
@@ -218,6 +222,14 @@ function mergeLLMMeta(a: LLMMeta, b: LLMMeta): LLMMeta {
       a.outputTokens != null && b.outputTokens != null
         ? a.outputTokens + b.outputTokens
         : a.outputTokens ?? b.outputTokens,
+    cacheReadTokens:
+      a.cacheReadTokens != null && b.cacheReadTokens != null
+        ? a.cacheReadTokens + b.cacheReadTokens
+        : a.cacheReadTokens ?? b.cacheReadTokens,
+    cacheWriteTokens:
+      a.cacheWriteTokens != null && b.cacheWriteTokens != null
+        ? a.cacheWriteTokens + b.cacheWriteTokens
+        : a.cacheWriteTokens ?? b.cacheWriteTokens,
     latencyMs: a.latencyMs + b.latencyMs,
   };
 }

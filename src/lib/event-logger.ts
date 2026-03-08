@@ -80,6 +80,8 @@ export function logLLMInteraction(params: {
           model: params.llmResult.model,
           inputTokens: params.llmResult.inputTokens,
           outputTokens: params.llmResult.outputTokens,
+          cacheReadTokens: params.llmResult.cacheReadTokens ?? null,
+          cacheWriteTokens: params.llmResult.cacheWriteTokens ?? null,
           latencyMs: params.llmResult.latencyMs,
           error: params.error ?? null,
         },

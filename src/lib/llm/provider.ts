@@ -39,6 +39,8 @@ export interface LLMResult {
   model: string;
   inputTokens: number | null;
   outputTokens: number | null;
+  cacheReadTokens: number | null;
+  cacheWriteTokens: number | null;
   latencyMs: number;
 }
 
@@ -171,22 +173,28 @@ async function sendAnthropic(options: LLMRequestOptions): Promise<LLMResult> {
     throw new Error("No text content in Anthropic response");
   }
 
-  // Log cache performance in development
-  const usage = response.usage as unknown as Record<string, unknown>;
-  if (process.env.NODE_ENV === "development" && usage) {
-    const cacheRead = usage.cache_read_input_tokens ?? 0;
-    const cacheWrite = usage.cache_creation_input_tokens ?? 0;
-    if (cacheRead || cacheWrite) {
-      console.log(`[ANTHROPIC CACHE] read=${cacheRead} tokens, write=${cacheWrite} tokens`);
-    }
+  // Extract cache metrics from Anthropic usage
+  const usage = response.usage as unknown as Record<string, number | undefined>;
+  const cacheRead = (usage?.cache_read_input_tokens ?? null) as number | null;
+  const cacheWrite = (usage?.cache_creation_input_tokens ?? null) as number | null;
+
+  if (cacheRead || cacheWrite) {
+    console.log(`[ANTHROPIC CACHE] read=${cacheRead ?? 0} tokens, write=${cacheWrite ?? 0} tokens`);
   }
+
+  // Anthropic's input_tokens excludes cached tokens when prompt caching is active.
+  // Compute total input = input_tokens + cache_creation + cache_read for accurate reporting.
+  const rawInput = response.usage?.input_tokens ?? 0;
+  const totalInput = rawInput + (cacheRead ?? 0) + (cacheWrite ?? 0);
 
   return {
     text: (textBlock as { type: "text"; text: string }).text,
     provider: "anthropic",
     model: resolvedModel,
-    inputTokens: response.usage?.input_tokens ?? null,
+    inputTokens: totalInput || null,
     outputTokens: response.usage?.output_tokens ?? null,
+    cacheReadTokens: cacheRead,
+    cacheWriteTokens: cacheWrite,
     latencyMs,
   };
 }
@@ -227,6 +235,8 @@ async function sendGoogle(options: LLMRequestOptions): Promise<LLMResult> {
     model: resolvedModel,
     inputTokens: usage?.promptTokenCount ?? null,
     outputTokens: usage?.candidatesTokenCount ?? null,
+    cacheReadTokens: null,
+    cacheWriteTokens: null,
     latencyMs,
   };
 }
@@ -264,6 +274,8 @@ async function sendDeepInfra(options: LLMRequestOptions): Promise<LLMResult> {
     model: resolvedModel,
     inputTokens: response.usage?.prompt_tokens ?? null,
     outputTokens: response.usage?.completion_tokens ?? null,
+    cacheReadTokens: null,
+    cacheWriteTokens: null,
     latencyMs,
   };
 }
@@ -301,6 +313,8 @@ async function sendGroq(options: LLMRequestOptions): Promise<LLMResult> {
     model: resolvedModel,
     inputTokens: response.usage?.prompt_tokens ?? null,
     outputTokens: response.usage?.completion_tokens ?? null,
+    cacheReadTokens: null,
+    cacheWriteTokens: null,
     latencyMs,
   };
 }
@@ -338,6 +352,8 @@ async function sendNovita(options: LLMRequestOptions): Promise<LLMResult> {
     model: resolvedModel,
     inputTokens: response.usage?.prompt_tokens ?? null,
     outputTokens: response.usage?.completion_tokens ?? null,
+    cacheReadTokens: null,
+    cacheWriteTokens: null,
     latencyMs,
   };
 }

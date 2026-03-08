@@ -538,7 +538,7 @@ async function evaluateWithRetry(
   systemPrompt: string,
   userMsg: string,
   child: { name: string; age: number },
-): Promise<{ analysis: PlacementAnalysis; llmResult: { text: string; provider: string; model: string; inputTokens: number | null; outputTokens: number | null; latencyMs: number } }> {
+): Promise<{ analysis: PlacementAnalysis; llmResult: { text: string; provider: string; model: string; inputTokens: number | null; outputTokens: number | null; cacheReadTokens: number | null; cacheWriteTokens: number | null; latencyMs: number } }> {
   let lastError: Error | undefined;
   const judgeModel = process.env.LLM_JUDGE_MODEL;
 
@@ -549,7 +549,7 @@ async function evaluateWithRetry(
 
     try {
       let text: string;
-      let llmResult: { text: string; provider: string; model: string; inputTokens: number | null; outputTokens: number | null; latencyMs: number };
+      let llmResult: { text: string; provider: string; model: string; inputTokens: number | null; outputTokens: number | null; cacheReadTokens: number | null; cacheWriteTokens: number | null; latencyMs: number };
 
       if (judgeModel) {
         const result = await llmSend({
@@ -573,6 +573,8 @@ async function evaluateWithRetry(
           model: result.llmMeta.model,
           inputTokens: result.llmMeta.inputTokens,
           outputTokens: result.llmMeta.outputTokens,
+          cacheReadTokens: result.llmMeta.cacheReadTokens,
+          cacheWriteTokens: result.llmMeta.cacheWriteTokens,
           latencyMs: result.llmMeta.latencyMs,
         };
       }
@@ -617,6 +619,8 @@ async function evaluateWithRetry(
             model: judgeModel || "unknown",
             inputTokens: null,
             outputTokens: null,
+            cacheReadTokens: null,
+            cacheWriteTokens: null,
             latencyMs: 0,
           };
           return { analysis, llmResult: fallbackLlmResult };
@@ -642,6 +646,8 @@ async function evaluateWithRetry(
       model: "none",
       inputTokens: null,
       outputTokens: null,
+      cacheReadTokens: null,
+      cacheWriteTokens: null,
       latencyMs: 0,
     },
   };

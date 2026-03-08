@@ -458,6 +458,8 @@ model LLMInteraction {
   model                  String
   inputTokens            Int?
   outputTokens           Int?
+  cacheReadTokens        Int?     // Anthropic: tokens served from cache (billed at 90% discount)
+  cacheWriteTokens       Int?     // Anthropic: tokens written to cache (billed at 25% premium)
   latencyMs              Int
   error                  String?
   createdAt              DateTime @default(now())
