@@ -19,7 +19,7 @@ import { prismaMock, resetPrismaMock } from '../../setup/db-mock';
 import { mockAuth, mockAuthAsUnauthenticated, resetAuthMock } from '../../setup/auth-mock';
 import {
   CHILD_MAYA, CHILD_OTHER, ALL_SKILLS_MAYA, STREAK_ACTIVE,
-  BADGE_FIRST_STORY, BADGE_STREAK_7,
+  BADGE_FIRST_STORY, BADGE_TEN_DOWN,
   SUBMISSION_ORIGINAL, SUBMISSION_REVISION, AI_FEEDBACK_GOOD,
   PROGRESS_COMPLETED,
 } from '../../setup/fixtures';
@@ -58,8 +58,8 @@ vi.mock('@/lib/llm', () => ({
 vi.mock('@/lib/badges', () => ({
   getBadgeById: vi.fn((id: string) => {
     const badges: Record<string, any> = {
-      first_story: { id: 'first_story', name: 'First Story', emoji: '📝', description: 'Complete your first lesson', category: 'milestone' },
-      streak_7: { id: 'streak_7', name: 'Week Warrior', emoji: '🔥', description: '7-day streak', category: 'streak' },
+      brave_start: { id: 'brave_start', name: 'Brave Start', emoji: '✏️', description: 'You put your ideas on paper for the first time!', category: 'first_steps', rarity: 'common' },
+      ten_down: { id: 'ten_down', name: 'Ten Down', emoji: '🔟', description: "You've finished ten lessons.", category: 'craft', rarity: 'rare' },
     };
     return badges[id] || null;
   }),
@@ -305,7 +305,7 @@ describe('Badges API', () => {
       prismaMock.childProfile.findFirst.mockResolvedValue(CHILD_MAYA);
       prismaMock.achievement.findMany.mockResolvedValue([
         { ...BADGE_FIRST_STORY, unlockedAt: new Date('2026-01-28') },
-        { ...BADGE_STREAK_7, unlockedAt: new Date('2026-02-05') },
+        { ...BADGE_TEN_DOWN, unlockedAt: new Date('2026-02-05') },
       ]);
 
       const res = await badgesGET(
@@ -315,7 +315,7 @@ describe('Badges API', () => {
       const data = await res.json();
       expect(data.badges.length).toBe(2);
       expect(data.total).toBe(2);
-      expect(data.unseen).toBe(1); // BADGE_STREAK_7 has seen: false
+      expect(data.unseen).toBe(1); // BADGE_TEN_DOWN has seen: false
     });
   });
 
@@ -328,7 +328,7 @@ describe('Badges API', () => {
         new Request('http://localhost/api/children/' + CHILD_MAYA.id + '/badges/seen', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ badgeIds: ['streak_7'] }),
+          body: JSON.stringify({ badgeIds: ['ten_down'] }),
         }) as any,
         makeParams(CHILD_MAYA.id),
       );
@@ -337,7 +337,7 @@ describe('Badges API', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             childId: CHILD_MAYA.id,
-            badgeId: { in: ['streak_7'] },
+            badgeId: { in: ['ten_down'] },
             seen: false,
           }),
           data: { seen: true },

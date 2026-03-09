@@ -455,7 +455,7 @@ export default function FeedbackView({
             {resolvedBadges.length === 1 ? resolvedBadges[0].emoji : "\uD83C\uDFC6"}
           </div>
           <h3 className="font-bold text-active-text mb-1">
-            {resolvedBadges.length === 1 ? "Badge Unlocked!" : `${resolvedBadges.length} Badges Unlocked!`}
+            {resolvedBadges.length === 1 ? "Sticker Unlocked!" : `${resolvedBadges.length} Stickers Unlocked!`}
           </h3>
           <p className="text-active-text/70 text-sm leading-relaxed">
             {resolvedBadges.map((b, i) => (

@@ -37,6 +37,7 @@ export async function GET(
           emoji: def.emoji,
           description: def.description,
           category: def.category,
+          rarity: def.rarity,
           unlockedAt: a.unlockedAt.toISOString(),
           seen: a.seen,
         };

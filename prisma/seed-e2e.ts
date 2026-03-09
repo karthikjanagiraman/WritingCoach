@@ -345,16 +345,16 @@ async function seedAchievement(childId: string) {
   console.log("── Achievement ──");
 
   await prisma.achievement.upsert({
-    where: { childId_badgeId: { childId, badgeId: "first_lesson" } },
+    where: { childId_badgeId: { childId, badgeId: "brave_start" } },
     update: {},
     create: {
       childId,
-      badgeId: "first_lesson",
+      badgeId: "brave_start",
       unlockedAt: new Date("2026-02-01T10:30:00Z"),
       seen: true,
     },
   });
-  console.log("  Badge: first_lesson");
+  console.log("  Badge: brave_start");
 }
 
 async function seedPlacementAndCurriculum(childId: string) {

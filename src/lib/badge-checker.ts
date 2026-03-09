@@ -20,21 +20,14 @@ export async function checkAndUnlockBadges(childId: string): Promise<string[]> {
   // 2. Batch all needed queries upfront
   const [
     completedLessons,
-    writingSubmissions,
     skillRecords,
-    streak,
     assessments,
+    revisionSubmissions,
   ] = await Promise.all([
     // All completed lesson progress records
     prisma.lessonProgress.findMany({
       where: { childId, status: "completed" },
       select: { lessonId: true, completedAt: true },
-    }),
-
-    // All writing submissions (for word count and revision checks)
-    prisma.writingSubmission.findMany({
-      where: { childId },
-      select: { wordCount: true, revisionNumber: true },
     }),
 
     // All skill progress records
@@ -43,39 +36,105 @@ export async function checkAndUnlockBadges(childId: string): Promise<string[]> {
       select: { skillCategory: true, skillName: true, level: true, score: true },
     }),
 
-    // Streak data (may be null)
-    prisma.streak.findUnique({
-      where: { childId },
-    }),
-
-    // All assessments (for score checks)
+    // All assessments with lesson IDs and dates (for comeback_kid + renaissance_writer)
     prisma.assessment.findMany({
       where: { childId },
-      select: { overallScore: true },
+      select: { overallScore: true, lessonId: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    }),
+
+    // Revision submissions with their feedback (for draft_doctor)
+    prisma.writingSubmission.findMany({
+      where: { childId, revisionNumber: { gt: 0 }, revisionOf: { not: null } },
+      select: {
+        revisionOf: true,
+        feedback: { select: { overallScore: true } },
+      },
     }),
   ]);
 
-  // Pre-compute derived data
-  const completedCount = completedLessons.length;
-  const maxWordCount = writingSubmissions.length > 0
-    ? Math.max(...writingSubmissions.map((s) => s.wordCount))
-    : 0;
-  const hasRevision = writingSubmissions.some((s) => s.revisionNumber > 0);
+  // ── Pre-compute derived data ──────────────────────────────────────────
 
+  const completedCount = completedLessons.length;
   const completedLessonIds = completedLessons.map((lp) => lp.lessonId);
+
+  // ink_explorer: completed at least one lesson in each of 4 writing types
   const hasNarrative = completedLessonIds.some((id) => id.startsWith("N"));
   const hasPersuasive = completedLessonIds.some((id) => id.startsWith("P"));
   const hasExpository = completedLessonIds.some((id) => id.startsWith("E"));
   const hasDescriptive = completedLessonIds.some((id) => id.startsWith("D"));
+  const allFourTypes = hasNarrative && hasPersuasive && hasExpository && hasDescriptive;
 
+  // high_marks: 3+ assessments with score >= 3.5
   const highScoreCount = assessments.filter((a) => a.overallScore >= 3.5).length;
-  const hasPerfectScore = assessments.some((a) => a.overallScore >= 4.0);
 
-  const hasProficient = skillRecords.some((s) => s.level === "PROFICIENT" || s.level === "ADVANCED");
-  const hasAdvanced = skillRecords.some((s) => s.level === "ADVANCED");
+  // comeback_kid: scored < 2.0, then later scored 3.0+ (assessments are sorted by createdAt asc)
+  const hasComeback = (() => {
+    let sawLow = false;
+    for (const a of assessments) {
+      if (a.overallScore < 2.0) sawLow = true;
+      if (sawLow && a.overallScore >= 3.0) return true;
+    }
+    return false;
+  })();
 
-  // "Well rounded" — need at least one skill record in each of the 4 categories
-  // with score >= 2.0
+  // draft_doctor: a revision that actually improved the overall score
+  // We need to compare revision feedback scores against original feedback scores
+  let hasImprovedRevision = false;
+  if (revisionSubmissions.length > 0) {
+    const originalIds = revisionSubmissions
+      .map((r) => r.revisionOf)
+      .filter((id): id is string => id !== null);
+
+    if (originalIds.length > 0) {
+      const originalFeedbacks = await prisma.aIFeedback.findMany({
+        where: { submissionId: { in: originalIds } },
+        select: { submissionId: true, overallScore: true },
+      });
+      const originalScoreMap = new Map(
+        originalFeedbacks.map((o) => [o.submissionId, o.overallScore])
+      );
+
+      hasImprovedRevision = revisionSubmissions.some((r) => {
+        const revisionScore = r.feedback?.overallScore;
+        const originalScore = r.revisionOf ? originalScoreMap.get(r.revisionOf) : undefined;
+        if (revisionScore == null || originalScore == null) return false;
+        return revisionScore > originalScore;
+      });
+    }
+  }
+
+  // rhythm_writer: 3 lessons completed in a single Mon–Sun week
+  const hasThreeInWeek = (() => {
+    const weekCounts: Record<string, number> = {};
+    for (const lp of completedLessons) {
+      if (!lp.completedAt) continue;
+      const d = new Date(lp.completedAt);
+      // Compute ISO week start (Monday)
+      const day = d.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+      const monday = new Date(d);
+      monday.setDate(monday.getDate() + mondayOffset);
+      const key = `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`;
+      weekCounts[key] = (weekCounts[key] ?? 0) + 1;
+    }
+    return Object.values(weekCounts).some((c) => c >= 3);
+  })();
+
+  // Skill proficiency checks
+  const hasProficient = skillRecords.some(
+    (s) => s.level === "PROFICIENT" || s.level === "ADVANCED"
+  );
+
+  // Count categories with PROFICIENT or ADVANCED
+  const proficientCategories = new Set<string>();
+  for (const s of skillRecords) {
+    if (s.level === "PROFICIENT" || s.level === "ADVANCED") {
+      proficientCategories.add(s.skillCategory);
+    }
+  }
+
+  // well_rounded: score >= 2.5 in all 4 categories
   const categoryScores: Record<string, number> = {};
   for (const s of skillRecords) {
     const existing = categoryScores[s.skillCategory];
@@ -84,57 +143,46 @@ export async function checkAndUnlockBadges(childId: string): Promise<string[]> {
     }
   }
   const allFourCategories = ["narrative", "persuasive", "expository", "descriptive"];
-  const isWellRounded =
-    allFourCategories.every((cat) => (categoryScores[cat] ?? 0) >= 2.0);
+  const isWellRounded = allFourCategories.every(
+    (cat) => (categoryScores[cat] ?? 0) >= 2.5
+  );
 
-  // Streak values
-  const currentStreak = streak?.currentStreak ?? 0;
-  const longestStreak = streak?.longestStreak ?? 0;
-  const bestStreak = Math.max(currentStreak, longestStreak);
-  const weeklyMet =
-    streak != null && streak.weeklyCompleted >= streak.weeklyGoal;
+  // renaissance_writer: score 3.5+ on assessments in all 4 writing types
+  const typeHighScores: Record<string, boolean> = {
+    N: false, P: false, E: false, D: false,
+  };
+  for (const a of assessments) {
+    if (a.overallScore >= 3.5 && a.lessonId) {
+      const prefix = a.lessonId.charAt(0);
+      if (prefix in typeHighScores) {
+        typeHighScores[prefix] = true;
+      }
+    }
+  }
+  const isRenaissance = Object.values(typeHighScores).every(Boolean);
 
-  // Time-based: check completion times
-  const completionHours = completedLessons
-    .filter((lp) => lp.completedAt != null)
-    .map((lp) => new Date(lp.completedAt!).getHours());
-  const hasEarlyBird = completionHours.some((h) => h < 9);
-  const hasNightOwl = completionHours.some((h) => h >= 20);
+  // ── Evaluate each badge condition ─────────────────────────────────────
 
-  // 3. Evaluate each badge condition
   const conditionMap: Record<string, () => boolean> = {
-    // Writing
-    first_lesson: () => completedCount >= 1,
-    five_lessons: () => completedCount >= 5,
-    ten_lessons: () => completedCount >= 10,
-    twenty_lessons: () => completedCount >= 20,
-    first_revision: () => hasRevision,
-    wordsmith_100: () => maxWordCount >= 100,
-    wordsmith_250: () => maxWordCount >= 250,
-    wordsmith_500: () => maxWordCount >= 500,
+    // First Steps (Common)
+    brave_start: () => completedCount >= 1,
+    ink_explorer: () => allFourTypes,
+    draft_doctor: () => hasImprovedRevision,
+    rhythm_writer: () => hasThreeInWeek,
 
-    // Progress
-    perfect_score: () => hasPerfectScore,
-    high_achiever: () => highScoreCount >= 3,
-    all_narrative: () => hasNarrative,
-    all_persuasive: () => hasPersuasive,
-    all_expository: () => hasExpository,
-    all_descriptive: () => hasDescriptive,
+    // Craft (Rare)
+    ten_down: () => completedCount >= 10,
+    high_marks: () => highScoreCount >= 3,
+    comeback_kid: () => hasComeback,
+    deep_diver: () => hasProficient,
 
-    // Streak
-    streak_3: () => bestStreak >= 3,
-    streak_7: () => bestStreak >= 7,
-    streak_14: () => bestStreak >= 14,
-    weekly_goal: () => weeklyMet,
-
-    // Skill
-    first_proficient: () => hasProficient,
-    first_advanced: () => hasAdvanced,
+    // Mastery (Epic)
     well_rounded: () => isWellRounded,
+    renaissance_writer: () => isRenaissance,
+    marathon_writer: () => completedCount >= 30,
 
-    // Special
-    early_bird: () => hasEarlyBird,
-    night_owl: () => hasNightOwl,
+    // Legendary
+    writing_master: () => proficientCategories.size >= 3 && completedCount >= 40,
   };
 
   const newBadgeIds: string[] = [];

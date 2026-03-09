@@ -447,7 +447,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
               {recentBadges && recentBadges.length > 0 && (
                 <div className="p-5 border-t border-gray-100 md:border-t-0">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-bold text-active-text/70">Badges</h4>
+                    <h4 className="text-sm font-bold text-active-text/70">Stickers</h4>
                     <Link
                       href={`/badges/${activeChild.id}`}
                       className="text-xs font-bold text-active-primary hover:underline"

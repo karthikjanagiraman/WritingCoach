@@ -1,193 +1,132 @@
-// Badge catalog — all badge definitions for the achievement system
+// Badge catalog — 12-badge "Ink Splat Sticker" collection
+//
+// Redesigned from 24 badges to 12, with rarity tiers that govern
+// visual treatment and celebration intensity. Categories tell a
+// journey story: First Steps → Building Your Craft → Mastery → Legendary.
+
+export type BadgeRarity = "common" | "rare" | "epic" | "legendary";
+export type BadgeCategory = "first_steps" | "craft" | "mastery" | "legendary";
 
 export interface BadgeDefinition {
   id: string;
   name: string;
   emoji: string;
   description: string;
-  category: "writing" | "progress" | "streak" | "skill" | "special";
+  category: BadgeCategory;
+  rarity: BadgeRarity;
 }
 
 export const BADGE_CATALOG: BadgeDefinition[] = [
   // ============================================
-  // Writing (based on submissions / lesson completions)
+  // First Steps (Common — early wins, first month)
   // ============================================
   {
-    id: "first_lesson",
-    name: "Story Starter",
-    emoji: "\u{1F4DD}",
-    description: "Complete your first lesson",
-    category: "writing",
+    id: "brave_start",
+    name: "Brave Start",
+    emoji: "✏️",
+    description: "You put your ideas on paper for the first time!",
+    category: "first_steps",
+    rarity: "common",
   },
   {
-    id: "five_lessons",
-    name: "Bookworm",
-    emoji: "\u{1F4DA}",
-    description: "Complete 5 lessons",
-    category: "writing",
+    id: "ink_explorer",
+    name: "Ink Explorer",
+    emoji: "🧭",
+    description: "You've tried all four kinds of writing!",
+    category: "first_steps",
+    rarity: "common",
   },
   {
-    id: "ten_lessons",
-    name: "Writing Champion",
-    emoji: "\u{1F3C6}",
-    description: "Complete 10 lessons",
-    category: "writing",
+    id: "draft_doctor",
+    name: "Draft Doctor",
+    emoji: "🩹",
+    description: "You revised your writing and made it better!",
+    category: "first_steps",
+    rarity: "common",
   },
   {
-    id: "twenty_lessons",
-    name: "Master Writer",
-    emoji: "\u270D\uFE0F",
-    description: "Complete 20 lessons",
-    category: "writing",
-  },
-  {
-    id: "first_revision",
-    name: "Editor in Chief",
-    emoji: "\u270F\uFE0F",
-    description: "Revise a piece of writing",
-    category: "writing",
-  },
-  {
-    id: "wordsmith_100",
-    name: "Wordsmith",
-    emoji: "\u{1F4AC}",
-    description: "Write 100+ words in one submission",
-    category: "writing",
-  },
-  {
-    id: "wordsmith_250",
-    name: "Word Wizard",
-    emoji: "\u{1FA84}",
-    description: "Write 250+ words in one submission",
-    category: "writing",
-  },
-  {
-    id: "wordsmith_500",
-    name: "Novel Author",
-    emoji: "\u{1F4D6}",
-    description: "Write 500+ words in one submission",
-    category: "writing",
+    id: "rhythm_writer",
+    name: "Rhythm Writer",
+    emoji: "🎵",
+    description: "You completed 3 lessons in a single week!",
+    category: "first_steps",
+    rarity: "common",
   },
 
   // ============================================
-  // Progress (based on scores and writing types)
+  // Building Your Craft (Rare — months 1-3)
   // ============================================
   {
-    id: "perfect_score",
-    name: "Perfect Score",
-    emoji: "\u2B50",
-    description: "Score 4/4 on an assessment",
-    category: "progress",
+    id: "ten_down",
+    name: "Ten Down",
+    emoji: "🔟",
+    description: "You've finished ten lessons. That's real dedication!",
+    category: "craft",
+    rarity: "rare",
   },
   {
-    id: "high_achiever",
-    name: "High Achiever",
-    emoji: "\u{1F31F}",
-    description: "Score 3.5+ three times",
-    category: "progress",
+    id: "high_marks",
+    name: "High Marks",
+    emoji: "⭐",
+    description: "You've scored 3.5 stars or higher three times!",
+    category: "craft",
+    rarity: "rare",
   },
   {
-    id: "all_narrative",
-    name: "Story Teller",
-    emoji: "\u{1F4D5}",
-    description: "Complete a narrative lesson",
-    category: "progress",
+    id: "comeback_kid",
+    name: "Comeback Kid",
+    emoji: "🦋",
+    description: "You scored low, kept going, and scored high on a later lesson!",
+    category: "craft",
+    rarity: "rare",
   },
   {
-    id: "all_persuasive",
-    name: "Debate Star",
-    emoji: "\u{1F3A4}",
-    description: "Complete a persuasive lesson",
-    category: "progress",
-  },
-  {
-    id: "all_expository",
-    name: "Knowledge Sharer",
-    emoji: "\u{1F52C}",
-    description: "Complete an expository lesson",
-    category: "progress",
-  },
-  {
-    id: "all_descriptive",
-    name: "Word Painter",
-    emoji: "\u{1F3A8}",
-    description: "Complete a descriptive lesson",
-    category: "progress",
+    id: "deep_diver",
+    name: "Deep Diver",
+    emoji: "🤿",
+    description: "You reached Proficient level in a writing skill!",
+    category: "craft",
+    rarity: "rare",
   },
 
   // ============================================
-  // Streak (based on streak data)
+  // On the Path to Mastery (Epic — months 3-6)
   // ============================================
-  {
-    id: "streak_3",
-    name: "On a Roll",
-    emoji: "\u{1F525}",
-    description: "3-day writing streak",
-    category: "streak",
-  },
-  {
-    id: "streak_7",
-    name: "Week Warrior",
-    emoji: "\u{1F4AA}",
-    description: "7-day writing streak",
-    category: "streak",
-  },
-  {
-    id: "streak_14",
-    name: "Unstoppable",
-    emoji: "\u{1F680}",
-    description: "14-day writing streak",
-    category: "streak",
-  },
-  {
-    id: "weekly_goal",
-    name: "Goal Getter",
-    emoji: "\u{1F3AF}",
-    description: "Meet weekly lesson goal",
-    category: "streak",
-  },
-
-  // ============================================
-  // Skill (based on skill progress)
-  // ============================================
-  {
-    id: "first_proficient",
-    name: "Skill Master",
-    emoji: "\u{1F9E0}",
-    description: "Reach PROFICIENT in any skill",
-    category: "skill",
-  },
-  {
-    id: "first_advanced",
-    name: "Writing Genius",
-    emoji: "\u{1F393}",
-    description: "Reach ADVANCED in any skill",
-    category: "skill",
-  },
   {
     id: "well_rounded",
     name: "Well Rounded",
-    emoji: "\u{1F308}",
-    description: "Score 2.0+ in all 4 writing categories",
-    category: "skill",
+    emoji: "🌈",
+    description: "You've built real skill in all four writing categories!",
+    category: "mastery",
+    rarity: "epic",
+  },
+  {
+    id: "renaissance_writer",
+    name: "Renaissance Writer",
+    emoji: "🏆",
+    description: "You've scored 3.5+ in all four writing types!",
+    category: "mastery",
+    rarity: "epic",
+  },
+  {
+    id: "marathon_writer",
+    name: "Marathon Writer",
+    emoji: "🏅",
+    description: "You've completed 30 lessons. Nothing can stop you!",
+    category: "mastery",
+    rarity: "epic",
   },
 
   // ============================================
-  // Special (time-based or unique conditions)
+  // Legendary (The capstone)
   // ============================================
   {
-    id: "early_bird",
-    name: "Early Bird",
-    emoji: "\u{1F305}",
-    description: "Complete a lesson before 9 AM",
-    category: "special",
-  },
-  {
-    id: "night_owl",
-    name: "Night Owl",
-    emoji: "\u{1F989}",
-    description: "Complete a lesson after 8 PM",
-    category: "special",
+    id: "writing_master",
+    name: "Writing Master",
+    emoji: "👑",
+    description: "Proficient in 3+ skills and 40+ lessons completed. A true master!",
+    category: "legendary",
+    rarity: "legendary",
   },
 ];
 
@@ -195,3 +134,54 @@ export const BADGE_CATALOG: BadgeDefinition[] = [
 export function getBadgeById(id: string): BadgeDefinition | undefined {
   return BADGE_CATALOG.find((b) => b.id === id);
 }
+
+/** Rarity-ordered category list for display */
+export const RARITY_CATEGORIES: { id: BadgeCategory; label: string; emoji: string }[] = [
+  { id: "first_steps", label: "First Steps", emoji: "👣" },
+  { id: "craft", label: "Building Your Craft", emoji: "🛠️" },
+  { id: "mastery", label: "On the Path to Mastery", emoji: "⛰️" },
+  { id: "legendary", label: "Legendary", emoji: "👑" },
+];
+
+/** Rarity visual config for celebrations and display */
+export const RARITY_CONFIG: Record<BadgeRarity, {
+  label: string;
+  confettiParticles: number;
+  confettiBursts: number;
+  autoDismissMs: number | null;
+  color: string;
+  glowColor: string;
+}> = {
+  common: {
+    label: "Common",
+    confettiParticles: 60,
+    confettiBursts: 1,
+    autoDismissMs: 3000,
+    color: "#FF6B6B",
+    glowColor: "rgba(255, 107, 107, 0.3)",
+  },
+  rare: {
+    label: "Rare",
+    confettiParticles: 100,
+    confettiBursts: 2,
+    autoDismissMs: null,
+    color: "#6C5CE7",
+    glowColor: "rgba(108, 92, 231, 0.3)",
+  },
+  epic: {
+    label: "Epic",
+    confettiParticles: 150,
+    confettiBursts: 3,
+    autoDismissMs: null,
+    color: "#4ECDC4",
+    glowColor: "rgba(78, 205, 196, 0.4)",
+  },
+  legendary: {
+    label: "Legendary",
+    confettiParticles: 250,
+    confettiBursts: 5,
+    autoDismissMs: null,
+    color: "#FECA57",
+    glowColor: "rgba(254, 202, 87, 0.5)",
+  },
+};

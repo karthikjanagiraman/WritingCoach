@@ -260,62 +260,43 @@ describe('E2E Flow: Struggling child triggers curriculum adaptation', () => {
 });
 
 describe('E2E Flow: Revision improves score → badge unlock', () => {
-  it('revision with higher score unlocks first_revision badge', async () => {
+  it('revision with improved score unlocks draft_doctor badge', async () => {
     resetPrismaMock();
     resetAuthMock();
-
-    prismaMock.session.findUnique.mockResolvedValue({
-      ...SESSION_ASSESSMENT,
-      phase: 'feedback',
-    });
-    prismaMock.childProfile.findUnique.mockResolvedValue(CHILD_MAYA);
-
-    // Original submission had score 3.0
-    prismaMock.writingSubmission.findFirst.mockResolvedValue({
-      ...SUBMISSION_ORIGINAL,
-      feedback: { ...AI_FEEDBACK_GOOD, overallScore: 3.0 },
-    });
-    prismaMock.writingSubmission.count.mockResolvedValue(1);
-
-    // Revision gets 4.5
-    prismaMock.writingSubmission.create.mockResolvedValue({
-      ...SUBMISSION_ORIGINAL,
-      id: 'revision-new',
-      revisionOf: SUBMISSION_ORIGINAL.id,
-      revisionNumber: 1,
-    });
-    prismaMock.aIFeedback.create.mockResolvedValue({
-      ...AI_FEEDBACK_GOOD,
-      overallScore: 4.5,
-    });
 
     // checkAndUnlockBadges queries:
     // 1. achievement.findMany — existing badges (none)
     prismaMock.achievement.findMany.mockResolvedValue([]);
-    // 2. lessonProgress.findMany — completed lessons (none needed for first_revision)
+    // 2. lessonProgress.findMany — completed lessons
     prismaMock.lessonProgress.findMany.mockResolvedValue([]);
-    // 3. writingSubmission.findMany — must include a submission with revisionNumber > 0
-    prismaMock.writingSubmission.findMany.mockResolvedValue([
-      { wordCount: 42, revisionNumber: 1 },
-    ]);
-    // 4. skillProgress.findMany — skill records
+    // 3. skillProgress.findMany — skill records
     prismaMock.skillProgress.findMany.mockResolvedValue([]);
-    // 5. streak.findUnique — streak data
-    prismaMock.streak.findUnique.mockResolvedValue(null);
-    // 6. assessment.findMany — assessment scores
+    // 4. assessment.findMany — assessment scores
     prismaMock.assessment.findMany.mockResolvedValue([]);
+    // 5. writingSubmission.findMany — revision submissions with feedback
+    //    draft_doctor requires a revision that improved the score
+    prismaMock.writingSubmission.findMany.mockResolvedValue([
+      {
+        revisionOf: SUBMISSION_ORIGINAL.id,
+        feedback: { overallScore: 4.0 },  // Revision scored 4.0
+      },
+    ]);
+    // 6. aIFeedback.findMany — original submission's feedback (score 3.0)
+    prismaMock.aIFeedback.findMany.mockResolvedValue([
+      { submissionId: SUBMISSION_ORIGINAL.id, overallScore: 3.0 },
+    ]);
     // 7. achievement.createMany — persists new badges
     prismaMock.achievement.createMany.mockResolvedValue({ count: 1 });
 
     // Execute: call checkAndUnlockBadges which evaluates all badge conditions
     const newBadges = await checkAndUnlockBadges(CHILD_MAYA.id);
 
-    // first_revision badge should be unlocked (writingSubmissions has revisionNumber > 0)
-    expect(newBadges).toContain('first_revision');
+    // draft_doctor badge should be unlocked (revision improved score: 3.0 → 4.0)
+    expect(newBadges).toContain('draft_doctor');
     expect(prismaMock.achievement.createMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.arrayContaining([
-          expect.objectContaining({ childId: CHILD_MAYA.id, badgeId: 'first_revision' }),
+          expect.objectContaining({ childId: CHILD_MAYA.id, badgeId: 'draft_doctor' }),
         ]),
       })
     );

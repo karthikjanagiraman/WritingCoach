@@ -8,7 +8,7 @@ vi.mock('@/lib/api', () => ({ reviseAssessment: vi.fn() }));
 vi.mock('@/lib/badges', () => ({
   getBadgeById: vi.fn((id: string) => {
     const badges: Record<string, any> = {
-      first_story: { id: 'first_story', name: 'First Story', emoji: '📝', description: 'Complete your first lesson' },
+      brave_start: { id: 'brave_start', name: 'Brave Start', emoji: '✏️', description: 'You put your ideas on paper for the first time!', category: 'first_steps', rarity: 'common' },
     };
     return badges[id];
   }),
@@ -73,12 +73,12 @@ describe('FeedbackView', () => {
   });
 
   it('shows badge inline notification when newBadges provided', async () => {
-    renderFeedback({ newBadges: ['first_story'] });
+    renderFeedback({ newBadges: ['brave_start'] });
     // Should show the badge name inline
     await waitFor(() => {
-      expect(screen.getByText(/Badge Unlocked/)).toBeInTheDocument();
+      expect(screen.getByText(/Sticker Unlocked/)).toBeInTheDocument();
     });
-    expect(screen.getByText(/First Story/)).toBeInTheDocument();
+    expect(screen.getByText(/Brave Start/)).toBeInTheDocument();
   });
 
   it('shows "Retake Lesson" button when onRetake provided', () => {

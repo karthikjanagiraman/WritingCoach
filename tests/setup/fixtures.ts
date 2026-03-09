@@ -331,15 +331,15 @@ export const STREAK_BROKEN = {
 export const BADGE_FIRST_STORY = {
   id: 'achievement-001',
   childId: CHILD_MAYA.id,
-  badgeId: 'first_story',
+  badgeId: 'brave_start',
   unlockedAt: new Date('2026-01-28'),
   seen: true,
 };
 
-export const BADGE_STREAK_7 = {
+export const BADGE_TEN_DOWN = {
   id: 'achievement-002',
   childId: CHILD_MAYA.id,
-  badgeId: 'streak_7',
+  badgeId: 'ten_down',
   unlockedAt: new Date('2026-02-05'),
   seen: false,
 };

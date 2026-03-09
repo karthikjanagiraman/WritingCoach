@@ -87,8 +87,8 @@ export function createRemarkGfmMock() {
 
 // ── Badge fixture for component tests ───────────────────────────────────────
 
-export const BADGE_FIXTURES: Record<string, { id: string; name: string; emoji: string; description: string; category: string }> = {
-  first_story: { id: 'first_story', name: 'First Story', emoji: '📝', description: 'Complete your first lesson', category: 'milestone' },
-  streak_7: { id: 'streak_7', name: 'Week Warrior', emoji: '🔥', description: '7-day streak', category: 'streak' },
-  perfect_score: { id: 'perfect_score', name: 'Perfect Score', emoji: '⭐', description: 'Score 5/5 on an assessment', category: 'excellence' },
+export const BADGE_FIXTURES: Record<string, { id: string; name: string; emoji: string; description: string; category: string; rarity: string }> = {
+  brave_start: { id: 'brave_start', name: 'Brave Start', emoji: '✏️', description: 'You put your ideas on paper for the first time!', category: 'first_steps', rarity: 'common' },
+  ten_down: { id: 'ten_down', name: 'Ten Down', emoji: '🔟', description: "You've finished ten lessons. That's real dedication!", category: 'craft', rarity: 'rare' },
+  high_marks: { id: 'high_marks', name: 'High Marks', emoji: '⭐', description: "You've scored 3.5 stars or higher three times!", category: 'craft', rarity: 'rare' },
 };
