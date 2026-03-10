@@ -25,7 +25,7 @@ interface ActiveChildContextType {
 
 const ActiveChildContext = createContext<ActiveChildContextType | null>(null);
 
-const STORAGE_KEY_PREFIX = "writewise-active-child";
+const STORAGE_KEY_PREFIX = "writewhiz-active-child";
 
 function getStorageKey(userId: string | undefined): string {
   return userId ? `${STORAGE_KEY_PREFIX}:${userId}` : STORAGE_KEY_PREFIX;

@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteWhiz — Badge Redesign Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   ROOT & RESET
+   ================================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #06060a;
+  --bg-surface: #0e0e14;
+  --bg-card: #14141c;
+  --text-primary: #e8e6e1;
+  --text-secondary: #8a8780;
+  --text-muted: #4a4944;
+  --accent-gold: #c9a84c;
+  --accent-rose: #c08a7a;
+  --accent-silver: #b8b8c0;
+  --border-subtle: rgba(255,255,255,0.06);
+
+  /* Metals */
+  --bronze-light: #d4a85a;
+  --bronze-mid: #a67c3c;
+  --bronze-dark: #7a5a20;
+  --silver-light: #e8e8f0;
+  --silver-mid: #b0b0b8;
+  --silver-dark: #707078;
+  --gold-light: #ffe066;
+  --gold-mid: #daa520;
+  --gold-dark: #8b6914;
+  --rose-light: #f0d0c8;
+  --rose-mid: #d4a090;
+  --platinum-light: #e8e8f0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ================================================================
+   GLOBAL TEXTURE
+   ================================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(192,138,122,0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ================================================================
+   TYPOGRAPHY
+   ================================================================ */
+.font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
+.font-body { font-family: 'Outfit', system-ui, sans-serif; }
+
+/* ================================================================
+   LAYOUT
+   ================================================================ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+  position: relative;
+  z-index: 1;
+}
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(180deg, transparent, var(--accent-gold), transparent);
+  opacity: 0.4;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 500;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease-out 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease-out 0.4s forwards;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--accent-gold);
+}
+
+.hero-subtitle {
+  font-size: clamp(14px, 1.8vw, 18px);
+  color: var(--text-secondary);
+  max-width: 560px;
+  font-weight: 300;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 0.8s ease-out 0.6s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   NAV TABS
+   ================================================================ */
+.concept-nav {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  margin: 0 auto 80px;
+  max-width: 600px;
+  position: relative;
+  z-index: 10;
+}
+
+.concept-nav button {
+  padding: 12px 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.concept-nav button:hover { color: var(--text-primary); }
+
+.concept-nav button.active {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+
+.concept-nav button .rec-badge {
+  display: inline-block;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  background: rgba(201,168,76,0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ================================================================
+   CONCEPT SECTIONS
+   ================================================================ */
+.concept-section {
+  display: none;
+  animation: conceptFadeIn 0.5s ease-out;
+}
+
+.concept-section.active { display: block; }
+
+@keyframes conceptFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+  padding-top: 20px;
+}
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+
+.section-philosophy {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+  font-weight: 300;
+  line-height: 1.7;
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* ================================================================
+   BADGE GRID
+   ================================================================ */
+.badge-showcase {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+@media (max-width: 768px) {
+  .badge-showcase {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.badge-rarity-label {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.badge-rarity-label.common { color: var(--bronze-light); }
+.badge-rarity-label.rare { color: var(--silver-light); }
+.badge-rarity-label.epic { color: var(--gold-mid); }
+.badge-rarity-label.legendary { color: var(--rose-light); }
+
+.badge-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 4px;
+}
+
+.badge-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ================================================================
+   ARTISAN CRAFT — MEDALS
+   ================================================================ */
+.medal {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+}
+
+.medal:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+/* Grain overlay for all medals */
+.medal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Inscription ring (SVG) */
+.medal .inscription-ring {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+}
+
+.medal .inscription-ring text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 5.5px;
+  letter-spacing: 2.5px;
+  fill: rgba(255,255,255,0.12);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Embossed icon */
+.medal-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  z-index: 2;
+}
+
+.medal-icon span {
+  background: linear-gradient(160deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.12) 40%, rgba(0,0,0,0.08) 60%, rgba(0,0,0,0.22) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.15)) drop-shadow(0 -1px 0 rgba(0,0,0,0.25));
+}
+
+/* --- BRONZE (Common) --- */
+.medal-bronze {
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255,255,255,0.18) 0%, transparent 50%),
+    linear-gradient(145deg, #cd9b5a 0%, #a67c3c 30%, #8b6914 55%, #a67c3c 75%, #cd9b5a 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.18),
+    inset 0 -3px 6px rgba(0,0,0,0.22),
+    0 4px 16px rgba(139,105,20,0.15),
+    0 1px 3px rgba(0,0,0,0.2);
+  border: 1px solid rgba(205,155,90,0.2);
+}
+
+.medal-bronze:hover {
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.18),
+    inset 0 -3px 6px rgba(0,0,0,0.22),
+    0 8px 32px rgba(139,105,20,0.25),
+    0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* --- SILVER (Rare) --- */
+.medal-silver {
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.35) 0%, transparent 45%),
+    linear-gradient(145deg, #e0e0e8 0%, #c0c0c8 25%, #a0a0a8 50%, #c0c0c8 75%, #e0e0e8 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.35),
+    inset 0 -3px 6px rgba(0,0,0,0.12),
+    0 4px 16px rgba(160,160,168,0.15),
+    0 1px 3px rgba(0,0,0,0.15);
+  border: 2px solid rgba(180,180,190,0.15);
+  outline: 1px solid rgba(180,180,190,0.08);
+  outline-offset: 3px;
+}
+
+.medal-silver:hover {
+  box-shadow:
+    inset 0 2px 6px rgba(255,255,255,0.35),
+    inset 0 -3px 6px rgba(0,0,0,0.12),
+    0 8px 32px rgba(180,180,200,0.2),
+    0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* --- GOLD (Epic) --- */
+.medal-gold {
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.3) 0%, transparent 40%),
+    linear-gradient(145deg, #ffe066 0%, #daa520 25%, #b8860b 50%, #daa520 75%, #ffe066 100%);
+  box-shadow:
+    inset 0 2px 8px rgba(255,255,255,0.28),
+    inset 0 -3px 8px rgba(0,0,0,0.18),
+    0 4px 20px rgba(218,165,32,0.25),
+    0 0 40px rgba(218,165,32,0.08),
+    0 1px 3px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,224,102,0.2);
+}
+
+.medal-gold:hover {
+  box-shadow:
+    inset 0 2px 8px rgba(255,255,255,0.28),
+    inset 0 -3px 8px rgba(0,0,0,0.18),
+    0 12px 40px rgba(218,165,32,0.35),
+    0 0 60px rgba(218,165,32,0.12),
+    0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Wax seal */
+.medal-gold .wax-seal {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 35%, rgba(255,255,255,0.12) 0%, transparent 40%),
+    radial-gradient(circle, #c0392b 0%, #922b21 60%, #7b241c 100%);
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.12),
+    inset 0 -2px 4px rgba(0,0,0,0.3),
+    0 2px 6px rgba(0,0,0,0.3);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* --- LEGENDARY (Rose-Gold + Platinum) --- */
+.medal-legendary {
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.4) 0%, transparent 38%),
+    conic-gradient(from 30deg, #e8c4b8 0%, #f0d0c8 15%, #e0e0e8 30%, #d0d0d8 45%, #e8c4b8 60%, #f0d0c8 75%, #e0e0e8 90%, #e8c4b8 100%);
+  box-shadow:
+    inset 0 2px 8px rgba(255,255,255,0.38),
+    inset 0 -3px 8px rgba(0,0,0,0.12),
+    0 4px 24px rgba(232,196,184,0.25),
+    0 0 50px rgba(232,196,184,0.1),
+    0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid rgba(240,208,200,0.2);
+}
+
+.medal-legendary:hover {
+  box-shadow:
+    inset 0 2px 8px rgba(255,255,255,0.38),
+    inset 0 -3px 8px rgba(0,0,0,0.12),
+    0 12px 48px rgba(232,196,184,0.35),
+    0 0 80px rgba(232,196,184,0.15),
+    0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Shine sweep */
+.medal-legendary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,0.2) 46%,
+    rgba(255,255,255,0.35) 50%,
+    rgba(255,255,255,0.2) 54%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  animation: shinePass 4s ease-in-out infinite;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@keyframes shinePass {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -100% 0; }
+}
+
+/* Legendary wax seal with ribbon */
+.medal-legendary .wax-seal-lg {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.wax-seal-lg .ribbon-left,
+.wax-seal-lg .ribbon-right {
+  position: absolute;
+  bottom: 3px;
+  width: 14px;
+  height: 20px;
+  z-index: -1;
+}
+
+.wax-seal-lg .ribbon-left {
+  left: -6px;
+  background: linear-gradient(135deg, #8b2020 0%, #a02828 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  transform: rotate(-15deg);
+}
+
+.wax-seal-lg .ribbon-right {
+  right: -6px;
+  background: linear-gradient(225deg, #8b2020 0%, #a02828 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  transform: rotate(15deg);
+}
+
+.wax-seal-lg .seal {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255,255,255,0.15) 0%, transparent 45%),
+    radial-gradient(circle, #b83030 0%, #8b2020 50%, #6b1515 100%);
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,0.15),
+    inset 0 -2px 5px rgba(0,0,0,0.35),
+    0 3px 8px rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.wax-seal-lg .seal-icon {
+  font-size: 14px;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.3));
+  opacity: 0.3;
+}
+
+/* ================================================================
+   LOCKED MEDAL
+   ================================================================ */
+.locked-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 48px 0;
+  margin-bottom: 80px;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 600px) {
+  .locked-section {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+.medal-locked {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 35%, rgba(255,255,255,0.08) 0%, transparent 50%),
+    linear-gradient(145deg, #5a5a60 0%, #3a3a40 50%, #2a2a30 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.06),
+    inset 0 -2px 4px rgba(0,0,0,0.25),
+    0 2px 8px rgba(0,0,0,0.2);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.6s ease;
+  flex-shrink: 0;
+}
+
+.medal-locked:hover {
+  background:
+    radial-gradient(circle at 40% 35%, rgba(255,255,255,0.14) 0%, transparent 50%),
+    linear-gradient(145deg, #a08060 0%, #806040 50%, #604030 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.1),
+    inset 0 -2px 4px rgba(0,0,0,0.2),
+    0 4px 16px rgba(139,105,20,0.15);
+}
+
+.medal-locked::before {
+  content: '?';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  color: transparent;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.06), 0 -1px 1px rgba(0,0,0,0.25);
+  -webkit-text-stroke: 0.5px rgba(255,255,255,0.04);
+}
+
+.locked-text {
+  max-width: 280px;
+}
+
+.locked-text h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+}
+
+.locked-text p {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* ================================================================
+   MINI COLLECTION PREVIEW (Artisan)
+   ================================================================ */
+.collection-preview {
+  background: linear-gradient(180deg, #0c0a08 0%, #100e0c 50%, #0c0a08 100%);
+  border: 1px solid rgba(139,105,20,0.08);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.collection-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(139,105,20,0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.collection-preview-title {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.collection-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  color: rgba(139,105,20,0.3);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  justify-content: center;
+}
+
+.collection-divider::before,
+.collection-divider::after {
+  content: '';
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139,105,20,0.15), transparent);
+}
+
+.mini-grid {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.mini-medal {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.mini-medal:hover { transform: scale(1.15); }
+
+.mini-medal.bronze {
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.15) 0%, transparent 50%), linear-gradient(145deg, #cd9b5a, #8b6914, #cd9b5a);
+  box-shadow: 0 2px 8px rgba(139,105,20,0.2);
+}
+
+.mini-medal.silver {
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.3) 0%, transparent 50%), linear-gradient(145deg, #e0e0e8, #a0a0a8, #e0e0e8);
+  box-shadow: 0 2px 8px rgba(160,160,168,0.15);
+}
+
+.mini-medal.gold {
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25) 0%, transparent 50%), linear-gradient(145deg, #ffe066, #b8860b, #ffe066);
+  box-shadow: 0 2px 8px rgba(218,165,32,0.25);
+}
+
+.mini-medal.locked {
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.05) 0%, transparent 50%), linear-gradient(145deg, #3a3a40, #2a2a30, #3a3a40);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  opacity: 0.5;
+}
+
+/* ================================================================
+   COSMIC EXPLORER
+   ================================================================ */
+.cosmic-bg {
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(108,92,231,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(255,107,107,0.04) 0%, transparent 50%);
+}
+
+.planet-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.planet-container:hover { transform: translateY(-6px) scale(1.06); }
+
+/* Star field behind planets */
+.star-field {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #080818 0%, #040410 100%);
+  overflow: hidden;
+}
+
+.star-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 75%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 45%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 55%, rgba(255,255,255,0.4) 0%, transparent 100%);
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Planet sphere */
+.planet {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* Atmosphere */
+.planet-atmosphere {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Common: Rocky planet */
+.planet-rocky {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.35) 0%, transparent 40%),
+    radial-gradient(circle, #FF6B6B 0%, #c0392b 60%, #6b1a1a 100%);
+  box-shadow:
+    inset -4px -4px 10px rgba(0,0,0,0.4),
+    inset 2px 2px 6px rgba(255,255,255,0.12);
+}
+
+.planet-rocky + .planet-atmosphere {
+  background: radial-gradient(circle, transparent 40%, rgba(255,107,107,0.12) 55%, transparent 70%);
+}
+
+/* Rare: Gas giant with ring */
+.planet-gas {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.3) 0%, transparent 40%),
+    linear-gradient(0deg, #4ECDC4 0%, #3da89f 20%, #2d8a84 40%, #4ECDC4 50%, #FF6B6B 70%, #c0392b 85%, #4ECDC4 100%);
+  box-shadow:
+    inset -4px -4px 10px rgba(0,0,0,0.35),
+    inset 2px 2px 6px rgba(255,255,255,0.1);
+}
+
+.planet-gas + .planet-atmosphere {
+  background: radial-gradient(circle, transparent 38%, rgba(78,205,196,0.1) 52%, transparent 68%);
+}
+
+.orbital-ring {
+  position: absolute;
+  width: 140%;
+  height: 24%;
+  left: -20%;
+  top: 50%;
+  transform: translateY(-50%) rotateX(72deg);
+  border: 1.5px solid rgba(255,230,109,0.25);
+  border-radius: 50%;
+  z-index: 3;
+  animation: orbitSlow 10s linear infinite;
+}
+
+@keyframes orbitSlow { to { transform: translateY(-50%) rotateX(72deg) rotateZ(360deg); } }
+
+/* Epic: Star with corona */
+.planet-star {
+  background:
+    radial-gradient(circle at 50% 50%, #fff8e0 0%, #ffe066 20%, #daa520 50%, #b8860b 75%, rgba(184,134,11,0) 100%);
+  box-shadow:
+    0 0 20px rgba(218,165,32,0.5),
+    0 0 40px rgba(218,165,32,0.2);
+  animation: starPulse 3s ease-in-out infinite;
+}
+
+@keyframes starPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(218,165,32,0.5), 0 0 40px rgba(218,165,32,0.2); }
+  50% { box-shadow: 0 0 30px rgba(218,165,32,0.6), 0 0 60px rgba(218,165,32,0.3); }
+}
+
+.planet-star + .planet-atmosphere {
+  background: radial-gradient(circle, transparent 35%, rgba(218,165,32,0.15) 50%, rgba(218,165,32,0.05) 65%, transparent 80%);
+  animation: coronaPulse 3s ease-in-out infinite;
+}
+
+@keyframes coronaPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.8; }
+}
+
+.orbital-ring-2 {
+  width: 155%;
+  left: -27%;
+  height: 18%;
+  border-color: rgba(255,107,107,0.15);
+  animation: orbitSlow 14s linear infinite reverse;
+  transform: translateY(-50%) rotateX(65deg) rotateZ(30deg);
+}
+
+/* Legendary: Nebula */
+.planet-nebula {
+  width: 80px;
+  height: 80px;
+  background:
+    radial-gradient(circle at 40% 40%, rgba(108,92,231,0.8) 0%, transparent 50%),
+    radial-gradient(circle at 65% 55%, rgba(255,107,107,0.7) 0%, transparent 45%),
+    radial-gradient(circle at 50% 60%, rgba(78,205,196,0.5) 0%, transparent 55%),
+    radial-gradient(circle, rgba(108,92,231,0.4) 0%, #080818 100%);
+  box-shadow:
+    0 0 30px rgba(108,92,231,0.3),
+    0 0 60px rgba(255,107,107,0.15);
+}
+
+.planet-nebula + .planet-atmosphere {
+  width: 100px;
+  height: 100px;
+}
+
+/* Holographic overlay for nebula */
+.holo-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255,0,0,0.06) 0%,
+    rgba(255,165,0,0.06) 16%,
+    rgba(255,255,0,0.06) 32%,
+    rgba(0,255,0,0.06) 48%,
+    rgba(0,0,255,0.06) 64%,
+    rgba(128,0,255,0.06) 80%,
+    rgba(255,0,0,0.06) 100%
+  );
+  background-size: 300% 300%;
+  animation: holoShift 5s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes holoShift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* Locked: Cosmic */
+.planet-locked {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px dashed rgba(9,132,227,0.2);
+  background: radial-gradient(circle, rgba(9,132,227,0.03) 0%, transparent 70%);
+  position: relative;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.planet-locked::before {
+  content: '?';
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(9,132,227,0.15);
+  font-family: 'Outfit', sans-serif;
+}
+
+.planet-locked::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(9,132,227,0.2), transparent);
+  animation: cosmicScan 4s linear infinite;
+}
+
+@keyframes cosmicScan {
+  0% { top: 10%; transform: rotate(-5deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 90%; transform: rotate(5deg); opacity: 0; }
+}
+
+/* Constellation collection */
+.constellation-preview {
+  background: radial-gradient(ellipse at 50% 50%, #0a0a20 0%, #050510 100%);
+  border: 1px solid rgba(9,132,227,0.08);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.constellation-preview .star-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 8% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 65%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 35% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 95% 75%, rgba(255,255,255,0.3) 0%, transparent 100%);
+}
+
+.constellation-dots {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.c-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.c-dot:hover { transform: scale(1.2); }
+
+.c-dot.earned {
+  background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle, #6C5CE7 0%, #4a3cb0 100%);
+  box-shadow: 0 0 12px rgba(108,92,231,0.4);
+}
+
+.c-dot.dim {
+  border: 1.5px dashed rgba(9,132,227,0.15);
+  background: rgba(9,132,227,0.02);
+}
+
+/* ================================================================
+   CRYSTALLINE
+   ================================================================ */
+.crystal-container {
+  width: 110px;
+  height: 120px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.crystal-container:hover { transform: translateY(-6px) scale(1.05); }
+
+.crystal-shape {
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Quartz (Common) */
+.crystal-quartz .crystal-shape {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.12) 60%, rgba(255,255,255,0.02) 100%);
+  border: none;
+  box-shadow: 0 0 15px rgba(255,255,255,0.08);
+}
+
+.crystal-quartz .crystal-shape::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  border: 1px solid rgba(200,200,210,0.15);
+}
+
+.crystal-quartz .crystal-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+/* Amethyst (Rare) */
+.crystal-amethyst .crystal-shape {
+  background:
+    linear-gradient(135deg, rgba(108,92,231,0.4) 0%, rgba(108,92,231,0.15) 40%, rgba(160,140,255,0.25) 60%, rgba(108,92,231,0.1) 100%),
+    linear-gradient(45deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+  box-shadow: 0 0 20px rgba(108,92,231,0.15);
+}
+
+.crystal-amethyst .crystal-shape::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(60deg, transparent 25%, rgba(255,255,255,0.06) 40%, transparent 50%, rgba(255,255,255,0.04) 65%, transparent 75%);
+}
+
+.crystal-amethyst .crystal-shape::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  border: 1.5px solid rgba(218,165,32,0.2);
+}
+
+.crystal-amethyst .crystal-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0.7;
+  z-index: 2;
+}
+
+/* Shimmer animation */
+.crystal-amethyst .crystal-shape .shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 48%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 52%, transparent 70%);
+  background-size: 250% 100%;
+  animation: shinePass 5s ease-in-out infinite;
+}
+
+/* Sapphire (Epic) */
+.crystal-sapphire .crystal-shape {
+  background:
+    linear-gradient(135deg, rgba(9,132,227,0.5) 0%, rgba(9,132,227,0.2) 35%, rgba(40,180,255,0.3) 55%, rgba(9,132,227,0.15) 80%, rgba(9,132,227,0.4) 100%),
+    linear-gradient(45deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+  box-shadow:
+    0 0 25px rgba(9,132,227,0.2),
+    0 0 50px rgba(9,132,227,0.08);
+}
+
+.crystal-sapphire .crystal-shape::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(60deg, transparent 20%, rgba(255,255,255,0.08) 35%, transparent 45%, rgba(255,255,255,0.06) 55%, transparent 65%, rgba(255,255,255,0.04) 75%, transparent 85%);
+}
+
+.crystal-sapphire .crystal-shape::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  border: 1.5px solid;
+  border-image: linear-gradient(135deg, rgba(255,200,100,0.3), rgba(100,200,255,0.3), rgba(200,100,255,0.3)) 1;
+}
+
+.crystal-sapphire .crystal-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0.8;
+  z-index: 2;
+}
+
+/* Pulsing prismatic glow */
+.crystal-sapphire {
+  animation: prismGlow 3s ease-in-out infinite;
+}
+
+@keyframes prismGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(9,132,227,0.2)); }
+  50% { filter: drop-shadow(0 0 16px rgba(100,160,255,0.3)); }
+}
+
+/* Diamond (Legendary) */
+.crystal-diamond .crystal-shape {
+  background:
+    conic-gradient(from 0deg, rgba(255,255,255,0.15), rgba(200,220,255,0.2), rgba(255,255,255,0.3), rgba(220,200,255,0.2), rgba(255,255,255,0.15), rgba(200,255,220,0.2), rgba(255,255,255,0.25), rgba(255,200,200,0.15), rgba(255,255,255,0.15));
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.1),
+    0 0 60px rgba(200,200,255,0.05);
+}
+
+.crystal-diamond .crystal-shape::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(60deg, transparent 15%, rgba(255,255,255,0.12) 30%, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%, rgba(255,255,255,0.08) 70%, transparent 80%);
+}
+
+.crystal-diamond .crystal-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: 0.9;
+  z-index: 2;
+}
+
+.crystal-diamond {
+  animation: diamondGlow 4s ease-in-out infinite;
+}
+
+@keyframes diamondGlow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 12px rgba(255,200,200,0.2))
+      drop-shadow(0 0 24px rgba(200,200,255,0.1));
+  }
+  33% {
+    filter:
+      drop-shadow(0 0 12px rgba(200,200,255,0.25))
+      drop-shadow(0 0 24px rgba(200,255,200,0.1));
+  }
+  66% {
+    filter:
+      drop-shadow(0 0 12px rgba(200,255,200,0.2))
+      drop-shadow(0 0 24px rgba(255,200,200,0.1));
+  }
+}
+
+/* Locked crystal */
+.crystal-locked {
+  width: 80px;
+  height: 88px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  background: linear-gradient(135deg, #1a1a24 0%, #10101a 100%);
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.crystal-locked::before {
+  content: '?';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.06);
+}
+
+.crystal-locked::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 150%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+  animation: crystalLockedShimmer 5s ease-in-out infinite;
+  transform: rotate(30deg);
+}
+
+@keyframes crystalLockedShimmer {
+  0%, 100% { left: -150%; }
+  50% { left: 200%; }
+}
+
+/* Hex grid preview */
+.hex-preview {
+  background: linear-gradient(180deg, #08080e 0%, #0c0c14 50%, #08080e 100%);
+  border: 1px solid rgba(108,92,231,0.06);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 80px;
+  position: relative;
+}
+
+.hex-grid {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.hex-mini {
+  width: 44px;
+  height: 48px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  transition: transform 0.3s ease;
+}
+
+.hex-mini:hover { transform: scale(1.2); }
+
+.hex-mini.h-quartz {
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+  box-shadow: 0 0 8px rgba(255,255,255,0.05);
+}
+
+.hex-mini.h-amethyst {
+  background: linear-gradient(135deg, rgba(108,92,231,0.4), rgba(108,92,231,0.15));
+}
+
+.hex-mini.h-sapphire {
+  background: linear-gradient(135deg, rgba(9,132,227,0.5), rgba(9,132,227,0.2));
+}
+
+.hex-mini.h-locked {
+  background: linear-gradient(135deg, #1a1a24, #10101a);
+  opacity: 0.4;
+}
+
+/* ================================================================
+   COMPARISON TABLE
+   ================================================================ */
+.comparison-section {
+  padding: 80px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.comparison-section .section-header { margin-bottom: 48px; }
+
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.comparison-table thead th {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.comparison-table thead th:first-child { width: 160px; }
+
+.comparison-table tbody td {
+  padding: 14px 16px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  vertical-align: top;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.comparison-table tbody td:first-child {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.comparison-table .highlight-col {
+  background: rgba(201,168,76,0.04);
+  border-left: 1px solid rgba(201,168,76,0.08);
+  border-right: 1px solid rgba(201,168,76,0.08);
+}
+
+.comparison-table thead .highlight-col {
+  color: var(--accent-gold);
+  border-top: 2px solid rgba(201,168,76,0.2);
+}
+
+.score-bar {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 8px;
+}
+
+.score-bar .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+}
+
+.score-bar .dot.empty {
+  background: rgba(255,255,255,0.08);
+}
+
+/* Recommendation callout */
+.recommendation {
+  margin-top: 48px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, rgba(201,168,76,0.01) 100%);
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 12px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+@media (max-width: 600px) {
+  .recommendation { flex-direction: column; }
+}
+
+.rec-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #cd9b5a, #8b6914, #cd9b5a);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(139,105,20,0.2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.rec-icon span {
+  background: linear-gradient(160deg, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rec-content h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.rec-content h3 .gold { color: var(--accent-gold); }
+
+.rec-content p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+footer {
+  text-align: center;
+  padding: 60px 24px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 640px) {
+  .comparison-table { font-size: 11px; }
+  .comparison-table thead th, .comparison-table tbody td { padding: 10px 8px; }
+  .badge-showcase { gap: 16px; }
+  .badge-card { padding: 20px 8px; }
+  .medal { width: 90px; height: 90px; }
+  .medal-icon { font-size: 28px; }
+  .planet-container { width: 90px; height: 90px; }
+  .planet { width: 54px; height: 54px; }
+  .crystal-container { width: 85px; height: 92px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================================================================
+     HERO
+     ================================================================ -->
+<header class="hero container">
+  <div class="hero-eyebrow">WriteWhiz &mdash; Design Sprint</div>
+  <h1 class="hero-title">Badge System<br><em>Redesign</em></h1>
+  <p class="hero-subtitle">Three concepts for &lsquo;digital jewelry&rsquo; that children want to collect and parents want to share.</p>
+</header>
+
+<!-- ================================================================
+     NAV
+     ================================================================ -->
+<div class="container">
+  <nav class="concept-nav" role="tablist">
+    <button class="active" onclick="showConcept('artisan')" role="tab" aria-selected="true">Artisan Craft <span class="rec-badge">Rec.</span></button>
+    <button onclick="showConcept('cosmic')" role="tab">Cosmic Explorer</button>
+    <button onclick="showConcept('crystal')" role="tab">Crystalline</button>
+  </nav>
+</div>
+
+<!-- ================================================================
+     CONCEPT A: ARTISAN CRAFT
+     ================================================================ -->
+<section id="concept-artisan" class="concept-section active">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Concept A &mdash; Recommended</div>
+      <h2 class="section-title font-display">Artisan Craft</h2>
+      <p class="section-philosophy">&ldquo;Writing is a craft. Your badges are artifacts of your journey &mdash; forged, not generated.&rdquo;</p>
+    </div>
+
+    <!-- 4 Medals -->
+    <div class="badge-showcase">
+      <!-- COMMON: Bronze -->
+      <div class="badge-card">
+        <div class="badge-rarity-label common">Common</div>
+        <div class="medal medal-bronze">
+          <svg class="inscription-ring" viewBox="0 0 124 124">
+            <defs><path id="ring-top" d="M 62,6 A 56,56 0 0 1 118,62"/><path id="ring-bot" d="M 62,118 A 56,56 0 0 1 6,62"/></defs>
+            <text><textPath href="#ring-top" startOffset="15%">WRITEWHIZ</textPath></text>
+            <text><textPath href="#ring-bot" startOffset="20%">STORY STARTER</textPath></text>
+          </svg>
+          <div class="medal-icon"><span>&#9998;</span></div>
+        </div>
+        <div class="badge-name">Story Starter</div>
+        <div class="badge-desc">Complete your first lesson</div>
+      </div>
+
+      <!-- RARE: Silver -->
+      <div class="badge-card">
+        <div class="badge-rarity-label rare">Rare</div>
+        <div class="medal medal-silver">
+          <svg class="inscription-ring" viewBox="0 0 124 124">
+            <defs><path id="ring-top-s" d="M 62,6 A 56,56 0 0 1 118,62"/><path id="ring-bot-s" d="M 62,118 A 56,56 0 0 1 6,62"/></defs>
+            <text><textPath href="#ring-top-s" startOffset="15%">WRITEWHIZ</textPath></text>
+            <text><textPath href="#ring-bot-s" startOffset="18%">WEEK WARRIOR</textPath></text>
+          </svg>
+          <div class="medal-icon"><span>&#128293;</span></div>
+        </div>
+        <div class="badge-name">Week Warrior</div>
+        <div class="badge-desc">7-day writing streak</div>
+      </div>
+
+      <!-- EPIC: Gold -->
+      <div class="badge-card">
+        <div class="badge-rarity-label epic">Epic</div>
+        <div class="medal medal-gold">
+          <svg class="inscription-ring" viewBox="0 0 124 124">
+            <defs><path id="ring-top-g" d="M 62,6 A 56,56 0 0 1 118,62"/><path id="ring-bot-g" d="M 62,118 A 56,56 0 0 1 6,62"/></defs>
+            <text><textPath href="#ring-top-g" startOffset="15%">WRITEWHIZ</textPath></text>
+            <text><textPath href="#ring-bot-g" startOffset="10%">WRITING CHAMPION</textPath></text>
+          </svg>
+          <div class="medal-icon"><span>&#127942;</span></div>
+          <div class="wax-seal">W</div>
+        </div>
+        <div class="badge-name">Writing Champion</div>
+        <div class="badge-desc">Complete 10 lessons</div>
+      </div>
+
+      <!-- LEGENDARY: Rose-Gold -->
+      <div class="badge-card">
+        <div class="badge-rarity-label legendary">Legendary</div>
+        <div class="medal medal-legendary">
+          <svg class="inscription-ring" viewBox="0 0 124 124">
+            <defs><path id="ring-top-l" d="M 62,6 A 56,56 0 0 1 118,62"/><path id="ring-bot-l" d="M 62,118 A 56,56 0 0 1 6,62"/></defs>
+            <text><textPath href="#ring-top-l" startOffset="15%">WRITEWHIZ</textPath></text>
+            <text><textPath href="#ring-bot-l" startOffset="8%">CURRICULUM GRADUATE</textPath></text>
+          </svg>
+          <div class="medal-icon"><span>&#127891;</span></div>
+          <div class="wax-seal-lg">
+            <div class="ribbon-left"></div>
+            <div class="ribbon-right"></div>
+            <div class="seal"><span class="seal-icon">&#9733;</span></div>
+          </div>
+        </div>
+        <div class="badge-name">Curriculum Graduate</div>
+        <div class="badge-desc">Complete entire curriculum</div>
+      </div>
+    </div>
+
+    <!-- Locked State -->
+    <div class="locked-section">
+      <div class="medal-locked"></div>
+      <div class="locked-text">
+        <h4>Unforged</h4>
+        <p>Keep writing to craft this medal. Hover to glimpse what lies within.</p>
+      </div>
+    </div>
+
+    <!-- Mini Collection -->
+    <div class="collection-preview">
+      <div class="collection-preview-title">Collection Preview</div>
+      <div class="collection-divider">Writing</div>
+      <div class="mini-grid">
+        <div class="mini-medal bronze"></div>
+        <div class="mini-medal bronze"></div>
+        <div class="mini-medal silver"></div>
+        <div class="mini-medal locked"></div>
+        <div class="mini-medal gold"></div>
+        <div class="mini-medal locked"></div>
+        <div class="mini-medal locked"></div>
+        <div class="mini-medal locked"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     CONCEPT B: COSMIC EXPLORER
+     ================================================================ -->
+<section id="concept-cosmic" class="concept-section">
+  <div class="container cosmic-bg">
+    <div class="section-header">
+      <div class="section-label">Concept B</div>
+      <h2 class="section-title font-display">Cosmic Explorer</h2>
+      <p class="section-philosophy">&ldquo;Every badge is a celestial discovery. Your writing creates new worlds.&rdquo;</p>
+    </div>
+
+    <div class="badge-showcase">
+      <!-- Common: Rocky planet -->
+      <div class="badge-card">
+        <div class="badge-rarity-label common" style="color:#FF6B6B;">Common</div>
+        <div class="planet-container">
+          <div class="star-field"></div>
+          <div class="planet planet-rocky"></div>
+          <div class="planet-atmosphere"></div>
+        </div>
+        <div class="badge-name">Story Starter</div>
+        <div class="badge-desc">Discovered on Day 1</div>
+      </div>
+
+      <!-- Rare: Gas giant -->
+      <div class="badge-card">
+        <div class="badge-rarity-label rare" style="color:#4ECDC4;">Rare</div>
+        <div class="planet-container">
+          <div class="star-field"></div>
+          <div class="planet planet-gas"></div>
+          <div class="planet-atmosphere"></div>
+          <div class="orbital-ring"></div>
+        </div>
+        <div class="badge-name">Week Warrior</div>
+        <div class="badge-desc">7-day orbit complete</div>
+      </div>
+
+      <!-- Epic: Star -->
+      <div class="badge-card">
+        <div class="badge-rarity-label epic" style="color:#ffe066;">Epic</div>
+        <div class="planet-container">
+          <div class="star-field"></div>
+          <div class="planet planet-star"></div>
+          <div class="planet-atmosphere"></div>
+          <div class="orbital-ring"></div>
+          <div class="orbital-ring orbital-ring-2"></div>
+        </div>
+        <div class="badge-name">Writing Champion</div>
+        <div class="badge-desc">Supernova achieved</div>
+      </div>
+
+      <!-- Legendary: Nebula -->
+      <div class="badge-card">
+        <div class="badge-rarity-label legendary" style="color:#c8a0ff;">Legendary</div>
+        <div class="planet-container">
+          <div class="star-field"></div>
+          <div class="planet planet-nebula"></div>
+          <div class="planet-atmosphere"></div>
+          <div class="orbital-ring" style="border-color:rgba(108,92,231,0.2);animation-duration:12s;"></div>
+          <div class="orbital-ring orbital-ring-2" style="border-color:rgba(255,107,107,0.15);animation-duration:16s;"></div>
+          <div class="orbital-ring" style="width:165%;left:-32%;height:14%;border-color:rgba(78,205,196,0.12);animation-duration:20s;transform:translateY(-50%) rotateX(68deg) rotateZ(60deg);"></div>
+          <div class="holo-overlay"></div>
+        </div>
+        <div class="badge-name">Curriculum Graduate</div>
+        <div class="badge-desc">Galaxy charted</div>
+      </div>
+    </div>
+
+    <!-- Locked -->
+    <div class="locked-section">
+      <div class="planet-locked"></div>
+      <div class="locked-text">
+        <h4>Undiscovered</h4>
+        <p>A celestial body awaits detection. Keep exploring to reveal it.</p>
+      </div>
+    </div>
+
+    <!-- Constellation preview -->
+    <div class="constellation-preview">
+      <div class="collection-preview-title">Star Map</div>
+      <div class="star-bg"></div>
+      <div class="constellation-dots">
+        <div class="c-dot earned"></div>
+        <div class="c-dot earned"></div>
+        <div class="c-dot dim"></div>
+        <div class="c-dot earned"></div>
+        <div class="c-dot dim"></div>
+        <div class="c-dot dim"></div>
+        <div class="c-dot earned"></div>
+        <div class="c-dot dim"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     CONCEPT C: CRYSTALLINE
+     ================================================================ -->
+<section id="concept-crystal" class="concept-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Concept C</div>
+      <h2 class="section-title font-display">Crystalline Collection</h2>
+      <p class="section-philosophy">&ldquo;Every badge is a precious gem mined through your writing effort. Rough stone becomes polished crystal through practice.&rdquo;</p>
+    </div>
+
+    <div class="badge-showcase">
+      <!-- Common: Quartz -->
+      <div class="badge-card">
+        <div class="badge-rarity-label common" style="color:rgba(200,200,210,0.6);">Common</div>
+        <div class="crystal-container crystal-quartz">
+          <div class="crystal-shape">
+            <div class="crystal-icon">&#9998;</div>
+          </div>
+        </div>
+        <div class="badge-name">Story Starter</div>
+        <div class="badge-desc">Smooth quartz</div>
+      </div>
+
+      <!-- Rare: Amethyst -->
+      <div class="badge-card">
+        <div class="badge-rarity-label rare" style="color:rgba(160,140,255,0.7);">Rare</div>
+        <div class="crystal-container crystal-amethyst">
+          <div class="crystal-shape">
+            <div class="shimmer"></div>
+            <div class="crystal-icon">&#128293;</div>
+          </div>
+        </div>
+        <div class="badge-name">Week Warrior</div>
+        <div class="badge-desc">Faceted amethyst</div>
+      </div>
+
+      <!-- Epic: Sapphire -->
+      <div class="badge-card">
+        <div class="badge-rarity-label epic" style="color:rgba(80,170,255,0.8);">Epic</div>
+        <div class="crystal-container crystal-sapphire">
+          <div class="crystal-shape">
+            <div class="crystal-icon">&#127942;</div>
+          </div>
+        </div>
+        <div class="badge-name">Writing Champion</div>
+        <div class="badge-desc">Deep sapphire</div>
+      </div>
+
+      <!-- Legendary: Diamond -->
+      <div class="badge-card">
+        <div class="badge-rarity-label legendary" style="color:rgba(255,255,255,0.6);">Legendary</div>
+        <div class="crystal-container crystal-diamond">
+          <div class="crystal-shape">
+            <div class="crystal-icon">&#127891;</div>
+          </div>
+        </div>
+        <div class="badge-name">Curriculum Graduate</div>
+        <div class="badge-desc">Prismatic diamond</div>
+      </div>
+    </div>
+
+    <!-- Locked -->
+    <div class="locked-section">
+      <div class="crystal-locked"></div>
+      <div class="locked-text">
+        <h4>Uncut Stone</h4>
+        <p>A crystal lies dormant beneath the surface. Keep writing to unearth it.</p>
+      </div>
+    </div>
+
+    <!-- Hex grid preview -->
+    <div class="hex-preview">
+      <div class="collection-preview-title">Crystal Cabinet</div>
+      <div class="hex-grid">
+        <div class="hex-mini h-quartz"></div>
+        <div class="hex-mini h-amethyst"></div>
+        <div class="hex-mini h-locked"></div>
+        <div class="hex-mini h-quartz"></div>
+        <div class="hex-mini h-sapphire"></div>
+        <div class="hex-mini h-locked"></div>
+        <div class="hex-mini h-locked"></div>
+        <div class="hex-mini h-quartz"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     COMPARISON
+     ================================================================ -->
+<section class="comparison-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Evaluation</div>
+      <h2 class="section-title font-display">Concept Comparison</h2>
+    </div>
+
+    <div style="overflow-x:auto;">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Criteria</th>
+          <th class="highlight-col">Artisan Craft</th>
+          <th>Cosmic Explorer</th>
+          <th>Crystalline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Parent Appeal</td>
+          <td class="highlight-col">Certificate aesthetic parents want to share <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Fun but reads as &ldquo;game&rdquo; <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Beautiful but abstract <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+        <tr>
+          <td>Age Range (7&ndash;15)</td>
+          <td class="highlight-col">Medals are universally understood <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Strong for all ages <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span></span></td>
+          <td>May feel &ldquo;fantasy game&rdquo; for teens <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+        <tr>
+          <td>Brand Alignment</td>
+          <td class="highlight-col">Writing = craft, badges = artifacts <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>No intrinsic link to writing <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Learning as geology &mdash; a stretch <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+        <tr>
+          <td>Differentiation</td>
+          <td class="highlight-col">Unique in EdTech space <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Space theme is common <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Gem theme is common in games <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td class="highlight-col">Lightweight CSS gradients <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Star fields + animations can lag <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+          <td>Backdrop-filter can be heavy <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+        <tr>
+          <td>Shareability</td>
+          <td class="highlight-col">Certificate share card is premium <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></td>
+          <td>Discovery card is novel <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span></span></td>
+          <td>Crystal card is decorative <span class="score-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot empty"></span><span class="dot empty"></span></span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <!-- Recommendation -->
+    <div class="recommendation">
+      <div class="rec-icon"><span>&#9733;</span></div>
+      <div class="rec-content">
+        <h3 class="font-display">Recommended: <span class="gold">Artisan Craft</span></h3>
+        <p>The Artisan Craft concept directly connects to WriteWhiz&rsquo; core identity. Writing <em>is</em> a craft. Medals and certificates are universally understood by children and parents alike. The certificate-style share cards look prestigious in social feeds &mdash; not like game screenshots. The metallic gradient CSS is lightweight, and the concept scales elegantly from playful bronze coins for 7-year-olds to museum-quality commemorative medallions for teenagers. No other EdTech product uses this visual language for badges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    WriteWhiz &middot; Badge Redesign Sprint &middot; March 2026
+  </div>
+</footer>
+
+<script>
+function showConcept(id) {
+  document.querySelectorAll('.concept-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.concept-nav button').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  document.getElementById('concept-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.concept-nav button');
+  const map = { artisan: 0, cosmic: 1, crystal: 2 };
+  btns[map[id]].classList.add('active');
+  btns[map[id]].setAttribute('aria-selected', 'true');
+  // Smooth scroll to top of concept
+  document.getElementById('concept-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+
+</body>
+</html>

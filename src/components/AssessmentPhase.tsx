@@ -267,9 +267,9 @@ export default function AssessmentPhase({
         </div>
       )}
 
-      {/* Writing Area */}
+      {/* Writing Area — ink drips appear on focus */}
       <div className="flex-1 min-h-0 overflow-y-auto bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 h-full">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 h-full ink-drip-focus">
           <textarea
             value={writingText}
             onChange={(e) => setWritingText(e.target.value)}
@@ -305,7 +305,7 @@ export default function AssessmentPhase({
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
-            className="bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-wet-ink bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitLabel}
           </button>

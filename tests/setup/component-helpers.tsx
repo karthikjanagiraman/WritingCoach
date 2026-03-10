@@ -1,5 +1,5 @@
 /**
- * Component test helpers for WriteWise Kids.
+ * Component test helpers for WriteWhiz.
  * Provides renderWithProviders, common mocks, and utilities.
  */
 import React from 'react';

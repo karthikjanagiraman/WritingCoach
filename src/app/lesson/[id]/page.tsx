@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import type { Phase, Message, AssessmentResult, AssessmentContext, Tier } from "@/types";
-import { CoachAvatar } from "@/components/shared";
+import { CoachAvatar, InkLoader } from "@/components/shared";
 import { TierProvider } from "@/contexts/TierContext";
 import PhaseIndicator from "@/components/PhaseIndicator";
 import PhaseTransition from "@/components/PhaseTransition";
@@ -215,12 +215,7 @@ export default function LessonPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-active-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto flex justify-center">
-            <CoachAvatar size="lg" animate />
-          </div>
-          <p className="mt-4 text-active-text/60 font-semibold">Loading your lesson...</p>
-        </div>
+        <InkLoader message="Loading your lesson..." />
       </div>
     );
   }

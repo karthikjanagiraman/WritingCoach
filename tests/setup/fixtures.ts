@@ -1,5 +1,5 @@
 /**
- * Shared test fixtures for WriteWise Kids.
+ * Shared test fixtures for WriteWhiz.
  * Single source of truth for all test data.
  */
 

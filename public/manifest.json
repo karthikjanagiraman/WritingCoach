@@ -1,0 +1,14 @@
+{
+  "name": "WriteWhiz",
+  "short_name": "WriteWhiz",
+  "description": "AI Writing Coach for Kids \u2014 From blank page to writing whiz",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF9F0",
+  "theme_color": "#6C5CE7",
+  "icons": [
+    { "src": "/brand/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/brand/icon-192.svg", "type": "image/svg+xml", "sizes": "192x192" },
+    { "src": "/brand/icon-512.svg", "type": "image/svg+xml", "sizes": "512x512" }
+  ]
+}

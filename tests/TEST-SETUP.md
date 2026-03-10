@@ -1,4 +1,4 @@
-# WriteWise Kids — Test Suite Setup
+# WriteWhiz — Test Suite Setup
 
 ## Install Dependencies
 

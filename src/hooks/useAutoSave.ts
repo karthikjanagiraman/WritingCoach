@@ -5,7 +5,7 @@ import { saveDraft } from "@/lib/api";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-const LOCAL_STORAGE_PREFIX = "writewise_draft_";
+const LOCAL_STORAGE_PREFIX = "writewhiz_draft_";
 const LOCAL_SAVE_DEBOUNCE_MS = 5_000;
 const SERVER_SAVE_THROTTLE_MS = 30_000;
 

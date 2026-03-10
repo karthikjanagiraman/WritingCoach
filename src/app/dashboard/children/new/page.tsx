@@ -310,7 +310,7 @@ export default function NewChildPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 px-6 py-3 bg-[#FF6B6B] text-white rounded-xl text-sm font-bold hover:bg-[#FF6B6B]/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-wet-ink flex-1 px-6 py-3 bg-[#FF6B6B] text-white rounded-xl text-sm font-bold hover:bg-[#FF6B6B]/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Creating..." : "Create Profile"}
             </button>

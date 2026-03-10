@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -77,9 +78,9 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-tier1-primary tracking-tight">
-            WriteWise Kids
-          </h1>
+          <div className="flex justify-center">
+            <WriteWhizLogo size="lg" />
+          </div>
           <p className="mt-2 text-tier1-text/60 text-lg">
             Create an account to start your writing journey!
           </p>
@@ -187,7 +188,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-tier1-primary text-white rounded-xl font-bold text-base hover:bg-tier1-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-wet-ink w-full py-3 bg-tier1-primary text-white rounded-xl font-bold text-base hover:bg-tier1-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating account..." : "Create Account"}
             </button>

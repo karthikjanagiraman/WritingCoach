@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="115" fill="#FFF9F0"/>
+  <!-- Shadow -->
+  <ellipse cx="256" cy="320" rx="85" ry="16" fill="rgba(0,0,0,0.06)"/>
+  <!-- Tier 1 ink dome - coral/red gradient -->
+  <defs>
+    <linearGradient id="inkTier1" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#C0392B"/>
+    </linearGradient>
+  </defs>
+  <path d="M180,275 Q155,215 200,175 Q235,145 275,150 Q325,140 355,178 Q385,218 365,268 Q355,300 312,312 Q275,328 232,312 Q192,298 180,275Z" fill="url(#inkTier1)"/>
+  <!-- Glossy highlight -->
+  <ellipse cx="228" cy="198" rx="42" ry="26" fill="white" opacity="0.22" transform="rotate(-20,228,198)"/>
+  <!-- Ejected droplets with motion dashes -->
+  <circle cx="140" cy="165" r="14" fill="#4ECDC4"/>
+  <line x1="152" y1="177" x2="164" y2="189" stroke="#4ECDC4" stroke-width="3.5" opacity="0.35" stroke-linecap="round"/>
+  <line x1="158" y1="172" x2="167" y2="181" stroke="#4ECDC4" stroke-width="2" opacity="0.2" stroke-linecap="round"/>
+  <circle cx="390" cy="148" r="11" fill="#FFE66D"/>
+  <line x1="374" y1="162" x2="362" y2="174" stroke="#FFE66D" stroke-width="3" opacity="0.35" stroke-linecap="round"/>
+  <circle cx="400" cy="285" r="9" fill="#6C5CE7"/>
+  <circle cx="295" cy="115" r="8" fill="#FF6B6B" opacity="0.5"/>
+  <circle cx="155" cy="308" r="7" fill="#FFE66D" opacity="0.65"/>
+</svg>

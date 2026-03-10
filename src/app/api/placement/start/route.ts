@@ -31,7 +31,7 @@ const FALLBACK_PROMPTS: Record<string, string[]> = {
 // ---------------------------------------------------------------------------
 
 function buildPromptGenerationPrompt(childAge: number): string {
-  return `You are generating writing assessment prompts for WriteWise Kids, an AI writing coach for children ages 7-15. You must generate exactly 3 prompts in a specific order:
+  return `You are generating writing assessment prompts for WriteWhiz, an AI writing coach for children ages 7-15. You must generate exactly 3 prompts in a specific order:
 
 1. A NARRATIVE prompt (tell or start a story)
 2. A DESCRIPTIVE prompt (describe something using senses and details)

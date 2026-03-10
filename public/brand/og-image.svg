@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#FFF9F0"/>
+
+  <!-- Subtle decorative ink splatters in corners -->
+  <circle cx="80" cy="60" r="25" fill="#FF6B6B" opacity="0.12"/>
+  <circle cx="45" cy="95" r="15" fill="#4ECDC4" opacity="0.1"/>
+  <circle cx="1140" cy="50" r="20" fill="#6C5CE7" opacity="0.1"/>
+  <circle cx="1165" cy="85" r="12" fill="#FFE66D" opacity="0.12"/>
+  <circle cx="70" cy="560" r="18" fill="#0984E3" opacity="0.1"/>
+  <circle cx="1150" cy="580" r="22" fill="#FF6B6B" opacity="0.08"/>
+  <circle cx="1120" cy="555" r="10" fill="#4ECDC4" opacity="0.12"/>
+
+  <!-- Large centered ink splash -->
+  <defs>
+    <linearGradient id="ogInk" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#6C5CE7"/>
+      <stop offset="100%" stop-color="#2D3436"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow under ink blob -->
+  <ellipse cx="600" cy="310" rx="110" ry="20" fill="rgba(0,0,0,0.05)"/>
+
+  <!-- Main ink dome -->
+  <path d="M500,270 Q470,200 530,160 Q575,130 620,138 Q680,125 720,168 Q755,210 735,260 Q720,295 675,308 Q635,325 590,310 Q545,298 500,270Z" fill="url(#ogInk)"/>
+
+  <!-- Glossy highlight -->
+  <ellipse cx="558" cy="190" rx="50" ry="30" fill="white" opacity="0.2" transform="rotate(-18,558,190)"/>
+
+  <!-- Flying droplets -->
+  <circle cx="440" cy="155" r="16" fill="#FF6B6B"/>
+  <line x1="454" y1="169" x2="468" y2="183" stroke="#FF6B6B" stroke-width="4" opacity="0.3" stroke-linecap="round"/>
+  <circle cx="780" cy="140" r="13" fill="#4ECDC4"/>
+  <line x1="764" y1="156" x2="750" y2="170" stroke="#4ECDC4" stroke-width="3.5" opacity="0.3" stroke-linecap="round"/>
+  <circle cx="800" cy="275" r="10" fill="#0984E3"/>
+  <circle cx="660" cy="105" r="9" fill="#FFE66D"/>
+  <circle cx="455" cy="305" r="8" fill="#4ECDC4" opacity="0.6"/>
+
+  <!-- WriteWhiz wordmark -->
+  <text x="600" y="430" text-anchor="middle" font-family="Georgia, 'Literata', serif" font-weight="600" font-size="64" fill="#2D3436">Write<tspan font-family="'Nunito', 'Arial Rounded MT Bold', sans-serif" font-weight="900" fill="#6C5CE7">Whiz</tspan></text>
+
+  <!-- Z flourish after wordmark -->
+  <g transform="translate(773, 432)">
+    <path d="M0,0 Q10,5 7,13 Q5,18 -3,15 Q-8,12 -5,7 Q-3,2 5,5 Z" fill="#6C5CE7" opacity="0.7"/>
+    <circle cx="15" cy="2" r="4" fill="#FF6B6B"/>
+    <circle cx="-5" cy="20" r="3" fill="#4ECDC4"/>
+    <circle cx="13" cy="17" r="2.5" fill="#0984E3"/>
+  </g>
+
+  <!-- Tagline -->
+  <text x="600" y="478" text-anchor="middle" font-family="'Nunito', 'Arial Rounded MT Bold', sans-serif" font-weight="600" font-size="26" fill="#636E72">From blank page to writing whiz</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="520" text-anchor="middle" font-family="'Nunito', 'Arial Rounded MT Bold', sans-serif" font-weight="400" font-size="18" fill="#B2BEC3">AI Writing Coach for Kids</text>
+
+  <!-- Thin decorative line -->
+  <line x1="500" y1="545" x2="700" y2="545" stroke="#6C5CE7" stroke-width="2" opacity="0.15" stroke-linecap="round"/>
+</svg>

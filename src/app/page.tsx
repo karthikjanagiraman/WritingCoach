@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import styles from "./landing.module.css";
 import PricingTable from "@/components/PricingTable";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
@@ -190,8 +192,7 @@ export default function LandingPage() {
       >
         <div className={styles.navbarInner}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoIcon}>&#9999;&#65039;</span>
-            WriteWise Kids
+            <WriteWhizLogo size="md" />
           </Link>
           <ul
             className={`${styles.navLinks}${mobileMenuOpen ? ` ${styles.navLinksOpen}` : ""}`}
@@ -263,6 +264,26 @@ export default function LandingPage() {
 
       {/* ===== HERO ===== */}
       <section ref={heroRef} className={styles.hero}>
+        {/* Ink blob decorations */}
+        <div className={`${styles.heroInkBlob} ${styles.heroInkBlobLarge}`} />
+        <div className={`${styles.heroInkBlob} ${styles.heroInkBlobCoral}`} />
+        <div className={`${styles.heroInkBlob} ${styles.heroInkBlobTeal}`} />
+        <div className={`${styles.heroInkBlob} ${styles.heroInkBlobBlue}`} />
+        <div className={`${styles.heroInkBlob} ${styles.heroInkBlobYellow}`} />
+        {/* Hero floating satellite droplets */}
+        <div className={`${styles.heroSatellite} ${styles.heroSatellite1}`} />
+        <div className={`${styles.heroSatellite} ${styles.heroSatellite2}`} />
+        <div className={`${styles.heroSatellite} ${styles.heroSatellite3}`} />
+        <div className={`${styles.heroSatellite} ${styles.heroSatellite4}`} />
+        <div className={`${styles.heroSatellite} ${styles.heroSatellite5}`} />
+        <Image
+          src="/brand/icon-512.svg"
+          alt=""
+          width={220}
+          height={220}
+          className={styles.heroBrandMark}
+          aria-hidden="true"
+        />
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
             <h1>
@@ -274,7 +295,7 @@ export default function LandingPage() {
               child discovers the joy of writing.
             </p>
             <div className={styles.heroActions}>
-              <Link href="/auth/signup" className={styles.btnPrimary}>
+              <Link href="/auth/signup" className={`${styles.btnPrimary} btn-wet-ink`}>
                 Discover your child&apos;s writing level
               </Link>
               <a
@@ -309,7 +330,23 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+        {/* Hero bottom ink-drip edge */}
+        <div className={styles.heroInkDrip}>
+          <div className={styles.heroInkDripDot} />
+          <div className={styles.heroInkDripDot} />
+          <div className={styles.heroInkDripDot} />
+          <div className={styles.heroInkDripDot} />
+          <div className={styles.heroInkDripDot} />
+        </div>
       </section>
+
+      {/* Divider: hero -> outcomes */}
+      <div className={styles.sectionDivider}>
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+      </div>
 
       {/* ===== OUTCOME SHOWCASE ===== */}
       <section className={styles.outcomes} id="outcomes">
@@ -381,6 +418,14 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Divider: outcomes -> how-it-works */}
+      <div className={styles.sectionDivider}>
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+      </div>
 
       {/* ===== HOW IT WORKS ===== */}
       <section className={styles.howItWorks} id="how-it-works">
@@ -469,8 +514,20 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Divider: how-it-works -> engagement */}
+      <div className={styles.sectionDivider}>
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+      </div>
+
       {/* ===== ENGAGEMENT ===== */}
       <section ref={engagementRef} className={styles.engagement}>
+        {/* Engagement ink blobs */}
+        <div className={`${styles.engagementBlob} ${styles.engagementBlobPurple}`} />
+        <div className={`${styles.engagementBlob} ${styles.engagementBlobCoral}`} />
+        <div className={`${styles.engagementBlob} ${styles.engagementBlobTeal}`} />
         <div className={styles.container}>
           <div
             className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
@@ -626,6 +683,14 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+
+      {/* Divider: engagement -> parent-insight */}
+      <div className={styles.sectionDivider}>
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+      </div>
 
       {/* ===== PARENT INSIGHT ===== */}
       <section className={styles.parentInsight} id="parents">
@@ -879,6 +944,14 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Divider: parent-insight -> method */}
+      <div className={styles.sectionDivider}>
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+        <span className={styles.sectionDividerDot} />
+      </div>
+
       {/* ===== THE METHOD ===== */}
       <section className={styles.method} id="method">
         <div className={styles.container}>
@@ -919,6 +992,10 @@ export default function LandingPage() {
 
       {/* ===== PRICING ===== */}
       <section className={styles.pricingSection} id="pricing">
+        {/* Pricing ink blobs */}
+        <div className={`${styles.pricingBlob} ${styles.pricingBlobPurple}`} />
+        <div className={`${styles.pricingBlob} ${styles.pricingBlobCoral}`} />
+        <div className={`${styles.pricingBlob} ${styles.pricingBlobYellow}`} />
         <div className={styles.container}>
           <div
             className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
@@ -955,7 +1032,26 @@ export default function LandingPage() {
 
       {/* ===== FINAL CTA ===== */}
       <section className={styles.finalCta} id="cta">
+        {/* Final CTA ink blobs */}
+        <div className={`${styles.finalCtaBlob} ${styles.finalCtaBlobPurple}`} />
+        <div className={`${styles.finalCtaBlob} ${styles.finalCtaBlobCoral}`} />
+        <div className={`${styles.finalCtaBlob} ${styles.finalCtaBlobTeal}`} />
+        {/* Floating satellite droplets */}
+        <div className={`${styles.satelliteDot} ${styles.satelliteDot1}`} />
+        <div className={`${styles.satelliteDot} ${styles.satelliteDot2}`} />
+        <div className={`${styles.satelliteDot} ${styles.satelliteDot3}`} />
+        <div className={`${styles.satelliteDot} ${styles.satelliteDot4}`} />
+        <div className={`${styles.satelliteDot} ${styles.satelliteDot5}`} />
         <div className={styles.container}>
+          {/* Brand icon anchor */}
+          <Image
+            src="/brand/icon-512.svg"
+            alt=""
+            width={140}
+            height={140}
+            className={styles.finalCtaBrandIcon}
+            aria-hidden="true"
+          />
           <h2 className={styles.animateOnScroll}>
             Every great writer started somewhere
           </h2>
@@ -970,7 +1066,7 @@ export default function LandingPage() {
           >
             <Link
               href="/auth/signup"
-              className={styles.btnPrimary}
+              className={`${styles.btnPrimary} btn-wet-ink`}
               style={{ fontSize: "19px", padding: "18px 40px" }}
             >
               Get Started Free {"\u2192"}
@@ -994,7 +1090,7 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerLogo}>
-            <span>&#9999;&#65039;</span> WriteWise Kids
+            <WriteWhizLogo size="md" reversed />
           </div>
           <ul className={styles.footerLinks}>
             <li>
@@ -1020,7 +1116,7 @@ export default function LandingPage() {
             </li>
           </ul>
           <p className={styles.footerCopy}>
-            &copy; 2026 WriteWise Kids. All rights reserved.
+            &copy; 2026 WriteWhiz. All rights reserved.
           </p>
         </div>
       </footer>

@@ -1,7 +1,7 @@
 {
-  "skill": "writewise-kids",
+  "skill": "writewhiz",
   "version": "1.0.0",
-  "description": "Test cases for the WriteWise Kids AI writing coach skill",
+  "description": "Test cases for the WriteWhiz AI writing coach skill",
   
   "evals": [
     {

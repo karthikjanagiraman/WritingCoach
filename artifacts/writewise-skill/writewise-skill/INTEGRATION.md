@@ -1,8 +1,8 @@
-# WriteWise Skill Integration Guide
+# WriteWhiz Skill Integration Guide
 
 ## Overview
 
-This guide shows how to integrate the WriteWise Kids skill into your application. The skill provides instructions that shape Claude's behavior as a writing coach.
+This guide shows how to integrate the WriteWhiz skill into your application. The skill provides instructions that shape Claude's behavior as a writing coach.
 
 ---
 
@@ -303,10 +303,10 @@ your-project/
 ```typescript
 // src/skills/writewise/index.ts
 
-export { WriteWiseSkill } from './skill';
-export { buildWriteWisePrompt } from './prompt-builder';
+export { WriteWhizSkill } from './skill';
+export { buildWriteWhizPrompt } from './prompt-builder';
 export { 
-  WriteWiseSession, 
+  WriteWhizSession, 
   LessonPhase, 
   StudentTier,
   createSession,
@@ -323,8 +323,8 @@ export { getRubric, gradeSubmission } from './rubrics';
 import fs from 'fs';
 import path from 'path';
 
-export class WriteWiseSkill {
-  private static instance: WriteWiseSkill;
+export class WriteWhizSkill {
+  private static instance: WriteWhizSkill;
   private content: Map<string, string> = new Map();
   private rubrics: Map<string, object> = new Map();
   
@@ -332,11 +332,11 @@ export class WriteWiseSkill {
     this.loadContent();
   }
   
-  static getInstance(): WriteWiseSkill {
-    if (!WriteWiseSkill.instance) {
-      WriteWiseSkill.instance = new WriteWiseSkill();
+  static getInstance(): WriteWhizSkill {
+    if (!WriteWhizSkill.instance) {
+      WriteWhizSkill.instance = new WriteWhizSkill();
     }
-    return WriteWiseSkill.instance;
+    return WriteWhizSkill.instance;
   }
   
   private loadContent(): void {
@@ -425,7 +425,7 @@ export interface PhaseState {
   scores?: Record<string, number>;
 }
 
-export interface WriteWiseSession {
+export interface WriteWhizSession {
   id: string;
   studentId: string;
   studentName: string;
@@ -450,7 +450,7 @@ export function createSession(params: {
   studentAge: number;
   lessonId: string;
   lessonTitle: string;
-}): WriteWiseSession {
+}): WriteWhizSession {
   // Determine tier from age
   const tier: StudentTier = params.studentAge <= 9 ? 1 
     : params.studentAge <= 12 ? 2 
@@ -560,14 +560,14 @@ import path from 'path';
 
 const prisma = new PrismaClient();
 
-async function seedWriteWiseSkill() {
+async function seedWriteWhizSkill() {
   const skillDir = path.join(__dirname, '../src/skills/writewise/content');
   
   // Create or update skill
   const skill = await prisma.skill.upsert({
-    where: { name: 'writewise-kids' },
+    where: { name: 'writewhiz' },
     create: {
-      name: 'writewise-kids',
+      name: 'writewhiz',
       version: '1.0.0',
       corePrompt: fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf-8'),
     },
@@ -632,10 +632,10 @@ async function seedWriteWiseSkill() {
     });
   }
   
-  console.log('WriteWise skill seeded successfully');
+  console.log('WriteWhiz skill seeded successfully');
 }
 
-seedWriteWiseSkill();
+seedWriteWhizSkill();
 ```
 
 ---
@@ -650,7 +650,7 @@ seedWriteWiseSkill();
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface LessonContextType {
-  session: WriteWiseSession | null;
+  session: WriteWhizSession | null;
   isLoading: boolean;
   error: string | null;
   sendMessage: (message: string) => Promise<void>;
@@ -661,7 +661,7 @@ interface LessonContextType {
 const LessonContext = createContext<LessonContextType | null>(null);
 
 export function LessonProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<WriteWiseSession | null>(null);
+  const [session, setSession] = useState<WriteWhizSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   

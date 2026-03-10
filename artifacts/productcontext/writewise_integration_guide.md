@@ -1,4 +1,4 @@
-# WriteWise Kids — Integration Guide
+# WriteWhiz — Integration Guide
 
 ## Package Contents
 

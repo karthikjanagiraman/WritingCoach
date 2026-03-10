@@ -457,15 +457,15 @@ export async function sendTrialWelcomeEmail(
 
   const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
   const html = buildTrialWelcomeHtml(parentName, childName, dashboardUrl);
-  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWhiz <onboarding@resend.dev>";
 
   try {
     await resend.emails.send({
       from: fromAddress,
       to: parentEmail,
       subject: childName
-        ? `Welcome to WriteWise Kids \u2014 ${childName}'s writing adventure starts now!`
-        : "Welcome to WriteWise Kids \u2014 Your free trial is ready!",
+        ? `Welcome to WriteWhiz \u2014 ${childName}'s writing adventure starts now!`
+        : "Welcome to WriteWhiz \u2014 Your free trial is ready!",
       html,
     });
     return true;
@@ -487,13 +487,13 @@ export async function sendTrialExpiringEmail(
 
   const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
   const html = buildTrialExpiringHtml(parentName, childNames, daysLeft, lessonsCompleted, dashboardUrl);
-  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWhiz <onboarding@resend.dev>";
 
   try {
     await resend.emails.send({
       from: fromAddress,
       to: parentEmail,
-      subject: `Your WriteWise Kids trial ends in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`,
+      subject: `Your WriteWhiz trial ends in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`,
       html,
     });
     return true;
@@ -514,7 +514,7 @@ export async function sendSubscriptionConfirmedEmail(
 
   const dashboardUrl = process.env.AUTH_URL ?? "http://localhost:3000";
   const html = buildSubscriptionConfirmedHtml(parentName, planName, childNames, dashboardUrl);
-  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWise Kids <onboarding@resend.dev>";
+  const fromAddress = process.env.RESEND_FROM_EMAIL ?? "WriteWhiz <onboarding@resend.dev>";
 
   try {
     await resend.emails.send({
@@ -544,7 +544,7 @@ function buildTrialWelcomeHtml(parentName: string, childName: string | undefined
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
   <tr><td style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E);padding:32px 24px;text-align:center;">
     <p style="margin:0;font-size:36px;">&#9997;&#65039;</p>
-    <h1 style="margin:8px 0 0;font-size:22px;color:#fff;font-weight:700;">Welcome to WriteWise Kids!</h1>
+    <h1 style="margin:8px 0 0;font-size:22px;color:#fff;font-weight:700;">Welcome to WriteWhiz!</h1>
     <p style="margin:6px 0 0;font-size:15px;color:#ffe0e0;">${greeting}</p>
   </td></tr>
   <tr><td style="padding:32px 24px;">
@@ -565,7 +565,7 @@ function buildTrialWelcomeHtml(parentName: string, childName: string | undefined
     </div>
   </td></tr>
   <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
-    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWhiz &mdash; From blank page to writing whiz</p>
   </td></tr>
 </table>
 </td></tr>
@@ -614,7 +614,7 @@ function buildTrialExpiringHtml(
     </div>
   </td></tr>
   <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
-    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWhiz &mdash; From blank page to writing whiz</p>
   </td></tr>
 </table>
 </td></tr>
@@ -664,7 +664,7 @@ function buildSubscriptionConfirmedHtml(
     </div>
   </td></tr>
   <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
-    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWhiz &mdash; From blank page to writing whiz</p>
     <p style="margin:4px 0 0;font-size:11px;color:#d1d5db;">Manage your subscription from your <a href="${baseUrl}/dashboard" style="color:#9ca3af;">dashboard</a>.</p>
   </td></tr>
 </table>
@@ -997,7 +997,7 @@ export function buildLessonReportHtml(
 
   <!-- Footer -->
   <tr><td style="padding:16px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
-    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWise Kids &mdash; Helping young writers grow</p>
+    <p style="margin:0;font-size:12px;color:#9ca3af;">WriteWhiz &mdash; From blank page to writing whiz</p>
     <p style="margin:4px 0 0;font-size:11px;color:#d1d5db;">You received this because ${childName} completed a lesson. To unsubscribe, manage notification settings in your dashboard.</p>
   </td></tr>
 
@@ -1033,7 +1033,7 @@ export async function sendLessonCompleteEmail(
     const html = buildLessonReportHtml(data, reportSections);
     const fromAddress =
       process.env.RESEND_FROM_EMAIL ??
-      "WriteWise Kids <onboarding@resend.dev>";
+      "WriteWhiz <onboarding@resend.dev>";
 
     await resend.emails.send({
       from: fromAddress,

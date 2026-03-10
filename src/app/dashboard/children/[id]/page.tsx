@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { InkLoader } from "@/components/shared";
 
 const AVATAR_OPTIONS = [
   "\uD83E\uDD89", // owl
@@ -123,10 +124,7 @@ export default function EditChildPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FFF9F0] flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl animate-bounce-slow">&#128218;</div>
-          <p className="mt-4 text-[#2D3436]/60 font-semibold">Loading...</p>
-        </div>
+        <InkLoader message="Loading..." />
       </div>
     );
   }

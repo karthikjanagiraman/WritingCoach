@@ -89,6 +89,19 @@ const RARITY_CARD_STYLES: Record<BadgeRarity, string> = {
   legendary: "from-[#FECA57]/20 to-[#FFF9C4]/15 border-[#FECA57]/30",
 };
 
+const SPLAT_SHAPES = [
+  "40% 60% 55% 45% / 50% 40% 60% 50%",
+  "55% 45% 40% 60% / 45% 55% 50% 50%",
+  "45% 55% 50% 50% / 60% 40% 55% 45%",
+  "50% 50% 45% 55% / 40% 60% 50% 50%",
+  "60% 40% 50% 50% / 55% 45% 40% 60%",
+  "42% 58% 52% 48% / 48% 52% 58% 42%",
+  "55% 45% 48% 52% / 42% 58% 45% 55%",
+  "48% 52% 55% 45% / 58% 42% 52% 48%",
+];
+
+const SPLAT_ROTATIONS = [-3, 1, -2, 2, -1, 3, -2, 1];
+
 export default function CelebrationOverlay({
   badges,
   onDismiss,
@@ -176,8 +189,10 @@ export default function CelebrationOverlay({
             return (
               <div
                 key={badge.id}
-                className={`bg-gradient-to-br ${RARITY_CARD_STYLES[rarity]} rounded-2xl p-5 border relative overflow-hidden`}
+                className={`bg-gradient-to-br ${RARITY_CARD_STYLES[rarity]} p-5 border relative overflow-hidden`}
                 style={{
+                  borderRadius: SPLAT_SHAPES[index % SPLAT_SHAPES.length],
+                  transform: `rotate(${SPLAT_ROTATIONS[index % SPLAT_ROTATIONS.length]}deg)`,
                   animationDelay: `${index * 150}ms`,
                   animation: "badgePop 0.4s ease-out both",
                 }}
@@ -203,7 +218,7 @@ export default function CelebrationOverlay({
         {/* Continue button */}
         <button
           onClick={handleDismiss}
-          className="w-full bg-active-primary text-white px-6 py-3 rounded-xl font-bold text-base hover:bg-active-primary/90 transition-colors shadow-sm"
+          className="btn-wet-ink w-full bg-active-primary text-white px-6 py-3 rounded-xl font-bold text-base hover:bg-active-primary/90 transition-colors shadow-sm"
         >
           {highestRarity === "common" ? "Nice!" : "Awesome!"}
         </button>

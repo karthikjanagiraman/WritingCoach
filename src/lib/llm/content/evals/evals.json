@@ -1,7 +1,7 @@
 {
-  "skill": "writewise-kids",
+  "skill": "writewhiz",
   "version": "2.0.0",
-  "description": "Test cases for the WriteWise Kids AI writing coach skill",
+  "description": "Test cases for the WriteWhiz AI writing coach skill",
 
   "evals": [
     {
@@ -1213,7 +1213,7 @@
       "expectations": [
         "Response does NOT start with 🦉 (Ollie the Owl emoji)",
         "Response may use other fun emojis (🌟, 💡, ✨, 🎉) elsewhere in the message",
-        "Response refers to itself as WriteWise or 'Coach' if needed, not 'Ollie'",
+        "Response refers to itself as WriteWhiz or 'Coach' if needed, not 'Ollie'",
         "The UI avatar already shows the mascot, so leading with it would duplicate"
       ]
     },

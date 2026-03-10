@@ -1,4 +1,4 @@
-# CLAUDE.md — WriteWise Kids
+# CLAUDE.md — WriteWhiz
 
 ## ⚠️ MANDATORY: Read Before Every Change
 
@@ -14,7 +14,7 @@
 
 ## Project Overview
 
-WriteWise Kids is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
+WriteWhiz is an AI-powered creative writing coach for children ages 7-15. It uses a three-phase pedagogical model ("I Do, We Do, You Do") to teach writing skills through direct instruction, guided practice, and independent assessment with AI-generated feedback.
 
 **Current State**: Full-featured product with multi-user auth (email/password + Google OAuth), placement assessments, personalized curricula, skill tracking, achievement badges, and parent progress reports. Claude API is fully integrated for coaching, phase transitions, rubric-based grading, placement analysis, curriculum generation, and curriculum adaptation. Auth.js v5 provides parent login/signup with credentials provider and Google OAuth. Parents can manage multiple children, view detailed progress reports with charts, and trigger curriculum revisions. All 6 planned phases are complete.
 

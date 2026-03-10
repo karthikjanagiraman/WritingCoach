@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import PinModal from "@/components/PinModal";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
+import { InkLoader } from "@/components/shared";
 
 interface ChildData {
   id: string;
@@ -157,10 +159,7 @@ export default function ProfilePicker() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FFF9F0] flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl animate-bounce-slow">&#128218;</div>
-          <p className="mt-4 text-[#2D3436]/60 font-semibold">Loading...</p>
-        </div>
+        <InkLoader message="Loading..." />
       </div>
     );
   }
@@ -172,18 +171,39 @@ export default function ProfilePicker() {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#FFF9F0] flex flex-col">
+    <div className="min-h-screen bg-[#FFF9F0] flex flex-col relative overflow-hidden">
+      {/* Decorative ink blobs — background */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute top-24 -right-10 w-32 h-32 opacity-[0.04] animate-ink-blob-pulse"
+          style={{
+            background: "#6C5CE7",
+            borderRadius: "40% 60% 55% 45% / 50% 40% 60% 50%",
+          }}
+        />
+        <div
+          className="absolute bottom-20 -left-8 w-24 h-24 opacity-[0.03] animate-ink-blob-pulse"
+          style={{
+            background: "#FF6B6B",
+            borderRadius: "55% 45% 40% 60% / 45% 55% 50% 50%",
+            animationDelay: "2s",
+          }}
+        />
+        <div
+          className="absolute top-1/2 right-1/4 w-10 h-10 opacity-[0.05] animate-ink-blob-pulse"
+          style={{
+            background: "#4ECDC4",
+            borderRadius: "50% 50% 50% 50% / 35% 35% 65% 65%",
+            animationDelay: "3s",
+          }}
+        />
+      </div>
+
       {/* Top Nav */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-[#2D3436]/[0.06]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl">&#128218;</span>
-            <span
-              className="text-lg font-semibold text-[#2D3436]"
-              style={{ fontFamily: "'Fraunces', serif" }}
-            >
-              WriteWise Kids
-            </span>
+            <WriteWhizLogo size="sm" />
           </div>
           <button
             onClick={() => { clearActiveChild(); signOut({ callbackUrl: "/auth/login" }); }}
@@ -202,7 +222,7 @@ export default function ProfilePicker() {
           <div className="text-center mb-10 animate-fade-in">
             <h1
               className="text-3xl sm:text-4xl font-semibold text-[#2D3436] mb-2"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+              style={{ fontFamily: "'Literata', serif", fontWeight: 600 }}
             >
               Who&apos;s writing today?
             </h1>
@@ -253,8 +273,11 @@ export default function ProfilePicker() {
                       className="group flex flex-col items-center gap-3 transition-transform duration-200 hover:-translate-y-1.5 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-[#6C5CE7] rounded-3xl p-2"
                       style={{ animationDelay: `${idx * 80}ms` }}
                     >
-                      {/* Avatar */}
-                      <div className={`relative w-28 h-28 sm:w-32 sm:h-32 rounded-[28px] ${bg} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}>
+                      {/* Avatar — organic ink-inspired border-radius */}
+                      <div
+                        className={`relative w-28 h-28 sm:w-32 sm:h-32 ${bg} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}
+                        style={{ borderRadius: "30px 26px 28px 24px" }}
+                      >
                         <span className="text-5xl sm:text-6xl">{child.avatarEmoji}</span>
 
                         {/* Streak badge */}
@@ -314,14 +337,12 @@ export default function ProfilePicker() {
               <div className="animate-fade-in stagger-2">
                 <button
                   onClick={handleParentDashboard}
-                  className="w-full flex items-center gap-4 bg-white rounded-2xl p-5 border border-[#2D3436]/[0.06] hover:border-[#6C5CE7]/20 hover:shadow-md transition-all duration-200 cursor-pointer group text-left"
+                  className="w-full flex items-center gap-4 bg-white p-5 border border-[#2D3436]/[0.06] hover:border-[#6C5CE7]/20 hover:shadow-md transition-all duration-200 cursor-pointer group text-left"
+                  style={{ borderRadius: "20px 16px 18px 22px" }}
                 >
-                  {/* Home icon */}
+                  {/* Ink favicon icon */}
                   <div className="w-12 h-12 rounded-xl bg-[#6C5CE7]/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-[#6C5CE7]/[0.1] transition-colors">
-                    <svg className="w-6 h-6 text-[#6C5CE7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      <polyline points="9 22 9 12 15 12 15 22" />
-                    </svg>
+                    <img src="/brand/favicon.svg" alt="" width={28} height={28} className="opacity-70 group-hover:opacity-90 transition-opacity" />
                   </div>
 
                   {/* Text */}
@@ -329,7 +350,7 @@ export default function ProfilePicker() {
                     <div className="flex items-center gap-2">
                       <span
                         className="text-base font-semibold text-[#2D3436]"
-                        style={{ fontFamily: "'Fraunces', serif" }}
+                        style={{ fontFamily: "'Literata', serif" }}
                       >
                         Parent Dashboard
                       </span>

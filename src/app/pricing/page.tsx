@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import PricingTable from "@/components/PricingTable";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
 
 function AccessCodeSection() {
   const router = useRouter();
@@ -106,7 +107,7 @@ function AccessCodeSection() {
 const FAQ = [
   {
     q: "What happens during the free trial?",
-    a: "You get 7 days to explore WriteWise Kids with up to 2 children and 2 complete lessons. Placement assessments are always free. No credit card required to start.",
+    a: "You get 7 days to explore WriteWhiz with up to 2 children and 2 complete lessons. Placement assessments are always free. No credit card required to start.",
   },
   {
     q: "Can I switch plans later?",
@@ -145,8 +146,7 @@ export default function PricingPage() {
             Back
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">&#128218;</span>
-            <span className="text-lg font-extrabold text-[#FF6B6B]">WriteWise Kids</span>
+            <WriteWhizLogo size="sm" />
           </div>
           <div className="w-16" />
         </div>

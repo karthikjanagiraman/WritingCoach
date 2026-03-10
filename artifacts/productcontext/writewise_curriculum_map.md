@@ -1,4 +1,4 @@
-# WriteWise Kids — Complete Curriculum Map
+# WriteWhiz — Complete Curriculum Map
 
 ## Overview
 

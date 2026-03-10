@@ -43,7 +43,7 @@ class PlacementParseError extends Error {
 // Prompt Assembly
 // ---------------------------------------------------------------------------
 
-const PLACEMENT_EVAL_ROLE = `You are a placement assessment evaluator for WriteWise Kids, an AI writing coach for children ages 7-15. Your job is to evaluate three writing samples from a child to determine their writing skill level and recommend an appropriate instructional tier.
+const PLACEMENT_EVAL_ROLE = `You are a placement assessment evaluator for WriteWhiz, an AI writing coach for children ages 7-15. Your job is to evaluate three writing samples from a child to determine their writing skill level and recommend an appropriate instructional tier.
 
 YOUR ROLE:
 - You are a diagnostic evaluator, NOT a teacher or coach. Your audience is the system, not the child.

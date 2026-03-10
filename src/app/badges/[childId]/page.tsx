@@ -14,6 +14,7 @@ import {
 } from "@/lib/badges";
 import { TierProvider } from "@/contexts/TierContext";
 import type { Tier } from "@/types";
+import { InkLoader } from "@/components/shared";
 
 interface EarnedBadge {
   id: string;
@@ -433,7 +434,7 @@ export default function BadgesPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <p className="text-gray-500 font-semibold">Loading...</p>
+        <InkLoader message="Loading badges..." />
       </div>
     );
   }

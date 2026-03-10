@@ -281,7 +281,7 @@ export default function FeedbackView({
 
         {/* Writing area */}
         <div className="flex-1 min-h-0 overflow-y-auto bg-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 h-full">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 h-full ink-drip-focus">
             <textarea
               value={revisionText}
               onChange={(e) => setRevisionText(e.target.value)}
@@ -531,7 +531,7 @@ export default function FeedbackView({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 pb-4 animate-fade-in stagger-5">
             <button
               onClick={() => setShowWriting(!showWriting)}
-              className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-primary hover:bg-active-primary/5 transition-colors"
+              className="btn-wet-ink px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-primary hover:bg-active-primary/5 transition-colors"
             >
               {showWriting ? "Hide My Writing" : "View My Writing"}
             </button>
@@ -539,8 +539,8 @@ export default function FeedbackView({
               <button
                 onClick={handleStartRevision}
                 className={needsWork
-                  ? "bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
-                  : "px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
+                  ? "btn-wet-ink bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
+                  : "btn-wet-ink px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
                 }
               >
                 {reviseButtonText}
@@ -549,7 +549,7 @@ export default function FeedbackView({
             {onRetake && (
               <button
                 onClick={() => setShowRetakeConfirm(true)}
-                className="px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
+                className="btn-wet-ink px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-secondary/30 text-active-secondary hover:bg-active-secondary/5 transition-colors"
               >
                 Retake Lesson
               </button>
@@ -557,8 +557,8 @@ export default function FeedbackView({
             <button
               onClick={onRetake ? onNextLesson : handleContinueClick}
               className={needsWork
-                ? "px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-text/50 hover:bg-active-primary/5 transition-colors"
-                : "bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
+                ? "btn-wet-ink px-5 py-2.5 rounded-xl font-bold text-sm border-2 border-active-primary/20 text-active-text/50 hover:bg-active-primary/5 transition-colors"
+                : "btn-wet-ink bg-active-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-active-primary/90 transition-colors shadow-sm"
               }
             >
               {onRetake ? "Back to Dashboard" : needsWork ? "Skip for now" : "Continue"} &rarr;

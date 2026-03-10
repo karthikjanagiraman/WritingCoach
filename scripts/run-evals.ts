@@ -1,5 +1,5 @@
 /**
- * WriteWise Skill Evaluation Runner
+ * WriteWhiz Skill Evaluation Runner
  *
  * Runs the test cases from evals.json against the Claude API using the
  * assembled prompt pipeline, then auto-grades each expectation using
@@ -470,7 +470,7 @@ async function main() {
   }
 
   const totalCount = evals.length;
-  console.log(`\nWriteWise Evals — Running ${totalCount} eval(s) against ${model} (${provider})`);
+  console.log(`\nWriteWhiz Evals — Running ${totalCount} eval(s) against ${model} (${provider})`);
   console.log(`Judge model: ${judgeModel} | Concurrency: ${concurrency}\n`);
   console.log("=".repeat(80));
 

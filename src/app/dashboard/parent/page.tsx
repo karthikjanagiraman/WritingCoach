@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useActiveChild } from "@/contexts/ActiveChildContext";
 import { getBadgeById } from "@/lib/badges";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
+import { InkLoader } from "@/components/shared";
 
 interface ChildCard {
   id: string;
@@ -187,12 +189,7 @@ export default function ParentDashboard() {
   if (loading || authStatus === "loading") {
     return (
       <div className="min-h-screen bg-[#FFF9F0] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-[#6C5CE7]/30 border-t-[#6C5CE7] rounded-full animate-spin mx-auto" />
-          <p className="mt-4 text-[#2D3436]/50 font-medium" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            Loading dashboard...
-          </p>
-        </div>
+        <InkLoader message="Loading..." />
       </div>
     );
   }
@@ -234,12 +231,7 @@ export default function ParentDashboard() {
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-[#2D3436]/[0.06]">
         <div className="max-w-[960px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span
-              className="text-lg font-semibold text-[#2D3436]"
-              style={{ fontFamily: "'Fraunces', serif" }}
-            >
-              Write<span className="text-[#6C5CE7]">Wise</span> Kids
-            </span>
+            <WriteWhizLogo size="sm" />
             {planLabel && (
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#6C5CE7] bg-[#F0EEFF] px-2.5 py-1 rounded-full">
                 {planLabel}
@@ -272,7 +264,7 @@ export default function ParentDashboard() {
             <div>
               <h1
                 className="text-2xl sm:text-[26px] font-medium text-[#2D3436] tracking-tight"
-                style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, lineHeight: 1.2 }}
+                style={{ fontFamily: "'Literata', serif", fontWeight: 500, lineHeight: 1.2 }}
               >
                 {getGreeting()}, {data.parentName}
               </h1>
@@ -340,7 +332,7 @@ export default function ParentDashboard() {
         {/* Section heading */}
         <h2
           className="text-xl font-medium text-[#2D3436] tracking-tight animate-fade-in stagger-2"
-          style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
+          style={{ fontFamily: "'Literata', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
         >
           Your writers
         </h2>
@@ -378,7 +370,7 @@ export default function ParentDashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-semibold text-[#2D3436]" style={{ fontFamily: "'Fraunces', serif" }}>
+                        <span className="text-lg font-semibold text-[#2D3436]" style={{ fontFamily: "'Literata', serif" }}>
                           {child.name}
                         </span>
                         <span className="text-[10px] font-bold uppercase tracking-wide bg-[#EBF5FF] text-[#0984E3] px-2 py-0.5 rounded-full">
@@ -412,7 +404,7 @@ export default function ParentDashboard() {
                     </div>
                     <Link
                       href={`/placement/${child.id}`}
-                      className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-[#00B894] text-white rounded-xl text-[13px] font-bold hover:bg-[#00A383] transition-all hover:-translate-y-px shadow-sm flex-shrink-0"
+                      className="btn-wet-ink inline-flex items-center gap-1.5 px-6 py-2.5 bg-[#00B894] text-white rounded-xl text-[13px] font-bold hover:bg-[#00A383] transition-all hover:-translate-y-px shadow-sm flex-shrink-0"
                       style={{ fontFamily: "'DM Sans', sans-serif" }}
                     >
                       Begin Assessment &rarr;
@@ -449,7 +441,7 @@ export default function ParentDashboard() {
                     <div className="flex items-center gap-2">
                       <span
                         className="text-lg font-semibold text-[#2D3436]"
-                        style={{ fontFamily: "'Fraunces', serif" }}
+                        style={{ fontFamily: "'Literata', serif" }}
                       >
                         {child.name}
                       </span>
@@ -603,7 +595,7 @@ export default function ParentDashboard() {
                 <div className="px-6 py-4 mt-3 flex items-center gap-3 flex-wrap sm:flex-nowrap">
                   <Link
                     href={`/dashboard/children/${child.id}/report`}
-                    className="flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-bold text-white transition-all hover:-translate-y-px inline-flex items-center justify-center gap-1.5"
+                    className="btn-wet-ink flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-bold text-white transition-all hover:-translate-y-px inline-flex items-center justify-center gap-1.5"
                     style={{
                       backgroundColor: tierColor,
                       fontFamily: "'DM Sans', sans-serif",
@@ -614,7 +606,7 @@ export default function ParentDashboard() {
                   </Link>
                   <button
                     onClick={() => handleSelectChild(child)}
-                    className="flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-semibold border-[1.5px] transition-all hover:bg-[#F0EEFF]"
+                    className="btn-wet-ink flex-1 text-center px-5 py-2.5 rounded-xl text-[13px] font-semibold border-[1.5px] transition-all hover:bg-[#F0EEFF]"
                     style={{
                       color: "#636E72",
                       borderColor: "rgba(45,52,54,0.12)",
@@ -634,7 +626,7 @@ export default function ParentDashboard() {
           <section className="animate-fade-in stagger-3">
             <h2
               className="text-xl font-medium text-[#2D3436] tracking-tight mb-4"
-              style={{ fontFamily: "'Fraunces', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
+              style={{ fontFamily: "'Literata', serif", fontWeight: 500, letterSpacing: "-0.3px" }}
             >
               This week
             </h2>

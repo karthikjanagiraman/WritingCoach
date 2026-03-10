@@ -1,4 +1,4 @@
-# WriteWise Kids — UI Design Specification
+# WriteWhiz — UI Design Specification
 
 ## Design Philosophy
 

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteWhiz — Parent Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #6C5CE7;
+    --purple-light: #A29BFE;
+    --purple-bg: #F0EEFF;
+    --coral: #FF6B6B;
+    --coral-light: #FFB8B8;
+    --coral-bg: #FFF0F0;
+    --teal: #00B894;
+    --teal-light: #55EFC4;
+    --teal-bg: #E8FFF8;
+    --amber: #E17055;
+    --amber-light: #FAB1A0;
+    --amber-bg: #FFF4F0;
+    --blue: #0984E3;
+    --blue-light: #74B9FF;
+    --blue-bg: #EBF5FF;
+    --dark: #2D3436;
+    --dark-soft: #636E72;
+    --dark-muted: #B2BEC3;
+    --cream: #FFF9F0;
+    --cream-deep: #F5EDE0;
+    --white: #FFFFFF;
+    --green: #00B894;
+    --green-bg: #E8FFF8;
+    --red: #D63031;
+    --red-bg: #FFEAEA;
+
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    --shadow-card: 0 1px 3px rgba(45,52,54,0.04), 0 4px 12px rgba(45,52,54,0.03);
+    --shadow-card-hover: 0 2px 8px rgba(45,52,54,0.06), 0 8px 24px rgba(45,52,54,0.05);
+    --shadow-alert: 0 1px 2px rgba(45,52,54,0.03);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,184,148,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(0,184,148,0); }
+  }
+  @keyframes dotPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .animate-up {
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .animate-fade {
+    animation: fadeIn 0.4s ease-out both;
+  }
+  .delay-1 { animation-delay: 0.08s; }
+  .delay-2 { animation-delay: 0.16s; }
+  .delay-3 { animation-delay: 0.24s; }
+  .delay-4 { animation-delay: 0.32s; }
+  .delay-5 { animation-delay: 0.4s; }
+  .delay-6 { animation-delay: 0.48s; }
+
+  /* ─── Header ─── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid rgba(45,52,54,0.06);
+    backdrop-filter: blur(12px);
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: -0.3px;
+  }
+  .header-logo span {
+    color: var(--purple);
+  }
+  .plan-pill {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--purple);
+    background: var(--purple-bg);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-right a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .header-right a:hover { color: var(--dark); }
+
+  /* ─── Main Container ─── */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* ─── Family Pulse ─── */
+  .pulse-section {
+    margin-bottom: 36px;
+  }
+  .pulse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .pulse-greeting h1 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--dark);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .pulse-greeting p {
+    font-size: 14px;
+    color: var(--dark-soft);
+    margin-top: 4px;
+  }
+  .pulse-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .pulse-summary-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark-soft);
+    white-space: nowrap;
+  }
+  .pulse-summary-text strong {
+    color: var(--dark);
+    font-weight: 700;
+  }
+  .pulse-bar {
+    width: 120px;
+    height: 6px;
+    background: var(--cream-deep);
+    border-radius: 99px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .pulse-bar-fill {
+    height: 100%;
+    width: 33.3%;
+    background: var(--purple);
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ─── Alert Cards ─── */
+  .alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .alert-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    border-left: 3px solid transparent;
+    box-shadow: var(--shadow-alert);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .alert-card:hover {
+    box-shadow: var(--shadow-card);
+    transform: translateX(2px);
+  }
+  .alert-red { border-left-color: var(--coral); }
+  .alert-amber { border-left-color: var(--amber); }
+  .alert-green { border-left-color: var(--teal); }
+  .alert-blue { border-left-color: var(--blue); }
+
+  .alert-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .alert-red .alert-icon { background: var(--coral-bg); }
+  .alert-amber .alert-icon { background: var(--amber-bg); }
+  .alert-green .alert-icon { background: var(--teal-bg); }
+  .alert-blue .alert-icon { background: var(--blue-bg); }
+
+  .alert-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--dark);
+    line-height: 1.4;
+  }
+  .alert-text strong {
+    font-weight: 600;
+  }
+  .alert-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .alert-btn-red {
+    background: var(--coral-bg);
+    color: var(--coral);
+  }
+  .alert-btn-red:hover { background: var(--coral); color: var(--white); }
+  .alert-btn-amber {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+  .alert-btn-amber:hover { background: var(--amber); color: var(--white); }
+  .alert-btn-green {
+    background: var(--teal-bg);
+    color: var(--teal);
+  }
+  .alert-btn-green:hover { background: var(--teal); color: var(--white); }
+  .alert-btn-blue {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+  .alert-btn-blue:hover { background: var(--blue); color: var(--white); }
+
+  /* ─── Section Headings ─── */
+  .section-heading {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--dark);
+    letter-spacing: -0.3px;
+    margin-bottom: 16px;
+  }
+
+  /* ─── Progress Cards ─── */
+  .cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .progress-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  /* Tier accent strip at top */
+  .progress-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .progress-card.tier-1::before { background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+  .progress-card.tier-2::before { background: linear-gradient(90deg, var(--purple), var(--purple-light)); }
+
+  /* Layer 1: Identity */
+  .card-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .tier-1-avatar { background: var(--coral-bg); }
+  .tier-2-avatar { background: var(--purple-bg); }
+
+  .card-name-group {
+    flex: 1;
+    min-width: 0;
+  }
+  .card-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-meta {
+    font-size: 12px;
+    color: var(--dark-muted);
+    margin-top: 1px;
+  }
+  .tier-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+  .tier-1-badge {
+    background: var(--coral-bg);
+    color: var(--coral);
+  }
+  .tier-2-badge {
+    background: var(--purple-bg);
+    color: var(--purple);
+  }
+
+  .status-signal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-green {
+    background: var(--green-bg);
+    color: var(--green);
+  }
+  .status-green .status-dot {
+    background: var(--green);
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  .status-amber {
+    background: var(--amber-bg);
+    color: var(--amber);
+  }
+  .status-amber .status-dot { background: var(--amber); }
+  .status-blue {
+    background: var(--blue-bg);
+    color: var(--blue);
+  }
+  .status-blue .status-dot { background: var(--blue); }
+
+  /* Layer 2: Metrics */
+  .card-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(45,52,54,0.05);
+  }
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dark-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .metric-mini-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--cream-deep);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .metric-mini-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .score-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .score-excellent { background: var(--green-bg); color: var(--green); }
+  .score-ontrack { background: var(--blue-bg); color: var(--blue); }
+  .score-building { background: var(--amber-bg); color: var(--amber); }
+  .score-needs { background: var(--red-bg); color: var(--red); }
+
+  .streak-value { color: var(--amber); }
+  .streak-broken { color: var(--dark-muted); font-weight: 500; }
+  .last-active-recent { color: var(--green); }
+  .last-active-old { color: var(--amber); }
+
+  /* Layer 3: Insights */
+  .card-insights {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .insight-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    color: var(--dark-soft);
+  }
+  .insight-pill strong {
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .insight-score {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+
+  /* Layer 4: Recent Lessons */
+  .card-lessons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .lesson-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--dark);
+    transition: background 0.2s;
+  }
+  .lesson-pill:hover {
+    background: var(--cream-deep);
+  }
+  .lesson-pill-name {
+    font-weight: 500;
+  }
+  .lesson-pill-score {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  /* Layer 5: Actions */
+  .card-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-primary {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary.purple {
+    background: var(--purple);
+    color: var(--white);
+  }
+  .btn-primary.purple:hover {
+    background: #5A4BD1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108,92,231,0.3);
+  }
+  .btn-primary.teal {
+    background: var(--teal);
+    color: var(--white);
+  }
+  .btn-primary.teal:hover {
+    background: #00A383;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,184,148,0.3);
+  }
+  .btn-secondary {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: 1.5px solid rgba(45,52,54,0.12);
+    color: var(--dark-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: var(--purple-bg);
+  }
+
+  /* ─── Onboarding Card ─── */
+  .onboarding-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+    border: 1.5px dashed rgba(9,132,227,0.2);
+  }
+  .onboarding-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--blue), var(--blue-light));
+  }
+  .onboarding-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .onboarding-text {
+    flex: 1;
+  }
+  .onboarding-text p {
+    font-size: 14px;
+    color: var(--dark-soft);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .onboarding-text .time-hint {
+    font-size: 12px;
+    color: var(--dark-muted);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ─── Activity Summary ─── */
+  .activity-section {
+    margin-top: 40px;
+  }
+  .activity-table {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-card);
+  }
+  .activity-header {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(45,52,54,0.05);
+  }
+  .activity-header span {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dark-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  .activity-header span:first-child {
+    text-align: left;
+  }
+  .activity-row {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    gap: 4px;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .activity-row + .activity-row {
+    border-top: 1px solid rgba(45,52,54,0.03);
+  }
+  .activity-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .activity-child-avatar {
+    font-size: 16px;
+  }
+  .activity-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: dotPop 0.3s ease-out both;
+  }
+  .activity-dot.active {
+    opacity: 1;
+  }
+  .activity-dot.empty {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cream-deep);
+    opacity: 0.5;
+  }
+  .dot-coral { background: var(--coral); }
+  .dot-coral.today { box-shadow: 0 0 0 3px rgba(255,107,107,0.2); }
+  .dot-purple { background: var(--purple); }
+  .dot-grey { background: var(--dark-muted); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 700px) {
+    .container { padding: 20px 16px 48px; }
+    .pulse-header { flex-direction: column; align-items: flex-start; }
+    .pulse-greeting h1 { font-size: 22px; }
+    .card-metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card-insights { flex-direction: column; gap: 6px; }
+    .card-lessons { flex-direction: column; }
+    .card-actions { flex-direction: column; }
+    .card-actions .btn-primary,
+    .card-actions .btn-secondary { width: 100%; justify-content: center; }
+    .alert-card { flex-wrap: wrap; }
+    .alert-btn { width: 100%; text-align: center; margin-top: 4px; }
+    .onboarding-inner { flex-direction: column; text-align: center; }
+    .onboarding-inner .card-actions { width: 100%; }
+    .activity-header,
+    .activity-row {
+      grid-template-columns: 80px repeat(7, 1fr);
+    }
+    .header-inner { padding: 0 16px; }
+  }
+
+  @media (max-width: 420px) {
+    .pulse-summary { width: 100%; }
+    .pulse-bar { flex: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ Header ═══ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">Write<span>Wise</span> Kids</div>
+      <span class="plan-pill">Family Plus</span>
+    </div>
+    <div class="header-right">
+      <a href="#">Settings</a>
+      <a href="#">Log out</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ═══ Family Pulse ═══ -->
+  <section class="pulse-section animate-up">
+    <div class="pulse-header">
+      <div class="pulse-greeting">
+        <h1>Good evening, Demo Parent</h1>
+        <p>Here's how your family is doing this week</p>
+      </div>
+      <div class="pulse-summary">
+        <span class="pulse-summary-text"><strong>2</strong> of <strong>6</strong> lessons this week</span>
+        <div class="pulse-bar">
+          <div class="pulse-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alerts">
+      <div class="alert-card alert-red animate-up delay-1">
+        <div class="alert-icon">📝</div>
+        <div class="alert-text">
+          <strong>Ethan's</strong> "Building an Argument" scored <strong>1.0/4</strong> — encourage a revision
+        </div>
+        <button class="alert-btn alert-btn-red">Encourage Revision</button>
+      </div>
+
+      <div class="alert-card alert-amber animate-up delay-2">
+        <div class="alert-icon">⏰</div>
+        <div class="alert-text">
+          <strong>Ethan</strong> hasn't practiced in 5 days
+        </div>
+        <button class="alert-btn alert-btn-amber">Start Session</button>
+      </div>
+
+      <div class="alert-card alert-green animate-up delay-3">
+        <div class="alert-icon">🏅</div>
+        <div class="alert-text">
+          <strong>Maya</strong> earned the <strong>"Creative Spark"</strong> badge!
+        </div>
+        <button class="alert-btn alert-btn-green">Celebrate</button>
+      </div>
+
+      <div class="alert-card alert-blue animate-up delay-4">
+        <div class="alert-icon">🧭</div>
+        <div class="alert-text">
+          <strong>Vaishu</strong> needs a placement assessment to get started
+        </div>
+        <button class="alert-btn alert-btn-blue">Begin Assessment</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Children Progress Cards ═══ -->
+  <h2 class="section-heading animate-up delay-4">Your writers</h2>
+
+  <div class="cards-grid">
+
+    <!-- ─── Maya (Tier 1, On Track) ─── -->
+    <div class="progress-card tier-1 animate-up delay-4">
+      <div class="card-identity">
+        <div class="card-avatar tier-1-avatar">🦉</div>
+        <div class="card-name-group">
+          <div class="card-name">
+            Maya
+            <span class="tier-badge tier-1-badge">Explorer</span>
+          </div>
+          <div class="card-meta">Age 8 · Week 2 of 4 · 432 words written</div>
+        </div>
+        <div class="status-signal status-green">
+          <span class="status-dot"></span>
+          On Track
+        </div>
+      </div>
+
+      <div class="card-metrics">
+        <div class="metric">
+          <div class="metric-label">This Week</div>
+          <div class="metric-value">2/3 lessons</div>
+          <div class="metric-mini-bar">
+            <div class="metric-mini-bar-fill" style="width:66%; background:var(--coral)"></div>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Streak</div>
+          <div class="metric-value streak-value">🔥 3 days</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Avg Score</div>
+          <div class="metric-value">
+            <span class="score-badge score-ontrack">2.8 — On Track</span>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Last Active</div>
+          <div class="metric-value last-active-recent">Today</div>
+        </div>
+      </div>
+
+      <div class="card-insights">
+        <div class="insight-pill">
+          <span>💪</span>
+          <span>Strongest: <strong>Storytelling</strong></span>
+          <span class="insight-score score-ontrack">3.2</span>
+        </div>
+        <div class="insight-pill">
+          <span>🌱</span>
+          <span>Needs work: <strong>Sensory &amp; Detail Writing</strong></span>
+          <span class="insight-score score-building">1.8</span>
+        </div>
+      </div>
+
+      <div class="card-lessons">
+        <div class="lesson-pill">
+          <span class="lesson-pill-name">The Five Senses</span>
+          <span class="lesson-pill-score score-building">2.0</span>
+        </div>
+        <div class="lesson-pill">
+          <span class="lesson-pill-name">What Do You See?</span>
+          <span class="lesson-pill-score score-ontrack">3.2</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-primary purple">See Full Report →</button>
+        <button class="btn-secondary">Continue Lessons</button>
+      </div>
+    </div>
+
+    <!-- ─── Ethan (Tier 2, Needs Attention) ─── -->
+    <div class="progress-card tier-2 animate-up delay-5">
+      <div class="card-identity">
+        <div class="card-avatar tier-2-avatar">🦊</div>
+        <div class="card-name-group">
+          <div class="card-name">
+            Ethan
+            <span class="tier-badge tier-2-badge">Adventurer</span>
+          </div>
+          <div class="card-meta">Age 11 · Week 1 of 8 · 156 words written</div>
+        </div>
+        <div class="status-signal status-amber">
+          <span class="status-dot"></span>
+          Needs Attention
+        </div>
+      </div>
+
+      <div class="card-metrics">
+        <div class="metric">
+          <div class="metric-label">This Week</div>
+          <div class="metric-value">0/3 lessons</div>
+          <div class="metric-mini-bar">
+            <div class="metric-mini-bar-fill" style="width:0%; background:var(--purple)"></div>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Streak</div>
+          <div class="metric-value streak-broken">— broken</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Avg Score</div>
+          <div class="metric-value">
+            <span class="score-badge score-building">2.1 — Building</span>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Last Active</div>
+          <div class="metric-value last-active-old">5 days ago</div>
+        </div>
+      </div>
+
+      <div class="card-insights">
+        <div class="insight-pill">
+          <span>💪</span>
+          <span>Strongest: <strong>Opinion Writing</strong></span>
+          <span class="insight-score score-ontrack">2.5</span>
+        </div>
+        <div class="insight-pill">
+          <span>🌱</span>
+          <span>Needs work: <strong>Informational Writing</strong></span>
+          <span class="insight-score score-needs">1.2</span>
+        </div>
+      </div>
+
+      <div class="card-lessons">
+        <div class="lesson-pill">
+          <span class="lesson-pill-name">Making Your Case</span>
+          <span class="lesson-pill-score score-building">2.1</span>
+        </div>
+        <div class="lesson-pill" style="border: 1.5px solid rgba(214,48,49,0.15); background: var(--red-bg);">
+          <span class="lesson-pill-name">Building an Argument</span>
+          <span class="lesson-pill-score score-needs">1.0 ⚠</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-primary purple">See Full Report →</button>
+        <button class="btn-secondary">Continue Lessons</button>
+      </div>
+    </div>
+
+    <!-- ─── Vaishu (Needs Setup) ─── -->
+    <div class="onboarding-card animate-up delay-6">
+      <div class="card-identity" style="margin-bottom: 0;">
+        <div class="card-avatar tier-1-avatar">🐻</div>
+        <div class="card-name-group">
+          <div class="card-name">
+            Vaishu
+            <span class="tier-badge" style="background: var(--blue-bg); color: var(--blue);">New</span>
+          </div>
+          <div class="card-meta">Age 8</div>
+        </div>
+        <div class="status-signal status-blue">
+          <span class="status-dot"></span>
+          Needs Setup
+        </div>
+      </div>
+      <div class="onboarding-inner" style="margin-top: 16px;">
+        <div class="onboarding-text">
+          <p>Vaishu needs a placement assessment to find the right starting level. This short writing exercise helps us understand where they are and build a personalized curriculum.</p>
+          <div class="time-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Takes about 10 minutes
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-primary teal">Begin Assessment →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ Family Activity Summary ═══ -->
+  <section class="activity-section animate-up delay-6">
+    <h2 class="section-heading">This week</h2>
+    <div class="activity-table">
+      <div class="activity-header">
+        <span></span>
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+        <span>Sat</span>
+        <span>Sun</span>
+      </div>
+
+      <!-- Maya's week -->
+      <div class="activity-row">
+        <div class="activity-child">
+          <span class="activity-child-avatar">🦉</span>
+          Maya
+        </div>
+        <div class="activity-cell"><div class="activity-dot active dot-coral" style="animation-delay:0.1s"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot active dot-coral" style="animation-delay:0.2s"></div></div>
+        <div class="activity-cell"><div class="activity-dot active dot-coral today" style="animation-delay:0.3s"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+      </div>
+
+      <!-- Ethan's week -->
+      <div class="activity-row">
+        <div class="activity-child">
+          <span class="activity-child-avatar">🦊</span>
+          Ethan
+        </div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+      </div>
+
+      <!-- Vaishu's week -->
+      <div class="activity-row">
+        <div class="activity-child">
+          <span class="activity-child-avatar">🐻</span>
+          Vaishu
+        </div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+        <div class="activity-cell"><div class="activity-dot empty"></div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>

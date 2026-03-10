@@ -1,5 +1,5 @@
 /**
- * Route test helpers for WriteWise Kids API tests.
+ * Route test helpers for WriteWhiz API tests.
  * Provides utilities for building requests and params for Next.js route handlers.
  */
 import { resetPrismaMock } from './db-mock';

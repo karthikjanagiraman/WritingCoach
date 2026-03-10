@@ -139,7 +139,7 @@ export function QuestCard({
         </div>
 
         {/* Writing area */}
-        <div style={{ margin: "16px 24px 0" }}>
+        <div style={{ margin: "16px 24px 0" }} className="ink-drip-focus">
           <textarea
             value={response}
             onChange={(e) => onResponseChange(e.target.value)}
@@ -519,7 +519,7 @@ export function QuestCard({
 
         {/* Notebook writing area */}
         <div
-          className="relative rounded-[22px] overflow-hidden"
+          className="relative rounded-[22px] overflow-hidden ink-drip-focus"
           style={{ background: writingBg }}
         >
           {/* Left margin line (young only) */}
@@ -626,7 +626,7 @@ export function QuestCard({
             type="button"
             onClick={onSubmit}
             disabled={!canSubmit}
-            className="relative overflow-hidden border-none font-extrabold text-sm"
+            className="btn-wet-ink relative overflow-hidden border-none font-extrabold text-sm"
             style={{
               padding: "14px 32px",
               borderRadius: buttonBorderRadius,

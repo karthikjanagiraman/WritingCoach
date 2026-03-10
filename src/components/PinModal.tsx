@@ -193,7 +193,7 @@ export default function PinModal({ mode, open, onSuccess, onCancel, onSkip }: Pi
             {/* Title */}
             <h2
               className="text-xl font-semibold text-[#2D3436] mb-2 text-center"
-              style={{ fontFamily: "'Fraunces', serif" }}
+              style={{ fontFamily: "'Literata', serif" }}
             >
               {mode === "setup" ? "Set up your Parent PIN" : "Parent Dashboard"}
             </h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import { CoachAvatar } from "@/components/shared";
+import { CoachAvatar, InkSplats } from "@/components/shared";
 import { useTier } from "@/contexts/TierContext";
 import type { AssessmentContext } from "@/types";
 
@@ -52,6 +52,27 @@ const TIER_BUTTON_LABELS: Record<1 | 2 | 3, string> = {
   3: "Begin Writing",
 };
 
+/** Ink-blob progress dot — organic shape instead of plain circle */
+function InkDot({ active, next, delay }: { active: boolean; next: boolean; delay: number }) {
+  return (
+    <div
+      className={`animate-dot-fill transition-colors ${
+        active
+          ? "bg-active-secondary"
+          : next
+            ? "bg-active-primary ring-2 ring-active-primary/30"
+            : "bg-gray-200"
+      }`}
+      style={{
+        width: 13,
+        height: 13,
+        borderRadius: "50% 50% 50% 50% / 40% 40% 60% 60%",
+        animationDelay: `${delay}s`,
+      }}
+    />
+  );
+}
+
 export default function PhaseTransition({
   fromPhase,
   onContinue,
@@ -64,11 +85,12 @@ export default function PhaseTransition({
   // Enhanced guided→assessment transition with assessment context
   if (fromPhase === "guided" && assessmentContext) {
     return (
-      <div className="h-[var(--content-height)] flex items-center justify-center bg-active-bg">
-        <div className="flex flex-col items-center text-center px-6 max-w-lg">
-          {/* Big emoji with pop-in animation */}
-          <div className="animate-emoji-pop text-6xl sm:text-7xl mb-5" aria-hidden="true">
-            {"\u2728"}
+      <div className="h-[var(--content-height)] flex items-center justify-center bg-active-bg relative">
+        <InkSplats />
+        <div className="flex flex-col items-center text-center px-6 max-w-lg relative z-10">
+          {/* Ink splash icon instead of emoji */}
+          <div className="animate-emoji-pop mb-5" aria-hidden="true">
+            <img src="/brand/favicon.svg" alt="" width={56} height={56} className="opacity-80" />
           </div>
 
           {/* Tier-specific title */}
@@ -110,7 +132,7 @@ export default function PhaseTransition({
             </p>
           </div>
 
-          {/* Mini progress dots */}
+          {/* Ink-blob progress dots */}
           <div className="animate-fade-in stagger-2 flex items-center gap-2 mb-6">
             {phaseLabels.map((label, index) => {
               const isCompleted = index <= 1;
@@ -121,16 +143,7 @@ export default function PhaseTransition({
                     <span className="text-active-text/30 text-xs font-bold mx-0.5">&rarr;</span>
                   )}
                   <div className="flex flex-col items-center gap-1">
-                    <div
-                      className={`animate-dot-fill w-3 h-3 rounded-full transition-colors ${
-                        isCompleted
-                          ? "bg-active-secondary"
-                          : isNext
-                            ? "bg-active-primary ring-2 ring-active-primary/30"
-                            : "bg-gray-200"
-                      }`}
-                      style={{ animationDelay: `${0.3 + index * 0.15}s` }}
-                    />
+                    <InkDot active={isCompleted} next={isNext} delay={0.3 + index * 0.15} />
                     <span
                       className={`text-[10px] font-bold ${
                         isCompleted
@@ -148,10 +161,10 @@ export default function PhaseTransition({
             })}
           </div>
 
-          {/* CTA button */}
+          {/* CTA button with wet-ink effect */}
           <button
             onClick={onContinue}
-            className="animate-fade-in stagger-3 bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 active:scale-95 transition-all"
+            className="btn-wet-ink animate-fade-in stagger-3 bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 active:scale-95 transition-all"
           >
             {TIER_BUTTON_LABELS[tier]}
           </button>
@@ -165,11 +178,12 @@ export default function PhaseTransition({
   const quote = content.quote ?? `${coachName} is reading your work...`;
 
   return (
-    <div className="h-[var(--content-height)] flex items-center justify-center bg-active-bg">
-      <div className="flex flex-col items-center text-center px-6 max-w-md">
-        {/* Big emoji with pop-in animation */}
-        <div className="animate-emoji-pop text-6xl sm:text-7xl mb-6" aria-hidden="true">
-          {content.emoji}
+    <div className="h-[var(--content-height)] flex items-center justify-center bg-active-bg relative">
+      <InkSplats />
+      <div className="flex flex-col items-center text-center px-6 max-w-md relative z-10">
+        {/* Ink splash icon instead of generic emoji */}
+        <div className="animate-emoji-pop mb-6" aria-hidden="true">
+          <img src="/brand/favicon.svg" alt="" width={56} height={56} className="opacity-80" />
         </div>
 
         {/* Title */}
@@ -185,7 +199,7 @@ export default function PhaseTransition({
           </p>
         </div>
 
-        {/* Mini progress dots */}
+        {/* Ink-blob progress dots */}
         <div className="animate-fade-in stagger-2 flex items-center gap-2 mb-8">
           {phaseLabels.map((label, index) => {
             const isCompleted = index <= content.completedIndex;
@@ -197,16 +211,7 @@ export default function PhaseTransition({
                   <span className="text-active-text/30 text-xs font-bold mx-0.5">&rarr;</span>
                 )}
                 <div className="flex flex-col items-center gap-1">
-                  <div
-                    className={`animate-dot-fill w-3 h-3 rounded-full transition-colors ${
-                      isCompleted
-                        ? "bg-active-secondary"
-                        : isNext
-                          ? "bg-active-primary ring-2 ring-active-primary/30"
-                          : "bg-gray-200"
-                    }`}
-                    style={{ animationDelay: `${0.3 + index * 0.15}s` }}
-                  />
+                  <InkDot active={isCompleted} next={isNext} delay={0.3 + index * 0.15} />
                   <span
                     className={`text-[10px] font-bold ${
                       isCompleted
@@ -224,11 +229,11 @@ export default function PhaseTransition({
           })}
         </div>
 
-        {/* CTA button (fades in last) */}
+        {/* CTA button with wet-ink effect (fades in last) */}
         {showButton && (
           <button
             onClick={onContinue}
-            className="animate-fade-in stagger-3 bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 active:scale-95 transition-all"
+            className="btn-wet-ink animate-fade-in stagger-3 bg-active-primary text-white px-8 py-3 rounded-2xl font-bold text-base shadow-md hover:bg-active-primary/90 active:scale-95 transition-all"
           >
             {content.button}
           </button>

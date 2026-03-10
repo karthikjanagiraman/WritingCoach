@@ -6,3 +6,5 @@ export { default as SectionLabel } from "./SectionLabel";
 export { QuickAnswerCardActive, QuickAnswerCardCompleted } from "./QuickAnswerCard";
 export { AnswerCardActive, AnswerCardCompleted } from "./AnswerCards";
 export { useTypingEffect } from "./TypingEffect";
+export { default as InkLoader } from "./InkLoader";
+export { default as InkSplats } from "./InkSplats";

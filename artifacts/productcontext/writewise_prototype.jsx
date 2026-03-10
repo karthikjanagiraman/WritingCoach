@@ -552,7 +552,7 @@ const TypingIndicator = () => (
 );
 
 // Main Component
-export default function WriteWiseLesson() {
+export default function WriteWhizLesson() {
   const [phase, setPhase] = useState('instruction'); // instruction, guided, assessment, feedback
   const [answer, setAnswer] = useState('');
   const [showCorrect, setShowCorrect] = useState(false);

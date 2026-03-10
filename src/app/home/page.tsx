@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CoachAvatar, SectionLabel } from "@/components/shared";
+import { CoachAvatar, SectionLabel, InkLoader } from "@/components/shared";
+import WriteWhizLogo from "@/components/WriteWhizLogo";
 import {
   getProgress,
   type StudentProgressResponse,
@@ -177,6 +178,8 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200/60">
         <div className="max-w-3xl mx-auto px-4 sm:px-5 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <WriteWhizLogo size="sm" tier={childTier as 1 | 2 | 3} showIcon={true} />
+            <div className="w-px h-6 bg-active-text/10" />
             <CoachAvatar size="sm" />
             <div className="text-left">
               <h1 className="text-base font-extrabold text-active-text leading-tight">
@@ -225,7 +228,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                   <h3 className="text-base font-bold text-active-text">Ready to Get Started?</h3>
                   <p className="text-sm text-active-text/50 mt-0.5">Take a quick writing assessment so we can create the perfect learning plan.</p>
                 </div>
-                <Link href={`/placement/${activeChild.id}`} className="px-5 py-2.5 bg-active-primary text-white rounded-xl text-sm font-bold hover:bg-active-primary/90 transition-colors shadow-sm whitespace-nowrap">
+                <Link href={`/placement/${activeChild.id}`} className="btn-wet-ink px-5 py-2.5 bg-active-primary text-white rounded-xl text-sm font-bold hover:bg-active-primary/90 transition-colors shadow-sm whitespace-nowrap">
                   Start Assessment
                 </Link>
               </div>
@@ -242,7 +245,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                   <h3 className="text-base font-bold text-active-text">Assessment Complete!</h3>
                   <p className="text-sm text-active-text/50 mt-0.5">Now let{"'"}s create a personalized learning plan.</p>
                 </div>
-                <Link href={`/curriculum/${activeChild.id}/setup`} className="px-5 py-2.5 bg-active-secondary text-white rounded-xl text-sm font-bold hover:bg-active-secondary/90 transition-colors shadow-sm whitespace-nowrap">
+                <Link href={`/curriculum/${activeChild.id}/setup`} className="btn-wet-ink px-5 py-2.5 bg-active-secondary text-white rounded-xl text-sm font-bold hover:bg-active-secondary/90 transition-colors shadow-sm whitespace-nowrap">
                   Set Up Curriculum
                 </Link>
               </div>
@@ -289,7 +292,25 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
         )}
 
         {/* Primary CTA Card — ALWAYS visible (4 states: blocked, continue, start, all done) */}
-        <section className="animate-fade-in stagger-1">
+        <section className="animate-fade-in stagger-1 relative overflow-hidden">
+          {/* Decorative ink blobs */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            <div
+              className="absolute -top-4 -right-6 w-20 h-20 opacity-[0.05] animate-ink-blob-pulse"
+              style={{
+                background: "var(--color-active-primary)",
+                borderRadius: "40% 60% 55% 45% / 50% 40% 60% 50%",
+              }}
+            />
+            <div
+              className="absolute -bottom-3 -left-4 w-14 h-14 opacity-[0.04] animate-ink-blob-pulse"
+              style={{
+                background: "var(--color-active-secondary)",
+                borderRadius: "55% 45% 40% 60% / 45% 55% 50% 50%",
+                animationDelay: "1.5s",
+              }}
+            />
+          </div>
           {!canStartLesson ? (
             <div className="bg-white rounded-2xl p-6 border-2 border-[#6C5CE7]/20 text-center">
               <span className="text-4xl block mb-3">{"\uD83C\uDF1F"}</span>
@@ -325,7 +346,7 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
                       {primaryAction.title}
                     </h2>
                   </div>
-                  <div className="flex-shrink-0 bg-active-primary text-white rounded-xl px-5 py-2.5 text-sm font-bold group-hover:shadow-lg transition-shadow">
+                  <div className="flex-shrink-0 btn-wet-ink bg-active-primary text-white rounded-xl px-5 py-2.5 text-sm font-bold group-hover:shadow-lg transition-shadow">
                     {primaryAction.type === "continue" ? "Continue" : "Let\u2019s Go"} &rarr;
                   </div>
                 </div>
@@ -395,21 +416,32 @@ function DashboardContent({ data, childName, childTier, activeChild, hasPlacemen
         )}
 
         {/* Stats Row — 3 glanceable tiles (moved below lessons) */}
-        <section className="animate-fade-in stagger-2">
+        <section className="animate-fade-in stagger-2 relative">
+          {/* Subtle ink blob near stats */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            <div
+              className="absolute -top-3 right-8 w-10 h-10 opacity-[0.06] animate-ink-blob-pulse"
+              style={{
+                background: "#4ECDC4",
+                borderRadius: "50% 50% 50% 50% / 35% 35% 65% 65%",
+                animationDelay: "2s",
+              }}
+            />
+          </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+            <div className="bg-white p-4 border border-gray-200/60 text-center" style={{ borderRadius: "22px 18px 20px 16px" }}>
               <div className="text-2xl mb-1">{"\uD83D\uDD25"}</div>
               <p className="text-2xl font-extrabold text-active-text">{streakData?.currentStreak ?? 0}</p>
               <p className="text-xs font-semibold text-active-text/40">Day streak</p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+            <div className="bg-white p-4 border border-gray-200/60 text-center" style={{ borderRadius: "18px 22px 16px 20px" }}>
               <div className="text-2xl mb-1">{"\u2705"}</div>
               <p className="text-2xl font-extrabold text-active-text">
                 {weeklyCompleted} of {weeklyGoal}
               </p>
               <p className="text-xs font-semibold text-active-text/40">This week</p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60 text-center">
+            <div className="bg-white p-4 border border-gray-200/60 text-center" style={{ borderRadius: "20px 16px 22px 18px" }}>
               <div className="text-2xl mb-1">{"\uD83D\uDCDA"}</div>
               <p className="text-2xl font-extrabold text-active-text">{stats.totalCompleted}</p>
               <p className="text-xs font-semibold text-active-text/40">Lessons done</p>
@@ -652,12 +684,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-active-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <CoachAvatar size="lg" animate />
-          </div>
-          <p className="mt-4 text-active-text/60 font-semibold">Loading...</p>
-        </div>
+        <InkLoader message="Loading your lessons..." />
       </div>
     );
   }

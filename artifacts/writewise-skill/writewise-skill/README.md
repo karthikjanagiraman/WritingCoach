@@ -1,4 +1,4 @@
-# WriteWise Kids Skill
+# WriteWhiz Skill
 
 An AI writing coach skill for teaching writing to children ages 7-15.
 

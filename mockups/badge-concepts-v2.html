@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WriteWhiz — Badge Redesign v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FFF8F0;
+  --cream-deep:#FFF0E0;
+  --coral:#FF6B6B;
+  --teal:#4ECDC4;
+  --purple:#6C5CE7;
+  --magenta:#E84393;
+  --gold:#FECA57;
+  --orange:#FF9F43;
+  --blue:#3B7DD8;
+  --navy:#1A237E;
+  --text:#2D3436;
+  --text-soft:#636E72;
+  --radius:18px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.6;
+}
+
+/* ═══════════════════════════════════════════════════
+   DECORATIVE BACKGROUND — floating shapes
+   ═══════════════════════════════════════════════════ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle 300px at 10% 20%, rgba(255,107,107,0.08) 0%, transparent 70%),
+    radial-gradient(circle 250px at 85% 15%, rgba(108,92,231,0.07) 0%, transparent 70%),
+    radial-gradient(circle 200px at 50% 80%, rgba(78,205,196,0.06) 0%, transparent 70%),
+    radial-gradient(circle 280px at 90% 70%, rgba(254,202,87,0.08) 0%, transparent 70%);
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════ */
+.header{
+  position:relative;z-index:1;
+  text-align:center;
+  padding:60px 24px 40px;
+  overflow:hidden;
+}
+.header-sparkles{
+  position:absolute;inset:0;pointer-events:none;
+}
+.sparkle{
+  position:absolute;
+  font-size:24px;
+  animation:sparkle-float 3s ease-in-out infinite;
+  opacity:0.6;
+}
+.sparkle:nth-child(1){top:15%;left:8%;animation-delay:0s;font-size:20px}
+.sparkle:nth-child(2){top:25%;right:12%;animation-delay:0.5s;font-size:28px}
+.sparkle:nth-child(3){top:60%;left:15%;animation-delay:1s;font-size:16px}
+.sparkle:nth-child(4){top:50%;right:8%;animation-delay:1.5s;font-size:22px}
+.sparkle:nth-child(5){top:10%;left:45%;animation-delay:0.3s;font-size:18px}
+.sparkle:nth-child(6){top:70%;left:70%;animation-delay:0.8s;font-size:26px}
+@keyframes sparkle-float{
+  0%,100%{transform:translateY(0) rotate(0deg);opacity:0.5}
+  50%{transform:translateY(-12px) rotate(15deg);opacity:1}
+}
+
+.header-badge{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--coral),var(--orange));
+  color:#fff;font-family:'Fredoka',sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:6px 18px;border-radius:20px;
+  margin-bottom:16px;
+}
+.header h1{
+  font-family:'Fredoka',sans-serif;
+  font-size:clamp(32px,6vw,56px);
+  font-weight:700;
+  line-height:1.15;
+  color:var(--text);
+  margin-bottom:12px;
+}
+.header h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--coral),var(--purple),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.header p{
+  font-size:18px;color:var(--text-soft);max-width:500px;margin:0 auto;
+  font-weight:600;
+}
+
+/* ═══════════════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════════════ */
+.tabs{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:center;gap:8px;
+  padding:16px 24px;
+  background:rgba(255,248,240,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:2px solid rgba(0,0,0,0.04);
+}
+.tab{
+  font-family:'Fredoka',sans-serif;
+  font-size:15px;font-weight:600;
+  padding:10px 22px;border-radius:50px;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  background:#fff;
+  color:var(--text-soft);
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.tab:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.1)}
+.tab.active{color:#fff;border-color:transparent;transform:translateY(-2px)}
+.tab[data-tab="splats"].active{background:linear-gradient(135deg,var(--coral),var(--orange))}
+.tab[data-tab="patches"].active{background:linear-gradient(135deg,var(--blue),var(--teal))}
+.tab[data-tab="cards"].active{background:linear-gradient(135deg,var(--purple),var(--magenta))}
+.tab .rec{
+  display:inline-block;
+  background:var(--gold);color:var(--text);
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:8px;
+  margin-left:6px;vertical-align:middle;
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTIONS
+   ═══════════════════════════════════════════════════ */
+.section{
+  display:none;
+  position:relative;z-index:1;
+  padding:40px 24px 60px;
+  max-width:960px;margin:0 auto;
+  animation:fadeUp 0.4s ease;
+}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.section-header{text-align:center;margin-bottom:40px}
+.concept-badge{
+  display:inline-block;
+  font-family:'Fredoka',sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:5px 14px;border-radius:12px;
+  margin-bottom:10px;
+}
+.section-header h2{
+  font-family:'Fredoka',sans-serif;
+  font-size:clamp(28px,5vw,42px);font-weight:700;
+  margin-bottom:8px;
+}
+.section-header .philosophy{
+  font-size:16px;color:var(--text-soft);
+  font-style:italic;max-width:540px;margin:0 auto;
+  font-weight:600;
+}
+
+/* ═══════════════════════════════════════════════════
+   BADGE GRID (shared)
+   ═══════════════════════════════════════════════════ */
+.badge-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:24px;
+  margin-bottom:40px;
+  align-items:end;
+}
+@media(max-width:700px){
+  .badge-row{grid-template-columns:repeat(2,1fr);gap:16px}
+}
+.badge-item{text-align:center}
+.badge-item .rarity-label{
+  font-family:'Fredoka',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.badge-item .badge-name{
+  font-family:'Fredoka',sans-serif;
+  font-size:15px;font-weight:600;
+  margin-top:10px;
+}
+.badge-item .badge-desc{
+  font-size:12px;color:var(--text-soft);
+  margin-top:2px;
+}
+
+/* ═══════════════════════════════════════════════════
+   CONCEPT 1 — INK SPLAT STICKERS
+   ═══════════════════════════════════════════════════ */
+.splat{
+  width:110px;height:110px;
+  margin:0 auto;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+  cursor:pointer;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+.splat::before{
+  content:'';position:absolute;inset:0;
+  border-radius:40% 60% 55% 45% / 50% 40% 60% 50%;
+}
+.splat::after{
+  content:'';position:absolute;inset:0;
+  border-radius:40% 60% 55% 45% / 50% 40% 60% 50%;
+  pointer-events:none;
+}
+.splat .icon{position:relative;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))}
+
+/* Common Splat */
+.splat-common::before{
+  background:linear-gradient(135deg,#FF6B6B 0%,#FF8E8E 100%);
+  box-shadow:0 4px 12px rgba(255,107,107,0.3),0 2px 4px rgba(0,0,0,0.08);
+}
+.splat-common::after{
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.25) 45%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.25) 55%,transparent 60%);
+}
+.splat-common:hover{transform:translateY(-4px) rotate(3deg)}
+
+/* Rare Splat */
+.splat-rare::before{
+  background:linear-gradient(135deg,#FF9F43 0%,#FECA57 100%);
+  box-shadow:0 5px 16px rgba(255,159,67,0.35),0 2px 4px rgba(0,0,0,0.08);
+}
+.splat-rare::after{
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.3) 45%,rgba(255,255,255,0.5) 50%,rgba(255,255,255,0.3) 55%,transparent 70%);
+  transform:translateX(-100%);
+  transition:transform 0.6s ease;
+}
+.splat-rare:hover::after{transform:translateX(100%)}
+.splat-rare:hover{transform:translateY(-5px) rotate(-2deg)}
+.splat-rare .sparkle-dots{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+.splat-rare .sparkle-dots::before,.splat-rare .sparkle-dots::after{
+  content:'✦';position:absolute;font-size:10px;color:rgba(255,255,255,0.8);
+  animation:sparkle-twinkle 1.5s ease-in-out infinite alternate;
+}
+.splat-rare .sparkle-dots::before{top:5px;right:8px;animation-delay:0.3s}
+.splat-rare .sparkle-dots::after{bottom:12px;left:5px;animation-delay:0.8s}
+@keyframes sparkle-twinkle{0%{opacity:0.3;transform:scale(0.8)}100%{opacity:1;transform:scale(1.2)}}
+
+/* Epic Splat */
+.splat-epic{width:120px;height:120px}
+.splat-epic::before{
+  background:linear-gradient(135deg,#4ECDC4 0%,#6C5CE7 50%,#E84393 100%);
+  box-shadow:0 6px 20px rgba(108,92,231,0.35),0 0 0 2px rgba(255,255,255,0.4);
+}
+.splat-epic::after{
+  background:linear-gradient(135deg,
+    rgba(255,0,0,0.12),rgba(255,127,0,0.12),rgba(255,255,0,0.12),
+    rgba(0,255,0,0.12),rgba(0,0,255,0.12),rgba(148,0,211,0.12),rgba(255,0,0,0.12));
+  background-size:200% 200%;
+  animation:holo-shift 3s ease infinite;
+  mix-blend-mode:overlay;
+}
+@keyframes holo-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.splat-epic:hover{transform:translateY(-8px) scale(1.05);box-shadow:0 12px 30px rgba(108,92,231,0.3)}
+.splat-epic .stars{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+.splat-epic .stars::before{content:'⭐';position:absolute;top:-4px;right:2px;font-size:14px;animation:star-orbit 2s ease-in-out infinite}
+.splat-epic .stars::after{content:'✨';position:absolute;bottom:0;left:0;font-size:12px;animation:star-orbit 2s ease-in-out infinite 0.5s}
+@keyframes star-orbit{0%,100%{transform:translateY(0);opacity:0.6}50%{transform:translateY(-6px);opacity:1}}
+
+/* Legendary Splat */
+.splat-legendary{width:130px;height:130px}
+.splat-legendary::before{
+  background:linear-gradient(135deg,#FF6B6B,#FECA57,#4ECDC4,#6C5CE7,#E84393,#FF6B6B);
+  background-size:400% 400%;
+  animation:rainbow-flow 4s ease infinite;
+  box-shadow:
+    0 8px 28px rgba(108,92,231,0.35),
+    0 0 0 3px rgba(255,202,87,0.6),
+    0 0 20px rgba(255,202,87,0.2);
+}
+@keyframes rainbow-flow{
+  0%{background-position:0% 50%}25%{background-position:50% 0%}
+  50%{background-position:100% 50%}75%{background-position:50% 100%}
+  100%{background-position:0% 50%}
+}
+.splat-legendary::after{
+  background:linear-gradient(135deg,
+    rgba(255,0,0,0.15),rgba(255,255,0,0.15),
+    rgba(0,255,255,0.15),rgba(255,0,255,0.15),rgba(255,0,0,0.15));
+  background-size:300% 300%;
+  animation:holo-shift 2s ease infinite;
+  mix-blend-mode:overlay;
+}
+.splat-legendary{animation:legendary-pulse-splat 2s ease-in-out infinite}
+@keyframes legendary-pulse-splat{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.08)}
+}
+.splat-legendary:hover{transform:scale(1.1) rotate(5deg)}
+.splat-legendary .particles{
+  position:absolute;inset:-10px;z-index:1;pointer-events:none;
+}
+.splat-legendary .particles::before{
+  content:'✨';font-size:14px;position:absolute;top:0;left:50%;
+  animation:particle-drift 3s ease-in-out infinite;
+}
+.splat-legendary .particles::after{
+  content:'⭐';font-size:12px;position:absolute;bottom:5px;right:10px;
+  animation:particle-drift 3s ease-in-out infinite 1s;
+}
+@keyframes particle-drift{
+  0%{transform:translateY(0) rotate(0);opacity:0.4}
+  50%{transform:translateY(-10px) rotate(20deg);opacity:1}
+  100%{transform:translateY(0) rotate(0);opacity:0.4}
+}
+
+/* Locked Splat */
+.splat-locked::before{
+  background:#EBEBEB;
+  border:2px dashed #ccc;
+}
+.splat-locked .icon{color:#bbb;font-size:28px;font-weight:800;font-style:normal}
+.splat-locked:hover{animation:locked-shake 0.4s ease}
+@keyframes locked-shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+
+/* Splat Collection Preview */
+.splat-collection{
+  background:#FFFAF5;
+  border-radius:20px;
+  padding:32px 28px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.06);
+  position:relative;
+  overflow:hidden;
+}
+.splat-collection::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,var(--coral),var(--orange),var(--gold),var(--teal),var(--purple),var(--magenta));
+  border-radius:20px 20px 0 0;
+}
+.collection-label{
+  font-family:'Fredoka',sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-soft);text-align:center;margin-bottom:8px;
+}
+.collection-label span{
+  background:linear-gradient(90deg,var(--coral),var(--orange),var(--gold),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.washi-tape{
+  text-align:center;margin-bottom:16px;
+}
+.washi-tape span{
+  display:inline-block;
+  background:linear-gradient(90deg,rgba(255,107,107,0.15),rgba(254,202,87,0.15),rgba(78,205,196,0.15));
+  padding:4px 20px;border-radius:4px;
+  font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;color:var(--text-soft);
+  border-top:2px solid rgba(255,107,107,0.3);
+  border-bottom:2px solid rgba(78,205,196,0.3);
+}
+.mini-splats{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-bottom:14px;
+}
+.mini-splat{
+  width:48px;height:48px;
+  border-radius:40% 60% 55% 45% / 50% 40% 60% 50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  transition:transform 0.2s ease;
+}
+.mini-splat:hover{transform:scale(1.15) rotate(5deg)}
+.mini-splat.earned-1{background:linear-gradient(135deg,#FF6B6B,#FF8E8E)}
+.mini-splat.earned-2{background:linear-gradient(135deg,#FF9F43,#FECA57)}
+.mini-splat.earned-3{background:linear-gradient(135deg,#4ECDC4,#6C5CE7)}
+.mini-splat.earned-4{background:linear-gradient(135deg,#6C5CE7,#E84393)}
+.mini-splat.locked{background:#EBEBEB;color:#bbb;font-size:14px;font-weight:700}
+.progress-text{
+  text-align:center;font-size:13px;color:var(--text-soft);font-weight:700;
+}
+.progress-text em{font-style:normal;color:var(--coral)}
+
+/* ═══════════════════════════════════════════════════
+   CONCEPT 2 — STORY PATCHES
+   ═══════════════════════════════════════════════════ */
+.patch{
+  margin:0 auto;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:transform 0.3s ease;
+}
+.patch .icon{position:relative;z-index:2;font-size:32px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.1))}
+
+/* Fabric texture mixin */
+.fabric-bg{
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px),
+    repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
+
+/* Common Patch — circle */
+.patch-common{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,#3B7DD8,#5B9AE8);
+  box-shadow:0 3px 10px rgba(59,125,216,0.3),inset 0 1px 3px rgba(255,255,255,0.15);
+}
+.patch-common::before{
+  content:'';position:absolute;inset:5px;border-radius:50%;
+  border:2.5px dashed rgba(255,255,255,0.7);
+}
+.patch-common::after{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.04) 2px,rgba(255,255,255,0.04) 4px),
+    repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(255,255,255,0.04) 2px,rgba(255,255,255,0.04) 4px);
+}
+.patch-common:hover{transform:translateY(-4px) rotate(5deg)}
+
+/* Rare Patch — shield */
+.patch-rare{
+  width:105px;height:120px;
+  clip-path:polygon(50% 0%,100% 12%,100% 75%,50% 100%,0% 75%,0% 12%);
+  background:linear-gradient(135deg,#E67E22,#F1C40F);
+  box-shadow:0 4px 14px rgba(230,126,34,0.3);
+}
+.patch-rare .stitch{
+  position:absolute;inset:5px;
+  clip-path:polygon(50% 0%,100% 12%,100% 75%,50% 100%,0% 75%,0% 12%);
+  border:2.5px dashed rgba(212,160,23,0.7);
+  pointer-events:none;z-index:1;
+}
+.patch-rare .accent{
+  position:absolute;inset:10px;
+  clip-path:polygon(50% 0%,100% 12%,100% 75%,50% 100%,0% 75%,0% 12%);
+  border:1px solid rgba(212,160,23,0.25);
+  pointer-events:none;z-index:1;
+}
+.patch-rare:hover{transform:translateY(-5px) rotate(-3deg)}
+
+/* Epic Patch — shield bigger */
+.patch-epic{
+  width:115px;height:132px;
+  clip-path:polygon(50% 0%,100% 12%,100% 78%,50% 100%,0% 78%,0% 12%);
+  background:linear-gradient(135deg,#6C3483,#4A0E78,#2C3E8C);
+  box-shadow:0 5px 20px rgba(108,52,131,0.35);
+}
+.patch-epic .stitch{
+  position:absolute;inset:5px;
+  clip-path:polygon(50% 0%,100% 12%,100% 78%,50% 100%,0% 78%,0% 12%);
+  border:3px dashed rgba(212,160,23,0.6);
+  pointer-events:none;z-index:1;
+}
+.patch-epic .banner{
+  position:absolute;bottom:18%;left:50%;transform:translateX(-50%);z-index:3;
+  background:linear-gradient(135deg,#D4A017,#FFD700);
+  color:#3E2723;font-family:'Fredoka',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 14px;border-radius:8px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.15);
+}
+.patch-epic .sequins{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+}
+.patch-epic .sequins::before,.patch-epic .sequins::after{
+  content:'';position:absolute;width:5px;height:5px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,160,23,0.8),transparent);
+  animation:sequin-twinkle 2s ease-in-out infinite alternate;
+}
+.patch-epic .sequins::before{top:20%;right:18%;animation-delay:0.3s}
+.patch-epic .sequins::after{top:45%;left:15%;animation-delay:0.8s}
+@keyframes sequin-twinkle{0%{opacity:0.4;transform:scale(0.8)}100%{opacity:1;transform:scale(1.3)}}
+.patch-epic:hover{transform:translateY(-6px) scale(1.05)}
+
+/* Legendary Patch — diamond */
+.patch-legendary{
+  width:130px;height:130px;
+  clip-path:polygon(50% 0%,95% 50%,50% 100%,5% 50%);
+  background:linear-gradient(135deg,#1A237E,#6C3483,#B71C71);
+  background-size:200% 200%;
+  animation:fabric-shift 5s ease infinite;
+  box-shadow:0 6px 24px rgba(26,35,126,0.4);
+}
+@keyframes fabric-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.patch-legendary .stitch{
+  position:absolute;inset:6px;
+  clip-path:polygon(50% 0%,95% 50%,50% 100%,5% 50%);
+  border:3px solid rgba(212,160,23,0.6);
+  pointer-events:none;z-index:1;
+}
+.patch-legendary .inner-stitch{
+  position:absolute;inset:12px;
+  clip-path:polygon(50% 0%,95% 50%,50% 100%,5% 50%);
+  border:1.5px solid rgba(192,192,192,0.4);
+  pointer-events:none;z-index:1;
+}
+.patch-legendary .banner{
+  position:absolute;bottom:22%;left:50%;transform:translateX(-50%);z-index:3;
+  background:linear-gradient(135deg,#D4A017,#FFD700,#D4A017);
+  color:#3E2723;font-family:'Fredoka',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:3px 12px;border-radius:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+.patch-legendary .glow{
+  position:absolute;inset:-10px;
+  clip-path:polygon(50% 0%,95% 50%,50% 100%,5% 50%);
+  background:transparent;
+  box-shadow:0 0 20px rgba(212,160,23,0.25);
+  animation:patch-glow 2s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes patch-glow{0%{opacity:0.5}100%{opacity:1}}
+.patch-legendary:hover{transform:scale(1.1) rotate(3deg)}
+.patch-legendary .icon{font-size:36px}
+
+/* Locked Patch */
+.patch-locked{
+  width:100px;height:100px;border-radius:50%;
+  background:#EBEBEB;
+  position:relative;
+  cursor:pointer;
+}
+.patch-locked::before{
+  content:'';position:absolute;inset:8px;border-radius:50%;
+  background-image:
+    repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(0,0,0,0.06) 5px,rgba(0,0,0,0.06) 6px),
+    repeating-linear-gradient(-45deg,transparent,transparent 5px,rgba(0,0,0,0.06) 5px,rgba(0,0,0,0.06) 6px);
+}
+.patch-locked .icon{font-size:24px;color:#bbb;font-weight:800;z-index:2;position:relative}
+.patch-locked:hover{animation:locked-shake 0.5s ease}
+
+/* Patch Collection Preview */
+.patch-collection{
+  background:linear-gradient(135deg,#3B5998,#4A6FB5);
+  border-radius:20px;
+  padding:32px 28px;
+  box-shadow:0 4px 20px rgba(59,89,152,0.3);
+  position:relative;
+  overflow:hidden;
+}
+.patch-collection::before{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.02) 3px,rgba(255,255,255,0.02) 6px),
+    repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,0.02) 3px,rgba(255,255,255,0.02) 6px);
+}
+.patch-collection .collection-label{color:rgba(255,255,255,0.7)}
+.patch-collection .collection-label span{
+  background:none;-webkit-text-fill-color:rgba(255,255,255,0.9);
+}
+.patch-collection .stitch-label{
+  text-align:center;margin-bottom:16px;
+}
+.patch-collection .stitch-label span{
+  display:inline-block;
+  border-top:2px dashed rgba(255,255,255,0.3);
+  border-bottom:2px dashed rgba(255,255,255,0.3);
+  padding:4px 20px;
+  font-family:'Fredoka',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.8);
+}
+.mini-patches{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-bottom:14px;
+}
+.mini-patch{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  transition:transform 0.2s ease;
+}
+.mini-patch:hover{transform:scale(1.15) rotate(5deg)}
+.mini-patch.earned-1{background:linear-gradient(135deg,#3B7DD8,#5B9AE8)}
+.mini-patch.earned-2{background:linear-gradient(135deg,#E67E22,#F1C40F)}
+.mini-patch.earned-3{background:linear-gradient(135deg,#6C3483,#4A0E78)}
+.mini-patch.locked{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);font-size:12px;font-weight:700}
+.patch-collection .progress-text{color:rgba(255,255,255,0.7)}
+.patch-collection .progress-text em{color:#FECA57}
+
+/* ═══════════════════════════════════════════════════
+   CONCEPT 3 — MAGIC CARDS
+   ═══════════════════════════════════════════════════ */
+.card{
+  width:140px;
+  aspect-ratio:5/7;
+  margin:0 auto;
+  border-radius:12px;
+  position:relative;
+  cursor:pointer;
+  transition:transform 0.3s ease,box-shadow 0.3s ease;
+  overflow:visible;
+}
+.card-inner{
+  position:absolute;inset:0;
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+  display:flex;flex-direction:column;
+}
+.card-illust{
+  flex:0 0 58%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;
+  position:relative;
+}
+.card-body{
+  flex:1;
+  padding:8px 10px 6px;
+  display:flex;flex-direction:column;
+  align-items:center;
+  gap:2px;
+}
+.card-body .char-name{
+  font-family:'Fredoka',sans-serif;
+  font-size:13px;font-weight:700;
+  color:var(--text);
+}
+.card-body .stars{font-size:10px;letter-spacing:1px}
+.card-body .flavor{
+  font-size:9px;color:var(--text-soft);
+  font-style:italic;text-align:center;
+  line-height:1.3;margin-top:auto;
+}
+
+/* Common Card */
+.card-common{
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+.card-common .card-inner{border:3px solid #E0E0E0}
+.card-common .card-illust{background:linear-gradient(180deg,#FFF9C4,#FFECB3)}
+.card-common:hover{transform:translateY(-6px);box-shadow:0 8px 20px rgba(0,0,0,0.12)}
+
+/* Rare Card */
+.card-rare{
+  box-shadow:0 4px 14px rgba(59,125,216,0.25);
+}
+.card-rare .card-inner{
+  border:3px solid transparent;
+  background-clip:padding-box;
+}
+.card-rare::before{
+  content:'';position:absolute;inset:-1px;border-radius:13px;
+  background:linear-gradient(135deg,#5B9AE8,#3B7DD8,#1A5CC8,#3B7DD8);
+  z-index:-1;
+}
+.card-rare .card-illust{background:linear-gradient(180deg,#FF9A76,#FECF71)}
+/* Foil sweep */
+.card-rare .card-inner::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.2) 45%,rgba(255,255,255,0.35) 50%,rgba(255,255,255,0.2) 55%,transparent 70%);
+  transform:translateX(-120%);
+  transition:transform 0.6s ease;
+  pointer-events:none;z-index:10;
+}
+.card-rare:hover .card-inner::after{transform:translateX(120%)}
+.card-rare:hover{transform:translateY(-6px);box-shadow:0 10px 24px rgba(59,125,216,0.3)}
+
+/* Epic Card */
+.card-epic{
+  box-shadow:0 5px 18px rgba(142,68,173,0.3);
+}
+.card-epic::before{
+  content:'';position:absolute;inset:-3px;border-radius:14px;
+  background:linear-gradient(135deg,#FF6B6B,#FECA57,#4ECDC4,#6C5CE7,#E84393,#FF6B6B);
+  background-size:300% 300%;
+  animation:holo-border 3s ease infinite;
+  z-index:-1;
+}
+@keyframes holo-border{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.card-epic .card-inner{border:none}
+.card-epic .card-illust{
+  background:linear-gradient(180deg,#DCD6F7,#A29BFE,#6C5CE7);
+}
+/* Sparkle overlay */
+.card-epic .card-illust::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle 2px at 20% 25%,rgba(255,255,255,0.9) 0%,transparent 100%),
+    radial-gradient(circle 1.5px at 70% 35%,rgba(255,255,255,0.7) 0%,transparent 100%),
+    radial-gradient(circle 2px at 45% 70%,rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(circle 1.5px at 85% 75%,rgba(255,255,255,0.8) 0%,transparent 100%);
+  animation:card-sparkle 2s ease-in-out infinite alternate;
+}
+@keyframes card-sparkle{0%{opacity:0.3}100%{opacity:1}}
+/* Banner */
+.card-epic .epic-banner{
+  position:absolute;top:10px;right:-18px;z-index:20;
+  background:linear-gradient(135deg,#8E44AD,#6C3483);
+  color:#fff;font-family:'Fredoka',sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 24px;
+  transform:rotate(35deg);
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+.card-epic:hover{transform:translateY(-8px) scale(1.03);box-shadow:0 14px 30px rgba(142,68,173,0.35)}
+
+/* Legendary Card */
+.card-legendary{
+  width:155px;
+  box-shadow:0 6px 24px rgba(212,160,23,0.35),0 0 20px rgba(212,160,23,0.15);
+  perspective:800px;
+}
+.card-legendary::before{
+  content:'';position:absolute;inset:-4px;border-radius:15px;
+  background:linear-gradient(135deg,#D4A017,#FFD700,#FF6B6B,#FECA57,#4ECDC4,#6C5CE7,#E84393,#FFD700,#D4A017);
+  background-size:400% 400%;
+  animation:prismatic-shift 4s ease infinite;
+  z-index:-1;
+}
+@keyframes prismatic-shift{
+  0%{background-position:0% 50%}25%{background-position:50% 0%}
+  50%{background-position:100% 50%}75%{background-position:50% 100%}
+  100%{background-position:0% 50%}
+}
+.card-legendary .card-illust{
+  background:linear-gradient(180deg,#FFF3C4,#FFD93D,#F6AD55);
+}
+.card-legendary .card-body .char-name{
+  background:linear-gradient(135deg,#D4A017,#FFD700,#D4A017);
+  padding:2px 10px;border-radius:6px;
+  text-shadow:0 1px 0 rgba(255,255,255,0.4);
+}
+/* Glow behind card */
+.card-legendary .card-glow{
+  position:absolute;inset:-12px;border-radius:20px;z-index:-2;
+  background:radial-gradient(ellipse,rgba(212,160,23,0.2),rgba(212,160,23,0.05) 50%,transparent 70%);
+  animation:card-glow-pulse 2s ease-in-out infinite alternate;
+}
+@keyframes card-glow-pulse{0%{transform:scale(1);opacity:0.6}100%{transform:scale(1.06);opacity:1}}
+/* Floating letters */
+.card-legendary .float-letters{
+  position:absolute;inset:-8px;z-index:30;pointer-events:none;
+  overflow:visible;
+}
+.card-legendary .float-letters span{
+  position:absolute;font-size:10px;color:rgba(212,160,23,0.5);
+  font-family:'Fredoka',sans-serif;font-weight:700;
+  animation:float-letter 4s ease-in-out infinite;
+}
+.card-legendary .float-letters span:nth-child(1){top:5%;left:-5%;animation-delay:0s}
+.card-legendary .float-letters span:nth-child(2){top:30%;right:-8%;animation-delay:0.8s}
+.card-legendary .float-letters span:nth-child(3){bottom:20%;left:-6%;animation-delay:1.5s}
+.card-legendary .float-letters span:nth-child(4){bottom:5%;right:-4%;animation-delay:2.2s}
+@keyframes float-letter{
+  0%,100%{transform:translateY(0) rotate(0);opacity:0.3}
+  50%{transform:translateY(-10px) rotate(10deg);opacity:0.7}
+}
+/* 3D tilt on hover */
+.card-legendary:hover{
+  transform:perspective(600px) rotateY(-5deg) rotateX(3deg) translateY(-8px);
+  box-shadow:0 14px 36px rgba(212,160,23,0.4),0 0 24px rgba(212,160,23,0.2);
+}
+
+/* Locked Card — face-down */
+.card-locked{
+  width:140px;aspect-ratio:5/7;
+  margin:0 auto;
+  border-radius:12px;
+  cursor:pointer;
+  position:relative;
+  perspective:600px;
+  transition:transform 0.3s ease;
+}
+.card-locked-inner{
+  position:absolute;inset:0;border-radius:12px;
+  background:
+    repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%,transparent 0% 50%) 0 0/16px 16px,
+    linear-gradient(135deg,#1A237E,#283593,#1A237E);
+  border:2px solid #3949AB;
+  box-shadow:0 3px 10px rgba(0,0,0,0.15);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s ease;
+}
+.card-locked-inner .q{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  border:2px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,0.5);
+  font-size:22px;font-weight:800;
+  font-family:'Fredoka',sans-serif;
+}
+.card-locked:hover .card-locked-inner{
+  transform:rotateY(12deg);
+}
+.card-locked[data-rarity="rare"]{border:2px solid rgba(59,125,216,0.3)}
+.card-locked[data-rarity="epic"]{border:2px solid rgba(142,68,173,0.3)}
+.card-locked[data-rarity="legendary"]{border:2px solid rgba(212,160,23,0.4)}
+
+/* Card Collection Preview */
+.card-collection{
+  background:linear-gradient(135deg,#8B6914,#A67C32,#8B6914);
+  border-radius:20px;
+  padding:32px 28px;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.2),0 4px 20px rgba(139,105,20,0.3);
+  position:relative;
+}
+.card-collection .collection-label{color:rgba(255,255,255,0.7)}
+.card-collection .collection-label span{
+  background:none;-webkit-text-fill-color:rgba(255,255,255,0.9);
+}
+.mini-cards{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  margin-bottom:14px;
+}
+.mini-card{
+  aspect-ratio:5/7;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);
+  transition:transform 0.2s ease;
+}
+.mini-card:hover{transform:scale(1.08)}
+.mini-card.earned{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.mini-card.face-down{
+  background:linear-gradient(135deg,#1A237E,#283593);
+  color:rgba(255,255,255,0.3);font-size:12px;font-weight:700;
+}
+.card-collection .progress-text{color:rgba(255,255,255,0.7)}
+.card-collection .progress-text em{color:#FECA57}
+/* Power bar */
+.power-bar{
+  width:100%;height:8px;
+  background:rgba(0,0,0,0.2);
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:8px;
+}
+.power-bar-fill{
+  height:100%;width:50%;
+  background:linear-gradient(90deg,var(--gold),var(--orange),var(--coral));
+  border-radius:4px;
+  animation:power-fill 1.5s ease-out;
+}
+@keyframes power-fill{from{width:0}}
+
+/* ═══════════════════════════════════════════════════
+   LOCKED + COLLECTION SECTION WRAPPERS
+   ═══════════════════════════════════════════════════ */
+.locked-section{
+  display:flex;align-items:center;gap:20px;
+  justify-content:center;
+  margin-bottom:40px;
+  padding:20px;
+  background:rgba(0,0,0,0.02);
+  border-radius:16px;
+}
+.locked-section .locked-info h4{
+  font-family:'Fredoka',sans-serif;font-size:16px;font-weight:600;
+}
+.locked-section .locked-info p{
+  font-size:13px;color:var(--text-soft);max-width:280px;
+}
+
+/* ═══════════════════════════════════════════════════
+   COMPARISON TABLE
+   ═══════════════════════════════════════════════════ */
+.comparison{
+  position:relative;z-index:1;
+  max-width:900px;margin:0 auto;
+  padding:40px 24px 80px;
+}
+.comparison .section-header{margin-bottom:32px}
+.comparison .concept-badge{
+  background:linear-gradient(135deg,var(--teal),var(--purple));
+  color:#fff;
+}
+table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  background:#fff;border-radius:16px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  overflow:hidden;
+  margin-bottom:32px;
+}
+th,td{padding:14px 16px;text-align:left;font-size:14px}
+thead th{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;
+  letter-spacing:0.5px;text-transform:uppercase;
+  border-bottom:2px solid #f0f0f0;
+}
+thead th:first-child{color:var(--text-soft)}
+thead th:nth-child(2){color:var(--coral)}
+thead th:nth-child(3){color:var(--blue)}
+thead th:nth-child(4){color:var(--purple)}
+tbody td{border-bottom:1px solid #f8f8f8}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{font-weight:700;color:var(--text)}
+.stars-cell{font-size:13px;letter-spacing:1px;white-space:nowrap}
+
+/* Recommendation callout */
+.rec-callout{
+  background:linear-gradient(135deg,#F8F0FF,#FFF0F5,#FFF8E8);
+  border:2px solid rgba(108,92,231,0.2);
+  border-radius:16px;
+  padding:24px 28px;
+  display:flex;gap:16px;align-items:flex-start;
+}
+.rec-icon{
+  font-size:36px;
+  flex-shrink:0;
+  animation:rec-bounce 2s ease-in-out infinite;
+}
+@keyframes rec-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.rec-callout h3{
+  font-family:'Fredoka',sans-serif;font-size:18px;font-weight:700;
+  margin-bottom:6px;
+}
+.rec-callout h3 em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--purple),var(--magenta));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.rec-callout p{font-size:14px;color:var(--text-soft);line-height:1.6}
+.rec-callout ul{
+  font-size:13px;color:var(--text-soft);
+  margin-top:8px;padding-left:18px;
+  line-height:1.8;
+}
+.rec-callout ul li::marker{color:var(--purple)}
+
+/* Footer */
+.footer{
+  text-align:center;padding:24px;
+  font-size:12px;color:var(--text-soft);
+  position:relative;z-index:1;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="header">
+  <div class="header-sparkles">
+    <span class="sparkle">✨</span>
+    <span class="sparkle">⭐</span>
+    <span class="sparkle">🌟</span>
+    <span class="sparkle">✨</span>
+    <span class="sparkle">💫</span>
+    <span class="sparkle">⭐</span>
+  </div>
+  <div class="header-badge">WriteWhiz · Design Sprint</div>
+  <h1>Badge Redesign<br><em>Kid-Friendly Edition</em></h1>
+  <p>Three concepts for badges kids will <strong>WANT</strong> to collect</p>
+</header>
+
+<!-- ════════════════ TABS ════════════════ -->
+<nav class="tabs">
+  <button class="tab active" data-tab="splats" onclick="switchTab('splats')">🎨 Ink Splats</button>
+  <button class="tab" data-tab="patches" onclick="switchTab('patches')">🧵 Story Patches</button>
+  <button class="tab" data-tab="cards" onclick="switchTab('cards')">🃏 Magic Cards <span class="rec">★ Rec.</span></button>
+</nav>
+
+<!-- ════════════════ CONCEPT 1: INK SPLATS ════════════════ -->
+<section class="section active" id="splats">
+  <div class="section-header">
+    <div class="concept-badge" style="background:linear-gradient(135deg,rgba(255,107,107,0.15),rgba(255,159,67,0.15));color:var(--coral)">Concept A</div>
+    <h2 style="color:var(--coral)">Ink Splat Stickers</h2>
+    <p class="philosophy">"Creativity literally exploded onto the page — chunky vinyl stickers you'll want to peel and collect."</p>
+  </div>
+
+  <div class="badge-row">
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--coral)">Common</div>
+      <div class="splat splat-common">
+        <span class="icon">✏️</span>
+      </div>
+      <div class="badge-name">Story Starter</div>
+      <div class="badge-desc">Complete your first lesson</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--orange)">Rare</div>
+      <div class="splat splat-rare">
+        <span class="icon">🔥</span>
+        <span class="sparkle-dots"></span>
+      </div>
+      <div class="badge-name">Week Warrior</div>
+      <div class="badge-desc">7-day writing streak</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--purple)">Epic</div>
+      <div class="splat splat-epic">
+        <span class="icon">🏆</span>
+        <span class="stars"></span>
+      </div>
+      <div class="badge-name">Writing Champion</div>
+      <div class="badge-desc">Complete 10 lessons</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:#D4A017">Legendary</div>
+      <div class="splat splat-legendary">
+        <span class="icon">🎓</span>
+        <span class="particles"></span>
+      </div>
+      <div class="badge-name">Curriculum Graduate</div>
+      <div class="badge-desc">Complete entire curriculum</div>
+    </div>
+  </div>
+
+  <div class="locked-section">
+    <div class="splat splat-locked"><span class="icon">?</span></div>
+    <div class="locked-info">
+      <h4>Undiscovered Sticker</h4>
+      <p>Keep writing to reveal this sticker! Hover to give it a shake.</p>
+    </div>
+  </div>
+
+  <div class="splat-collection">
+    <div class="collection-label"><span>Sticker Album</span></div>
+    <div class="washi-tape"><span>✦ Writing ✦</span></div>
+    <div class="mini-splats">
+      <div class="mini-splat earned-1" style="transform:rotate(-3deg)">✏️</div>
+      <div class="mini-splat earned-2" style="transform:rotate(2deg)">🔥</div>
+      <div class="mini-splat earned-3" style="transform:rotate(-1deg)">🏆</div>
+      <div class="mini-splat earned-4" style="transform:rotate(4deg)">📖</div>
+      <div class="mini-splat locked" style="transform:rotate(-2deg)">?</div>
+      <div class="mini-splat locked" style="transform:rotate(3deg)">?</div>
+      <div class="mini-splat locked" style="transform:rotate(-4deg)">?</div>
+      <div class="mini-splat locked" style="transform:rotate(1deg)">?</div>
+    </div>
+    <div class="progress-text"><em>4</em> of 8 stickers collected</div>
+  </div>
+</section>
+
+<!-- ════════════════ CONCEPT 2: STORY PATCHES ════════════════ -->
+<section class="section" id="patches">
+  <div class="section-header">
+    <div class="concept-badge" style="background:linear-gradient(135deg,rgba(59,125,216,0.15),rgba(78,205,196,0.15));color:var(--blue)">Concept B</div>
+    <h2 style="color:var(--blue)">Story Patches</h2>
+    <p class="philosophy">"Embroidered merit badges for writing — earn your patch, wear it with pride."</p>
+  </div>
+
+  <div class="badge-row">
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--blue)">Common</div>
+      <div class="patch patch-common">
+        <span class="icon">✏️</span>
+      </div>
+      <div class="badge-name">Story Starter</div>
+      <div class="badge-desc">Complete your first lesson</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:#E67E22">Rare</div>
+      <div class="patch patch-rare">
+        <span class="stitch"></span>
+        <span class="accent"></span>
+        <span class="icon">🔥</span>
+      </div>
+      <div class="badge-name">Week Warrior</div>
+      <div class="badge-desc">7-day writing streak</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--purple)">Epic</div>
+      <div class="patch patch-epic">
+        <span class="stitch"></span>
+        <span class="sequins"></span>
+        <span class="icon">🏆</span>
+        <span class="banner">Champion</span>
+      </div>
+      <div class="badge-name">Writing Champion</div>
+      <div class="badge-desc">Complete 10 lessons</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:#D4A017">Legendary</div>
+      <div class="patch patch-legendary">
+        <span class="stitch"></span>
+        <span class="inner-stitch"></span>
+        <span class="glow"></span>
+        <span class="icon">🎓</span>
+        <span class="banner">Legendary</span>
+      </div>
+      <div class="badge-name">Curriculum Graduate</div>
+      <div class="badge-desc">Complete entire curriculum</div>
+    </div>
+  </div>
+
+  <div class="locked-section">
+    <div class="patch-locked"><span class="icon">?</span></div>
+    <div class="locked-info">
+      <h4>Unstitched Patch</h4>
+      <p>This patch hasn't been embroidered yet. Keep writing to earn it!</p>
+    </div>
+  </div>
+
+  <div class="patch-collection">
+    <div class="collection-label"><span>Patch Sash</span></div>
+    <div class="stitch-label"><span>✦ Milestones ✦</span></div>
+    <div class="mini-patches">
+      <div class="mini-patch earned-1" style="transform:rotate(-2deg)">✏️</div>
+      <div class="mini-patch earned-2" style="transform:rotate(3deg)">🔥</div>
+      <div class="mini-patch earned-3" style="transform:rotate(-1deg)">🏆</div>
+      <div class="mini-patch locked" style="transform:rotate(2deg)">?</div>
+      <div class="mini-patch locked" style="transform:rotate(-3deg)">?</div>
+      <div class="mini-patch locked" style="transform:rotate(1deg)">?</div>
+    </div>
+    <div class="progress-text"><em>3</em> of 6 patches earned</div>
+  </div>
+</section>
+
+<!-- ════════════════ CONCEPT 3: MAGIC CARDS ════════════════ -->
+<section class="section" id="cards">
+  <div class="section-header">
+    <div class="concept-badge" style="background:linear-gradient(135deg,rgba(108,92,231,0.15),rgba(232,67,147,0.15));color:var(--purple)">Concept C · Recommended</div>
+    <h2 style="color:var(--purple)">Magic Cards</h2>
+    <p class="philosophy">"Collectible trading cards with writing-themed characters — channel the Pokémon card excitement!"</p>
+  </div>
+
+  <div class="badge-row" style="align-items:center">
+    <div class="badge-item">
+      <div class="rarity-label" style="color:#999">Common</div>
+      <div class="card card-common">
+        <div class="card-inner">
+          <div class="card-illust">✏️</div>
+          <div class="card-body">
+            <div class="char-name">Scribble Sprite</div>
+            <div class="stars">⭐</div>
+            <div class="flavor">Every great story begins with a single word.</div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-name" style="margin-top:12px">Story Starter</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--blue)">Rare</div>
+      <div class="card card-rare">
+        <div class="card-inner">
+          <div class="card-illust">🔥</div>
+          <div class="card-body">
+            <div class="char-name">Ember Fox</div>
+            <div class="stars">⭐⭐</div>
+            <div class="flavor">A blazing trail of stories left behind.</div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-name" style="margin-top:12px">Week Warrior</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:var(--purple)">Epic</div>
+      <div class="card card-epic">
+        <div class="epic-banner">Champion</div>
+        <div class="card-inner">
+          <div class="card-illust">⚡</div>
+          <div class="card-body">
+            <div class="char-name">Storm Gryphon</div>
+            <div class="stars">⭐⭐⭐</div>
+            <div class="flavor">Words strike like lightning — powerful and precise.</div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-name" style="margin-top:12px">Writing Champion</div>
+    </div>
+    <div class="badge-item">
+      <div class="rarity-label" style="color:#D4A017">Legendary</div>
+      <div class="card card-legendary">
+        <div class="card-glow"></div>
+        <div class="float-letters">
+          <span>A</span><span>W</span><span>✦</span><span>Z</span>
+        </div>
+        <div class="card-inner">
+          <div class="card-illust">🎓</div>
+          <div class="card-body">
+            <div class="char-name">Story Phoenix</div>
+            <div class="stars">⭐⭐⭐⭐</div>
+            <div class="flavor">From ashes of drafts, a masterpiece rises.</div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-name" style="margin-top:12px">Curriculum Graduate</div>
+    </div>
+  </div>
+
+  <div class="locked-section">
+    <div class="card-locked" data-rarity="epic">
+      <div class="card-locked-inner">
+        <div class="q">?</div>
+      </div>
+    </div>
+    <div class="locked-info">
+      <h4>Undiscovered Card</h4>
+      <p>This card is face-down! Hover to peek — but you'll need to earn it to see the full art.</p>
+    </div>
+  </div>
+
+  <div class="card-collection">
+    <div class="collection-label"><span>Card Binder</span></div>
+    <div class="mini-cards">
+      <div class="mini-card earned">✏️</div>
+      <div class="mini-card earned">🔥</div>
+      <div class="mini-card earned">⚡</div>
+      <div class="mini-card face-down">?</div>
+      <div class="mini-card earned">📖</div>
+      <div class="mini-card face-down">?</div>
+      <div class="mini-card face-down">?</div>
+      <div class="mini-card earned">🌟</div>
+    </div>
+    <div class="progress-text">Collection Power: <em>5</em> / 8</div>
+    <div class="power-bar"><div class="power-bar-fill" style="width:62.5%"></div></div>
+  </div>
+</section>
+
+<!-- ════════════════ COMPARISON ════════════════ -->
+<section class="comparison">
+  <div class="section-header">
+    <div class="concept-badge" style="background:linear-gradient(135deg,rgba(78,205,196,0.15),rgba(108,92,231,0.15));color:var(--teal)">Evaluation</div>
+    <h2>Concept Comparison</h2>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Criteria</th>
+        <th>🎨 Ink Splats</th>
+        <th>🧵 Story Patches</th>
+        <th>🃏 Magic Cards</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Kid Excitement</td>
+        <td class="stars-cell">⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td>Collectibility</td>
+        <td class="stars-cell">⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td>Age Range (7–15)</td>
+        <td class="stars-cell">⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td>Writing Connection</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td>Rarity Drama</td>
+        <td class="stars-cell">⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐</td>
+        <td class="stars-cell">⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td>Implementation</td>
+        <td class="stars-cell">Easy</td>
+        <td class="stars-cell">Medium</td>
+        <td class="stars-cell">Medium</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="rec-callout">
+    <div class="rec-icon">🃏</div>
+    <div>
+      <h3>Recommended: <em>Magic Cards</em></h3>
+      <p>Trading cards are the most proven collectible format for kids ages 7–15. The holographic borders and character art create real "show your friend" moments.</p>
+      <ul>
+        <li>Pokémon-style rarity tiers kids already understand</li>
+        <li>Characters personify writing concepts (Scribble Sprite = first idea, Story Phoenix = mastery)</li>
+        <li>Face-down locked cards create "unboxing" anticipation</li>
+        <li>Card flip reveal = most exciting unlock animation</li>
+        <li>Holographic border effects on Epic/Legendary are genuinely "WHOA"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  WriteWhiz · Badge Redesign Sprint · March 2026
+</footer>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>

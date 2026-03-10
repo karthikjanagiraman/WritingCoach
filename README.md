@@ -1,8 +1,8 @@
-# WriteWise Kids
+# WriteWhiz
 
 **AI-powered creative writing coach for children ages 7-15.**
 
-WriteWise Kids teaches writing through an evidence-based three-phase pedagogical model — Instruction, Guided Practice, and Assessment — with real-time AI coaching powered by Claude. The platform delivers personalized curricula, adaptive difficulty, skill tracking, and detailed parent progress reports.
+WriteWhiz teaches writing through an evidence-based three-phase pedagogical model — Instruction, Guided Practice, and Assessment — with real-time AI coaching powered by Claude. The platform delivers personalized curricula, adaptive difficulty, skill tracking, and detailed parent progress reports.
 
 ## Table of Contents
 

@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const fromAddress =
       process.env.RESEND_FROM_EMAIL ??
-      "WriteWise Kids <onboarding@resend.dev>";
+      "WriteWhiz <onboarding@resend.dev>";
 
     await resend.emails.send({
       from: fromAddress,
