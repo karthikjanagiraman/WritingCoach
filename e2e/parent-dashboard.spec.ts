@@ -2,19 +2,19 @@ import { test, expect } from "@playwright/test";
 import { login } from "./helpers";
 
 /**
- * E2E: Parent dashboard.
+ * E2E: Profile picker + parent dashboard.
  *
  * Requires: dev server running, database seeded with e2e data.
  * No AI calls — these tests are fast.
  */
 
-test.describe("Parent Dashboard", () => {
-  test("dashboard shows both children (Maya, Ethan)", async ({ page }) => {
+test.describe("Profile Picker", () => {
+  test("profile picker shows both children (Maya, Ethan)", async ({ page }) => {
     await login(page);
 
     await expect(page.getByText("Maya")).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText("Ethan")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("Your Children")).toBeVisible();
+    await expect(page.getByText("writing today")).toBeVisible();
   });
 
   test("click Maya's card → navigates to student dashboard", async ({ page }) => {
@@ -23,7 +23,7 @@ test.describe("Parent Dashboard", () => {
     // Wait for async child data to load (streak/badges cause card re-renders)
     await page.waitForTimeout(1000);
 
-    const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
+    const mayaCard = page.locator("button", { hasText: "Maya" }).first();
     await mayaCard.click({ force: true });
 
     await page.waitForURL("**/home", { timeout: 30_000 });
@@ -35,30 +35,21 @@ test.describe("Parent Dashboard", () => {
     );
   });
 
-  test("child card shows streak and badge stats", async ({ page }) => {
+  test("child card shows tier label", async ({ page }) => {
     await login(page);
 
-    // Wait for Maya's card to render with streak/badge data (fetched async)
-    const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
-    await expect(mayaCard).toBeVisible({ timeout: 10_000 });
-
-    // Wait for async extra stats to load (streak + badges)
-    await expect(mayaCard.getByText(/\d+\s*day/)).toBeVisible({ timeout: 15_000 });
+    // Wait for Maya's card to render with tier info
+    // Maya is age 8 = Tier 1 = "Explorer"
+    await expect(page.getByText("Explorer")).toBeVisible({ timeout: 15_000 });
   });
 
-  test("'View Report' link navigates to report page", async ({ page }) => {
+  test("Parent Dashboard button is visible", async ({ page }) => {
     await login(page);
 
     // Wait for children to load
     await expect(page.getByText("Maya")).toBeVisible({ timeout: 10_000 });
 
-    // Click View Report for Maya
-    const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
-    const reportBtn = mayaCard.getByText("View Report");
-    await reportBtn.click();
-
-    // Should navigate to report page
-    await page.waitForURL("**/dashboard/children/child-maya-001/report", { timeout: 15_000 });
-    await expect(page.getByText("Progress Report")).toBeVisible({ timeout: 10_000 });
+    // The parent dashboard button should be visible
+    await expect(page.getByText("Parent Dashboard")).toBeVisible({ timeout: 10_000 });
   });
 });

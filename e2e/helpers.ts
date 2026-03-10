@@ -13,7 +13,7 @@ export async function login(page: Page) {
     page.waitForURL("**/dashboard", { timeout: 30_000 }),
     page.click('button[type="submit"]'),
   ]);
-  await expect(page.getByText("Welcome back")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("writing today")).toBeVisible({ timeout: 15_000 });
 }
 
 /**
@@ -26,7 +26,7 @@ export async function loginAndSelectMaya(page: Page) {
   await page.waitForTimeout(1000);
 
   // Click Maya's card — sets activeChild in React context + localStorage
-  const mayaCard = page.locator("div.cursor-pointer", { hasText: "Maya" }).first();
+  const mayaCard = page.locator("button", { hasText: "Maya" }).first();
   await mayaCard.click({ force: true });
 
   // Wait for student dashboard (child view lives at /home; first load may need compilation)

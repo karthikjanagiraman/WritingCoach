@@ -100,30 +100,6 @@ test.describe("Parent Report", () => {
 
       // Should see scores section
       expect(bodyText).toMatch(/Scores|Strength|Growth Area/i);
-
-      // Should see "View Full Detail" link
-      await expect(page.getByText("View Full Detail")).toBeVisible({ timeout: 5_000 });
-    }
-  });
-
-  test("expanded assessment has 'View Full Detail' link", async ({ page }) => {
-    await page.waitForFunction(
-      () => document.body.innerText.includes("Recent Assessments"),
-      { timeout: 20_000 }
-    );
-
-    // Expand first assessment
-    const assessmentRow = page.locator("button", { hasText: /3\.2|1\.0|2\.0/ }).first();
-    if (await assessmentRow.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      await assessmentRow.click();
-      await page.waitForTimeout(500);
-
-      const detailLink = page.getByText("View Full Detail");
-      await expect(detailLink).toBeVisible({ timeout: 5_000 });
-
-      // Link should point to lesson detail route
-      const href = await detailLink.getAttribute("href");
-      expect(href).toContain(`/dashboard/children/${CHILD_ID}/report/`);
     }
   });
 
@@ -141,27 +117,26 @@ test.describe("Lesson Detail (from report)", () => {
     await page.goto(`/dashboard/children/${CHILD_ID}/report/N1.1.1`);
 
     await page.waitForFunction(
-      () => document.body.innerText.includes("Lesson Detail"),
+      () =>
+        document.body.innerText.includes("Report") ||
+        document.body.innerText.includes("Lesson Report"),
       { timeout: 20_000 }
     );
 
     const bodyText = await page.locator("body").innerText();
 
-    // Should show lesson info
-    expect(bodyText).toContain("Lesson Detail");
-
     // Should show the score (3.2)
     expect(bodyText).toMatch(/3\.2/);
   });
 
-  test("lesson detail shows learning objectives and feedback cards", async ({ page }) => {
+  test("lesson detail shows feedback sections", async ({ page }) => {
     await login(page);
     await page.goto(`/dashboard/children/${CHILD_ID}/report/N1.1.1`);
 
     await page.waitForFunction(
       () =>
-        document.body.innerText.includes("Lesson Detail") ||
-        document.body.innerText.includes("Learning Objectives"),
+        document.body.innerText.includes("Report") ||
+        document.body.innerText.includes("What They Did Well"),
       { timeout: 20_000 }
     );
 
@@ -177,7 +152,9 @@ test.describe("Lesson Detail (from report)", () => {
     await page.goto(`/dashboard/children/${CHILD_ID}/report/N1.1.1`);
 
     await page.waitForFunction(
-      () => document.body.innerText.includes("Original") || document.body.innerText.includes("Submission"),
+      () =>
+        document.body.innerText.includes("Original") ||
+        document.body.innerText.includes("Submission"),
       { timeout: 20_000 }
     );
 

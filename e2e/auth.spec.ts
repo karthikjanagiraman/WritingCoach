@@ -16,7 +16,7 @@ test.describe("Authentication", () => {
     await page.click('button[type="submit"]');
 
     await page.waitForURL("**/dashboard", { timeout: 15_000 });
-    await expect(page.getByText("Welcome back")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("writing today")).toBeVisible({ timeout: 10_000 });
   });
 
   test("login with wrong password → shows error", async ({ page }) => {
