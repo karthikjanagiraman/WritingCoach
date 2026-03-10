@@ -63,20 +63,20 @@ body.tier-3 {
 
 @layer base {
   body {
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-nunito), "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
     color: #2D3436;
   }
 
   body.tier-2 {
-    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-dm-sans), "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   body.tier-3 {
-    font-family: "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-sora), "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   .writing-area {
-    font-family: "Literata", Georgia, serif;
+    font-family: var(--font-literata), "Literata", Georgia, serif;
   }
 }
 

@@ -8,11 +8,59 @@ import Image from "next/image";
 import styles from "./landing.module.css";
 import PricingTable from "@/components/PricingTable";
 import WriteWhizLogo from "@/components/WriteWhizLogo";
+import {
+  SoftwareApplicationJsonLd,
+  FAQPageJsonLd,
+} from "@/components/JsonLd";
+
+const FAQ_DATA = [
+  {
+    question: "What age group is WriteWhiz designed for?",
+    answer:
+      "WriteWhiz is designed for children ages 7\u201315. Our AI coach automatically adapts lessons across three skill tiers: Foundational (ages 7\u20139), Developing (ages 10\u201312), and Advanced (ages 13\u201315). Each tier adjusts vocabulary, prompt complexity, and writing expectations to match your child\u2019s developmental level.",
+  },
+  {
+    question: "How does the AI writing coach work?",
+    answer:
+      "WriteWhiz uses a proven three-phase teaching method: Learn (the AI coach teaches a concept with fun examples), Practice Together (guided exercises with smart hints \u2014 never giving away answers), and Write (independent writing time where the coach steps back). After each lesson, your child receives personalized feedback that celebrates their strengths and highlights one area to improve.",
+  },
+  {
+    question: "What types of writing will my child learn?",
+    answer:
+      "Your child will develop skills across four core writing types: Narrative (creative storytelling), Persuasive (opinion and argument writing), Expository (informational writing), and Descriptive (sensory-rich detail writing). Each type has multiple units with progressive lessons, building skills over 100+ total lessons.",
+  },
+  {
+    question: "How can I track my child\u2019s writing progress?",
+    answer:
+      "Parents have a dedicated dashboard showing skill progress across all four writing types, a visual activity heatmap, writing streaks, earned badges, and every piece of writing with AI-annotated feedback. You can also export progress reports as CSV files and adjust your child\u2019s curriculum to focus on specific areas.",
+  },
+  {
+    question: "Is there a free trial?",
+    answer:
+      "Yes! WriteWhiz offers a 7-day free trial with a full placement assessment and 2 complete writing lessons \u2014 no credit card required. You\u2019ll see real progress before making any commitment.",
+  },
+  {
+    question: "Does the AI ever write for my child?",
+    answer:
+      "Never. WriteWhiz\u2019s AI coach is specifically designed to teach, guide, and encourage \u2014 but never to write or complete your child\u2019s work. During the assessment phase, the AI steps back entirely so your child writes independently. All feedback quotes your child\u2019s own writing to reinforce their unique voice.",
+  },
+  {
+    question: "How is WriteWhiz different from ChatGPT?",
+    answer:
+      "Unlike general-purpose AI tools, WriteWhiz is built specifically for teaching writing. It follows a structured pedagogical framework (I Do, We Do, You Do), uses age-appropriate rubrics for scoring, tracks skill progression over time, and never writes for your child. It\u2019s a coach, not a ghostwriter.",
+  },
+  {
+    question: "Can I add multiple children to one account?",
+    answer:
+      "Yes! One parent account can manage multiple children, each with their own placement assessment, personalized curriculum, skill tracking, badges, and progress reports. Each child\u2019s experience is independently tailored to their age and writing level.",
+  },
+];
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -219,6 +267,14 @@ export default function LandingPage() {
                 onClick={(e) => handleAnchorClick(e, "#parents")}
               >
                 For Parents
+              </a>
+            </li>
+            <li>
+              <a
+                href="#faq"
+                onClick={(e) => handleAnchorClick(e, "#faq")}
+              >
+                FAQ
               </a>
             </li>
             <li>
@@ -1030,6 +1086,59 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ===== FAQ ===== */}
+      <section className={styles.faqSection} id="faq">
+        <div className={styles.container}>
+          <div
+            className={`${styles.sectionHeader} ${styles.animateOnScroll}`}
+          >
+            <span className={styles.sectionLabel}>FAQ</span>
+            <h2 className={styles.sectionTitle}>
+              Common questions from parents
+            </h2>
+          </div>
+          <div className={styles.faqList}>
+            {FAQ_DATA.map((faq, i) => (
+              <div
+                key={i}
+                className={`${styles.faqItem}${openFaq === i ? ` ${styles.faqItemOpen}` : ""}`}
+              >
+                <button
+                  className={styles.faqQuestion}
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
+                >
+                  <span>{faq.question}</span>
+                  <svg
+                    className={styles.faqChevron}
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M5 7.5L10 12.5L15 7.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <div className={styles.faqAnswer}>
+                  <p>{faq.answer}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Structured Data */}
+      <SoftwareApplicationJsonLd />
+      <FAQPageJsonLd faqs={FAQ_DATA} />
+
       {/* ===== FINAL CTA ===== */}
       <section className={styles.finalCta} id="cta">
         {/* Final CTA ink blobs */}
@@ -1094,16 +1203,16 @@ export default function LandingPage() {
           </div>
           <ul className={styles.footerLinks}>
             <li>
-              <a href="#">About</a>
+              <a href="mailto:hello@writewhiz.com">About</a>
             </li>
             <li>
-              <a href="#">Privacy</a>
+              <Link href="/privacy">Privacy</Link>
             </li>
             <li>
-              <a href="#">Terms</a>
+              <Link href="/terms">Terms</Link>
             </li>
             <li>
-              <a href="#">Contact</a>
+              <a href="mailto:support@writewhiz.com">Contact</a>
             </li>
             <li>
               <Link href="/pricing">Pricing</Link>
