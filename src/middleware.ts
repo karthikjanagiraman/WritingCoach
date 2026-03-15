@@ -12,6 +12,7 @@ export const config = {
     "/curriculum/:path*",
     "/portfolio/:path*",
     "/badges/:path*",
+    "/monitor/:path*",
     "/api/((?!auth|webhooks).*)",
   ],
 };

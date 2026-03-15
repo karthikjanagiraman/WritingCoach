@@ -36,6 +36,20 @@ async function main() {
   });
   console.log(`Created subscription for ${parent.name}`);
 
+  // Create admin user for monitoring dashboard
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@writewhiz.com" },
+    update: {},
+    create: {
+      id: "admin-001",
+      email: "admin@writewhiz.com",
+      passwordHash: await bcryptjs.hash("admin123", 12),
+      name: "Admin",
+      role: "ADMIN",
+    },
+  });
+  console.log(`Created admin: ${admin.name} (${admin.id})`);
+
   // Create child profile: Maya, age 8, Tier 1
   const maya = await prisma.childProfile.upsert({
     where: { id: "child-maya-001" },
